@@ -16,7 +16,7 @@
         "livewire/volt": "^1.6",
         "lorisleiva/laravel-actions": "^v2.9.0",
         "phpseclib/phpseclib": "^3.0",
-        "predis/predis": "^2.2",
+        "predis/predis": "^3.2",
         "spatie/laravel-activitylog": "*",
         "spatie/laravel-one-time-passwords": "*",
         "spatie/ssh": "^1.12",
