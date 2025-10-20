@@ -1,0 +1,68 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+# Reglas Principales - Unblock Firewall
+
+Este proyecto es un sistema de gestión de firewall para servicios de hosting con las siguientes características:
+- Gestión de usuarios (algunos con un único dominio, otros con múltiples)
+- Gestión de revendedores con múltiples dominios
+- Gestión de VPS administrados
+- Interfaz simplificada para usuarios con bajo nivel técnico
+
+## Estándares Generales
+
+Para este proyecto, debes seguir los siguientes estándares:
+
+1. **Patrón de Arquitectura**: Seguir la arquitectura Laravel estándar con Actions para lógica de negocio compleja.
+2. **Seguridad**: Priorizar la validación y sanitización de entradas, especialmente IPs y comandos.
+3. **Interfaces**: Mantener interfaces simples y claras, considerando usuarios con bajo nivel técnico.
+4. **Mensajes de Error**: Usar mensajes descriptivos y fáciles de entender.
+5. **Internacionalización**: Todo texto visible debe usar sistema de traducciones (```__()```) para soporte de español e inglés.
+6. **Código en inglés**: Todo el código debe escribirse en inglés, incluyendo nombres de clases, modelos, variables, métodos, traits, mensajes de error, comentarios y docblocks. Solo los textos visibles para el usuario final deben usar el sistema de traducciones.
+7. **Path de trabajo**: No trabajar fuera del path del proyecto, salvo indicación expresa.
+8. **Version de Laravel**: Laravel 12. Prestar atención a esto pues hay cambios significativos con la versión.
+9. **Gestor de paquetes**: SOLO usar **pnpm**, NUNCA npm. Esto evita conflictos entre gestores de paquetes diferentes.
+10. **Laravel Herd**: El proyecto usa Laravel Herd. El sitio está disponible en el dominio configurado (usar `config('app.url')` para obtenerlo). No usar `php artisan serve`.
+11. **Flujo de Trabajo**: Seguir estrictamente el proceso de desarrollo definido en @workflow.mdc.
+
+## Estándares de Código PHP
+
+12. **Trailing Commas**: Usar coma final en arrays y listas multi-línea para facilitar diffs y mantenimiento:
+    ```php
+    // ✅ Correcto
+    $array = [
+        'item1',
+        'item2',
+        'item3', // Trailing comma
+    ];
+
+    // ❌ Incorrecto
+    $array = [
+        'item1',
+        'item2',
+        'item3'
+    ];
+    ```
+
+13. **Curly Braces en Variables**: Evitar llaves innecesarias en interpolación de strings simples:
+    ```php
+    // ✅ Correcto
+    "Hello $name"
+
+    // ❌ Innecesario (pero no incorrecto)
+    "Hello {$name}"
+    ```
+
+14. **Uso de Eloquent**: Priorizar Eloquent sobre DB::table() para consistencia y mantenibilidad:
+    - Usar relaciones Eloquent para tablas pivot
+    - Usar attach/detach/sync para relaciones many-to-many
+    - Reservar DB::table() solo para consultas muy específicas o de rendimiento crítico
+
+## Referencias a Otras Reglas
+
+Este archivo no hace referencia a otras reglas específicas.
+
+Para reglas opor favoir usese las .cursor/rules
+

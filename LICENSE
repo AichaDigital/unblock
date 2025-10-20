@@ -1,0 +1,82 @@
+GNU AFFERO GENERAL PUBLIC LICENSE
+Version 3, 19 November 2007
+
+Copyright (C) 2025 Unblock Firewall Manager Contributors
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as published
+by the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ADDITIONAL TERMS UNDER AGPL v3 SECTION 7:
+
+1. ATTRIBUTION REQUIREMENT:
+   All forks, modifications, or derivative works MUST provide clear
+   attribution to the original "Unblock Firewall Manager" project with
+   a link to: https://github.com/AichaDigital/unblock
+
+2. NETWORK USE DISCLOSURE:
+   If you run a modified version of this software as a network service
+   (including SaaS, hosting, or any web-based service), you MUST make
+   the complete source code of your modified version available to all
+   users of that service.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📖 FULL LICENSE TEXT / TEXTO COMPLETO DE LA LICENCIA:
+
+English: https://www.gnu.org/licenses/agpl-3.0.html
+Español: https://www.gnu.org/licenses/agpl-3.0.es.html
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔍 WHAT THIS MEANS / QUÉ SIGNIFICA ESTO:
+
+✅ You CAN / PUEDES:
+   - Use this software for any purpose
+   - Study how it works and modify it
+   - Distribute copies
+   - Improve the program and share improvements
+
+   - Usar este software para cualquier propósito
+   - Estudiar cómo funciona y modificarlo
+   - Distribuir copias
+   - Mejorar el programa y compartir las mejoras
+
+❌ You CANNOT / NO PUEDES:
+   - Create closed-source commercial products based on this code
+   - Run it as a service without sharing your modifications
+   - Remove attribution or license notices
+
+   - Crear productos comerciales de código cerrado basados en este código
+   - Ejecutarlo como servicio sin compartir tus modificaciones
+   - Eliminar la atribución o avisos de licencia
+
+📋 You MUST / DEBES:
+   - Keep this license in all copies
+   - Share source code of any modifications
+   - Provide attribution to original project
+   - Share code if running as network service
+
+   - Mantener esta licencia en todas las copias
+   - Compartir el código fuente de cualquier modificación
+   - Proporcionar atribución al proyecto original
+   - Compartir código si se ejecuta como servicio de red
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+For the complete legal text of the GNU Affero General Public License v3.0,
+see the links above or the COPYING file in this repository.
+
+Para el texto legal completo de la Licencia Pública General Affero de GNU v3.0,
+consulte los enlaces anteriores o el archivo COPYING en este repositorio.

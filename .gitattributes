@@ -1,0 +1,83 @@
+# Auto detect text files and normalize line endings to LF
+* text=auto eol=lf
+
+# PHP files
+*.php text eol=lf
+
+# JavaScript files
+*.js text eol=lf
+*.ts text eol=lf
+*.json text eol=lf
+
+# CSS files
+*.css text eol=lf
+*.scss text eol=lf
+
+# HTML/Template files
+*.html text eol=lf
+*.blade.php text eol=lf
+
+# Configuration files
+*.yml text eol=lf
+*.yaml text eol=lf
+*.xml text eol=lf
+*.ini text eol=lf
+*.toml text eol=lf
+.env.example text eol=lf
+.editorconfig text eol=lf
+.gitignore text eol=lf
+.gitattributes text eol=lf
+
+# Documentation files
+*.md text eol=lf
+*.txt text eol=lf
+LICENSE text eol=lf
+README* text eol=lf
+
+# Shell scripts
+*.sh text eol=lf
+
+# Binary files (mark as binary to avoid line ending conversion)
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.svg binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary
+*.pdf binary
+*.zip binary
+*.tar binary
+*.gz binary
+
+# SQLite databases
+*.sqlite binary
+*.db binary
+
+# Archives created by composer
+composer.lock linguist-generated=false
+
+# Mark vendor directories as vendored (excluded from language statistics)
+vendor/** linguist-vendored
+node_modules/** linguist-vendored
+
+# Mark documentation
+docs/** linguist-documentation
+
+# Mark test files
+tests/** linguist-detectable=true
+
+# Mark generated files
+public/build/** linguist-generated
+public/js/** linguist-generated
+public/css/** linguist-generated
+storage/** linguist-generated
+bootstrap/cache/** linguist-generated
+
+# Git merge strategy for composer files
+composer.lock merge=binary
+package-lock.json merge=binary
+pnpm-lock.yaml merge=binary

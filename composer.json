@@ -1,0 +1,156 @@
+{
+    "name": "laravel/laravel",
+    "type": "project",
+    "description": "The skeleton application for the Laravel framework.",
+    "keywords": ["laravel", "framework"],
+    "license": "MIT",
+    "require": {
+        "php": "^8.2",
+        "danharrin/livewire-rate-limiting": "^2.0",
+        "filament/filament": "^3.2",
+        "graham-campbell/throttle": "^11",
+        "laravel/framework": "^12.0",
+        "laravel/prompts": "^0.3.5",
+        "laravel/tinker": "^2.9",
+        "livewire/livewire": "^3.4",
+        "livewire/volt": "^1.6",
+        "lorisleiva/laravel-actions": "^v2.9.0",
+        "phpseclib/phpseclib": "^3.0",
+        "predis/predis": "^2.2",
+        "spatie/laravel-activitylog": "*",
+        "spatie/laravel-one-time-passwords": "*",
+        "spatie/ssh": "^1.12",
+        "symfony/mailer": "~7.2.0",
+        "valentin-morice/filament-json-column": "^1.5",
+        "wireui/wireui": "^2.2"
+    },
+    "require-dev": {
+        "barryvdh/laravel-debugbar": "^3.15",
+        "fakerphp/faker": "^1.23",
+        "laravel/boost": "^1.1",
+        "laravel/breeze": "^2.2",
+        "laravel/pint": "^1.13",
+        "laravel/sail": "^1.26",
+        "mockery/mockery": "^1.6",
+        "nunomaduro/collision": "^8.0",
+        "pestphp/pest": "^4.0",
+        "pestphp/pest-plugin-browser": "^4.0",
+        "pestphp/pest-plugin-laravel": "^4.0",
+        "pestphp/pest-plugin-livewire": "^4.0",
+        "phpstan/phpstan": "^2.1",
+        "larastan/larastan": "^3.6"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/",
+            "Database\\Factories\\": "database/factories/",
+            "Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "post-autoload-dump": [
+            "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
+            "@php artisan package:discover --ansi",
+            "@php artisan filament:upgrade"
+        ],
+        "post-update-cmd": [
+            "@php artisan vendor:publish --tag=laravel-assets --ansi --force",
+            "@php artisan vendor:publish --tag=livewire:assets --ansi --force",
+            "npm ci || echo 'npm not available, skipping frontend build'",
+            "npm run build || echo 'npm not available, skipping frontend build'"
+        ],
+        "post-root-package-install": [
+            "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
+        ],
+        "post-create-project-cmd": [
+            "@php artisan key:generate --ansi",
+            "@php -r \"file_exists('database/database.sqlite') || touch('database/database.sqlite');\"",
+            "@php artisan migrate --graceful --ansi"
+        ],
+        "pint": [
+            "./vendor/bin/pint"
+        ],
+        "pint-test": [
+            "./vendor/bin/pint --test"
+        ],
+        "phpstan": [
+            "./vendor/bin/phpstan analyse --memory-limit=1G"
+        ],
+        "phpstan-baseline": [
+            "./vendor/bin/phpstan analyse --memory-limit=1G --generate-baseline"
+        ],
+        "syntax-check": [
+            "bash ./scripts/check-syntax.sh"
+        ],
+        "test": [
+            "@php artisan config:clear --ansi",
+            "@php artisan test"
+        ],
+        "test-coverage": [
+            "@php artisan config:clear --ansi",
+            "php artisan test --coverage"
+        ],
+        "test-coverage-report": [
+            "@php artisan config:clear --ansi",
+            "php artisan test --coverage"
+        ],
+        "test-ci": [
+            "@php artisan config:clear --ansi",
+            "@php artisan test --exclude-group=rabbitmq --exclude-group=integration --exclude-group=local"
+        ],
+        "test-ci-parallel": [
+            "@php artisan config:clear --ansi",
+            "@php artisan test --parallel --processes=2 --exclude-group=rabbitmq --exclude-group=integration --exclude-group=local --stop-on-failure"
+        ],
+        "test-local": [
+            "@php artisan config:clear --ansi",
+            "@php artisan test"
+        ],
+        "check": [
+            "@syntax-check",
+            "@pint-test",
+            "@phpstan",
+            "@test"
+        ],
+        "check-full": [
+            "@syntax-check",
+            "@pint-test",
+            "@phpstan",
+            "@test-coverage"
+        ],
+        "lint": "vendor/bin/pint",
+        "analyse": [
+            "@lint",
+            "@phpstan"
+        ],
+        "test:coverage": "vendor/bin/pest --coverage-clover=build/logs/clover.xml",
+        "coverage:check": "php scripts/coverage-check.php 85 build/logs/clover.xml",
+        "security:audit": "composer audit --format=json",
+        "pre-commit": [
+            "@syntax-check",
+            "@pint",
+            "@test-local"
+        ]
+    },
+    "extra": {
+        "laravel": {
+            "dont-discover": []
+        }
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true,
+            "php-http/discovery": true
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

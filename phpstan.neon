@@ -1,0 +1,56 @@
+includes:
+    - ./vendor/larastan/larastan/extension.neon
+
+parameters:
+    level: 5
+    paths:
+        - app/Actions
+        - app/Services/Firewall
+        - app/Services/Firewall/V2
+        - app/Jobs/SendReportNotificationJob.php
+
+    # Exclude problematic directories
+    excludePaths:
+        - bootstrap/cache
+        - storage/*
+        - node_modules/*
+        - app/Console
+        - app/Filament
+        - app/Http
+        - app/Traits
+        - app/Mail
+        - app/Notifications
+        - app/Providers
+        - app/Jobs/*
+
+    # Basic strict rules that are supported
+    checkMissingCallableSignature: true
+    checkUninitializedProperties: true
+    checkDynamicProperties: true
+    reportUnmatchedIgnoredErrors: false
+    treatPhpDocTypesAsCertain: false
+
+    # Laravel specific
+    noUnnecessaryCollectionCall: true
+    noUnnecessaryCollectionCallOnly: []
+    noUnnecessaryCollectionCallExcept: []
+
+    # Type coverage
+    typeAliases:
+        UserId: 'string'
+        SiteId: 'string'
+        NodeId: 'string'
+        QueueName: 'string'
+        RegionCode: 'string'
+
+    # Ignore patterns (minimize these over time)
+    ignoreErrors:
+        # Ray debug calls (development only)
+        - '#Call to function ray\(\) on a separate line has no effect\.#'
+
+        # Temporary ignores for migration period
+        - '#Access to an undefined property App\\Models\\[^:]+::\$[^.]+\.#'
+        - '#Strict comparison using === between true and true will always evaluate to true\.#'
+
+    # Cache for faster analysis
+    tmpDir: storage/phpstan%
