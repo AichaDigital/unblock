@@ -23,7 +23,7 @@ If you discover a security vulnerability in Unblock, please report it privately 
    - Fill in the details
 
 2. **Email** (Alternative):
-   - Send details to: [security@yourcompany.com] <!-- Update with your actual security email -->
+   - Send details to: abdelkarim@aichadigital.es
    - Include "SECURITY - Unblock" in the subject line
 
 ### What to Include
