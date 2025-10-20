@@ -1,0 +1,17 @@
+# Ignore all SQLite files (they are generated, never commit them)
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+*.sqlite-journal
+
+# Ignore test databases
+*_test_*
+
+# Ignore backups
+backup/
+
+# Ignore sql_prompts (internal dev files)
+sql_prompts/
+
+# Ignore remote database files
+remote_database/
