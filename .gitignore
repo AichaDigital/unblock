@@ -29,7 +29,6 @@ yarn-error.log
 /.zed
 composer.lock
 remote_database/
-*.sh
 .DS_Store
 /var/phpstan
 /storage/phpstan%
@@ -40,3 +39,7 @@ database/database.sqlite
 docs/BUG_ANALYSIS*.md
 docs/CURRENT_*.md
 docs/*_INTERNAL*.md
+
+# Shell scripts (ignore all except scripts/)
+*.sh
+!scripts/*.sh
