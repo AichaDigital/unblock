@@ -20,7 +20,7 @@
         "spatie/laravel-activitylog": "*",
         "spatie/laravel-one-time-passwords": "*",
         "spatie/ssh": "^1.12",
-        "symfony/mailer": "~7.2.0",
+        "symfony/mailer": "~7.3.4",
         "valentin-morice/filament-json-column": "^1.5",
         "wireui/wireui": "^2.2"
     },
