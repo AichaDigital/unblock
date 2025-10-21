@@ -21,6 +21,7 @@
 - **📊 Detailed Reports**: Comprehensive firewall logs with explanations
 - **🔒 Security First**: All actions logged, IP validation, SSH key management
 - **🌐 Internationalization**: Full support for English and Spanish
+- **⚡ Simple Mode**: Anonymous IP unblocking for tightly-coupled hosting environments (no authentication required)
 
 ## 📋 Requirements
 
@@ -151,6 +152,36 @@ Allow clients to grant access to specific domains without sharing their account:
 2. Assign specific domain(s) or server(s)
 3. Authorized user receives OTP login access
 4. Can only see/manage assigned resources
+
+### Simple Unblock Mode (No Authentication)
+
+For hosting providers with tightly-coupled client relationships, enable anonymous IP unblocking:
+
+```env
+# Enable simple mode
+UNBLOCK_SIMPLE_MODE=true
+
+# Configure throttling (requests per minute)
+UNBLOCK_SIMPLE_THROTTLE_PER_MINUTE=3
+
+# Block duration after exceeding rate limit (minutes)
+UNBLOCK_SIMPLE_BLOCK_DURATION=15
+```
+
+**Features:**
+- No authentication required
+- User provides: IP address, domain, email
+- System validates IP is blocked + domain exists in server logs
+- Only unblocks if BOTH conditions match (prevents abuse)
+- Aggressive rate limiting (3 requests/minute by default)
+- Silent logging for admin on non-matches
+- Accessible at: `/simple-unblock`
+
+**Important:**
+- Run `php artisan db:seed --class=AnonymousUserSeeder` to create the system anonymous user
+- This user (`anonymous@system.internal`) is used for all anonymous reports
+- Admin receives detailed logs of all attempts (success and failed)
+- Users only receive confirmation emails when IP is actually unblocked
 
 ## 🔧 Configuration
 

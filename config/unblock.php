@@ -57,4 +57,13 @@ return [
         // Temporary whitelist TTL in seconds
         'ttl' => env('HQ_WHITELIST_TTL', 7200),
     ],
+
+    // Simple Unblock Mode (No Authentication)
+    'simple_mode' => [
+        'enabled' => env('UNBLOCK_SIMPLE_MODE', false),
+        'throttle_per_minute' => env('UNBLOCK_SIMPLE_THROTTLE_PER_MINUTE', 3),
+        'block_duration_minutes' => env('UNBLOCK_SIMPLE_BLOCK_DURATION', 15),
+        'strict_match' => env('UNBLOCK_SIMPLE_STRICT_MATCH', true),
+        'silent_log' => env('UNBLOCK_SIMPLE_SILENT_LOG', true),
+    ],
 ];

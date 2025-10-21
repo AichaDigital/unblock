@@ -1,7 +1,7 @@
 <?php
 
 use App\Actions\WhmcsSynchro;
-use App\Http\Middleware\{CheckSessionTimeout, VerifyIsAdminMiddleware};
+use App\Http\Middleware\{CheckSessionTimeout, ThrottleSimpleUnblock, VerifyIsAdminMiddleware};
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\{Exceptions, Middleware};
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
@@ -21,6 +21,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'admin' => VerifyIsAdminMiddleware::class,
             'session.timeout' => CheckSessionTimeout::class,
+            'throttle.simple.unblock' => ThrottleSimpleUnblock::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

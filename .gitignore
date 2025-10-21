@@ -2,6 +2,8 @@
 .cursor/
 .claude/
 .idea/
+./.ssh/
+CLAUDE.md
 /node_modules
 /public/build
 /public/hot
@@ -35,6 +37,7 @@ remote_database/
 /storage/phpstan%
 unblock.sqlite
 database/database.sqlite
+supervisor-laravel-worker.conf
 
 # Internal development docs (keep out of repo)
 docs/BUG_ANALYSIS*.md
