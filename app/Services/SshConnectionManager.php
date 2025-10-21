@@ -27,7 +27,7 @@ class SshConnectionManager
     public function generateSshKey(string $hash): string
     {
         $filename = 'key_'.Str::random(10);
-        $path = base_path('.ssh/'.$filename);
+        $path = storage_path('app/.ssh/'.$filename);
 
         // Normalize line endings and ensure final newline
         $normalizedHash = str_replace(["\r\n", "\r"], "\n", $hash);

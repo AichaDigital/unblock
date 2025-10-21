@@ -39,7 +39,7 @@ return [
 
         'ssh' => [
             'driver' => 'local',
-            'root' => base_path('.ssh'),
+            'root' => storage_path('app/.ssh'),
             'serve' => true,
             'throw' => false,
             'visibility' => 'private',

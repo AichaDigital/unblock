@@ -37,7 +37,13 @@ class TestSshConnectionCommand extends Command
             $this->line("Connecting to {$host->fqdn}:{$port} as root...");
 
             // Generate a temporary SSH key file
-            $keyPath = base_path('.ssh/temp_key_'.time());
+            $keyPath = storage_path('app/.ssh/temp_key_'.time());
+
+            // Ensure directory exists
+            if (! file_exists(storage_path('app/.ssh'))) {
+                mkdir(storage_path('app/.ssh'), 0700, true);
+            }
+
             file_put_contents($keyPath, $host->hash);
             chmod($keyPath, 0600);
 

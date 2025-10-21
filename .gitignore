@@ -2,7 +2,8 @@
 .cursor/
 .claude/
 .idea/
-./.ssh/
+.ssh/
+storage/app/.ssh/
 CLAUDE.md
 /node_modules
 /public/build

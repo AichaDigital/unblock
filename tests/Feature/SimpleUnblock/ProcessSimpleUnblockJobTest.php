@@ -6,7 +6,7 @@ use App\Jobs\{ProcessSimpleUnblockJob, SendSimpleUnblockNotificationJob};
 use App\Models\{Host, Report};
 use App\Services\AnonymousUserService;
 use App\Services\Firewall\{FirewallAnalysisResult, FirewallAnalyzerFactory};
-use App\Services\{FirewallUnblocker, SshConnectionManager};
+use App\Services\{FirewallUnblocker, SshConnectionManager, SshSession};
 use Illuminate\Support\Facades\{Cache, Queue};
 
 beforeEach(function () {
@@ -28,10 +28,14 @@ beforeEach(function () {
 });
 
 test('job processes firewall analysis correctly', function () {
-    // Mock SSH Manager
+    // Mock SSH Manager with proper SshSession return type
     $sshManager = Mockery::mock(SshConnectionManager::class);
+    $mockSession = Mockery::mock(SshSession::class);
+    $mockSession->shouldReceive('execute')->andReturn('');
+    $mockSession->shouldReceive('cleanup')->andReturn(null);
+
     $sshManager->shouldReceive('prepareSshKey')->andReturn('/fake/key/path');
-    $sshManager->shouldReceive('createSession')->andReturn((object) ['fake' => 'session']);
+    $sshManager->shouldReceive('createSession')->andReturn($mockSession);
 
     // Mock Analyzer Factory
     $analyzerFactory = Mockery::mock(FirewallAnalyzerFactory::class);
@@ -44,7 +48,7 @@ test('job processes firewall analysis correctly', function () {
     );
 
     $mockAnalyzer->shouldReceive('analyze')->andReturn($analysisResult);
-    $analyzerFactory->shouldReceive('create')->andReturn($mockAnalyzer);
+    $analyzerFactory->shouldReceive('createForHost')->andReturn($mockAnalyzer);
 
     // Mock Unblocker
     $unblocker = Mockery::mock(FirewallUnblocker::class);
@@ -92,7 +96,8 @@ test('job handles non-existent host gracefully', function () {
     $analyzerFactory = Mockery::mock(FirewallAnalyzerFactory::class);
     $unblocker = Mockery::mock(FirewallUnblocker::class);
 
-    // Should handle gracefully without exceptions
+    // Should handle gracefully (logs error but doesn't throw exception in handle)
+    // The exception is thrown inside handle() and caught
     $job->handle($sshManager, $analyzerFactory, $unblocker);
 
     // Verify no reports were created
