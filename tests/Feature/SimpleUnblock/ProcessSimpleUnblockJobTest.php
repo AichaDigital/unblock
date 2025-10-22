@@ -7,7 +7,7 @@ use App\Models\{Host, Report};
 use App\Services\AnonymousUserService;
 use App\Services\Firewall\{FirewallAnalysisResult, FirewallAnalyzerFactory, FirewallAnalyzerInterface};
 use App\Services\{FirewallUnblocker, SshConnectionManager, SshSession};
-use Illuminate\Support\Facades\{Cache, Mail, Queue};
+use Illuminate\Support\Facades\{Cache, Queue};
 
 beforeEach(function () {
     Queue::fake();
@@ -33,20 +33,20 @@ test('job processes firewall analysis correctly', function () {
     $mockSession = Mockery::mock(SshSession::class);
     $mockSession->shouldReceive('execute')->andReturn('');
     $mockSession->shouldReceive('cleanup')->andReturn(null);
-    
+
     $sshManager->shouldReceive('prepareSshKey')->andReturn('/fake/key/path');
     $sshManager->shouldReceive('createSession')->andReturn($mockSession);
 
     // Mock Analyzer Factory with proper interface implementation
     $analyzerFactory = Mockery::mock(FirewallAnalyzerFactory::class);
     $mockAnalyzer = Mockery::mock(FirewallAnalyzerInterface::class);
-    
+
     $analysisResult = new FirewallAnalysisResult(
         blocked: true,
         logs: ['csf' => ['IP blocked'], 'exim' => []],
         analysis: ['test' => 'data']
     );
-    
+
     $mockAnalyzer->shouldReceive('analyze')->andReturn($analysisResult);
     $analyzerFactory->shouldReceive('createForHost')->andReturn($mockAnalyzer);
 
