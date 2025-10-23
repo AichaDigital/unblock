@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
+use App\Events\SimpleUnblock\SimpleUnblockRateLimitExceeded;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\{Log, RateLimiter};
@@ -38,7 +39,7 @@ class ThrottleSimpleUnblock
         );
 
         if ($exceeded) {
-            return $this->rateLimitResponse($ip, 'IP', $exceeded['seconds']);
+            return $this->rateLimitResponse($ip, 'ip', "simple_unblock:ip:{$ip}", $exceeded);
         }
 
         // Vector 2: Per Subnet /24 (20 req/hour)
@@ -51,7 +52,7 @@ class ThrottleSimpleUnblock
         );
 
         if ($exceeded) {
-            return $this->rateLimitResponse($ip, 'Subnet', $exceeded['seconds']);
+            return $this->rateLimitResponse($subnet, 'subnet', "simple_unblock:subnet:{$subnet}", $exceeded);
         }
 
         // Vector 3: Global (500 req/hour)
@@ -63,7 +64,7 @@ class ThrottleSimpleUnblock
         );
 
         if ($exceeded) {
-            return $this->rateLimitResponse($ip, 'Global', $exceeded['seconds']);
+            return $this->rateLimitResponse('global', 'global', 'simple_unblock:global', $exceeded);
         }
 
         // Proceed with request
@@ -103,20 +104,28 @@ class ThrottleSimpleUnblock
     /**
      * Return rate limit exceeded response
      */
-    private function rateLimitResponse(string $ip, string $vector, int $seconds): Response
+    private function rateLimitResponse(string $identifier, string $vector, string $key, array $exceeded): Response
     {
+        $maxAttempts = config("unblock.simple_mode.throttle_{$vector}_per_".($vector === 'ip' ? 'minute' : 'hour'), 10);
+        $attempts = RateLimiter::attempts($key);
+
+        // Dispatch event for abuse incident creation (v1.3.0)
+        SimpleUnblockRateLimitExceeded::dispatch($vector, $identifier, $attempts, $maxAttempts);
+
         activity()
             ->withProperties([
-                'ip' => $ip,
+                'identifier' => $identifier,
                 'vector' => $vector,
+                'attempts' => $attempts,
+                'max_attempts' => $maxAttempts,
                 'user_agent' => request()->userAgent(),
                 'referer' => request()->header('referer'),
             ])
             ->log('simple_unblock_rate_limit_exceeded');
 
         return response()->json([
-            'error' => __('simple_unblock.rate_limit_exceeded', ['seconds' => $seconds]),
-            'retry_after' => $seconds,
+            'error' => __('simple_unblock.rate_limit_exceeded', ['seconds' => $exceeded['seconds']]),
+            'retry_after' => $exceeded['seconds'],
         ], 429);
     }
 
