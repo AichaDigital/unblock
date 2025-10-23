@@ -417,6 +417,11 @@ readonly class DirectAdminFirewallAnalyzer implements FirewallAnalyzerInterface
      * and removes the IP if found. This blacklist is maintained by DirectAdmin's BFM system for IPs
      * that show persistent abusive behavior, even if they are whitelisted in CSF.
      *
+     * When an IP is found in the blacklist:
+     * 1. Remove from blacklist
+     * 2. Add to whitelist for the configured TTL period
+     * 3. Track in database for automatic removal after TTL expires
+     *
      * @param  string  $ip  IP address to check and remove
      * @param  string  $sshKeyName  SSH key name for authentication
      * @return FirewallAnalysisResult|null Analysis result or null if not found in blacklist
@@ -439,14 +444,30 @@ readonly class DirectAdminFirewallAnalyzer implements FirewallAnalyzerInterface
                 return null;
             }
 
-            // IP found in BFM blacklist - proceed to remove it
-            // Remove IP from BFM blacklist using FirewallService (multiplexing)
+            // IP found in BFM blacklist - proceed to remove it and add to whitelist
+
+            // 1. Remove IP from BFM blacklist
             $this->firewallService->checkProblems($this->host, $sshKeyName, 'da_bfm_remove', $ip);
+
+            // 2. Add IP to BFM whitelist
+            $this->firewallService->checkProblems($this->host, $sshKeyName, 'da_bfm_whitelist_add', $ip);
+
+            // 3. Track in database for automatic removal after TTL
+            $ttl = (int) (config('unblock.hq.ttl') ?? 7200); // Default 2 hours
+            \App\Models\BfmWhitelistEntry::create([
+                'host_id' => $this->host->id,
+                'ip_address' => $ip,
+                'added_at' => now(),
+                'expires_at' => now()->addSeconds($ttl),
+                'notes' => 'Auto-added from BFM blacklist removal',
+            ]);
 
             // Create result with BFM-specific information
             $logs = [
                 'da_bfm' => $filteredOutput,
                 'da_bfm_action' => __('firewall.bfm.removed'),
+                'da_bfm_whitelist_added' => __('firewall.bfm.whitelist_added'),
+                'da_bfm_whitelist_ttl' => gmdate('H:i:s', $ttl),
                 'da_bfm_warning' => __('firewall.bfm.warning_message'),
                 'da_bfm_path' => '/usr/local/directadmin/data/admin/ip_blacklist',
             ];

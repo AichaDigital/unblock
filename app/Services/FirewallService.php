@@ -123,8 +123,10 @@ class FirewallService
             'mod_security_da' => "cat /var/log/nginx/modsec_audit.log | grep {$ip_escaped} || true",
             'exim_directadmin' => "cat /var/log/exim/mainlog | grep -Ea {$ip_escaped} | grep 'authenticator failed'",
             'dovecot_directadmin' => "cat /var/log/mail.log | grep -Ea {$ip_escaped} | grep 'auth failed'",
-            'da_bfm_check' => "cat /usr/local/directadmin/data/admin/ip_blacklist | grep {$ip_escaped} || true",
-            'da_bfm_remove' => "sed -i '/{$ip_escaped}/d' /usr/local/directadmin/data/admin/ip_blacklist",
+            // FIXED: Use exact IP matching to avoid false positives (e.g., 10.192.168.1.100 matching 192.168.1.100)
+            'da_bfm_check' => "cat /usr/local/directadmin/data/admin/ip_blacklist | grep -E '^{$ip_escaped}(\\s|\$)' || true",
+            'da_bfm_remove' => "sed -i '/^{$ip_escaped}(\\s|\$)/d' /usr/local/directadmin/data/admin/ip_blacklist",
+            'da_bfm_whitelist_add' => "echo '{$ip}' >> /usr/local/directadmin/data/admin/ip_whitelist",
             'unblock' => "csf -dr {$ip} && csf -tr {$ip} && csf -ta {$ip} 86400",
             'whitelist' => "csf -ta {$ip} 86400",
             'whitelist_7200' => "csf -ta {$ip} ".max(60, (int) (config('unblock.hq.ttl') ?? 7200)),

@@ -56,7 +56,8 @@ test('builds da bfm check command correctly', function () {
     $result = $method->invoke($service, 'da_bfm_check', TC::TEST_BLOCKED_IP);
     $escapedIp = escapeshellarg(TC::TEST_BLOCKED_IP);
 
-    expect($result)->toBe("cat /usr/local/directadmin/data/admin/ip_blacklist | grep {$escapedIp} || true");
+    // Updated to match exact IP matching (preventing false positives like 10.192.168.1.100 matching 192.168.1.100)
+    expect($result)->toBe("cat /usr/local/directadmin/data/admin/ip_blacklist | grep -E '^{$escapedIp}(\\s|\$)' || true");
 });
 
 test('returns null for invalid command', function () {
