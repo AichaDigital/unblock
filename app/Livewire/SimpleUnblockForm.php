@@ -5,10 +5,7 @@ declare(strict_types=1);
 namespace App\Livewire;
 
 use App\Actions\SimpleUnblockAction;
-use App\Events\SimpleUnblock\SimpleUnblockIpMismatch;
-use App\Events\SimpleUnblock\SimpleUnblockOtpFailed;
-use App\Events\SimpleUnblock\SimpleUnblockOtpSent;
-use App\Events\SimpleUnblock\SimpleUnblockOtpVerified;
+use App\Events\SimpleUnblock\{SimpleUnblockIpMismatch, SimpleUnblockOtpFailed, SimpleUnblockOtpSent, SimpleUnblockOtpVerified};
 use App\Models\User;
 use Livewire\Attributes\{Layout, Title};
 use Livewire\Component;

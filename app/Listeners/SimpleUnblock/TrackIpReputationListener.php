@@ -20,27 +20,33 @@ class TrackIpReputationListener implements ShouldQueue
     {
         $subnet = $this->calculateSubnet($event->ip);
 
-        // Update or create IP reputation
-        $reputation = DB::table('ip_reputation')->updateOrInsert(
-            ['ip' => $event->ip],
-            [
-                'subnet' => $subnet,
-                'total_requests' => DB::raw('total_requests + 1'),
-                'failed_requests' => DB::raw($event->success ? 'failed_requests' : 'failed_requests + 1'),
-                'last_seen_at' => now(),
-                'updated_at' => now(),
-            ]
-        );
+        // Check if record exists
+        $exists = DB::table('ip_reputation')->where('ip', $event->ip)->exists();
 
-        // If new record, set defaults
-        if ($reputation) {
+        if ($exists) {
+            // Update existing record
             DB::table('ip_reputation')
                 ->where('ip', $event->ip)
-                ->whereNull('created_at')
                 ->update([
-                    'reputation_score' => 100,
-                    'created_at' => now(),
+                    'subnet' => $subnet,
+                    'total_requests' => DB::raw('total_requests + 1'),
+                    'failed_requests' => DB::raw($event->success ? 'failed_requests' : 'failed_requests + 1'),
+                    'last_seen_at' => now(),
+                    'updated_at' => now(),
                 ]);
+        } else {
+            // Insert new record
+            DB::table('ip_reputation')->insert([
+                'ip' => $event->ip,
+                'subnet' => $subnet,
+                'reputation_score' => 100,
+                'total_requests' => 1,
+                'failed_requests' => $event->success ? 0 : 1,
+                'blocked_count' => 0,
+                'last_seen_at' => now(),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
         }
 
         // Recalculate reputation score

@@ -22,37 +22,42 @@ class TrackEmailReputationListener implements ShouldQueue
         $emailHash = hash('sha256', $event->email);
         $emailDomain = $this->extractDomain($event->email);
 
-        // Determine what to increment based on event type
-        $updates = [
-            'email_domain' => $emailDomain,
-            'total_requests' => DB::raw('total_requests + 1'),
-            'last_seen_at' => now(),
-            'updated_at' => now(),
-        ];
+        // Check if record exists
+        $exists = DB::table('email_reputation')->where('email_hash', $emailHash)->exists();
 
-        if ($event instanceof SimpleUnblockOtpVerified) {
-            $updates['verified_requests'] = DB::raw('verified_requests + 1');
-        }
+        if ($exists) {
+            // Update existing record
+            $updates = [
+                'email_domain' => $emailDomain,
+                'total_requests' => DB::raw('total_requests + 1'),
+                'last_seen_at' => now(),
+                'updated_at' => now(),
+            ];
 
-        if ($event instanceof SimpleUnblockOtpFailed) {
-            $updates['failed_requests'] = DB::raw('failed_requests + 1');
-        }
+            if ($event instanceof SimpleUnblockOtpVerified) {
+                $updates['verified_requests'] = DB::raw('verified_requests + 1');
+            }
 
-        // Update or create email reputation
-        $reputation = DB::table('email_reputation')->updateOrInsert(
-            ['email_hash' => $emailHash],
-            $updates
-        );
+            if ($event instanceof SimpleUnblockOtpFailed) {
+                $updates['failed_requests'] = DB::raw('failed_requests + 1');
+            }
 
-        // If new record, set defaults
-        if ($reputation) {
             DB::table('email_reputation')
                 ->where('email_hash', $emailHash)
-                ->whereNull('created_at')
-                ->update([
-                    'reputation_score' => 100,
-                    'created_at' => now(),
-                ]);
+                ->update($updates);
+        } else {
+            // Insert new record
+            DB::table('email_reputation')->insert([
+                'email_hash' => $emailHash,
+                'email_domain' => $emailDomain,
+                'reputation_score' => 100,
+                'total_requests' => 1,
+                'failed_requests' => ($event instanceof SimpleUnblockOtpFailed) ? 1 : 0,
+                'verified_requests' => ($event instanceof SimpleUnblockOtpVerified) ? 1 : 0,
+                'last_seen_at' => now(),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
         }
 
         // Recalculate reputation score

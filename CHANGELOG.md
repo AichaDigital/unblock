@@ -7,6 +7,145 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.0] - 2025-10-23
+
+### Added - Reputation System & Admin Dashboard
+
+- **Event-Driven Reputation Tracking System**:
+  - **7 Events** for Simple Unblock security monitoring:
+    - `SimpleUnblockRequestProcessed`: Tracks completed unblock requests
+    - `SimpleUnblockOtpSent`: Logs OTP sending to email addresses
+    - `SimpleUnblockOtpVerified`: Records successful OTP verifications
+    - `SimpleUnblockOtpFailed`: Captures failed OTP attempts (brute force detection)
+    - `SimpleUnblockRateLimitExceeded`: Monitors rate limit violations (5 vectors)
+    - `SimpleUnblockHoneypotTriggered`: Detects bot activity
+    - `SimpleUnblockIpMismatch`: Identifies potential OTP relay attacks (critical severity)
+
+  - **3 Event Listeners** (all queued for async processing):
+    - `TrackIpReputationListener`: Auto-updates IP reputation scores (0-100 scale)
+    - `TrackEmailReputationListener`: Auto-updates email reputation (GDPR compliant)
+    - `CreateAbuseIncidentListener`: Creates abuse incident records with severity classification
+
+- **Eloquent Models** for reputation tracking:
+  - `IpReputation`: IP address reputation with subnet tracking, success rate calculation
+  - `EmailReputation`: Email reputation with SHA-256 hashing (GDPR compliant), verification rate tracking
+  - `AbuseIncident`: Security incident logging with multi-severity classification (low/medium/high/critical)
+
+- **Filament Admin Dashboard** - Complete security management interface:
+
+  - **IP Reputation Resource** (`app/Filament/Resources/IpReputationResource.php`):
+    - Table columns: IP, Subnet, Score (badge), Total/Failed/Blocked requests, Success rate, Last seen
+    - Filters: Reputation range (high/medium/low), Subnet search, Date range
+    - Actions: View details, Quick navigation to related incidents
+    - Auto-refresh capability, mobile responsive
+
+  - **Email Reputation Resource** (`app/Filament/Resources/EmailReputationResource.php`):
+    - Table columns: Email hash (truncated), Domain, Score (badge), Total/Verified/Failed requests, Verification rate
+    - Filters: Reputation range, Email domain selector, Date range
+    - Displays SHA-256 hash (first 16 chars) with full hash copy-to-clipboard
+    - Domain-based grouping and statistics
+
+  - **Abuse Incident Resource** (`app/Filament/Resources/AbuseIncidentResource.php`):
+    - Table columns: Type, IP, Email hash, Domain, Severity badge, Description, Resolved status, Occurred at
+    - Filters: Incident type (8 types), Severity (4 levels), Resolved/Unresolved, IP/Email search, Date range
+    - Actions: Resolve/Unresolve incidents, View details with metadata (JSON)
+    - Bulk actions: Mark multiple incidents as resolved
+    - Navigation badge: Shows count of unresolved critical/high incidents
+    - Auto-refresh every 30 seconds
+    - 8 incident types: rate_limit_exceeded, ip_spoofing_attempt, otp_bruteforce, honeypot_triggered, invalid_otp_attempts, ip_mismatch, suspicious_pattern, other
+
+  - **Dashboard Overview Widget** (`app/Filament/Widgets/SimpleUnblockOverviewWidget.php`):
+    - 6 real-time statistics cards:
+      - Requests Today (with trend vs yesterday + 7-day chart)
+      - Average IP Reputation (color-coded: green/yellow/red)
+      - Average Email Reputation (color-coded: green/yellow/red)
+      - Active Incidents (critical + high severity, quick link to incidents)
+      - OTP Success Rate (last 7 days + success chart)
+      - Blocked Today (prevented malicious attempts)
+    - Auto-refresh every 30 seconds
+    - Mobile responsive layout
+
+- **Automatic Reputation Scoring Algorithm**:
+  - IP Reputation: Based on success rate (0-100 scale)
+    - Formula: `(total - failed) / total * 100`
+    - Auto-decreases on: Rate limits (-10), Honeypot (-20), OTP failures (-15), IP mismatch (-40)
+  - Email Reputation: Based on success rate + verification bonus
+    - Base score: `(total - failed) / total * 100`
+    - Bonus: `verified / total * 20` (up to +20 points)
+    - Auto-decreases on: OTP failures (-15 to -30), IP mismatch (-40)
+  - Minimum score: 0 (never negative)
+
+- **Cleanup Command** (`app/Console/Commands/CleanupTemporaryUsersCommand.php`):
+  - Command: `php artisan simple-unblock:cleanup-otp`
+  - Removes expired OTP records from `one_time_passwords` table
+  - Removes old OTP records (default: >7 days, configurable with `--days` option)
+  - Scheduled daily at 3:00 AM
+  - Summary report with counts and confirmation prompt (skip with `--force`)
+
+### Changed
+
+- **Event Integration** in existing components:
+  - `SimpleUnblockForm`: Dispatches `OtpSent`, `OtpVerified`, `OtpFailed`, `IpMismatch` events
+  - `SimpleUnblockAction`: Dispatches `RequestProcessed` event after completion
+  - `ThrottleSimpleUnblock` middleware: Dispatches `RateLimitExceeded` events (5 vectors: IP, Email, Domain, Subnet, Global)
+
+- **EventServiceProvider** created and registered:
+  - Manual event-listener mapping (Laravel 11 doesn't auto-discover by default)
+  - All listeners configured for queue processing (async)
+
+### Security Improvements
+
+- **Multi-Vector Rate Limit Tracking**: Monitors IP, Email, Domain, Subnet, and Global abuse patterns
+- **Brute Force Detection**: Escalates severity after 3+ failed OTP attempts in 10 minutes
+- **IP Mismatch Detection**: Critical severity for potential relay attacks
+- **Honeypot Integration**: Automatically creates abuse incidents for bot activity
+- **Reputation Penalties**: Automatic score reduction based on incident severity
+- **GDPR Compliance**: Email addresses stored as SHA-256 hashes throughout system
+
+### Testing
+
+- **Listener Tests** (3 comprehensive test suites):
+  - `TrackIpReputationListenerTest.php`: 8 tests for IP tracking (IPv4/IPv6, scoring, timestamps)
+  - `TrackEmailReputationListenerTest.php`: 10 tests for email tracking (GDPR compliance, scoring, domain extraction)
+  - `CreateAbuseIncidentListenerTest.php`: 15 tests for incident creation (severity classification, penalties, edge cases)
+- **Total Coverage**: 33 tests for event-driven architecture
+- **Queue Testing**: Verified all listeners implement `ShouldQueue`
+
+### Database
+
+- **Tables Created** (already in v1.2.0 as "warmup"):
+  - `ip_reputation`: Now actively populated by events
+  - `email_reputation`: Now actively populated by events
+  - `abuse_incidents`: Now actively populated by events
+
+### Performance
+
+- **Async Processing**: All reputation tracking runs in background queues
+- **No User Impact**: Event listeners don't slow down user requests
+- **Database Optimization**: Indexed columns for fast querying in Filament resources
+- **Auto-Cleanup**: Scheduled command prevents OTP table bloat
+
+### Developer Experience
+
+- **Artisan Commands**:
+  - `php artisan simple-unblock:cleanup-otp`: Manual OTP cleanup
+  - `php artisan simple-unblock:cleanup-otp --days=30 --force`: Cleanup older records
+- **Filament Navigation**:
+  - New "Simple Unblock Security" navigation group
+  - Badge indicators for active incidents
+  - Color-coded reputation scores (green/yellow/red)
+- **Model Accessors**:
+  - `IpReputation::$success_rate`: Auto-calculated success percentage
+  - `EmailReputation::$verification_rate`: Auto-calculated verification percentage
+  - `AbuseIncident::isResolved()`: Check resolution status
+
+### Notes
+
+- All Filament resources are auto-discovered (no manual registration required)
+- Dashboard widget auto-discovered and displays on admin dashboard
+- Event listeners registered in `EventServiceProvider` (line 18-48)
+- Cleanup command scheduled in `routes/console.php` (line 11)
+
 ## [1.2.0] - 2025-10-23
 
 ### Added - OTP Email Verification

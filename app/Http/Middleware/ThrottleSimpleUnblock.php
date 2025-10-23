@@ -106,7 +106,7 @@ class ThrottleSimpleUnblock
      */
     private function rateLimitResponse(string $identifier, string $vector, string $key, array $exceeded): Response
     {
-        $maxAttempts = config("unblock.simple_mode.throttle_{$vector}_per_" . ($vector === 'ip' ? 'minute' : 'hour'), 10);
+        $maxAttempts = config("unblock.simple_mode.throttle_{$vector}_per_".($vector === 'ip' ? 'minute' : 'hour'), 10);
         $attempts = RateLimiter::attempts($key);
 
         // Dispatch event for abuse incident creation (v1.3.0)

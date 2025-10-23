@@ -142,15 +142,26 @@ class CreateAbuseIncidentListener implements ShouldQueue
     /**
      * Decrease reputation score
      */
-    private function decreaseReputation(string $type, string $identifier, int $penalty): void
+    private function decreaseReputation(string $type, string $identifier, int|float $penalty): void
     {
         $table = $type === 'ip' ? 'ip_reputation' : 'email_reputation';
         $column = $type === 'ip' ? 'ip' : 'email_hash';
 
+        // Get current score
+        $record = DB::table($table)->where($column, $identifier)->first();
+
+        if (! $record) {
+            return;
+        }
+
+        // Calculate new score (never below 0)
+        $newScore = max(0, $record->reputation_score - $penalty);
+
+        // Update score
         DB::table($table)
             ->where($column, $identifier)
             ->update([
-                'reputation_score' => DB::raw("GREATEST(0, reputation_score - {$penalty})"),
+                'reputation_score' => $newScore,
                 'updated_at' => now(),
             ]);
     }
