@@ -1,0 +1,36 @@
+# GitGuardian configuration
+# https://docs.gitguardian.com/ggshield-docs/reference/file-configuration
+
+version: 2
+
+# Exclude test files from secret scanning
+# Test files contain hardcoded passwords for testing purposes only
+paths-ignore:
+  - tests/**/*.php
+  - tests/**/*.js
+  - tests/**/*.ts
+  - tests/stubs/**/*
+
+# Paths to always scan (override ignore rules)
+paths-scan:
+  - app/**
+  - config/**
+  - routes/**
+
+# Matches to ignore (false positives)
+matches-ignore:
+  - name: Test passwords in user creation tests - clearly marked with Test prefix
+    match: TestP@ssw0rd!123456
+  - name: Test passwords in user creation tests - clearly marked with Test prefix
+    match: TestMyS3cure!Pass789
+  - name: Test passwords in user creation tests - clearly marked with Test prefix
+    match: TestP@ssw0rd!First999
+  - name: Test passwords in user creation tests - clearly marked with Test prefix
+    match: TestDifferentP@ss888!
+
+# Detectors to enable/disable
+detectors:
+  generic_password:
+    # Keep enabled but with increased confidence threshold
+    min_confidence: high
+
