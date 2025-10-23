@@ -58,12 +58,24 @@ return [
         'ttl' => env('HQ_WHITELIST_TTL', 7200),
     ],
 
-    // Simple Unblock Mode (No Authentication)
+    // Simple Unblock Mode (v1.2.0+)
     'simple_mode' => [
         'enabled' => env('UNBLOCK_SIMPLE_MODE', false),
+
+        // Multi-vector rate limiting (defense against botnets)
         'throttle_per_minute' => env('UNBLOCK_SIMPLE_THROTTLE_PER_MINUTE', 3),
+        'throttle_email_per_hour' => env('UNBLOCK_SIMPLE_THROTTLE_EMAIL_PER_HOUR', 5),
+        'throttle_domain_per_hour' => env('UNBLOCK_SIMPLE_THROTTLE_DOMAIN_PER_HOUR', 10),
+        'throttle_subnet_per_hour' => env('UNBLOCK_SIMPLE_THROTTLE_SUBNET_PER_HOUR', 20),
+        'throttle_global_per_hour' => env('UNBLOCK_SIMPLE_THROTTLE_GLOBAL_PER_HOUR', 500),
+
         'block_duration_minutes' => env('UNBLOCK_SIMPLE_BLOCK_DURATION', 15),
         'strict_match' => env('UNBLOCK_SIMPLE_STRICT_MATCH', true),
         'silent_log' => env('UNBLOCK_SIMPLE_SILENT_LOG', true),
+
+        // OTP Settings (v1.2.0+)
+        'otp_enabled' => env('UNBLOCK_SIMPLE_OTP_ENABLED', true),
+        'otp_expires_minutes' => env('UNBLOCK_SIMPLE_OTP_EXPIRES', 5),
+        'otp_length' => env('UNBLOCK_SIMPLE_OTP_LENGTH', 6),
     ],
 ];

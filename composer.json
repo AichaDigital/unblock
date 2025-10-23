@@ -18,6 +18,7 @@
         "phpseclib/phpseclib": "^3.0",
         "predis/predis": "^2.2",
         "spatie/laravel-activitylog": "*",
+        "spatie/laravel-honeypot": "^4.6",
         "spatie/laravel-one-time-passwords": "*",
         "spatie/ssh": "^1.12",
         "symfony/mailer": "~7.3.4",

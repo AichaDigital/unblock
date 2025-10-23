@@ -84,14 +84,14 @@ class SimpleUnblockForm extends Component
     }
 
     /**
-     * Detect user's IP address from various headers
+     * Detect user's IP address (v1.2.0 - Fixed IP Spoofing)
+     *
+     * Uses request()->ip() which respects TrustProxies configuration.
+     * This prevents IP header spoofing attacks.
      */
     private function detectUserIp(): string
     {
-        return (string) (request()->header('X-Forwarded-For')
-            ?? request()->header('X-Real-IP')
-            ?? request()->header('HTTP_CLIENT_IP')
-            ?? request()->ip());
+        return (string) request()->ip();
     }
 
     /**

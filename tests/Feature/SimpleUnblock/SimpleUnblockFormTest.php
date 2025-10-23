@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use App\Livewire\SimpleUnblockForm;
 use App\Models\Host;
-use Illuminate\Support\Facades\{Config, Queue, Route};
+use Illuminate\Support\Facades\{Config, Queue, RateLimiter, Route};
 use Livewire\Livewire;
 
 use function Pest\Laravel\{assertDatabaseHas, get};
@@ -21,6 +21,10 @@ beforeEach(function () {
     // Create hosts for testing
     Host::factory()->create(['panel' => 'cpanel']);
     Host::factory()->create(['panel' => 'directadmin']);
+
+    // Clear rate limiters (v1.1.1)
+    RateLimiter::clear('simple_unblock:email:'.hash('sha256', 'test@example.com'));
+    RateLimiter::clear('simple_unblock:domain:example.com');
 });
 
 test('simple unblock form is accessible when enabled', function () {

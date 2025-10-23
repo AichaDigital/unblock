@@ -44,3 +44,4 @@ supervisor-laravel-worker.conf
 docs/BUG_ANALYSIS*.md
 docs/CURRENT_*.md
 docs/*_INTERNAL*.md
+docs/SECURITY_*.md
