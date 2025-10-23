@@ -2,6 +2,34 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased] - User Management Commands
+
+### Added
+- **New `user:create` command**: Unified command for creating admin and normal users
+  - Supports `--admin` flag for creating administrator users
+  - Supports `--no-secure` flag for development environments (simple passwords)
+  - Proper validation for production environments (complex passwords required)
+  - Interactive prompts with validation for email, names, and passwords
+  - Transaction-based user creation for data integrity
+
+### Changed
+- **Override `make:filament-user`**: Disabled Filament's default user creation command
+  - Command now shows helpful message directing users to proper commands
+  - Ensures all users are created with proper model structure
+
+### Removed
+- **Obsolete commands removed**:
+  - `add:user` - Replaced by `user:create`
+  - `develop:add-edit-user` - Replaced by `user:create`
+  - `develop:delete-user` - Use Filament admin panel for user management
+  - `test:ssh-connection` - Use `develop:test-host-connection` instead
+
+### Migration Notes
+- Use `php artisan user:create --admin` to create admin users
+- Use `php artisan user:create --admin --no-secure` for development with simple passwords
+- Use `php artisan user:authorize` for creating authorized users (linked to parent)
+- All user management should be done through Filament admin panel or these commands
+
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
