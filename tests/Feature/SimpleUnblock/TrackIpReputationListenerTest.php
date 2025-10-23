@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Events\SimpleUnblock\SimpleUnblockRequestProcessed;
 use App\Listeners\SimpleUnblock\TrackIpReputationListener;
 use App\Models\IpReputation;
+use App\Services\GeoIPService;
 use Illuminate\Support\Facades\Event;
 
 use function Pest\Laravel\{assertDatabaseHas};
@@ -12,6 +13,11 @@ use function Pest\Laravel\{assertDatabaseHas};
 beforeEach(function () {
     // Run migrations for reputation tables
     $this->artisan('migrate');
+
+    // Mock GeoIP service to return null (disabled)
+    $this->geoIpService = Mockery::mock(GeoIPService::class);
+    $this->geoIpService->shouldReceive('lookup')->andReturn(null);
+    $this->geoIpService->shouldReceive('isAvailable')->andReturn(false);
 });
 
 test('listener creates new IP reputation record on first request', function () {
@@ -22,7 +28,7 @@ test('listener creates new IP reputation record on first request', function () {
         success: true
     );
 
-    $listener = new TrackIpReputationListener;
+    $listener = new TrackIpReputationListener($this->geoIpService);
     $listener->handle($event);
 
     assertDatabaseHas('ip_reputation', [
@@ -52,7 +58,7 @@ test('listener updates existing IP reputation record', function () {
         success: true
     );
 
-    $listener = new TrackIpReputationListener;
+    $listener = new TrackIpReputationListener($this->geoIpService);
     $listener->handle($event);
 
     assertDatabaseHas('ip_reputation', [
@@ -70,7 +76,7 @@ test('listener tracks failed requests', function () {
         success: false
     );
 
-    $listener = new TrackIpReputationListener;
+    $listener = new TrackIpReputationListener($this->geoIpService);
     $listener->handle($event);
 
     assertDatabaseHas('ip_reputation', [
@@ -98,7 +104,7 @@ test('listener calculates reputation score correctly', function () {
         success: true
     );
 
-    $listener = new TrackIpReputationListener;
+    $listener = new TrackIpReputationListener($this->geoIpService);
     $listener->handle($event);
 
     $reputation = IpReputation::where('ip', '192.168.1.100')->first();
@@ -115,7 +121,7 @@ test('listener handles IPv6 addresses correctly', function () {
         success: true
     );
 
-    $listener = new TrackIpReputationListener;
+    $listener = new TrackIpReputationListener($this->geoIpService);
     $listener->handle($event);
 
     assertDatabaseHas('ip_reputation', [
@@ -146,7 +152,7 @@ test('listener updates last_seen_at timestamp', function () {
         success: true
     );
 
-    $listener = new TrackIpReputationListener;
+    $listener = new TrackIpReputationListener($this->geoIpService);
     $listener->handle($event);
 
     $reputation = IpReputation::where('ip', '192.168.1.100')->first();
@@ -168,6 +174,6 @@ test('listener is queued for async processing', function () {
     Event::assertDispatched(SimpleUnblockRequestProcessed::class);
 
     // Verify listener implements ShouldQueue
-    $listener = new TrackIpReputationListener;
+    $listener = new TrackIpReputationListener($this->geoIpService);
     expect($listener)->toBeInstanceOf(\Illuminate\Contracts\Queue\ShouldQueue::class);
 });
