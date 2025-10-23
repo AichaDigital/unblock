@@ -1,0 +1,46 @@
+# GitGuardian configuration
+# https://docs.gitguardian.com/ggshield-docs/reference/file-configuration
+
+version: 2
+
+# ⚠️ SECURITY WARNING ⚠️
+# We do NOT exclude test directories completely - they should be scanned!
+# Only specific, documented test passwords are ignored below.
+
+# IMPORTANT: Never use real passwords, API keys, or credentials in tests!
+# Always use clearly marked fake data with "Test" prefix or similar.
+
+# Paths to ignore - MINIMAL exclusions only
+paths-ignore:
+  - tests/stubs/**/*  # Only stub files, not actual tests
+
+# Paths to always scan (override ignore rules)
+paths-scan:
+  - app/**
+  - config/**
+  - routes/**
+  - tests/**  # YES, we scan tests to catch real secrets!
+
+# Matches to ignore (ONLY specific documented test passwords)
+# Each entry must be:
+# 1. Clearly marked as test data (with "Test" prefix)
+# 2. Documented why it's safe
+# 3. Visible in code with // ggignore comment
+matches-ignore:
+  - name: Test password for user creation command validation tests
+    match: TestP@ssw0rd!123456
+  - name: Test password for user creation command validation tests
+    match: TestMyS3cure!Pass789
+  - name: Test password for user creation command validation tests
+    match: TestP@ssw0rd!First999
+  - name: Test password for user creation command validation tests
+    match: TestDifferentP@ss888!
+  - name: Test password for user creation command cancellation test
+    match: TestP@ssw0rd!Cancel999
+
+# Detectors configuration
+detectors:
+  generic_password:
+    # Keep STRICT - we want to catch real secrets!
+    min_confidence: high
+

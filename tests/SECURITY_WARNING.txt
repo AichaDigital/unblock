@@ -1,0 +1,19 @@
+⚠️ SECURITY WARNING ⚠️
+
+NEVER use real credentials in tests!
+
+✅ DO:
+  - Use "Test" prefix: TestP@ssw0rd!123
+  - Mark with: // ggignore
+  - Use fake keys: test_api_key_fake_123
+
+❌ DON'T:
+  - Real passwords
+  - Real API keys  
+  - Real tokens
+  - Real credentials
+
+GitGuardian scans ALL tests!
+
+See: docs/TESTING_SECURITY_RULES.md
+

@@ -2,6 +2,87 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased] - DirectAdmin BFM Whitelist Management
+
+### Added
+- **DirectAdmin BFM Whitelist System with TTL**:
+  - Automatic addition of IPs to DirectAdmin BFM whitelist when found in blacklist
+  - Time-To-Live (TTL) based expiration for whitelist entries (configurable, defaults to 2 hours)
+  - Database tracking for whitelist entries via `bfm_whitelist_entries` table
+  - Scheduled job (`RemoveExpiredBfmWhitelistIps`) runs hourly to clean expired entries
+  - Integration with existing firewall analysis flow (DirectAdminFirewallAnalyzer)
+
+### Changed
+- **Improved BFM blacklist detection**:
+  - Fixed grep command to use exact IP matching (`grep -E '^IP(\s|$)'`)
+  - Prevents false positives (e.g., 10.192.168.1.100 matching 192.168.1.100)
+  - Updated tests to verify exact matching behavior
+- **Enhanced BFM removal process**:
+  - Now performs 3 steps: remove from blacklist, add to whitelist, track in DB
+  - Logs detailed information about whitelist addition and TTL period
+
+### Added (Database)
+- **Migration**: `create_bfm_whitelist_tracking_table`
+  - Fields: `host_id`, `ip_address`, `added_at`, `expires_at`, `removed`, `removed_at`, `notes`
+  - Indexes for performance optimization
+  - Unique constraint for one active IP per host
+
+### Added (Models)
+- **BfmWhitelistEntry**: Model for tracking whitelist entries
+  - Scopes: `active()`, `expired()`, `forHost()`, `forIp()`
+  - Methods: `isExpired()`, `isActive()`, `markAsRemoved()`
+
+### Added (Jobs)
+- **RemoveExpiredBfmWhitelistIps**: Scheduled job for cleanup
+  - Runs hourly via cron
+  - Removes expired IPs from DirectAdmin whitelist files
+  - Updates database entries as removed
+
+### Added (Commands)
+- **New FirewallService commands**:
+  - `da_bfm_whitelist_add`: Adds IP to DirectAdmin BFM whitelist
+
+### Added (Tests)
+- **DirectAdminBfmDetectionTest**: Verifies BFM command building and detection
+- **BfmWhitelistEntryTest**: 13 tests for model functionality and scopes
+
+### Fixed
+- **BFM Detection**: Core issue where IPs in `/usr/local/directadmin/data/admin/ip_blacklist` were not detected
+- **False Positives**: Exact IP matching now prevents substring matches
+
+### Notes
+- This system is **DirectAdmin-only**, does not affect cPanel
+- TTL period uses same configuration as CSF whitelist (`unblock.hq.ttl`)
+- Whitelist entries are auto-removed both from file and database after expiration
+
+## [Unreleased] - User Management Commands
+
+### Added
+- **New `user:create` command**: Unified command for creating admin and normal users
+  - Supports `--admin` flag for creating administrator users
+  - Supports `--no-secure` flag for development environments (simple passwords)
+  - Proper validation for production environments (complex passwords required)
+  - Interactive prompts with validation for email, names, and passwords
+  - Transaction-based user creation for data integrity
+
+### Changed
+- **Override `make:filament-user`**: Disabled Filament's default user creation command
+  - Command now shows helpful message directing users to proper commands
+  - Ensures all users are created with proper model structure
+
+### Removed
+- **Obsolete commands removed**:
+  - `add:user` - Replaced by `user:create`
+  - `develop:add-edit-user` - Replaced by `user:create`
+  - `develop:delete-user` - Use Filament admin panel for user management
+  - `test:ssh-connection` - Use `develop:test-host-connection` instead
+
+### Migration Notes
+- Use `php artisan user:create --admin` to create admin users
+- Use `php artisan user:create --admin --no-secure` for development with simple passwords
+- Use `php artisan user:authorize` for creating authorized users (linked to parent)
+- All user management should be done through Filament admin panel or these commands
+
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
