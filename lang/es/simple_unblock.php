@@ -13,6 +13,18 @@ return [
     'email_label' => 'Email',
     'email_placeholder' => 'tu@email.com',
 
+    // Flujo de 2 pasos (v1.2.0)
+    'step1_label' => 'Solicitar',
+    'step2_label' => 'Verificar',
+    'send_otp_button' => 'Enviar Código de Verificación',
+    'otp_sent' => '¡Código de verificación enviado! Revisa tu email.',
+    'otp_label' => 'Código de Verificación',
+    'otp_help' => 'Introduce el código de 6 dígitos enviado a tu email',
+    'verify_button' => 'Verificar y Desbloquear',
+    'back_button' => 'Volver',
+    'sending' => 'Enviando...',
+    'verifying' => 'Verificando...',
+
     'submit_button' => 'Verificar y Desbloquear',
     'processing' => 'Procesando...',
 

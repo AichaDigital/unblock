@@ -13,6 +13,18 @@ return [
     'email_label' => 'Email',
     'email_placeholder' => 'your@email.com',
 
+    // Two-step flow (v1.2.0)
+    'step1_label' => 'Request',
+    'step2_label' => 'Verify',
+    'send_otp_button' => 'Send Verification Code',
+    'otp_sent' => 'Verification code sent! Check your email.',
+    'otp_label' => 'Verification Code',
+    'otp_help' => 'Enter the 6-digit code sent to your email',
+    'verify_button' => 'Verify and Unblock',
+    'back_button' => 'Back',
+    'sending' => 'Sending...',
+    'verifying' => 'Verifying...',
+
     'submit_button' => 'Verify and Unblock',
     'processing' => 'Processing...',
 

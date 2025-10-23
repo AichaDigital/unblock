@@ -5,14 +5,16 @@ declare(strict_types=1);
 namespace App\Livewire;
 
 use App\Actions\SimpleUnblockAction;
+use App\Models\User;
 use Livewire\Attributes\{Layout, Title};
 use Livewire\Component;
 
 /**
- * Simple Unblock Form Component
+ * Simple Unblock Form Component (v1.2.0 - OTP Verification)
  *
- * Anonymous IP unblock form (no authentication required).
- * Part of the decoupled "simple mode" architecture.
+ * Two-step anonymous IP unblock form:
+ * 1. Request with email → Send OTP
+ * 2. Verify OTP → Process unblock
  */
 #[Layout('layouts.guest')]
 #[Title('Simple IP Unblock')]
@@ -24,11 +26,17 @@ class SimpleUnblockForm extends Component
 
     public string $email = '';
 
+    public string $oneTimePassword = '';
+
+    public int $step = 1; // 1 = Request OTP, 2 = Verify OTP
+
     public bool $processing = false;
 
     public ?string $message = null;
 
     public ?string $messageType = null;
+
+    private ?User $otpUser = null;
 
     /**
      * Component initialization
@@ -40,9 +48,9 @@ class SimpleUnblockForm extends Component
     }
 
     /**
-     * Handle form submission
+     * Step 1: Send OTP to email
      */
-    public function submit(): void
+    public function sendOtp(): void
     {
         $this->validate([
             'ip' => 'required|ip',
@@ -54,33 +62,123 @@ class SimpleUnblockForm extends Component
         $this->message = null;
 
         try {
-            SimpleUnblockAction::run(
-                ip: $this->ip,
-                domain: $this->domain,
-                email: $this->email
+            // Create or get temporary user for OTP
+            $this->otpUser = User::firstOrCreate(
+                ['email' => $this->email],
+                [
+                    'first_name' => 'Simple',
+                    'last_name' => 'Unblock',
+                    'password' => bcrypt(\Str::random(32)),
+                    'is_admin' => false,
+                ]
             );
 
-            $this->message = __('simple_unblock.processing_message');
-            $this->messageType = 'success';
+            // Bind IP to session for verification
+            $ip = $this->detectUserIp();
+            session()->put('simple_unblock_otp_ip', $ip);
+            session()->put('simple_unblock_otp_data', [
+                'ip' => $this->ip,
+                'domain' => $this->domain,
+                'email' => $this->email,
+            ]);
 
-            // Clear form
-            $this->reset(['domain', 'email']);
-            $this->ip = $this->detectUserIp();
+            // Send OTP
+            $this->otpUser->sendOneTimePassword();
+
+            // Move to step 2
+            $this->step = 2;
+            $this->message = __('simple_unblock.otp_sent');
+            $this->messageType = 'success';
 
         } catch (\Exception $e) {
             $this->message = __('simple_unblock.error_message');
             $this->messageType = 'error';
 
-            \Log::error('Simple unblock form error', [
+            \Log::error('Simple unblock OTP send error', [
                 'ip' => $this->ip,
                 'domain' => $this->domain,
                 'email' => $this->email,
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
             ]);
         } finally {
             $this->processing = false;
         }
+    }
+
+    /**
+     * Step 2: Verify OTP and process unblock
+     */
+    public function verifyOtp(): void
+    {
+        $this->validate([
+            'oneTimePassword' => 'required|string|size:6',
+        ]);
+
+        $this->processing = true;
+        $this->message = null;
+
+        try {
+            // Get stored data
+            $storedData = session()->get('simple_unblock_otp_data');
+            $storedIp = session()->get('simple_unblock_otp_ip');
+            $currentIp = $this->detectUserIp();
+
+            // Verify IP match
+            if ($storedIp !== $currentIp) {
+                throw new \Exception('IP mismatch during OTP verification');
+            }
+
+            // Get user
+            $user = User::where('email', $storedData['email'])->first();
+            if (! $user) {
+                throw new \Exception('User not found for OTP verification');
+            }
+
+            // Verify OTP
+            $result = $user->attemptLoginUsingOneTimePassword($this->oneTimePassword);
+
+            if (! $result->isOk()) {
+                $this->message = $result->validationMessage();
+                $this->messageType = 'error';
+
+                return;
+            }
+
+            // OTP verified! Now process the unblock request
+            SimpleUnblockAction::run(
+                ip: $storedData['ip'],
+                domain: $storedData['domain'],
+                email: $storedData['email']
+            );
+
+            $this->message = __('simple_unblock.processing_message');
+            $this->messageType = 'success';
+
+            // Clear session and reset form
+            session()->forget(['simple_unblock_otp_ip', 'simple_unblock_otp_data']);
+            $this->reset(['domain', 'email', 'oneTimePassword', 'step']);
+            $this->ip = $this->detectUserIp();
+        } catch (\Exception $e) {
+            $this->message = __('simple_unblock.error_message');
+            $this->messageType = 'error';
+
+            \Log::error('Simple unblock OTP verification error', [
+                'email' => $this->email,
+                'error' => $e->getMessage(),
+            ]);
+        } finally {
+            $this->processing = false;
+        }
+    }
+
+    /**
+     * Go back to step 1
+     */
+    public function backToStep1(): void
+    {
+        $this->step = 1;
+        $this->oneTimePassword = '';
+        $this->message = null;
     }
 
     /**
