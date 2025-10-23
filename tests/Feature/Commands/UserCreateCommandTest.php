@@ -13,13 +13,16 @@ beforeEach(function () {
 });
 
 test('user:create command creates admin user in production mode', function () {
+    // Test password - NOT a real secret, safe for version control
+    $testPassword = 'P@ssw0rd!Complex123'; // ggignore
+
     artisan('user:create', ['--admin' => true])
         ->expectsQuestion('Email address', 'admin@test.com')
         ->expectsQuestion('First name', 'John')
         ->expectsQuestion('Last name', 'Admin')
         ->expectsQuestion('Company name (optional)', 'Test Company')
-        ->expectsQuestion('Password', 'P@ssw0rd!Complex123')
-        ->expectsQuestion('Confirm password', 'P@ssw0rd!Complex123')
+        ->expectsQuestion('Password', $testPassword)
+        ->expectsQuestion('Confirm password', $testPassword)
         ->expectsConfirmation('Create this user?', 'yes')
         ->assertSuccessful();
 
@@ -30,18 +33,21 @@ test('user:create command creates admin user in production mode', function () {
         ->and($user->last_name)->toBe('Admin')
         ->and($user->company_name)->toBe('Test Company')
         ->and($user->is_admin)->toBeTrue()
-        ->and(Hash::check('P@ssw0rd!Complex123', $user->password))->toBeTrue();
+        ->and(Hash::check($testPassword, $user->password))->toBeTrue();
 });
 
 test('user:create command creates normal user in production mode', function () {
+    // Test password - NOT a real secret, safe for version control
+    $testPassword = 'MyS3cure!Pass123'; // ggignore
+
     artisan('user:create')
         ->expectsConfirmation('Create an admin user?', 'no')
         ->expectsQuestion('Email address', 'user@test.com')
         ->expectsQuestion('First name', 'Jane')
         ->expectsQuestion('Last name', 'Doe')
         ->expectsQuestion('Company name (optional)', '')
-        ->expectsQuestion('Password', 'MyS3cure!Pass123')
-        ->expectsQuestion('Confirm password', 'MyS3cure!Pass123')
+        ->expectsQuestion('Password', $testPassword)
+        ->expectsQuestion('Confirm password', $testPassword)
         ->expectsConfirmation('Create this user?', 'yes')
         ->assertSuccessful();
 
@@ -52,7 +58,7 @@ test('user:create command creates normal user in production mode', function () {
         ->and($user->last_name)->toBe('Doe')
         ->and($user->company_name)->toBeIn([null, '']) // Empty string or null are both valid
         ->and($user->is_admin)->toBeFalse()
-        ->and(Hash::check('MyS3cure!Pass123', $user->password))->toBeTrue();
+        ->and(Hash::check($testPassword, $user->password))->toBeTrue();
 });
 
 test('user:create command creates user with simple password in development mode', function () {
@@ -91,13 +97,17 @@ test('user:create command rejects invalid email', function () {
 });
 
 test('user:create command validates password mismatch in production mode', function () {
+    // Test passwords - NOT real secrets, safe for version control
+    $testPassword1 = 'P@ssw0rd!Complex123'; // ggignore
+    $testPassword2 = 'DifferentP@ss123!'; // ggignore
+
     artisan('user:create', ['--admin' => true])
         ->expectsQuestion('Email address', 'test@test.com')
         ->expectsQuestion('First name', 'Test')
         ->expectsQuestion('Last name', 'User')
         ->expectsQuestion('Company name (optional)', '')
-        ->expectsQuestion('Password', 'P@ssw0rd!Complex123')
-        ->expectsQuestion('Confirm password', 'DifferentP@ss123!')
+        ->expectsQuestion('Password', $testPassword1)
+        ->expectsQuestion('Confirm password', $testPassword2)
         ->assertFailed();
 
     // Verify user was NOT created
