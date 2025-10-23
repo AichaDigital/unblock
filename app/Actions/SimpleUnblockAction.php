@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions;
 
+use App\Events\SimpleUnblock\SimpleUnblockRequestProcessed;
 use App\Jobs\ProcessSimpleUnblockJob;
 use App\Models\Host;
 use Illuminate\Support\Facades\{Log, RateLimiter};
@@ -76,6 +77,9 @@ class SimpleUnblockAction
                 'user_agent' => request()->userAgent(),
             ])
             ->log('simple_unblock_request');
+
+        // Dispatch event for reputation tracking (v1.3.0)
+        SimpleUnblockRequestProcessed::dispatch($ip, $normalizedDomain, $email, true);
     }
 
     /**

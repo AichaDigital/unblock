@@ -5,6 +5,10 @@ declare(strict_types=1);
 namespace App\Livewire;
 
 use App\Actions\SimpleUnblockAction;
+use App\Events\SimpleUnblock\SimpleUnblockIpMismatch;
+use App\Events\SimpleUnblock\SimpleUnblockOtpFailed;
+use App\Events\SimpleUnblock\SimpleUnblockOtpSent;
+use App\Events\SimpleUnblock\SimpleUnblockOtpVerified;
 use App\Models\User;
 use Livewire\Attributes\{Layout, Title};
 use Livewire\Component;
@@ -85,6 +89,9 @@ class SimpleUnblockForm extends Component
             // Send OTP
             $this->otpUser->sendOneTimePassword();
 
+            // Dispatch event for reputation tracking (v1.3.0)
+            SimpleUnblockOtpSent::dispatch($this->email, $ip);
+
             // Move to step 2
             $this->step = 2;
             $this->message = __('simple_unblock.otp_sent');
@@ -125,6 +132,9 @@ class SimpleUnblockForm extends Component
 
             // Verify IP match
             if ($storedIp !== $currentIp) {
+                // Dispatch IP mismatch event (v1.3.0)
+                SimpleUnblockIpMismatch::dispatch($storedIp, $currentIp, $storedData['email']);
+
                 throw new \Exception('IP mismatch during OTP verification');
             }
 
@@ -138,11 +148,21 @@ class SimpleUnblockForm extends Component
             $result = $user->attemptLoginUsingOneTimePassword($this->oneTimePassword);
 
             if (! $result->isOk()) {
+                // Dispatch OTP failed event (v1.3.0)
+                SimpleUnblockOtpFailed::dispatch(
+                    $storedData['email'],
+                    $currentIp,
+                    $result->validationMessage()
+                );
+
                 $this->message = $result->validationMessage();
                 $this->messageType = 'error';
 
                 return;
             }
+
+            // Dispatch OTP verified event (v1.3.0)
+            SimpleUnblockOtpVerified::dispatch($storedData['email'], $currentIp);
 
             // OTP verified! Now process the unblock request
             SimpleUnblockAction::run(
