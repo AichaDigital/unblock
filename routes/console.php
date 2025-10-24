@@ -16,3 +16,6 @@ Schedule::job(new RemoveExpiredBfmWhitelistIps)->hourly();
 
 // Pattern Detection: Detect attack patterns (v1.4.0 - runs every hour)
 Schedule::command('patterns:detect --force')->hourly();
+
+// GeoIP: Update MaxMind database (v1.4.0 - runs weekly on Sundays at 2am)
+Schedule::command('geoip:update')->weekly()->sundays()->at('02:00');
