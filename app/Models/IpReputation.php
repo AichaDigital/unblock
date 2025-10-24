@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
  * IP Reputation Model
  *
  * Tracks reputation score and request statistics for IP addresses
- * Used by reputation tracking system (v1.3.0)
+ * Used by reputation tracking system (v1.3.0+)
  *
  * @property int $id
  * @property string $ip
@@ -21,6 +21,14 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $blocked_count
  * @property \Illuminate\Support\Carbon|null $last_seen_at
  * @property string|null $notes
+ * @property string|null $country_code
+ * @property string|null $country_name
+ * @property string|null $city
+ * @property string|null $postal_code
+ * @property float|null $latitude
+ * @property float|null $longitude
+ * @property string|null $timezone
+ * @property string|null $continent
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  */
@@ -37,6 +45,14 @@ class IpReputation extends Model
         'blocked_count',
         'last_seen_at',
         'notes',
+        'country_code',
+        'country_name',
+        'city',
+        'postal_code',
+        'latitude',
+        'longitude',
+        'timezone',
+        'continent',
     ];
 
     protected $casts = [
@@ -45,6 +61,8 @@ class IpReputation extends Model
         'failed_requests' => 'integer',
         'blocked_count' => 'integer',
         'last_seen_at' => 'datetime',
+        'latitude' => 'float',
+        'longitude' => 'float',
     ];
 
     /**

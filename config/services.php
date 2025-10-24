@@ -48,4 +48,11 @@ return [
         'secret' => env('WHMCS_API_SECRET'),
     ],
 
+    'maxmind' => [
+        'account_id' => env('MAXMIND_ACCOUNT_ID'),
+        'license_key' => env('MAXMIND_LICENSE_KEY'),
+        'database_path' => env('GEOIP_DATABASE_PATH', storage_path('app/geoip/GeoLite2-City.mmdb')),
+        'enabled' => env('GEOIP_ENABLED', true),
+    ],
+
 ];
