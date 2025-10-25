@@ -10,6 +10,7 @@ use App\Exceptions\{
 use App\Models\Host;
 use App\Services\Firewall\{DirectAdminFirewallAnalyzer};
 use App\Services\FirewallService;
+use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Log;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -164,7 +165,7 @@ class CheckServerFirewallAction
                 'key_name' => $keyName,
             ];
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::warning('DirectAdminFirewallAnalyzer failed, falling back to original logic', [
                 'ip' => $ip,
                 'host' => $host->fqdn,

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Jobs;
 
 use App\Models\{BfmWhitelistEntry, Host};
+use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -64,7 +65,7 @@ class RemoveExpiredBfmWhitelistIps implements ShouldQueue
             try {
                 $this->removeEntriesFromHost($host, $entries);
                 $removedCount += $entries->count();
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 Log::error('Failed to remove expired entries from host', [
                     'host' => $host->fqdn,
                     'error' => $e->getMessage(),

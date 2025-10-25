@@ -3,10 +3,12 @@
 namespace App\Filament\Resources\UserResource\RelationManagers;
 
 use App\Models\Host;
-use Filament\Forms\Components\{Grid, Select, Toggle};
-use Filament\Forms\Form;
+use Filament\Actions\{AttachAction, BulkActionGroup, DetachAction, DetachBulkAction, EditAction};
+use Filament\Forms\Components\{Select, Toggle};
 use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Tables;
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\{IconColumn, TextColumn};
+use Filament\Tables\Filters\{SelectFilter, TernaryFilter};
 use Filament\Tables\Table;
 
 class HostsRelationManager extends RelationManager
@@ -19,11 +21,11 @@ class HostsRelationManager extends RelationManager
 
     protected static ?string $pluralModelLabel = 'Servidores';
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
-                Grid::make(2)
+        return $schema
+            ->components([
+                \Filament\Schemas\Components\Grid::make(2)
                     ->schema([
                         Select::make('recordId')
                             ->label('Servidor')
@@ -52,20 +54,20 @@ class HostsRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('fqdn')
             ->columns([
-                Tables\Columns\TextColumn::make('fqdn')
+                TextColumn::make('fqdn')
                     ->label('FQDN')
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('alias')
+                TextColumn::make('alias')
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('ip')
+                TextColumn::make('ip')
                     ->label('IP')
                     ->searchable(),
-                Tables\Columns\IconColumn::make('pivot.is_active')
+                IconColumn::make('pivot.is_active')
                     ->label('Activo')
                     ->boolean(),
-                Tables\Columns\TextColumn::make('panel')
+                TextColumn::make('panel')
                     ->label('Panel')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
@@ -73,24 +75,24 @@ class HostsRelationManager extends RelationManager
                         'directadmin' => 'warning',
                         default => 'gray',
                     }),
-                Tables\Columns\TextColumn::make('created_at')
+                TextColumn::make('created_at')
                     ->label('Asignado')
                     ->dateTime()
                     ->sortable(),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('panel')
+                SelectFilter::make('panel')
                     ->options([
                         'cpanel' => 'cPanel',
                         'directadmin' => 'DirectAdmin',
                     ]),
-                Tables\Filters\TernaryFilter::make('pivot.is_active')
+                TernaryFilter::make('pivot.is_active')
                     ->label('Activo'),
             ])
             ->headerActions([
-                Tables\Actions\AttachAction::make()
+                AttachAction::make()
                     ->label('Asignar Servidor')
-                    ->form(fn (Form $form): Form => $this->form($form))
+                    ->form(fn (Schema $schema): Schema => $this->form($schema))
                     ->attachAnother(false)
                     ->preloadRecordSelect()
                     ->recordSelectOptionsQuery(function ($query) {
@@ -102,10 +104,10 @@ class HostsRelationManager extends RelationManager
                     ->recordSelectSearchColumns(['fqdn', 'alias', 'ip'])
                     ->recordTitle(fn ($record) => "{$record->fqdn} ({$record->ip}) - {$record->panel}"),
             ])
-            ->actions([
-                Tables\Actions\EditAction::make()
+            ->recordActions([
+                EditAction::make()
                     ->label('Editar Permisos')
-                    ->form([
+                    ->schema([
                         Toggle::make('is_active')
                             ->label('Activo'),
                     ])
@@ -114,19 +116,19 @@ class HostsRelationManager extends RelationManager
                             'is_active' => $data['is_active'],
                         ]);
                     }),
-                Tables\Actions\DetachAction::make()
+                DetachAction::make()
                     ->label('Revocar Acceso'),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DetachBulkAction::make()
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DetachBulkAction::make()
                         ->label('Revocar Acceso'),
                 ]),
             ])
             ->emptyStateActions([
-                Tables\Actions\AttachAction::make()
+                AttachAction::make()
                     ->label('Asignar Primer Servidor')
-                    ->form(fn (Form $form): Form => $this->form($form))
+                    ->form(fn (Schema $schema): Schema => $this->form($schema))
                     ->attachAnother(false)
                     ->preloadRecordSelect()
                     ->recordSelectOptionsQuery(function ($query) {

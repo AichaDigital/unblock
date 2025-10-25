@@ -6,6 +6,7 @@ namespace App\Services;
 
 use App\Mail\{AdminConnectionErrorMail, UserSystemErrorMail};
 use App\Models\{Host, User};
+use Exception;
 use Illuminate\Support\Facades\{Log, Mail};
 
 class FirewallConnectionErrorService
@@ -17,14 +18,14 @@ class FirewallConnectionErrorService
      * @param  Host  $host  Servidor donde falló la conexión
      * @param  User  $user  Usuario que solicitó la verificación
      * @param  string  $errorMessage  Mensaje de error detallado
-     * @param  \Exception  $exception  Excepción original
+     * @param  Exception  $exception  Excepción original
      */
     public function handleConnectionError(
         string $ip,
         Host $host,
         User $user,
         string $errorMessage,
-        \Exception $exception
+        Exception $exception
     ): void {
         // 1. Registrar error detallado en logs
         $this->logConnectionError($ip, $host, $user, $errorMessage, $exception);
@@ -44,7 +45,7 @@ class FirewallConnectionErrorService
         Host $host,
         User $user,
         string $errorMessage,
-        \Exception $exception
+        Exception $exception
     ): void {
         Log::error('SSH Connection Error - Firewall Check Failed', [
             'ip' => $ip,
@@ -71,7 +72,7 @@ class FirewallConnectionErrorService
         Host $host,
         User $user,
         string $errorMessage,
-        \Exception $exception
+        Exception $exception
     ): void {
         try {
             // Obtener email del administrador desde configuración
@@ -91,7 +92,7 @@ class FirewallConnectionErrorService
                 'user_email' => $user->email,
             ]);
 
-        } catch (\Exception $mailException) {
+        } catch (Exception $mailException) {
             Log::error('Failed to send admin notification for SSH error', [
                 'original_error' => $errorMessage,
                 'mail_error' => $mailException->getMessage(),
@@ -117,7 +118,7 @@ class FirewallConnectionErrorService
                 'ip' => $ip,
             ]);
 
-        } catch (\Exception $mailException) {
+        } catch (Exception $mailException) {
             Log::error('Failed to send user notification for system error', [
                 'user_email' => $user->email,
                 'mail_error' => $mailException->getMessage(),
@@ -128,7 +129,7 @@ class FirewallConnectionErrorService
     /**
      * Determina si un error de conexión es crítico y requiere notificación inmediata
      */
-    public function isCriticalError(\Exception $exception): bool
+    public function isCriticalError(Exception $exception): bool
     {
         $criticalPatterns = [
             'proc_open',
@@ -153,7 +154,7 @@ class FirewallConnectionErrorService
     /**
      * Obtiene información de diagnóstico del error para incluir en notificaciones
      */
-    public function getDiagnosticInfo(\Exception $exception): array
+    public function getDiagnosticInfo(Exception $exception): array
     {
         $diagnostics = [
             'error_type' => get_class($exception),

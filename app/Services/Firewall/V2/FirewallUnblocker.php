@@ -7,6 +7,7 @@ namespace App\Services\Firewall\V2;
 use App\Exceptions\{CommandExecutionException, CsfServiceException};
 use App\Models\Host;
 use App\Services\{FirewallService, SshConnectionManager};
+use Exception;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -57,7 +58,7 @@ class FirewallUnblocker
 
             return $results;
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('CSF unblock operations failed', [
                 'ip' => $ipAddress,
                 'host' => $host->fqdn,
@@ -116,7 +117,7 @@ class FirewallUnblocker
 
             return $results;
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('BFM removal operations failed', [
                 'ip' => $ipAddress,
                 'host' => $host->fqdn,

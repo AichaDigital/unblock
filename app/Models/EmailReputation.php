@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
 /**
  * Email Reputation Model
@@ -20,10 +21,10 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $total_requests
  * @property int $failed_requests
  * @property int $verified_requests
- * @property \Illuminate\Support\Carbon|null $last_seen_at
+ * @property Carbon|null $last_seen_at
  * @property string|null $notes
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  */
 class EmailReputation extends Model
 {

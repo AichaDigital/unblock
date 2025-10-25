@@ -2,14 +2,14 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\HostResource\Pages;
+use App\Filament\Resources\HostResource\Pages\{CreateHost, EditHost, ListHosts};
 use App\Models\Host;
-use Filament\Forms\Components\{Fieldset, TextInput, Textarea, Toggle};
-use Filament\Forms\Form;
+use Filament\Forms\Components\{TextInput, Textarea, Toggle};
 use Filament\Resources\Resource;
-use Filament\Tables\Actions\{BulkActionGroup, DeleteAction, DeleteBulkAction, EditAction, ForceDeleteAction, RestoreAction};
+use Filament\Schemas\Schema;
 use Filament\Tables\Columns\{IconColumn, TextColumn};
-use Filament\Tables\{Filters, Table};
+use Filament\Tables\Filters\{SelectFilter, TernaryFilter, TrashedFilter};
+use Filament\Tables\{Table};
 use Illuminate\Database\Eloquent\{Builder, SoftDeletingScope};
 
 class HostResource extends Resource
@@ -18,12 +18,12 @@ class HostResource extends Resource
 
     protected static ?string $slug = 'hosts';
 
-    protected static ?string $navigationIcon = 'heroicon-o-server';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-server';
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 TextInput::make('whmcs_server_id')
                     ->label('WHMCS Server ID')
                     ->nullable(),
@@ -38,7 +38,7 @@ class HostResource extends Resource
                     ->label('Manual')
                     ->default(false),
 
-                Fieldset::make('Acceso')
+                \Filament\Schemas\Components\Fieldset::make('Acceso')
                     ->schema([
                         TextInput::make('ip')
                             ->label('IP')
@@ -58,7 +58,7 @@ class HostResource extends Resource
                             ->required(),
                     ])->columns(3),
 
-                Fieldset::make('Claves SSH')
+                \Filament\Schemas\Components\Fieldset::make('Claves SSH')
                     ->schema([
                         Textarea::make('hash')
                             ->label('Clave Privada')
@@ -113,26 +113,26 @@ class HostResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                Filters\TrashedFilter::make(),
-                Filters\SelectFilter::make('panel')
+                TrashedFilter::make(),
+                SelectFilter::make('panel')
                     ->options([
                         'cpanel' => 'cPanel',
                         'directadmin' => 'DirectAdmin',
                     ]),
-                Filters\TernaryFilter::make('is_active')
+                TernaryFilter::make('is_active')
                     ->label('Activo'),
-                Filters\TernaryFilter::make('hosting_manual')
+                TernaryFilter::make('hosting_manual')
                     ->label('Manual'),
             ])
-            ->actions([
-                EditAction::make(),
-                DeleteAction::make(),
-                RestoreAction::make(),
-                ForceDeleteAction::make(),
+            ->recordActions([
+                \Filament\Actions\EditAction::make(),
+                \Filament\Actions\DeleteAction::make(),
+                \Filament\Actions\RestoreAction::make(),
+                \Filament\Actions\ForceDeleteAction::make(),
             ])
-            ->bulkActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+            ->toolbarActions([
+                \Filament\Actions\BulkActionGroup::make([
+                    \Filament\Actions\DeleteBulkAction::make(),
                 ]),
             ])
             ->modifyQueryUsing(fn (Builder $query) => $query->withoutGlobalScopes([
@@ -143,9 +143,9 @@ class HostResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListHosts::route('/'),
-            'create' => Pages\CreateHost::route('/create'),
-            'edit' => Pages\EditHost::route('/{record}/edit'),
+            'index' => ListHosts::route('/'),
+            'create' => CreateHost::route('/create'),
+            'edit' => EditHost::route('/{record}/edit'),
         ];
     }
 

@@ -13,7 +13,9 @@ use App\Services\{
     SshConnectionManager
 };
 use App\Services\Firewall\{FirewallAnalyzerFactory};
+use Exception;
 use Illuminate\Support\Facades\{Log};
+use InvalidArgumentException;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 /**
@@ -85,7 +87,7 @@ class CheckFirewallAction
                 'success' => true,
                 'message' => __('messages.firewall.check_started'),
             ];
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to dispatch firewall check job', [
                 'ip_address' => $ip,
                 'user_id' => $userId,
@@ -109,7 +111,7 @@ class CheckFirewallAction
         $user = User::find($userId);
 
         if (! $user) {
-            throw new \InvalidArgumentException("User with ID {$userId} not found");
+            throw new InvalidArgumentException("User with ID {$userId} not found");
         }
 
         return $user;
@@ -123,7 +125,7 @@ class CheckFirewallAction
         $host = Host::find($hostId);
 
         if (! $host) {
-            throw new \InvalidArgumentException("Host with ID {$hostId} not found");
+            throw new InvalidArgumentException("Host with ID {$hostId} not found");
         }
 
         return $host;
@@ -151,7 +153,7 @@ class CheckFirewallAction
 
         // Check if user has access to this host
         if (! $user->hasAccessToHost($host->id)) {
-            throw new \Exception("Access denied: User {$user->id} does not have permission to access host {$host->id}");
+            throw new Exception("Access denied: User {$user->id} does not have permission to access host {$host->id}");
         }
     }
 

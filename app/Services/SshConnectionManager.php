@@ -6,6 +6,7 @@ namespace App\Services;
 
 use App\Exceptions\{ConnectionFailedException};
 use App\Models\Host;
+use Exception;
 use Illuminate\Support\Facades\{File, Log, Storage};
 use Illuminate\Support\Str;
 use Spatie\Ssh\Ssh;
@@ -91,7 +92,7 @@ class SshConnectionManager
 
             return trim($output);
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $msg = __('messages.firewall.errors.ssh_connection', [
                 'unity' => 'command_execution',
                 'server' => $host->fqdn,

@@ -4,7 +4,8 @@ namespace App\Providers\Filament;
 
 use App\Http\Middleware\{CheckSessionTimeout, VerifyIsAdminMiddleware};
 use Filament\Http\Middleware\{Authenticate, DisableBladeIconComponents, DispatchServingFilamentEvent};
-use Filament\{Pages, Panel, PanelProvider, Widgets};
+use Filament\Pages\Dashboard;
+use Filament\{Panel, PanelProvider, Widgets};
 use Filament\Support\Colors\Color;
 use Illuminate\Cookie\Middleware\{AddQueuedCookiesToResponse, EncryptCookies};
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -27,7 +28,7 @@ class AdminPanelProvider extends PanelProvider
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
-                Pages\Dashboard::class,
+                Dashboard::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
 //            ->widgets([

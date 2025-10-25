@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\{Model, SoftDeletes};
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Crypt;
+use Throwable;
 
 class Host extends Model
 {
@@ -66,7 +67,7 @@ class Host extends Model
 
         try {
             return Crypt::decrypt($value);
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             // Fallback: value might already be plaintext (legacy data)
             $trimmed = trim((string) $value);
             if (str_contains($trimmed, 'BEGIN OPENSSH PRIVATE KEY')) {
@@ -92,7 +93,7 @@ class Host extends Model
 
         try {
             return Crypt::decrypt($value);
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             // Fallback: value might already be plaintext (legacy data)
             $trimmed = trim((string) $value);
             if (str_starts_with($trimmed, 'ssh-')) {

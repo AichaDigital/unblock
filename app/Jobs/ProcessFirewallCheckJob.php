@@ -6,11 +6,13 @@ use App\Exceptions\{FirewallException, InvalidIpException};
 use App\Models\{Host, User};
 use App\Services\{AuditService, FirewallUnblocker, ReportGenerator, SshConnectionManager};
 use App\Services\Firewall\{FirewallAnalysisResult, FirewallAnalyzerFactory};
+use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\{InteractsWithQueue, SerializesModels};
 use Illuminate\Support\Facades\{DB, Log};
+use InvalidArgumentException;
 
 class ProcessFirewallCheckJob implements ShouldQueue
 {
@@ -81,7 +83,7 @@ class ProcessFirewallCheckJob implements ShouldQueue
                     'ip_address' => $this->ip,
                 ]);
             });
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Firewall check job failed', [
                 'ip_address' => $this->ip,
                 'user_id' => $this->userId,
@@ -137,7 +139,7 @@ class ProcessFirewallCheckJob implements ShouldQueue
     {
         $user = User::find($userId);
         if (! $user) {
-            throw new \InvalidArgumentException("User with ID {$userId} not found in job");
+            throw new InvalidArgumentException("User with ID {$userId} not found in job");
         }
 
         return $user;
@@ -147,7 +149,7 @@ class ProcessFirewallCheckJob implements ShouldQueue
     {
         $host = Host::find($hostId);
         if (! $host) {
-            throw new \InvalidArgumentException("Host with ID {$hostId} not found in job");
+            throw new InvalidArgumentException("Host with ID {$hostId} not found in job");
         }
 
         return $host;
@@ -166,7 +168,7 @@ class ProcessFirewallCheckJob implements ShouldQueue
             return;
         }
         if (! $user->hasAccessToHost($host->id)) {
-            throw new \Exception("Access denied in job: User {$user->id} does not have permission for host {$host->id}");
+            throw new Exception("Access denied in job: User {$user->id} does not have permission for host {$host->id}");
         }
     }
 }
