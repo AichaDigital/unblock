@@ -9,13 +9,26 @@
     @if(!$otpSent)
         <!-- Paso 1: Solicitar código -->
         <form wire:submit.prevent="sendOtp" class="space-y-6">
-            <x-input
-                wire:model="email"
-                icon="envelope"
-                placeholder="{{ __('Cuenta de correo electrónico de usuario') }}"
-                label="{{ __('Correo electrónico') }}"
-                description="{{ __('Cuenta de usuario o usuario autorizado') }}"
-            />
+            <label class="form-control w-full">
+                <div class="label">
+                    <span class="label-text font-medium">{{ __('Correo electrónico') }}</span>
+                </div>
+                <label class="input input-bordered flex items-center gap-2">
+                    <svg class="h-4 w-4 opacity-70" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect width="20" height="16" x="2" y="4" rx="2"></rect>
+                        <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+                    </svg>
+                    <input
+                        type="email"
+                        wire:model="email"
+                        class="grow"
+                        placeholder="{{ __('Cuenta de correo electrónico de usuario') }}"
+                    />
+                </label>
+                <div class="label">
+                    <span class="label-text-alt text-gray-500">{{ __('Cuenta de usuario o usuario autorizado') }}</span>
+                </div>
+            </label>
 
             <div class="mt-6">
                 <button
@@ -60,33 +73,44 @@
 
             <!-- Campo OTP con auto-verificación -->
             <div class="space-y-4">
-                <x-input
-                    wire:model.live="oneTimePassword"
-                    icon="key"
-                    placeholder="000000"
-                    label="Código de verificación"
-                    description="Introduce o pega el código de 6 dígitos que recibiste por email"
-                    maxlength="6"
-                    class="text-center text-lg tracking-widest font-mono"
-                    x-data="{
-                        autoVerifyTimeout: null,
-                        init() {
-                            this.$watch('$wire.oneTimePassword', (value) => {
-                                // Clear previous timeout
-                                if (this.autoVerifyTimeout) {
-                                    clearTimeout(this.autoVerifyTimeout);
-                                }
+                <label class="form-control w-full">
+                    <div class="label">
+                        <span class="label-text font-medium">Código de verificación</span>
+                    </div>
+                    <label class="input input-bordered flex items-center gap-2">
+                        <svg class="h-4 w-4 opacity-70" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path>
+                        </svg>
+                        <input
+                            type="text"
+                            wire:model.live="oneTimePassword"
+                            class="grow text-center text-lg tracking-widest font-mono"
+                            placeholder="000000"
+                            maxlength="6"
+                            x-data="{
+                                autoVerifyTimeout: null,
+                                init() {
+                                    this.$watch('$wire.oneTimePassword', (value) => {
+                                        // Clear previous timeout
+                                        if (this.autoVerifyTimeout) {
+                                            clearTimeout(this.autoVerifyTimeout);
+                                        }
 
-                                // If we have exactly 6 characters, auto-verify after 500ms
-                                if (value && value.length === 6 && !$wire.authenticating) {
-                                    this.autoVerifyTimeout = setTimeout(() => {
-                                        $wire.verifyOtp();
-                                    }, 500);
+                                        // If we have exactly 6 characters, auto-verify after 500ms
+                                        if (value && value.length === 6 && !$wire.authenticating) {
+                                            this.autoVerifyTimeout = setTimeout(() => {
+                                                $wire.verifyOtp();
+                                            }, 500);
+                                        }
+                                    });
                                 }
-                            });
-                        }
-                    }"
-                />
+                            }"
+                        />
+                    </label>
+                    <div class="label">
+                        <span class="label-text-alt text-gray-500">Introduce o pega el código de 6 dígitos que recibiste por email</span>
+                    </div>
+                </label>
 
                 <!-- Indicador visual de progreso -->
                 <div class="flex justify-center space-x-1">

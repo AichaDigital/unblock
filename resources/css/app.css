@@ -1,3 +1,9 @@
 @import "tailwindcss";
-@import '../../vendor/wireui/wireui/ts/global.css';
-@source '../../vendor/wireui/wireui';
+
+/* daisyUI Configuration with Winter (light) and dark themes */
+@plugin "daisyui" {
+  themes: winter --default, dark --prefersdark;
+}
+
+/* Custom variant for dark theme support */
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));

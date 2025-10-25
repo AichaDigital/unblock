@@ -12,7 +12,6 @@
 
     <!-- Styles -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    @wireUiScripts
 </head>
 <body class="antialiased font-sans h-full">
 @yield('content')

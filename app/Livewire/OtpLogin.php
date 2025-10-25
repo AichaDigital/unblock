@@ -4,16 +4,16 @@ namespace App\Livewire;
 
 use App\Models\User;
 use App\Traits\AuditLoginTrait;
+use App\Traits\HasNotifications;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\{Layout, On};
 use Livewire\Component;
-use WireUi\Traits\WireUiActions;
 
 #[Layout('layouts.guest')]
 class OtpLogin extends Component
 {
-    use AuditLoginTrait, WireUiActions;
+    use AuditLoginTrait, HasNotifications;
 
     // Email step
     public string $email = '';

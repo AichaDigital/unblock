@@ -6,14 +6,14 @@ use Livewire\Attributes\{Layout, Title};
 use App\Actions\CheckFirewallAction;
 use App\Models\{Host, Hosting, User};
 use App\Traits\AuditLoginTrait;
-use WireUi\Traits\WireUiActions;
+use App\Traits\HasNotifications;
 use Illuminate\Support\Facades\DB;
 
 new
 #[Layout('components.layouts.app')]
 #[Title('dashboard')]
 class extends Component {
-    use AuditLoginTrait, WireUiActions;
+    use AuditLoginTrait, HasNotifications;
 
     // User and permissions
     public User $user;

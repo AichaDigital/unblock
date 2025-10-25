@@ -1,9 +1,23 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="light h-full bg-white">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-theme="winter" class="h-full bg-white">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="color-scheme" content="light">
+
+    {{-- Initialize theme from localStorage before render --}}
+    <script>
+        (function() {
+            const theme = localStorage.getItem('theme') || 'auto';
+            let actualTheme;
+            if (theme === 'auto') {
+                actualTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'winter';
+            } else {
+                actualTheme = theme;
+            }
+            document.documentElement.setAttribute('data-theme', actualTheme);
+            document.documentElement.className = actualTheme === 'dark' ? 'dark' : 'light';
+        })();
+    </script>
 
     <title>{{ config('app.name', 'Laravel') }}</title>
 
@@ -12,7 +26,6 @@
     <link href="https://fonts.bunny.net/css?family=figtree:400,600&display=swap" rel="stylesheet" />
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    @wireUiScripts
 </head>
 <body class="relative min-h-screen overflow-hidden bg-emerald-100 font-sans antialiased">
 
@@ -25,10 +38,8 @@
         </main>
     </div>
 
-    <!-- Notificaciones con posicionamiento fijo -->
-    <div class="fixed top-4 right-4 z-50 max-w-sm w-full sm:max-w-md">
-        <x-notifications />
-    </div>
+    <!-- Notificaciones DaisyUI (reemplaza WireUI) -->
+    <x-notifications />
 
 
 

@@ -23,8 +23,7 @@
         "spatie/laravel-one-time-passwords": "*",
         "spatie/ssh": "^1.12",
         "symfony/mailer": "~7.3.4",
-        "valentin-morice/filament-json-column": "dev-dev",
-        "wireui/wireui": "^2.4"
+        "valentin-morice/filament-json-column": "dev-dev"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.15",
