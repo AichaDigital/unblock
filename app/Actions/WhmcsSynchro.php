@@ -368,13 +368,13 @@ class WhmcsSynchro
     /**
      * Process active hostings for a user
      *
-     * @throws \Exception When there is an error processing a hosting
+     * @throws Exception When there is an error processing a hosting
      */
     public function processActiveHostings(int $userId, ?Command $command = null): void
     {
         $user = User::find($userId);
         if (! $user) {
-            throw new \Exception("User {$userId} not found");
+            throw new Exception("User {$userId} not found");
         }
 
         $whmcsClientId = $user->whmcs_client_id;
@@ -480,7 +480,7 @@ class WhmcsSynchro
                 $this->debugOutput($command, "🔐 Ensuring host permissions for user {$userId} on host {$host->id}");
                 $user->hosts()->syncWithoutDetaching([$host->id => ['is_active' => true]]);
 
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->debugOutput($command, "❌ Error processing hosting {$whmcsHosting->domain}: ".$e->getMessage());
                 Log::error("Error processing hosting {$whmcsHosting->domain}: ".$e->getMessage());
                 throw $e;

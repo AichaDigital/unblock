@@ -12,6 +12,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\{InteractsWithQueue, SerializesModels};
 use Illuminate\Support\Facades\{Log, Mail, Storage};
+use Throwable;
 
 class ProcessHqWhitelistJob implements ShouldQueue
 {
@@ -66,7 +67,7 @@ class ProcessHqWhitelistJob implements ShouldQueue
                 'ip' => $this->ip,
                 'fqdn' => $hqHost->fqdn,
             ]);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             Log::error('Failed to process HQ whitelist job', [
                 'ip' => $this->ip,
                 'error' => $e->getMessage(),
@@ -78,7 +79,7 @@ class ProcessHqWhitelistJob implements ShouldQueue
                 try {
                     $fileName = basename($keyPath);
                     Storage::disk('ssh')->delete($fileName);
-                } catch (\Throwable) {
+                } catch (Throwable) {
                 }
             }
         }

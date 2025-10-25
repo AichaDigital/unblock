@@ -9,6 +9,7 @@ use App\Models\Report;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\{Log, Mail};
+use Throwable;
 
 /**
  * Send Simple Unblock Notification Job
@@ -51,7 +52,7 @@ class SendSimpleUnblockNotificationJob implements ShouldQueue
                 // Full match: Notify user + admin
                 $this->sendUserAndAdminNotification();
             }
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             Log::error('Failed to send simple unblock notifications', [
                 'report_id' => $this->reportId,
                 'email' => $this->email,

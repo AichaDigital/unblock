@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Actions;
 
 use App\Mail\LogNotificationMail;
-use App\Models\User;
+use App\Models\{Host, User};
 use Illuminate\Support\Facades\{Log, Mail};
 use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\{AsAction, AsJob};
@@ -79,7 +79,7 @@ class SendFirewallReportAction
             // 3. Notify admins about errors
             $hostInfo = 'Unknown Host';
             if ($hostId) {
-                $host = \App\Models\Host::find($hostId);
+                $host = Host::find($hostId);
                 $hostInfo = $host ? $host->fqdn : "Host ID: {$hostId}";
             }
 

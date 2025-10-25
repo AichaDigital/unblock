@@ -8,7 +8,9 @@ use App\Events\SimpleUnblock\SimpleUnblockRequestProcessed;
 use App\Jobs\ProcessSimpleUnblockJob;
 use App\Models\Host;
 use Illuminate\Support\Facades\{Log, RateLimiter};
+use InvalidArgumentException;
 use Lorisleiva\Actions\Concerns\AsAction;
+use RuntimeException;
 
 /**
  * Simple Unblock Action (v1.2.0)
@@ -109,7 +111,7 @@ class SimpleUnblockAction
                 'retry_after' => $seconds,
             ]);
 
-            throw new \RuntimeException(__('simple_unblock.rate_limit_exceeded', ['seconds' => $seconds]));
+            throw new RuntimeException(__('simple_unblock.rate_limit_exceeded', ['seconds' => $seconds]));
         }
 
         RateLimiter::hit($key, 3600); // 1 hour
@@ -140,7 +142,7 @@ class SimpleUnblockAction
                 'retry_after' => $seconds,
             ]);
 
-            throw new \RuntimeException(__('simple_unblock.rate_limit_exceeded', ['seconds' => $seconds]));
+            throw new RuntimeException(__('simple_unblock.rate_limit_exceeded', ['seconds' => $seconds]));
         }
 
         RateLimiter::hit($key, 3600); // 1 hour
@@ -167,12 +169,12 @@ class SimpleUnblockAction
         // Remove www. prefix
         $normalized = preg_replace('/^www\./i', '', $domain);
         if ($normalized === null) {
-            throw new \InvalidArgumentException('Domain normalization failed');
+            throw new InvalidArgumentException('Domain normalization failed');
         }
 
         // Validate format
         if (! preg_match('/^[a-z0-9.-]+\.[a-z]{2,}$/', $normalized)) {
-            throw new \InvalidArgumentException('Invalid domain format');
+            throw new InvalidArgumentException('Invalid domain format');
         }
 
         return $normalized;

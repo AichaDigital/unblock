@@ -4,6 +4,7 @@ namespace App\Traits;
 
 use App\Notifications\Admin\ErrorParsingNotification;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Support\Facades\{Log, Notification};
 
 trait CommandOutputParserTrait
@@ -83,7 +84,7 @@ trait CommandOutputParserTrait
                 $date = Carbon::parse($dateMatches[0]);
 
                 return $date->toDateTimeString(); // Return the date in a standard format
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 Log::error("Exception occurred during date parsing: {$line} ".$e->getMessage());
 
                 return '';

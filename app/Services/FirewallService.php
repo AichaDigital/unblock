@@ -10,7 +10,9 @@ use App\Exceptions\{
     InvalidKeyException
 };
 use App\Models\Host;
+use Exception;
 use Illuminate\Support\Facades\{File, Log, Storage};
+use JsonException;
 use Spatie\Ssh\Ssh;
 
 /**
@@ -74,7 +76,7 @@ class FirewallService
 
             return $output;
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $msg = "SSH connection failed to {$host->fqdn}: {$e->getMessage()}";
             Log::error($msg, [
                 'host_id' => $host->id,
@@ -169,7 +171,7 @@ class FirewallService
                         $messages->implode(', ')
                     ) : null;
 
-                } catch (\JsonException) {
+                } catch (JsonException) {
                     return null;
                 }
             })

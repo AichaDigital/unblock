@@ -9,6 +9,7 @@ use App\Models\{Report, User};
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\{Log, Mail};
+use Throwable;
 
 /**
  * Job to send report notifications
@@ -85,7 +86,7 @@ class SendReportNotificationJob implements ShouldQueue
                 }
             }
 
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             Log::error('Failed to send report notifications', [
                 'report_id' => $report->id,
                 'user_id' => $report->user_id,

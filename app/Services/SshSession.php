@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Models\Host;
+use Exception;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
 /**
  * SSH Session - Manages a single SSH session with automatic cleanup
@@ -47,7 +49,7 @@ class SshSession
 
             return $output;
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $executionTime = round((microtime(true) - $startTime) * 1000, 2);
 
             Log::error('SSH Command: Execution failed', [
@@ -90,7 +92,7 @@ class SshSession
                 'ssh_key_path' => $this->sshKeyPath,
                 'session_id' => spl_object_hash($this),
             ]);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             // Ignore logging errors during cleanup, as the app might be tearing down.
         }
 

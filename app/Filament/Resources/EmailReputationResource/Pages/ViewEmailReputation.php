@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Resources\EmailReputationResource\Pages;
 
 use App\Filament\Resources\EmailReputationResource;
-use Filament\Actions;
+use Filament\Actions\EditAction;
 use Filament\Resources\Pages\ViewRecord;
 
 class ViewEmailReputation extends ViewRecord
@@ -15,7 +15,7 @@ class ViewEmailReputation extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\EditAction::make(),
+            EditAction::make(),
         ];
     }
 }

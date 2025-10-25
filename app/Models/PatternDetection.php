@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
 /**
  * Pattern Detection Model
@@ -24,15 +25,15 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $affected_emails_count
  * @property int $time_window_minutes
  * @property string $detection_algorithm
- * @property \Illuminate\Support\Carbon $detected_at
- * @property \Illuminate\Support\Carbon|null $first_incident_at
- * @property \Illuminate\Support\Carbon|null $last_incident_at
+ * @property Carbon $detected_at
+ * @property Carbon|null $first_incident_at
+ * @property Carbon|null $last_incident_at
  * @property array|null $pattern_data
  * @property array|null $related_incidents
- * @property \Illuminate\Support\Carbon|null $resolved_at
+ * @property Carbon|null $resolved_at
  * @property string|null $resolution_notes
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  */
 class PatternDetection extends Model
 {

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Resources\AbuseIncidentResource\Pages;
 
 use App\Filament\Resources\AbuseIncidentResource;
-use Filament\Actions;
+use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
 
@@ -16,7 +16,7 @@ class ViewAbuseIncident extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\Action::make('resolve')
+            Action::make('resolve')
                 ->label('Mark as Resolved')
                 ->icon('heroicon-o-check-circle')
                 ->color('success')
@@ -33,7 +33,7 @@ class ViewAbuseIncident extends ViewRecord
                 })
                 ->visible(fn () => ! $this->record->isResolved()),
 
-            Actions\Action::make('unresolve')
+            Action::make('unresolve')
                 ->label('Mark as Unresolved')
                 ->icon('heroicon-o-x-circle')
                 ->color('warning')

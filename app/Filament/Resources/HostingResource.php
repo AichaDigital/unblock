@@ -2,14 +2,14 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\HostingResource\Pages;
+use App\Filament\Resources\HostingResource\Pages\{CreateHosting, EditHosting, ListHostings};
 use App\Models\{Host, Hosting, User};
-use Filament\Forms\Components\{Grid, Select, TextInput, Toggle};
-use Filament\Forms\Form;
+use Filament\Forms\Components\{Select, TextInput, Toggle};
 use Filament\Resources\Resource;
-use Filament\Tables\Actions\{BulkActionGroup, DeleteAction, DeleteBulkAction, EditAction, ForceDeleteAction, RestoreAction};
+use Filament\Schemas\Schema;
 use Filament\Tables\Columns\{IconColumn, TextColumn};
-use Filament\Tables\{Filters, Table};
+use Filament\Tables\Filters\{SelectFilter, TernaryFilter, TrashedFilter};
+use Filament\Tables\{Table};
 use Illuminate\Database\Eloquent\{Builder, SoftDeletingScope};
 
 class HostingResource extends Resource
@@ -18,13 +18,13 @@ class HostingResource extends Resource
 
     protected static ?string $slug = 'hostings';
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-rectangle-stack';
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
-                Grid::make(2)
+        return $schema
+            ->components([
+                \Filament\Schemas\Components\Grid::make(2)
                     ->schema([
                         Select::make('user_id')
                             ->label('Usuario')
@@ -98,30 +98,30 @@ class HostingResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                Filters\TrashedFilter::make(),
-                Filters\SelectFilter::make('user_id')
+                TrashedFilter::make(),
+                SelectFilter::make('user_id')
                     ->label('Usuario')
                     ->relationship('user', 'first_name')
                     ->getOptionLabelFromRecordUsing(fn ($record) => $record->name)
                     ->searchable()
                     ->preload(),
-                Filters\SelectFilter::make('host_id')
+                SelectFilter::make('host_id')
                     ->label('Servidor')
                     ->relationship('host', 'fqdn')
                     ->searchable()
                     ->preload(),
-                Filters\TernaryFilter::make('hosting_manual')
+                TernaryFilter::make('hosting_manual')
                     ->label('Manual'),
             ])
-            ->actions([
-                EditAction::make(),
-                DeleteAction::make(),
-                RestoreAction::make(),
-                ForceDeleteAction::make(),
+            ->recordActions([
+                \Filament\Actions\EditAction::make(),
+                \Filament\Actions\DeleteAction::make(),
+                \Filament\Actions\RestoreAction::make(),
+                \Filament\Actions\ForceDeleteAction::make(),
             ])
-            ->bulkActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+            ->toolbarActions([
+                \Filament\Actions\BulkActionGroup::make([
+                    \Filament\Actions\DeleteBulkAction::make(),
                 ]),
             ])
             ->modifyQueryUsing(fn (Builder $query) => $query->withoutGlobalScopes([
@@ -132,9 +132,9 @@ class HostingResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListHostings::route('/'),
-            'create' => Pages\CreateHosting::route('/create'),
-            'edit' => Pages\EditHosting::route('/{record}/edit'),
+            'index' => ListHostings::route('/'),
+            'create' => CreateHosting::route('/create'),
+            'edit' => EditHosting::route('/{record}/edit'),
         ];
     }
 

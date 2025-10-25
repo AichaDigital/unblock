@@ -2,18 +2,22 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\ReportResource\{Pages};
+use App\Filament\Resources\ReportResource\Pages\ManageReports;
 use App\Models\Report;
-use Filament\Forms\Form;
-use Filament\{Forms, Tables};
+use Filament\Actions\{BulkActionGroup, DeleteAction, DeleteBulkAction, ViewAction};
+use Filament\Forms\Components\{DatePicker, DateTimePicker, Placeholder, TextInput, Textarea};
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\{Filter, SelectFilter};
 use Filament\Tables\Table;
 
 class ReportResource extends Resource
 {
     protected static ?string $model = Report::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-document-text';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-document-text';
 
     protected static ?string $navigationLabel = null;
 
@@ -41,37 +45,37 @@ class ReportResource extends Resource
         return false;
     }
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
-                Forms\Components\Section::make(__('firewall.reports.title'))
+        return $schema
+            ->components([
+                Section::make(__('firewall.reports.title'))
                     ->schema([
-                        Forms\Components\Placeholder::make('user.name')
+                        Placeholder::make('user.name')
                             ->label(__('firewall.reports.user'))
                             ->content(fn ($record) => $record->user?->name ?? __('firewall.reports.unassigned'))
                             ->inlineLabel(),
 
-                        Forms\Components\Placeholder::make('host.fqdn')
+                        Placeholder::make('host.fqdn')
                             ->label(__('firewall.reports.host'))
                             ->content(fn ($record) => $record->host?->fqdn ?? __('firewall.reports.unassigned'))
                             ->inlineLabel(),
 
-                        Forms\Components\TextInput::make('ip')
+                        TextInput::make('ip')
                             ->label(__('firewall.reports.ip'))
                             ->disabled()
                             ->inlineLabel(),
 
-                        Forms\Components\DateTimePicker::make('created_at')
+                        DateTimePicker::make('created_at')
                             ->label(__('firewall.reports.created_at'))
                             ->disabled()
                             ->inlineLabel(),
                     ])
                     ->columns(1),
 
-                Forms\Components\Section::make(__('firewall.reports.logs'))
+                Section::make(__('firewall.reports.logs'))
                     ->schema([
-                        Forms\Components\Textarea::make('logs')
+                        Textarea::make('logs')
                             ->label(__('firewall.reports.logs'))
                             ->disabled()
                             ->rows(10)
@@ -81,9 +85,9 @@ class ReportResource extends Resource
                     ->collapsible()
                     ->collapsed(false),
 
-                Forms\Components\Section::make(__('firewall.reports.analysis'))
+                Section::make(__('firewall.reports.analysis'))
                     ->schema([
-                        Forms\Components\Textarea::make('analysis')
+                        Textarea::make('analysis')
                             ->label(__('firewall.reports.analysis'))
                             ->disabled()
                             ->rows(10)
@@ -99,37 +103,37 @@ class ReportResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('id')
+                TextColumn::make('id')
                     ->label('ID')
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->copyable()
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('ip')
+                TextColumn::make('ip')
                     ->label(__('firewall.reports.ip'))
                     ->searchable()
                     ->copyable()
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('user.name')
+                TextColumn::make('user.name')
                     ->label(__('firewall.reports.user'))
                     ->searchable(['users.first_name', 'users.last_name'])
                     ->sortable()
                     ->placeholder(__('firewall.reports.unassigned')),
 
-                Tables\Columns\TextColumn::make('host.fqdn')
+                TextColumn::make('host.fqdn')
                     ->label(__('firewall.reports.host'))
                     ->searchable()
                     ->sortable()
                     ->placeholder(__('firewall.reports.unassigned')),
 
-                Tables\Columns\TextColumn::make('created_at')
+                TextColumn::make('created_at')
                     ->label(__('firewall.reports.created_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: false),
 
-                Tables\Columns\TextColumn::make('updated_at')
+                TextColumn::make('updated_at')
                     ->label(__('firewall.reports.last_read'))
                     ->dateTime()
                     ->sortable()
@@ -137,25 +141,25 @@ class ReportResource extends Resource
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
-                Tables\Filters\SelectFilter::make('user_id')
+                SelectFilter::make('user_id')
                     ->label(__('firewall.reports.user'))
                     ->relationship('user', 'first_name')
                     ->getOptionLabelFromRecordUsing(fn ($record) => $record->name)
                     ->searchable()
                     ->preload(),
 
-                Tables\Filters\SelectFilter::make('host_id')
+                SelectFilter::make('host_id')
                     ->label(__('firewall.reports.host'))
                     ->relationship('host', 'fqdn')
                     ->searchable()
                     ->preload(),
 
-                Tables\Filters\Filter::make('created_at')
+                Filter::make('created_at')
                     ->label(__('firewall.reports.created_at'))
-                    ->form([
-                        Forms\Components\DatePicker::make('created_from')
+                    ->schema([
+                        DatePicker::make('created_from')
                             ->label(__('firewall.reports.created_from')),
-                        Forms\Components\DatePicker::make('created_until')
+                        DatePicker::make('created_until')
                             ->label(__('firewall.reports.created_until')),
                     ])
                     ->query(function ($query, array $data) {
@@ -170,13 +174,13 @@ class ReportResource extends Resource
                             );
                     }),
             ])
-            ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\DeleteAction::make(),
+            ->recordActions([
+                ViewAction::make(),
+                DeleteAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ])
             ->emptyStateHeading(__('firewall.reports.title'))
@@ -187,7 +191,7 @@ class ReportResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ManageReports::route('/'),
+            'index' => ManageReports::route('/'),
         ];
     }
 }

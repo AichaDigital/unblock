@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Mail;
 
 use App\Models\{Host, User};
+use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\{Content, Envelope};
@@ -19,7 +20,7 @@ class AdminConnectionErrorMail extends Mailable
         public readonly Host $host,
         public readonly User $user,
         public readonly string $errorMessage,
-        public readonly \Exception $exception
+        public readonly Exception $exception
     ) {}
 
     public function envelope(): Envelope

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
 /**
  * IP Reputation Model
@@ -19,7 +20,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $total_requests
  * @property int $failed_requests
  * @property int $blocked_count
- * @property \Illuminate\Support\Carbon|null $last_seen_at
+ * @property Carbon|null $last_seen_at
  * @property string|null $notes
  * @property string|null $country_code
  * @property string|null $country_name
@@ -29,8 +30,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property float|null $longitude
  * @property string|null $timezone
  * @property string|null $continent
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  */
 class IpReputation extends Model
 {

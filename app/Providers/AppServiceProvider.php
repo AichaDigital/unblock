@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
+use ReflectionClass;
 use Spatie\OneTimePasswords\Events\{FailedToConsumeOneTimePassword, OneTimePasswordSuccessfullyConsumed};
 
 class AppServiceProvider extends ServiceProvider
@@ -24,7 +25,7 @@ class AppServiceProvider extends ServiceProvider
         // Listen to Spatie OTP events for activity logging
         Event::listen(OneTimePasswordSuccessfullyConsumed::class, function ($event) {
             // Use reflection to access protected properties
-            $reflection = new \ReflectionClass($event);
+            $reflection = new ReflectionClass($event);
             $userProperty = $reflection->getProperty('user');
             $userProperty->setAccessible(true);
             $user = $userProperty->getValue($event);

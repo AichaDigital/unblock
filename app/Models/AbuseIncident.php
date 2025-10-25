@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
 /**
  * Abuse Incident Model
@@ -20,9 +21,9 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $severity
  * @property string $description
  * @property array|null $metadata
- * @property \Illuminate\Support\Carbon|null $resolved_at
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $resolved_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  */
 class AbuseIncident extends Model
 {
@@ -96,13 +97,14 @@ class AbuseIncident extends Model
     public function getIncidentTypeLabelAttribute(): string
     {
         return match ($this->incident_type) {
-            'rate_limit_exceeded' => 'Rate Limit Exceeded',
-            'ip_spoofing_attempt' => 'IP Spoofing Attempt',
-            'otp_bruteforce' => 'OTP Brute Force',
-            'honeypot_triggered' => 'Honeypot Triggered',
-            'invalid_otp_attempts' => 'Invalid OTP Attempts',
-            'ip_mismatch' => 'IP Mismatch',
-            'suspicious_pattern' => 'Suspicious Pattern',
+            'rate_limit_exceeded' => __('firewall.abuse_incidents.types.rate_limit_exceeded'),
+            'ip_spoofing_attempt' => __('firewall.abuse_incidents.types.ip_spoofing_attempt'),
+            'otp_bruteforce' => __('firewall.abuse_incidents.types.otp_bruteforce'),
+            'honeypot_triggered' => __('firewall.abuse_incidents.types.honeypot_triggered'),
+            'invalid_otp_attempts' => __('firewall.abuse_incidents.types.invalid_otp_attempts'),
+            'ip_mismatch' => __('firewall.abuse_incidents.types.ip_mismatch'),
+            'suspicious_pattern' => __('firewall.abuse_incidents.types.suspicious_pattern'),
+            'other' => __('firewall.abuse_incidents.types.other'),
             default => ucfirst(str_replace('_', ' ', $this->incident_type)),
         };
     }

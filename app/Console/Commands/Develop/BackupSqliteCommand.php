@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands\Develop;
 
+use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\{DB, File, Schema};
 use Illuminate\Support\Str;
@@ -55,7 +56,7 @@ class BackupSqliteCommand extends Command
             );
 
             $this->info("Database backup created successfully: {$backupFile}");
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->error("Error creating backup: {$e->getMessage()}");
         }
     }
@@ -104,7 +105,7 @@ class BackupSqliteCommand extends Command
             File::put($filePath, $output);
 
             $this->info("Table {$table} exported successfully to {$fileName}");
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->error("Error exporting table: {$e->getMessage()}");
         }
     }
@@ -158,7 +159,7 @@ class BackupSqliteCommand extends Command
             File::copy($backupPath, $this->databasePath);
 
             $this->info('Database restored successfully');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->error("Error restoring database: {$e->getMessage()}");
         }
     }
@@ -229,7 +230,7 @@ class BackupSqliteCommand extends Command
             DB::commit();
 
             $this->info("Table {$table} restored successfully");
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
             $this->error("Error restoring table: {$e->getMessage()}");
         }

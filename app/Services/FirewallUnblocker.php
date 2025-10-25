@@ -7,6 +7,7 @@ namespace App\Services;
 use App\Exceptions\{CommandExecutionException, CsfServiceException};
 use App\Models\Host;
 use App\Services\Firewall\FirewallAnalysisResult;
+use Exception;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -184,7 +185,7 @@ class FirewallUnblocker
                 'operations' => ['unblock', 'temporal_whitelist_24h'],
             ]);
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('CSF operations failed', [
                 'ip' => $ipAddress,
                 'host' => $session->getHost()->fqdn,
@@ -217,7 +218,7 @@ class FirewallUnblocker
                 'removed' => $results['verification']['removed'] ?? false,
             ]);
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('BFM operations failed', [
                 'ip' => $ipAddress,
                 'host' => $session->getHost()->fqdn,
@@ -311,7 +312,7 @@ class FirewallUnblocker
             ];
 
             return $results;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('BFM file processing failed', [
                 'ip' => $ipAddress,
                 'error' => $e->getMessage(),

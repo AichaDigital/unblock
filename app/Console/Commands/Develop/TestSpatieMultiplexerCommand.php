@@ -3,6 +3,7 @@
 namespace App\Console\Commands\Develop;
 
 use App\Models\Host;
+use Exception;
 use Illuminate\Console\Command;
 use Spatie\Ssh\Ssh;
 
@@ -49,7 +50,7 @@ class TestSpatieMultiplexerCommand extends Command
 
             $this->info('✅ SPATIE/SSH WORKS - NO proc_open NEEDED');
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->error("❌ Spatie test failed: {$e->getMessage()}");
 
             return 1;
@@ -140,7 +141,7 @@ class TestSpatieMultiplexerCommand extends Command
         $process = $ssh->execute('whoami');
 
         if (! $process->isSuccessful()) {
-            throw new \Exception('Spatie SSH basic command failed: '.$process->getErrorOutput());
+            throw new Exception('Spatie SSH basic command failed: '.$process->getErrorOutput());
         }
 
         $output = trim($process->getOutput());
@@ -180,7 +181,7 @@ class TestSpatieMultiplexerCommand extends Command
                     $this->info("ℹ️  Command output: {$error}");
                 }
 
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->warn("⚠️  Spatie exception: {$e->getMessage()}");
             }
         }

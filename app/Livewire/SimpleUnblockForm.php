@@ -7,8 +7,12 @@ namespace App\Livewire;
 use App\Actions\SimpleUnblockAction;
 use App\Events\SimpleUnblock\{SimpleUnblockIpMismatch, SimpleUnblockOtpFailed, SimpleUnblockOtpSent, SimpleUnblockOtpVerified};
 use App\Models\User;
+use Exception;
+use Illuminate\View\View;
 use Livewire\Attributes\{Layout, Title};
 use Livewire\Component;
+use Log;
+use Str;
 
 /**
  * Simple Unblock Form Component (v1.2.0 - OTP Verification)
@@ -69,7 +73,7 @@ class SimpleUnblockForm extends Component
                 [
                     'first_name' => 'Simple',
                     'last_name' => 'Unblock',
-                    'password' => bcrypt(\Str::random(32)),
+                    'password' => bcrypt(Str::random(32)),
                     'is_admin' => false,
                 ]
             );
@@ -94,11 +98,11 @@ class SimpleUnblockForm extends Component
             $this->message = __('simple_unblock.otp_sent');
             $this->messageType = 'success';
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->message = __('simple_unblock.error_message');
             $this->messageType = 'error';
 
-            \Log::error('Simple unblock OTP send error', [
+            Log::error('Simple unblock OTP send error', [
                 'ip' => $this->ip,
                 'domain' => $this->domain,
                 'email' => $this->email,
@@ -132,13 +136,13 @@ class SimpleUnblockForm extends Component
                 // Dispatch IP mismatch event (v1.3.0)
                 SimpleUnblockIpMismatch::dispatch($storedIp, $currentIp, $storedData['email']);
 
-                throw new \Exception('IP mismatch during OTP verification');
+                throw new Exception('IP mismatch during OTP verification');
             }
 
             // Get user
             $user = User::where('email', $storedData['email'])->first();
             if (! $user) {
-                throw new \Exception('User not found for OTP verification');
+                throw new Exception('User not found for OTP verification');
             }
 
             // Verify OTP
@@ -175,11 +179,11 @@ class SimpleUnblockForm extends Component
             session()->forget(['simple_unblock_otp_ip', 'simple_unblock_otp_data']);
             $this->reset(['domain', 'email', 'oneTimePassword', 'step']);
             $this->ip = $this->detectUserIp();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->message = __('simple_unblock.error_message');
             $this->messageType = 'error';
 
-            \Log::error('Simple unblock OTP verification error', [
+            Log::error('Simple unblock OTP verification error', [
                 'email' => $this->email,
                 'error' => $e->getMessage(),
             ]);
@@ -212,7 +216,7 @@ class SimpleUnblockForm extends Component
     /**
      * Render the component
      */
-    public function render(): \Illuminate\View\View
+    public function render(): View
     {
         return view('livewire.simple-unblock-form');
     }

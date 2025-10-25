@@ -2,10 +2,11 @@
 
 namespace App\Filament\Resources\UserResource\RelationManagers;
 
-use Filament\Forms\Components\{Grid, Section, TextInput};
-use Filament\Forms\Form;
+use Filament\Actions\{BulkActionGroup, CreateAction, DeleteAction, DeleteBulkAction, EditAction};
+use Filament\Forms\Components\{TextInput};
 use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Tables;
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
 class DelegatedUsersRelationManager extends RelationManager
@@ -14,13 +15,13 @@ class DelegatedUsersRelationManager extends RelationManager
 
     protected static ?string $title = 'Usuarios Autorizados';
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
-                Section::make('Información del Usuario Delegado')
+        return $schema
+            ->components([
+                \Filament\Schemas\Components\Section::make('Información del Usuario Delegado')
                     ->schema([
-                        Grid::make(3)
+                        \Filament\Schemas\Components\Grid::make(3)
                             ->schema([
                                 TextInput::make('first_name')
                                     ->label('Nombre')
@@ -49,15 +50,15 @@ class DelegatedUsersRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('email')
             ->columns([
-                Tables\Columns\TextColumn::make('first_name')
+                TextColumn::make('first_name')
                     ->label('Nombre')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('last_name')
+                TextColumn::make('last_name')
                     ->label('Apellidos')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('email')
+                TextColumn::make('email')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('created_at')
+                TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -66,15 +67,15 @@ class DelegatedUsersRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make(),
+                CreateAction::make(),
             ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+            ->recordActions([
+                EditAction::make(),
+                DeleteAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }

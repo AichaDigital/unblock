@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\{Queue, Redis};
 
@@ -63,7 +64,7 @@ class QueueMonitorCommand extends Command
 
                 sleep(2);
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->error('❌ Watch mode interrupted: '.$e->getMessage());
 
             return self::FAILURE;
@@ -92,7 +93,7 @@ class QueueMonitorCommand extends Command
             $this->newLine();
             $this->showWorkerCommands($connection);
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->error('❌ Error checking queue status: '.$e->getMessage());
         }
     }
@@ -146,7 +147,7 @@ class QueueMonitorCommand extends Command
                 $this->info('✅ All queues are empty');
             }
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->error('❌ Cannot connect to Redis: '.$e->getMessage());
             $this->line('💡 Make sure Redis is running and configured correctly');
         }

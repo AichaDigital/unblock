@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use Exception;
 use GeoIp2\Database\Reader;
 use GeoIp2\Exception\AddressNotFoundException;
 use Illuminate\Support\Facades\Log;
@@ -30,7 +31,7 @@ class GeoIPService
         if ($this->enabled && file_exists($this->databasePath)) {
             try {
                 $this->reader = new Reader($this->databasePath);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 Log::warning('GeoIP: Failed to initialize reader', [
                     'error' => $e->getMessage(),
                     'path' => $this->databasePath,
@@ -77,7 +78,7 @@ class GeoIPService
         } catch (AddressNotFoundException $e) {
             // IP not found in database - this is normal
             return null;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::warning('GeoIP: Lookup failed', [
                 'ip' => $ip,
                 'error' => $e->getMessage(),

@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace App\Services\Firewall;
 
-use App\Models\Host;
+use App\Models\{BfmWhitelistEntry, Host};
 use App\Services\FirewallService;
+use Exception;
 use Illuminate\Support\Facades\Log;
+use InvalidArgumentException;
+use Throwable;
 
 /**
  * DirectAdmin Firewall Analyzer
@@ -246,7 +249,7 @@ readonly class DirectAdminFirewallAnalyzer implements FirewallAnalyzerInterface
             );
 
             return $finalResult;
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             Log::error(__('messages.firewall.logs.error_checking', [
                 'unity' => self::PANEL_TYPE,
                 'server' => $this->host->fqdn,
@@ -320,7 +323,7 @@ readonly class DirectAdminFirewallAnalyzer implements FirewallAnalyzerInterface
             if ($service === 'csf_specials') {
                 return new FirewallAnalysisResult(false, []);
             }
-            throw new \InvalidArgumentException("Unknown service: {$service}");
+            throw new InvalidArgumentException("Unknown service: {$service}");
         }
 
         $config = self::SERVICES[$service];
@@ -454,7 +457,7 @@ readonly class DirectAdminFirewallAnalyzer implements FirewallAnalyzerInterface
 
             // 3. Track in database for automatic removal after TTL
             $ttl = (int) (config('unblock.hq.ttl') ?? 7200); // Default 2 hours
-            \App\Models\BfmWhitelistEntry::create([
+            BfmWhitelistEntry::create([
                 'host_id' => $this->host->id,
                 'ip_address' => $ip,
                 'added_at' => now(),
@@ -474,7 +477,7 @@ readonly class DirectAdminFirewallAnalyzer implements FirewallAnalyzerInterface
 
             return new FirewallAnalysisResult(true, $logs);
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Return error result
             return new FirewallAnalysisResult(false, [
                 'da_bfm' => '',

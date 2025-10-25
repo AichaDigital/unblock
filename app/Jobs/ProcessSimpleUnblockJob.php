@@ -8,11 +8,13 @@ use App\Exceptions\{ConnectionFailedException, InvalidIpException};
 use App\Models\{Host, Report};
 use App\Services\{AnonymousUserService, FirewallUnblocker, SshConnectionManager};
 use App\Services\Firewall\{FirewallAnalysisResult, FirewallAnalyzerFactory};
+use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\{InteractsWithQueue, SerializesModels};
 use Illuminate\Support\Facades\{Cache, Log};
+use InvalidArgumentException;
 
 /**
  * Process Simple Unblock Job
@@ -95,7 +97,7 @@ class ProcessSimpleUnblockJob implements ShouldQueue
                 $this->logSilentAttempt($this->ip, $this->domain, $this->email, $host, 'no_match_found', $analysisResult);
             }
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Simple unblock job failed', [
                 'ip' => $this->ip,
                 'domain' => $this->domain,
@@ -345,7 +347,7 @@ class ProcessSimpleUnblockJob implements ShouldQueue
     {
         $host = Host::find($hostId);
         if (! $host) {
-            throw new \InvalidArgumentException("Host with ID {$hostId} not found in job");
+            throw new InvalidArgumentException("Host with ID {$hostId} not found in job");
         }
 
         return $host;
