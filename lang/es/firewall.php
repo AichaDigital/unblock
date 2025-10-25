@@ -1,6 +1,90 @@
 <?php
 
 return [
+    // Service (Unified Dashboard)
+    'service' => [
+        'title' => 'Servicio de Firewall',
+        'admin_title' => 'Gestión de Firewall (Admin)',
+        'description' => 'Consulta y gestiona el estado de IPs en el firewall',
+    ],
+
+    // Search & Selection
+    'search' => [
+        'select_target' => 'Selecciona dominio o servidor',
+        'placeholder' => 'Buscar dominio o servidor...',
+        'no_results' => 'No se encontraron resultados',
+    ],
+
+    // Groups
+    'groups' => [
+        'hostings' => 'Dominios',
+        'servers' => 'Servidores',
+    ],
+
+    // IP Address
+    'ip' => [
+        'label' => 'Dirección IP',
+    ],
+
+    // Actions
+    'actions' => [
+        'check' => 'Consultar Firewall',
+        'cancel' => 'Cancelar',
+    ],
+
+    // Help System
+    'help' => [
+        'need_help' => '¿Necesitas ayuda?',
+        'domain_explanation' => [
+            'title' => '¿Qué es un dominio?',
+            'description' => 'Un dominio es el nombre de tu sitio web (ej: miempresa.com)',
+            'examples' => 'Ejemplos: tudominio.com, blog.ejemplo.es',
+            'note' => 'Selecciona el dominio donde tienes el problema de acceso',
+        ],
+        'server_explanation' => [
+            'title' => '¿Qué es un servidor?',
+            'description' => 'Un servidor es la máquina donde están alojados tus sitios web',
+            'examples' => 'Ejemplos: servidor1.hosting.com, vps-madrid-01',
+            'note' => 'Selecciona el servidor si gestionas múltiples dominios en él',
+        ],
+        'ip_explanation' => [
+            'title' => '¿Qué dirección IP debo usar?',
+            'description' => 'La IP es la dirección desde la que intentas acceder a tu sitio',
+            'what_is_ip' => '¿Qué es una dirección IP?',
+            'why_default' => 'Por defecto mostramos tu IP actual, que es desde donde estás navegando ahora',
+            'current_ip' => 'Tu IP actual: Desde este dispositivo y red',
+            'problem_ip' => 'IP con problemas: Si el bloqueo es desde otro lugar, cámbiala',
+            'example' => 'Ejemplo: Si trabajas desde casa pero el bloqueo es en la oficina, usa la IP de la oficina',
+            'note' => '⚠️ Importante: Usa la IP desde donde NO puedes acceder, no desde donde SÍ funciona',
+        ],
+        'ip_detection' => [
+            'title' => '¿Cómo saber mi dirección IP?',
+            'current_device' => 'Automático: Ya detectamos tu IP actual',
+            'how_to_find' => 'Manual: Visita {url} desde el dispositivo bloqueado',
+            'common_issues' => 'Si usas VPN o proxy, la IP puede cambiar',
+        ],
+    ],
+
+    // Validation
+    'validation' => [
+        'selection_required' => 'Debes seleccionar un dominio o servidor',
+        'ip_required' => 'La dirección IP es obligatoria',
+        'invalid_ip' => 'La dirección IP no es válida',
+    ],
+
+    // Errors
+    'errors' => [
+        'invalid_target' => 'El objetivo seleccionado no es válido',
+        'process_error' => 'Error al procesar la solicitud',
+    ],
+
+    // Notifications
+    'notifications' => [
+        'query_sent_title' => 'Consulta enviada',
+        'query_sent_async' => 'La consulta se está procesando. Recibirás una notificación cuando termine.',
+        'error_title' => 'Error',
+    ],
+
     'bfm' => [
         'removed' => 'IP eliminada de la lista negra BFM de DirectAdmin',
         'whitelist_added' => 'IP añadida a la lista blanca BFM de DirectAdmin',
