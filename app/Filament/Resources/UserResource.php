@@ -29,7 +29,7 @@ class UserResource extends Resource
             ->components([
                 \Filament\Schemas\Components\Section::make('Información Personal')
                     ->schema([
-                        \Filament\Schemas\Components\Grid::make(3)
+                        \Filament\Schemas\Components\Grid::make(4)
                             ->schema([
                                 TextInput::make('first_name')
                                     ->label('Nombre')
@@ -38,12 +38,13 @@ class UserResource extends Resource
                                     ->label('Apellidos'),
                                 TextInput::make('company_name')
                                     ->label('Empresa'),
+                                TextInput::make('email')
+                                    ->email()
+                                    ->required()
+                                    ->unique(ignoreRecord: true),
                             ]),
-                        TextInput::make('email')
-                            ->email()
-                            ->required()
-                            ->unique(ignoreRecord: true),
-                    ]),
+                    ])
+                    ->columns(1),
 
                 \Filament\Schemas\Components\Section::make('Acceso')
                     ->schema([
@@ -60,34 +61,37 @@ class UserResource extends Resource
                             ]),
                     ]),
 
-                \Filament\Schemas\Components\Section::make('Permisos y Estado')
+                \Filament\Schemas\Components\Grid::make(2)
                     ->schema([
-                        \Filament\Schemas\Components\Grid::make(2)
+                        \Filament\Schemas\Components\Section::make('Permisos y Estado')
                             ->schema([
                                 Toggle::make('is_admin')
                                     ->label('Administrador'),
-                            ]),
-                        Select::make('parent_user_id')
-                            ->label('Usuario Principal (Responsable)')
-                            ->relationship('parentUser', 'email')
-                            ->getOptionLabelFromRecordUsing(fn ($record) => $record->name.' ('.$record->email.')')
-                            ->searchable()
-                            ->preload()
-                            ->nullable()
-                            ->helperText('Solo seleccionar si este usuario es un autorizado/delegado de otro usuario principal. Dejar vacío para usuarios principales.')
-                            ->options(function () {
-                                // Solo mostrar usuarios que NO tienen parent_user_id (usuarios principales)
-                                return User::whereNull('parent_user_id')
-                                    ->pluck('email', 'id')
-                                    ->mapWithKeys(function ($email, $id) {
-                                        $user = User::find($id);
+                                Select::make('parent_user_id')
+                                    ->label('Usuario Principal (Responsable)')
+                                    ->relationship('parentUser', 'email')
+                                    ->getOptionLabelFromRecordUsing(fn ($record) => $record->name.' ('.$record->email.')')
+                                    ->searchable()
+                                    ->preload()
+                                    ->nullable()
+                                    ->helperText('Solo seleccionar si este usuario es un autorizado/delegado de otro usuario principal. Dejar vacío para usuarios principales.')
+                                    ->options(function () {
+                                        // Solo mostrar usuarios que NO tienen parent_user_id (usuarios principales)
+                                        return User::whereNull('parent_user_id')
+                                            ->pluck('email', 'id')
+                                            ->mapWithKeys(function ($email, $id) {
+                                                $user = User::find($id);
 
-                                        return [$id => $user->name.' ('.$email.')'];
-                                    });
-                            }),
-                        TextInput::make('whmcs_client_id')
-                            ->label('ID Cliente WHMCS')
-                            ->nullable(),
+                                                return [$id => $user->name.' ('.$email.')'];
+                                            });
+                                    }),
+                            ]),
+                        \Filament\Schemas\Components\Section::make('Acceso')
+                            ->schema([
+                                TextInput::make('whmcs_client_id')
+                                    ->label('ID Cliente WHMCS')
+                                    ->nullable(),
+                            ]),
                     ]),
             ]);
     }

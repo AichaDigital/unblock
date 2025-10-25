@@ -56,7 +56,7 @@ class HostResource extends Resource
                             ->required(),
                         TextInput::make('admin')
                             ->required(),
-                    ])->columns(3),
+                    ])->columns(2),
 
                 \Filament\Schemas\Components\Fieldset::make('Claves SSH')
                     ->schema([

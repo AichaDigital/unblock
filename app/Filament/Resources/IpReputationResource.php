@@ -94,6 +94,33 @@ class IpReputationResource extends Resource
                             ]),
                     ]),
 
+                \Filament\Schemas\Components\Section::make('Geographic Information')
+                    ->schema([
+                        \Filament\Schemas\Components\Grid::make(3)
+                            ->schema([
+                                TextInput::make('country_name')
+                                    ->label('Country')
+                                    ->disabled(),
+                                TextInput::make('city')
+                                    ->label('City')
+                                    ->disabled(),
+                                TextInput::make('timezone')
+                                    ->label('Timezone')
+                                    ->disabled(),
+                            ]),
+                        \Filament\Schemas\Components\Grid::make(2)
+                            ->schema([
+                                TextInput::make('latitude')
+                                    ->label('Latitude')
+                                    ->disabled(),
+                                TextInput::make('longitude')
+                                    ->label('Longitude')
+                                    ->disabled(),
+                            ]),
+                    ])
+                    ->collapsed()
+                    ->visible(fn ($record) => $record && $record->country_code !== null),
+
                 \Filament\Schemas\Components\Section::make(__('firewall.ip_reputation.notes'))
                     ->schema([
                         Textarea::make('notes')
@@ -153,6 +180,13 @@ class IpReputationResource extends Resource
                     ->color(fn ($record) => $record->success_rate >= 80 ? 'success' : ($record->success_rate >= 50 ? 'warning' : 'danger'))
                     ->alignCenter(),
 
+                TextColumn::make('country_name')
+                    ->label('Country')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: false)
+                    ->icon(fn ($record) => $record->country_code ? 'heroicon-o-globe-alt' : null)
+                    ->description(fn ($record) => $record->city),
+
                 TextColumn::make('last_seen_at')
                     ->label(__('firewall.ip_reputation.last_seen'))
                     ->dateTime()
@@ -186,6 +220,15 @@ class IpReputationResource extends Resource
                             default => $query,
                         };
                     }),
+
+                SelectFilter::make('country_code')
+                    ->label('Country')
+                    ->options(fn () => IpReputation::whereNotNull('country_code')
+                        ->distinct()
+                        ->pluck('country_name', 'country_code')
+                        ->toArray()
+                    )
+                    ->searchable(),
 
                 Filter::make('subnet')
                     ->schema([
