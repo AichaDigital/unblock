@@ -24,7 +24,7 @@
         "spatie/ssh": "^1.12",
         "symfony/mailer": "~7.3.4",
         "valentin-morice/filament-json-column": "dev-dev",
-        "wireui/wireui": "^2.2"
+        "wireui/wireui": "^2.4"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.15",
