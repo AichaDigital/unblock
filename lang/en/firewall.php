@@ -18,6 +18,17 @@ return [
         'target_checked' => 'Target Checked',
     ],
 
+    // Help System
+    'help' => [
+        'ip_detection' => [
+            'title' => 'How to know my IP address?',
+            'current_device' => 'Automatic: We already detected your current IP',
+            'how_to_find' => 'Manual: Visit {url} from the blocked device',
+            'common_issues' => 'If you use VPN or proxy, the IP may change',
+            'use_detected' => 'Use detected IP: {ip}',
+        ],
+    ],
+
     'bfm' => [
         'removed' => 'IP removed from DirectAdmin BFM blacklist',
         'whitelist_added' => 'IP added to DirectAdmin BFM whitelist',

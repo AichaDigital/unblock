@@ -73,6 +73,7 @@ return [
             'current_device' => 'Automático: Ya detectamos tu IP actual',
             'how_to_find' => 'Manual: Visita {url} desde el dispositivo bloqueado',
             'common_issues' => 'Si usas VPN o proxy, la IP puede cambiar',
+            'use_detected' => 'Usar IP detectada: {ip}',
         ],
     ],
 
