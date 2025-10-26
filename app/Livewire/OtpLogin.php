@@ -3,8 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\User;
-use App\Traits\AuditLoginTrait;
-use App\Traits\HasNotifications;
+use App\Traits\{AuditLoginTrait, HasNotifications};
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\{Layout, On};
@@ -43,11 +42,12 @@ class OtpLogin extends Component
 
         // Check if there's a session expired message
         if (session()->has('message')) {
-            $this->notification()->send([
-                'icon' => 'warning',
+            $this->dispatch('notify', [
+                'type' => 'warning',
                 'title' => 'Sesión expirada',
                 'description' => session('message'),
             ]);
+            session()->forget('message');
         }
     }
 
@@ -83,8 +83,8 @@ class OtpLogin extends Component
             // Bind OTP request to client IP for later verification
             session()->put('otp_request_ip', $ip);
 
-            $this->notification()->send([
-                'icon' => 'info',
+            $this->dispatch('notify', [
+                'type' => 'info',
                 'title' => 'Código enviado',
                 'description' => 'Se ha enviado un código de 6 dígitos a '.$this->email,
             ]);
@@ -98,8 +98,8 @@ class OtpLogin extends Component
         } catch (ValidationException $e) {
             $validationErrors = $e->validator->errors()->getMessages();
 
-            $this->notification()->send([
-                'icon' => 'error',
+            $this->dispatch('notify', [
+                'type' => 'error',
                 'title' => 'Error de validación',
                 'description' => $validationErrors['email'][0] ?? 'Email inválido',
             ]);
@@ -147,8 +147,8 @@ class OtpLogin extends Component
                 // Set initial session activity timestamp
                 session()->put('last_activity', now()->timestamp);
 
-                $this->notification()->send([
-                    'icon' => 'success',
+                $this->dispatch('notify', [
+                    'type' => 'success',
                     'title' => 'Acceso autorizado',
                     'description' => 'Bienvenido al sistema',
                 ]);
@@ -160,8 +160,8 @@ class OtpLogin extends Component
                 // Incorrect or expired OTP - get specific message from enum
                 $errorMessage = $result->validationMessage();
 
-                $this->notification()->send([
-                    'icon' => 'error',
+                $this->dispatch('notify', [
+                    'type' => 'error',
                     'title' => 'Código inválido',
                     'description' => $errorMessage,
                 ]);
@@ -179,8 +179,8 @@ class OtpLogin extends Component
             $validationErrors = $e->validator->errors()->getMessages();
 
             if (isset($validationErrors['oneTimePassword'])) {
-                $this->notification()->send([
-                    'icon' => 'error',
+                $this->dispatch('notify', [
+                    'type' => 'error',
                     'title' => 'Error de validación',
                     'description' => $validationErrors['oneTimePassword'][0],
                 ]);
@@ -207,8 +207,8 @@ class OtpLogin extends Component
 
         $this->user->sendOneTimePassword();
 
-        $this->notification()->send([
-            'icon' => 'info',
+        $this->dispatch('notify', [
+            'type' => 'info',
             'title' => 'Código reenviado',
             'description' => 'Se ha enviado un nuevo código a '.$this->email,
         ]);

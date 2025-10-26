@@ -29,11 +29,14 @@ trait HasNotifications
 
         $type = $iconMap[$notification['icon']] ?? 'info';
 
-        $this->dispatch('notify', [
+        // Dispatch browser event for Alpine.js to catch
+        $payload = json_encode([
             'type' => $type,
             'title' => $notification['title'],
             'description' => $notification['description'],
         ]);
+
+        $this->js("window.dispatchEvent(new CustomEvent('notify', { detail: {$payload} }))");
     }
 
     /**

@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-theme="winter" class="h-full bg-white">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-theme="winter">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     {{-- Initialize theme from localStorage before render --}}
     <script>
@@ -21,31 +22,27 @@
 
     <title>{{ config('app.name', 'Laravel') }}</title>
 
-    <!-- Estilos -->
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
+    <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="relative min-h-screen overflow-hidden bg-emerald-100 font-sans antialiased">
+<body class="font-sans antialiased">
+    <!-- Theme Switcher (fixed top-right) -->
+    <div class="fixed top-4 right-4 z-50">
+        <x-theme-switcher />
+    </div>
 
-    <x-emerald-background />
-
-    <!-- Contenido principal -->
-    <div class="relative z-10 min-h-screen">
+    <!-- Page Content -->
+    <div class="min-h-screen bg-base-200">
         <main>
-            {{ $slot }} <!-- Este es el lugar donde se insertará el contenido de las vistas Livewire -->
+            {{ $slot }}
         </main>
     </div>
 
-    <!-- Notificaciones DaisyUI (reemplaza WireUI) -->
+    <!-- Notificaciones DaisyUI -->
     <x-notifications />
-
-
-
-<footer>
-    <!-- Pie de página -->
-</footer>
-
 </body>
 </html>
