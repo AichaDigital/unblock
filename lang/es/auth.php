@@ -18,6 +18,11 @@ return [
     'throttle' => 'Demasiados intentos de inicio de sesión. Por favor, inténtalo de nuevo en :seconds segundos.',
     'ip_mismatch' => 'Este código solo puede usarse desde la misma IP que lo solicitó.',
 
+    // Simple Mode Texts
+    'simple_mode_title' => 'Acceso al sistema de desbloqueo',
+    'simple_mode_email_placeholder' => 'Tu dirección de correo electrónico',
+    'simple_mode_email_help' => 'Introduce cualquier dirección de email válida',
+
     // Login form translations
     'Solo cuentas de cliente' => 'Solo cuentas de cliente',
     'Correo electrónico' => 'Correo electrónico',

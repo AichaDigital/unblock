@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -17,13 +18,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $id
  * @property int $host_id
  * @property string $ip_address
- * @property \Carbon\Carbon $added_at
- * @property \Carbon\Carbon $expires_at
+ * @property Carbon $added_at
+ * @property Carbon $expires_at
  * @property bool $removed
- * @property \Carbon\Carbon|null $removed_at
+ * @property Carbon|null $removed_at
  * @property string|null $notes
- * @property \Carbon\Carbon $created_at
- * @property \Carbon\Carbon $updated_at
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
  * @property-read Host $host
  */
 class BfmWhitelistEntry extends Model

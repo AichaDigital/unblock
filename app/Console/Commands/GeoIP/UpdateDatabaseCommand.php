@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Console\Commands\GeoIP;
 
+use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\{File, Http, Log};
 
@@ -67,7 +68,7 @@ class UpdateDatabaseCommand extends Command
             Log::info('GeoIP database updated successfully');
 
             return self::SUCCESS;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->error('✗ Failed to update GeoIP database');
             $this->error('  Error: '.$e->getMessage());
 
@@ -141,7 +142,7 @@ class UpdateDatabaseCommand extends Command
         $response = Http::timeout(300)->get($url);
 
         if (! $response->successful()) {
-            throw new \Exception('Failed to download database: HTTP '.$response->status());
+            throw new Exception('Failed to download database: HTTP '.$response->status());
         }
 
         File::put($tempPath, $response->body());
@@ -164,14 +165,14 @@ class UpdateDatabaseCommand extends Command
         exec($command, $output, $returnCode);
 
         if ($returnCode !== 0) {
-            throw new \Exception('Failed to extract archive');
+            throw new Exception('Failed to extract archive');
         }
 
         // Find .mmdb file recursively
         $mmdbFiles = File::glob($extractPath.'/**/*.mmdb');
 
         if (empty($mmdbFiles)) {
-            throw new \Exception('No .mmdb file found in archive');
+            throw new Exception('No .mmdb file found in archive');
         }
 
         $this->line('  Found: '.basename($mmdbFiles[0]));

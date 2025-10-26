@@ -1,21 +1,34 @@
 <div>
     <!-- Logo y título profesionales -->
     <div class="mb-6 text-center">
-        <h2 class="mt-4 text-xl font-bold leading-9 tracking-tight text-gray-800 sm:text-2xl">
-            {{ __('Solo cuentas de cliente') }}
+        <h2 class="mt-4 text-xl font-bold leading-9 tracking-tight text-base-content sm:text-2xl">
+            {{ $this->getTitle() }}
         </h2>
     </div>
 
     @if(!$otpSent)
         <!-- Paso 1: Solicitar código -->
         <form wire:submit.prevent="sendOtp" class="space-y-6">
-            <x-input
-                wire:model="email"
-                icon="envelope"
-                placeholder="{{ __('Cuenta de correo electrónico de usuario') }}"
-                label="{{ __('Correo electrónico') }}"
-                description="{{ __('Cuenta de usuario o usuario autorizado') }}"
-            />
+            <label class="form-control w-full">
+                <div class="label">
+                    <span class="label-text font-medium">{{ __('Correo electrónico') }}</span>
+                </div>
+                <label class="input input-bordered flex items-center gap-2 w-full">
+                    <svg class="h-4 w-4 opacity-70" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect width="20" height="16" x="2" y="4" rx="2"></rect>
+                        <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+                    </svg>
+                    <input
+                        type="email"
+                        wire:model="email"
+                        class="grow"
+                        placeholder="{{ $this->getEmailPlaceholder() }}"
+                    />
+                </label>
+                <div class="label mt-2">
+                    <span class="label-text-alt text-base-content/60 break-words">{{ $this->getEmailHelpText() }}</span>
+                </div>
+            </label>
 
             <div class="mt-6">
                 <button
@@ -23,12 +36,7 @@
                     wire:loading.attr="disabled"
                     wire:target="sendOtp"
                     @disabled($sendingOtp)
-                    class="w-full inline-flex justify-center rounded-2xl px-6 py-3 text-base font-semibold text-white shadow-lg transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 active:scale-95
-                    @if($sendingOtp)
-                        bg-emerald-400 cursor-not-allowed opacity-75
-                    @else
-                        bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 focus-visible:outline-emerald-600
-                    @endif"
+                    class="btn btn-primary w-full rounded-2xl px-6 py-3 text-base font-semibold shadow-lg"
                 >
                     <span wire:loading.remove wire:target="sendOtp">
                         @if($sendingOtp)
@@ -38,9 +46,9 @@
                         @endif
                     </span>
                     <span wire:loading wire:target="sendOtp" class="flex items-center">
-                        <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                        <svg class="animate-spin -ml-1 mr-3 h-5 w-5" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
                         Enviando código...
                     </span>
@@ -52,53 +60,85 @@
         <form wire:submit.prevent="verifyOtp" class="space-y-6">
             <!-- Información del email -->
             <div class="text-center mb-6">
-                <p class="text-sm text-gray-600">
+                <p class="text-sm text-base-content/70">
                     Se ha enviado un código de 6 dígitos a:
                 </p>
-                <p class="font-semibold text-gray-800">{{ $email }}</p>
+                <p class="font-semibold text-base-content">{{ $email }}</p>
             </div>
 
-            <!-- Campo OTP con auto-verificación -->
+            <!-- Campo OTP con auto-verificación - 6 casillas separadas estilo Stripe -->
             <div class="space-y-4">
-                <x-input
-                    wire:model.live="oneTimePassword"
-                    icon="key"
-                    placeholder="000000"
-                    label="Código de verificación"
-                    description="Introduce o pega el código de 6 dígitos que recibiste por email"
-                    maxlength="6"
-                    class="text-center text-lg tracking-widest font-mono"
-                    x-data="{
-                        autoVerifyTimeout: null,
-                        init() {
-                            this.$watch('$wire.oneTimePassword', (value) => {
-                                // Clear previous timeout
-                                if (this.autoVerifyTimeout) {
-                                    clearTimeout(this.autoVerifyTimeout);
-                                }
+                <div class="form-control w-full">
+                    <div class="label justify-center">
+                        <span class="label-text font-medium">Código de verificación</span>
+                    </div>
 
-                                // If we have exactly 6 characters, auto-verify after 500ms
-                                if (value && value.length === 6 && !$wire.authenticating) {
-                                    this.autoVerifyTimeout = setTimeout(() => {
-                                        $wire.verifyOtp();
-                                    }, 500);
-                                }
-                            });
-                        }
-                    }"
-                />
+                    <!-- 6 casillas OTP estilo Stripe -->
+                    <div class="flex flex-col items-center gap-4"
+                         x-data="{
+                             get code() {
+                                 return $wire.oneTimePassword || '';
+                             },
+                             getDigit(index) {
+                                 return this.code[index] || '';
+                             },
+                             focusInput() {
+                                 $refs.otpInput.focus();
+                             }
+                         }"
+                         x-init="
+                             const handlePaste = (e) => {
+                                 const pastedText = (e.clipboardData || window.clipboardData).getData('text');
+                                 const digits = pastedText.replace(/[^0-9]/g, '');
+                                 if (digits.length === 6) {
+                                     e.preventDefault();
+                                     $wire.oneTimePassword = digits;
+                                 }
+                             };
+                             document.addEventListener('paste', handlePaste);
+                             $el.addEventListener('destroy', () => {
+                                 document.removeEventListener('paste', handlePaste);
+                             });
+                         ">
+                        <!-- Input real que captura todo -->
+                        <div class="relative w-full max-w-sm mx-auto">
+                            <input
+                                x-ref="otpInput"
+                                type="text"
+                                inputmode="numeric"
+                                maxlength="6"
+                                wire:model.live="oneTimePassword"
+                                x-init="
+                                    $el.focus();
+                                    $watch('$wire.oneTimePassword', (value) => {
+                                        if (value && value.length === 6 && !$wire.authenticating) {
+                                            setTimeout(() => $wire.verifyOtp(), 500);
+                                        }
+                                    });
+                                "
+                                @input="$event.target.value = $event.target.value.replace(/[^0-9]/g, '')"
+                                class="w-full h-0 opacity-0 absolute top-0"
+                                style="width: 1px; height: 1px; position: absolute; left: 50%; caret-color: transparent;"
+                                autocomplete="one-time-code"
+                            />
 
-                <!-- Indicador visual de progreso -->
-                <div class="flex justify-center space-x-1">
-                    @for($i = 1; $i <= 6; $i++)
-                        <div class="w-3 h-1 rounded-full transition-colors duration-200
-                            @if(strlen($oneTimePassword) >= $i)
-                                bg-emerald-500
-                            @else
-                                bg-gray-200
-                            @endif
-                        "></div>
-                    @endfor
+                            <!-- 6 casillas visuales que muestran los dígitos -->
+                            <div class="flex justify-center gap-2" @click="focusInput()">
+                                @for($i = 0; $i < 6; $i++)
+                                    <div
+                                        class="input input-bordered w-12 h-14 flex items-center justify-center text-2xl font-mono font-bold cursor-text transition-all"
+                                        :class="{ 'ring-2 ring-primary': code.length === {{ $i }} }"
+                                    >
+                                        <span x-text="getDigit({{ $i }})"></span>
+                                    </div>
+                                @endfor
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="label mt-2">
+                        <span class="label-text-alt text-base-content/60 break-words text-center w-full">Introduce o pega el código de 6 dígitos que recibiste por email</span>
+                    </div>
                 </div>
             </div>
 
@@ -109,21 +149,14 @@
                     wire:loading.attr="disabled"
                     wire:target="verifyOtp"
                     @disabled($authenticating || empty($oneTimePassword))
-                    class="w-full inline-flex justify-center rounded-2xl px-6 py-3 text-base font-semibold text-white shadow-lg transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 active:scale-95
-                    @if($authenticating)
-                        bg-emerald-400 cursor-not-allowed opacity-75
-                    @elseif(empty($oneTimePassword))
-                        bg-gray-400 cursor-not-allowed opacity-75
-                    @else
-                        bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 focus-visible:outline-emerald-600
-                    @endif"
+                    class="btn btn-primary w-full rounded-2xl px-6 py-3 text-base font-semibold shadow-lg"
                 >
                     <span wire:loading.remove wire:target="verifyOtp">
                         @if($authenticating)
                             <span class="flex items-center">
-                                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                                <svg class="animate-spin -ml-1 mr-3 h-5 w-5" fill="none" viewBox="0 0 24 24">
                                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 0 1 4 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                 </svg>
                                 Verificando...
                             </span>
@@ -132,16 +165,16 @@
                         @endif
                     </span>
                     <span wire:loading wire:target="verifyOtp" class="flex items-center">
-                        <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                        <svg class="animate-spin -ml-1 mr-3 h-5 w-5" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 818-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 0 1 4 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
                         Verificando...
                     </span>
                 </button>
 
                 <!-- Texto explicativo sobre auto-verificación -->
-                <p class="text-xs text-gray-500 text-center">
+                <p class="text-xs text-base-content/60 text-center">
                     El código se verifica automáticamente al completar 6 dígitos
                 </p>
 
@@ -153,9 +186,9 @@
                         @disabled(!$canResend)
                         class="text-sm transition-colors duration-200
                         @if($canResend)
-                            text-emerald-600 hover:text-emerald-700 underline cursor-pointer
+                            text-primary hover:text-primary-focus underline cursor-pointer
                         @else
-                            text-gray-400 cursor-not-allowed
+                            text-base-content/40 cursor-not-allowed
                         @endif"
                     >
                         @if($canResend)
@@ -171,7 +204,7 @@
                     <button
                         type="button"
                         wire:click="resetForm"
-                        class="text-sm text-gray-500 hover:text-gray-700 underline transition-colors duration-200"
+                        class="text-sm text-base-content/60 hover:text-base-content underline transition-colors duration-200"
                     >
                         Usar otra cuenta de email
                     </button>
@@ -182,15 +215,15 @@
 
     <!-- Información de ayuda (solo para usuarios no admin) -->
     @if(!$otpSent && !auth()->check())
-        <div class="mt-8 border-t border-gray-200 pt-6">
+        <div class="mt-8 border-t border-base-300 pt-6">
             <details class="group">
-                <summary class="flex cursor-pointer items-center justify-between text-sm font-medium text-gray-700 hover:text-gray-900">
+                <summary class="flex cursor-pointer items-center justify-between text-sm font-medium text-base-content hover:text-primary">
                     <span>¿Necesitas ayuda?</span>
-                    <svg class="h-5 w-5 text-gray-400 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg class="h-5 w-5 text-base-content/40 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                     </svg>
                 </summary>
-                <div class="mt-3 text-sm text-gray-600 space-y-2">
+                <div class="mt-3 text-sm text-base-content/70 space-y-2">
                     <p>Este sistema de acceso utiliza códigos de un solo uso enviados por email para mayor seguridad.</p>
                     <p>Si no recibes el código:</p>
                     <ul class="list-disc list-inside ml-4 space-y-1">

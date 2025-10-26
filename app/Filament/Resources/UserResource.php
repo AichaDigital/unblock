@@ -2,31 +2,34 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\UserResource\{Pages,
+use App\Filament\Resources\UserResource\{
     RelationManagers\DelegatedUsersRelationManager,
     RelationManagers\HostingsRelationManager,
     RelationManagers\HostsRelationManager};
+use App\Filament\Resources\UserResource\Pages\{CreateUser, EditUser, ListUsers, ViewUser};
 use App\Models\User;
-use Filament\Forms\Components\{Grid, Section, Select, TextInput, Toggle};
-use Filament\Forms\Form;
+use Filament\Actions\{BulkActionGroup, DeleteAction, DeleteBulkAction, EditAction, ForceDeleteAction, ForceDeleteBulkAction, RestoreAction, RestoreBulkAction, ViewAction};
+use Filament\Forms\Components\{Select, TextInput, Toggle};
 use Filament\Resources\Resource;
-use Filament\Tables;
-use Filament\Tables\{Filters, Table};
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\{IconColumn, TextColumn};
+use Filament\Tables\Filters\{SelectFilter, TrashedFilter};
+use Filament\Tables\{Table};
 use Illuminate\Database\Eloquent\{Builder, SoftDeletingScope};
 
 class UserResource extends Resource
 {
     protected static ?string $model = User::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-users';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-users';
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
-                Section::make('Información Personal')
+        return $schema
+            ->components([
+                \Filament\Schemas\Components\Section::make('Información Personal')
                     ->schema([
-                        Grid::make(3)
+                        \Filament\Schemas\Components\Grid::make(4)
                             ->schema([
                                 TextInput::make('first_name')
                                     ->label('Nombre')
@@ -35,16 +38,17 @@ class UserResource extends Resource
                                     ->label('Apellidos'),
                                 TextInput::make('company_name')
                                     ->label('Empresa'),
+                                TextInput::make('email')
+                                    ->email()
+                                    ->required()
+                                    ->unique(ignoreRecord: true),
                             ]),
-                        TextInput::make('email')
-                            ->email()
-                            ->required()
-                            ->unique(ignoreRecord: true),
-                    ]),
+                    ])
+                    ->columns(1),
 
-                Section::make('Acceso')
+                \Filament\Schemas\Components\Section::make('Acceso')
                     ->schema([
-                        Grid::make(2)
+                        \Filament\Schemas\Components\Grid::make(2)
                             ->schema([
                                 TextInput::make('password')
                                     ->password()
@@ -57,34 +61,37 @@ class UserResource extends Resource
                             ]),
                     ]),
 
-                Section::make('Permisos y Estado')
+                \Filament\Schemas\Components\Grid::make(2)
                     ->schema([
-                        Grid::make(2)
+                        \Filament\Schemas\Components\Section::make('Permisos y Estado')
                             ->schema([
                                 Toggle::make('is_admin')
                                     ->label('Administrador'),
-                            ]),
-                        Select::make('parent_user_id')
-                            ->label('Usuario Principal (Responsable)')
-                            ->relationship('parentUser', 'email')
-                            ->getOptionLabelFromRecordUsing(fn ($record) => $record->name.' ('.$record->email.')')
-                            ->searchable()
-                            ->preload()
-                            ->nullable()
-                            ->helperText('Solo seleccionar si este usuario es un autorizado/delegado de otro usuario principal. Dejar vacío para usuarios principales.')
-                            ->options(function () {
-                                // Solo mostrar usuarios que NO tienen parent_user_id (usuarios principales)
-                                return User::whereNull('parent_user_id')
-                                    ->pluck('email', 'id')
-                                    ->mapWithKeys(function ($email, $id) {
-                                        $user = User::find($id);
+                                Select::make('parent_user_id')
+                                    ->label('Usuario Principal (Responsable)')
+                                    ->relationship('parentUser', 'email')
+                                    ->getOptionLabelFromRecordUsing(fn ($record) => $record->name.' ('.$record->email.')')
+                                    ->searchable()
+                                    ->preload()
+                                    ->nullable()
+                                    ->helperText('Solo seleccionar si este usuario es un autorizado/delegado de otro usuario principal. Dejar vacío para usuarios principales.')
+                                    ->options(function () {
+                                        // Solo mostrar usuarios que NO tienen parent_user_id (usuarios principales)
+                                        return User::whereNull('parent_user_id')
+                                            ->pluck('email', 'id')
+                                            ->mapWithKeys(function ($email, $id) {
+                                                $user = User::find($id);
 
-                                        return [$id => $user->name.' ('.$email.')'];
-                                    });
-                            }),
-                        TextInput::make('whmcs_client_id')
-                            ->label('ID Cliente WHMCS')
-                            ->nullable(),
+                                                return [$id => $user->name.' ('.$email.')'];
+                                            });
+                                    }),
+                            ]),
+                        \Filament\Schemas\Components\Section::make('Acceso')
+                            ->schema([
+                                TextInput::make('whmcs_client_id')
+                                    ->label('ID Cliente WHMCS')
+                                    ->nullable(),
+                            ]),
                     ]),
             ]);
     }
@@ -93,21 +100,21 @@ class UserResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('id')
+                TextColumn::make('id')
                     ->searchable()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('name')
+                TextColumn::make('name')
                     ->label('Nombre')
                     ->searchable(['first_name', 'last_name'])
                     ->description(fn ($record) => $record->company_name),
-                Tables\Columns\TextColumn::make('email')
+                TextColumn::make('email')
                     ->searchable()
                     ->copyable(),
-                Tables\Columns\IconColumn::make('is_admin')
+                IconColumn::make('is_admin')
                     ->label('Admin')
                     ->boolean(),
-                Tables\Columns\TextColumn::make('parentUser.name')
+                TextColumn::make('parentUser.name')
                     ->label('Responsable')
                     ->searchable(['users.first_name', 'users.last_name'])
                     ->placeholder('Usuario Principal')
@@ -115,25 +122,25 @@ class UserResource extends Resource
                     ->badge()
                     ->color(fn ($record) => $record->parent_user_id ? 'info' : 'success')
                     ->toggleable(isToggledHiddenByDefault: false),
-                Tables\Columns\TextColumn::make('created_at')
+                TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('deleted_at')
+                TextColumn::make('deleted_at')
                     ->label('Eliminado')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                Filters\TrashedFilter::make(),
-                Filters\SelectFilter::make('is_admin')
+                TrashedFilter::make(),
+                SelectFilter::make('is_admin')
                     ->label('Tipo')
                     ->options([
                         '1' => 'Administrador',
                         '0' => 'Usuario Normal',
                     ]),
-                Filters\SelectFilter::make('parent_user_id')
+                SelectFilter::make('parent_user_id')
                     ->label('Tipo de Usuario')
                     ->options([
                         '' => 'Todos los usuarios',
@@ -150,18 +157,18 @@ class UserResource extends Resource
                         return $query;
                     }),
             ])
-            ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
-                Tables\Actions\RestoreAction::make(),
-                Tables\Actions\ForceDeleteAction::make(),
+            ->recordActions([
+                ViewAction::make(),
+                EditAction::make(),
+                DeleteAction::make(),
+                RestoreAction::make(),
+                ForceDeleteAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                    Tables\Actions\RestoreBulkAction::make(),
-                    Tables\Actions\ForceDeleteBulkAction::make(),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
+                    RestoreBulkAction::make(),
+                    ForceDeleteBulkAction::make(),
                 ]),
             ])
             ->modifyQueryUsing(fn (Builder $query) => $query->withoutGlobalScopes([
@@ -181,10 +188,10 @@ class UserResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListUsers::route('/'),
-            'create' => Pages\CreateUser::route('/create'),
-            'edit' => Pages\EditUser::route('/{record}/edit'),
-            'view' => Pages\ViewUser::route('/{record}'),
+            'index' => ListUsers::route('/'),
+            'create' => CreateUser::route('/create'),
+            'edit' => EditUser::route('/{record}/edit'),
+            'view' => ViewUser::route('/{record}'),
         ];
     }
 

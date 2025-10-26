@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\IpReputationResource\Pages;
+use App\Filament\Resources\IpReputationResource\Pages\{ListIpReputations, ViewIpReputation};
 use App\Models\IpReputation;
-use Filament\Forms\Components\{Grid, Section, TextInput, Textarea};
-use Filament\Forms\Form;
+use Filament\Actions\{Action, BulkActionGroup, EditAction, ViewAction};
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\{TextInput, Textarea};
 use Filament\Resources\Resource;
-use Filament\Tables;
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\{Filter, SelectFilter};
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -17,70 +20,113 @@ class IpReputationResource extends Resource
 {
     protected static ?string $model = IpReputation::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-shield-check';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-shield-check';
 
-    protected static ?string $navigationLabel = 'IP Reputation';
+    public static function getNavigationLabel(): string
+    {
+        return __('firewall.ip_reputation.navigation_label');
+    }
 
-    protected static ?string $navigationGroup = 'Simple Unblock Security';
+    public static function getNavigationGroup(): ?string
+    {
+        return __('firewall.ip_reputation.navigation_group');
+    }
 
     protected static ?int $navigationSort = 1;
 
-    public static function form(Form $form): Form
+    public static function getModelLabel(): string
     {
-        return $form
-            ->schema([
-                Section::make('IP Information')
+        return __('firewall.ip_reputation.singular');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('firewall.ip_reputation.plural');
+    }
+
+    public static function form(Schema $schema): Schema
+    {
+        return $schema
+            ->components([
+                \Filament\Schemas\Components\Section::make(__('firewall.ip_reputation.ip_information'))
                     ->schema([
-                        Grid::make(2)
+                        \Filament\Schemas\Components\Grid::make(2)
                             ->schema([
                                 TextInput::make('ip')
-                                    ->label('IP Address')
+                                    ->label(__('firewall.ip_reputation.ip_address'))
                                     ->required()
                                     ->disabled(),
                                 TextInput::make('subnet')
-                                    ->label('Subnet')
+                                    ->label(__('firewall.ip_reputation.subnet'))
                                     ->disabled(),
                             ]),
                     ]),
 
-                Section::make('Reputation & Statistics')
+                \Filament\Schemas\Components\Section::make(__('firewall.ip_reputation.reputation_statistics'))
                     ->schema([
-                        Grid::make(3)
+                        \Filament\Schemas\Components\Grid::make(3)
                             ->schema([
                                 TextInput::make('reputation_score')
-                                    ->label('Reputation Score')
+                                    ->label(__('firewall.ip_reputation.reputation_score'))
                                     ->numeric()
                                     ->minValue(0)
                                     ->maxValue(100)
                                     ->suffix('/100')
                                     ->disabled(),
                                 TextInput::make('total_requests')
-                                    ->label('Total Requests')
+                                    ->label(__('firewall.ip_reputation.total_requests'))
                                     ->numeric()
                                     ->disabled(),
                                 TextInput::make('failed_requests')
-                                    ->label('Failed Requests')
+                                    ->label(__('firewall.ip_reputation.failed_requests'))
                                     ->numeric()
                                     ->disabled(),
                             ]),
-                        Grid::make(2)
+                        \Filament\Schemas\Components\Grid::make(2)
                             ->schema([
                                 TextInput::make('blocked_count')
-                                    ->label('Blocked Count')
+                                    ->label(__('firewall.ip_reputation.blocked_count'))
                                     ->numeric()
                                     ->disabled(),
                                 TextInput::make('last_seen_at')
-                                    ->label('Last Seen')
+                                    ->label(__('firewall.ip_reputation.last_seen'))
                                     ->disabled(),
                             ]),
                     ]),
 
-                Section::make('Notes')
+                \Filament\Schemas\Components\Section::make('Geographic Information')
+                    ->schema([
+                        \Filament\Schemas\Components\Grid::make(3)
+                            ->schema([
+                                TextInput::make('country_name')
+                                    ->label('Country')
+                                    ->disabled(),
+                                TextInput::make('city')
+                                    ->label('City')
+                                    ->disabled(),
+                                TextInput::make('timezone')
+                                    ->label('Timezone')
+                                    ->disabled(),
+                            ]),
+                        \Filament\Schemas\Components\Grid::make(2)
+                            ->schema([
+                                TextInput::make('latitude')
+                                    ->label('Latitude')
+                                    ->disabled(),
+                                TextInput::make('longitude')
+                                    ->label('Longitude')
+                                    ->disabled(),
+                            ]),
+                    ])
+                    ->collapsed()
+                    ->visible(fn ($record) => $record && $record->country_code !== null),
+
+                \Filament\Schemas\Components\Section::make(__('firewall.ip_reputation.notes'))
                     ->schema([
                         Textarea::make('notes')
-                            ->label('Admin Notes')
+                            ->label(__('firewall.ip_reputation.admin_notes'))
                             ->rows(4)
-                            ->helperText('Add investigation notes or context about this IP address.'),
+                            ->helperText(__('firewall.ip_reputation.admin_notes_helper')),
                     ]),
             ]);
     }
@@ -89,43 +135,43 @@ class IpReputationResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('ip')
-                    ->label('IP Address')
+                TextColumn::make('ip')
+                    ->label(__('firewall.ip_reputation.ip_address'))
                     ->searchable()
                     ->sortable()
                     ->copyable(),
 
-                Tables\Columns\TextColumn::make('subnet')
-                    ->label('Subnet')
+                TextColumn::make('subnet')
+                    ->label(__('firewall.ip_reputation.subnet'))
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: false),
 
-                Tables\Columns\TextColumn::make('reputation_score')
-                    ->label('Score')
+                TextColumn::make('reputation_score')
+                    ->label(__('firewall.ip_reputation.score'))
                     ->sortable()
                     ->badge()
                     ->color(fn ($record) => $record->reputation_color)
                     ->formatStateUsing(fn ($state) => $state.'/100'),
 
-                Tables\Columns\TextColumn::make('total_requests')
-                    ->label('Total')
+                TextColumn::make('total_requests')
+                    ->label(__('firewall.ip_reputation.total'))
                     ->sortable()
                     ->alignCenter(),
 
-                Tables\Columns\TextColumn::make('failed_requests')
-                    ->label('Failed')
+                TextColumn::make('failed_requests')
+                    ->label(__('firewall.ip_reputation.failed'))
                     ->sortable()
                     ->alignCenter()
                     ->color('danger'),
 
-                Tables\Columns\TextColumn::make('blocked_count')
-                    ->label('Blocked')
+                TextColumn::make('blocked_count')
+                    ->label(__('firewall.ip_reputation.blocked'))
                     ->sortable()
                     ->alignCenter()
                     ->toggleable(isToggledHiddenByDefault: false),
 
-                Tables\Columns\TextColumn::make('success_rate')
-                    ->label('Success %')
+                TextColumn::make('success_rate')
+                    ->label(__('firewall.ip_reputation.success_rate'))
                     ->sortable(query: function (Builder $query, string $direction): Builder {
                         return $query->orderByRaw("(1 - (failed_requests / NULLIF(total_requests, 0))) {$direction}");
                     })
@@ -134,26 +180,33 @@ class IpReputationResource extends Resource
                     ->color(fn ($record) => $record->success_rate >= 80 ? 'success' : ($record->success_rate >= 50 ? 'warning' : 'danger'))
                     ->alignCenter(),
 
-                Tables\Columns\TextColumn::make('last_seen_at')
-                    ->label('Last Seen')
+                TextColumn::make('country_name')
+                    ->label('Country')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: false)
+                    ->icon(fn ($record) => $record->country_code ? 'heroicon-o-globe-alt' : null)
+                    ->description(fn ($record) => $record->city),
+
+                TextColumn::make('last_seen_at')
+                    ->label(__('firewall.ip_reputation.last_seen'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: false)
                     ->since(),
 
-                Tables\Columns\TextColumn::make('created_at')
-                    ->label('First Seen')
+                TextColumn::make('created_at')
+                    ->label(__('firewall.ip_reputation.first_seen'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('reputation_score')
-                    ->label('Reputation')
+                SelectFilter::make('reputation_score')
+                    ->label(__('firewall.ip_reputation.reputation'))
                     ->options([
-                        'high' => 'High (80-100)',
-                        'medium' => 'Medium (50-79)',
-                        'low' => 'Low (0-49)',
+                        'high' => __('firewall.ip_reputation.high_reputation'),
+                        'medium' => __('firewall.ip_reputation.medium_reputation'),
+                        'low' => __('firewall.ip_reputation.low_reputation'),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         if (! isset($data['value'])) {
@@ -168,10 +221,19 @@ class IpReputationResource extends Resource
                         };
                     }),
 
-                Tables\Filters\Filter::make('subnet')
-                    ->form([
+                SelectFilter::make('country_code')
+                    ->label('Country')
+                    ->options(fn () => IpReputation::whereNotNull('country_code')
+                        ->distinct()
+                        ->pluck('country_name', 'country_code')
+                        ->toArray()
+                    )
+                    ->searchable(),
+
+                Filter::make('subnet')
+                    ->schema([
                         TextInput::make('subnet')
-                            ->label('Subnet Search')
+                            ->label(__('firewall.ip_reputation.subnet_search'))
                             ->placeholder('e.g., 192.168.1'),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
@@ -181,12 +243,12 @@ class IpReputationResource extends Resource
                         );
                     }),
 
-                Tables\Filters\Filter::make('created_at')
-                    ->form([
-                        \Filament\Forms\Components\DatePicker::make('created_from')
-                            ->label('From'),
-                        \Filament\Forms\Components\DatePicker::make('created_until')
-                            ->label('Until'),
+                Filter::make('created_at')
+                    ->schema([
+                        DatePicker::make('created_from')
+                            ->label(__('firewall.ip_reputation.from')),
+                        DatePicker::make('created_until')
+                            ->label(__('firewall.ip_reputation.until')),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
@@ -200,20 +262,20 @@ class IpReputationResource extends Resource
                             );
                     }),
             ])
-            ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make()
+            ->recordActions([
+                ViewAction::make(),
+                EditAction::make()
                     ->visible(fn () => false), // Disable edit for now (read-only except notes)
-                Tables\Actions\Action::make('viewIncidents')
-                    ->label('Incidents')
+                Action::make('viewIncidents')
+                    ->label(__('firewall.ip_reputation.incidents'))
                     ->icon('heroicon-o-exclamation-triangle')
                     ->url(fn ($record) => route('filament.admin.resources.abuse-incidents.index', [
                         'tableFilters[ip_address][value]' => $record->ip,
                     ]))
                     ->color('warning'),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
+            ->toolbarActions([
+                BulkActionGroup::make([
                     // Bulk actions can be added here if needed
                 ]),
             ])
@@ -230,8 +292,8 @@ class IpReputationResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListIpReputations::route('/'),
-            'view' => Pages\ViewIpReputation::route('/{record}'),
+            'index' => ListIpReputations::route('/'),
+            'view' => ViewIpReputation::route('/{record}'),
         ];
     }
 }

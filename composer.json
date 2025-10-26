@@ -7,7 +7,7 @@
     "require": {
         "php": "^8.2",
         "danharrin/livewire-rate-limiting": "^2.0",
-        "filament/filament": "^3.2",
+        "filament/filament": "^4.0",
         "geoip2/geoip2": "~2.0",
         "graham-campbell/throttle": "^11",
         "laravel/framework": "^12.0",
@@ -23,12 +23,13 @@
         "spatie/laravel-one-time-passwords": "*",
         "spatie/ssh": "^1.12",
         "symfony/mailer": "~7.3.4",
-        "valentin-morice/filament-json-column": "^1.5",
-        "wireui/wireui": "^2.2"
+        "valentin-morice/filament-json-column": "dev-dev"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.15",
         "fakerphp/faker": "^1.23",
+        "filament/upgrade": "^4.0",
+        "larastan/larastan": "^3.6",
         "laravel/boost": "^1.1",
         "laravel/breeze": "^2.2",
         "laravel/pint": "^1.13",
@@ -39,8 +40,7 @@
         "pestphp/pest-plugin-browser": "^4.0",
         "pestphp/pest-plugin-laravel": "^4.0",
         "pestphp/pest-plugin-livewire": "^4.0",
-        "phpstan/phpstan": "^2.1",
-        "larastan/larastan": "^3.6"
+        "phpstan/phpstan": "^2.1"
     },
     "autoload": {
         "psr-4": {

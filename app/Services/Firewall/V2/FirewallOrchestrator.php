@@ -9,7 +9,9 @@ use App\Jobs\SendReportNotificationJob;
 use App\Models\{Host, Report, User};
 use App\Services\{AuditService, ReportGenerator};
 use App\Services\Firewall\FirewallAnalysisResult;
+use Exception;
 use Illuminate\Support\Facades\{DB, Log};
+use InvalidArgumentException;
 
 /**
  * Firewall Orchestrator V2 - Orchestrator Pattern (SOLID Compliant)
@@ -90,7 +92,7 @@ class FirewallOrchestrator
                 return $report;
             });
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('V2 firewall check process failed', [
                 'ip_address' => $ipAddress,
                 'user_id' => $user->id,
@@ -170,7 +172,7 @@ class FirewallOrchestrator
         $user = User::find($userId);
 
         if (! $user) {
-            throw new \InvalidArgumentException("User with ID {$userId} not found");
+            throw new InvalidArgumentException("User with ID {$userId} not found");
         }
 
         return $user;
@@ -184,7 +186,7 @@ class FirewallOrchestrator
         $host = Host::find($hostId);
 
         if (! $host) {
-            throw new \InvalidArgumentException("Host with ID {$hostId} not found");
+            throw new InvalidArgumentException("Host with ID {$hostId} not found");
         }
 
         return $host;

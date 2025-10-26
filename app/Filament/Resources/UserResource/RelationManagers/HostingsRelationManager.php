@@ -3,10 +3,13 @@
 namespace App\Filament\Resources\UserResource\RelationManagers;
 
 use App\Models\Host;
-use Filament\Forms\Components\{Grid, Select, TextInput};
-use Filament\Forms\Form;
+use Filament\Actions\{BulkActionGroup, CreateAction, DeleteAction, DeleteBulkAction, EditAction, ViewAction};
+use Filament\Forms\Components\{Select, TextInput};
 use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Tables;
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\{IconColumn, TextColumn};
+use Filament\Tables\Filters\{SelectFilter, TernaryFilter};
+use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -20,11 +23,11 @@ class HostingsRelationManager extends RelationManager
 
     protected static ?string $pluralModelLabel = 'Hostings';
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
-                Grid::make(2)
+        return $schema
+            ->components([
+                \Filament\Schemas\Components\Grid::make(2)
                     ->schema([
                         Select::make('host_id')
                             ->label('Servidor')
@@ -53,21 +56,21 @@ class HostingsRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('domain')
             ->columns([
-                Tables\Columns\TextColumn::make('host.fqdn')
+                TextColumn::make('host.fqdn')
                     ->label('Servidor')
                     ->description(fn ($record) => "ID: {$record->host_id}")
                     ->sortable()
                     ->searchable(),
-                Tables\Columns\TextColumn::make('domain')
+                TextColumn::make('domain')
                     ->label('Dominio')
                     ->searchable()
                     ->sortable()
                     ->description(fn ($record) => "Usuario: {$record->username}"),
-                Tables\Columns\IconColumn::make('hosting_manual')
+                IconColumn::make('hosting_manual')
                     ->label('Manual')
                     ->boolean()
                     ->tooltip('Indica si el alojamiento fue creado manualmente'),
-                Tables\Columns\TextColumn::make('created_at')
+                TextColumn::make('created_at')
                     ->label('Creado')
                     ->dateTime()
                     ->sortable()
@@ -75,17 +78,17 @@ class HostingsRelationManager extends RelationManager
             ])
             ->defaultGroup('host.fqdn')
             ->groups([
-                'host.fqdn' => Tables\Grouping\Group::make('Servidor')
+                'host.fqdn' => Group::make('Servidor')
                     ->collapsible()
                     ->titlePrefixedWithLabel(false),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('host_id')
+                SelectFilter::make('host_id')
                     ->label('Servidor')
                     ->relationship('host', 'fqdn')
                     ->multiple()
                     ->preload(),
-                Tables\Filters\TernaryFilter::make('hosting_manual')
+                TernaryFilter::make('hosting_manual')
                     ->label('Manual')
                     ->boolean()
                     ->trueLabel('Manual')
@@ -93,25 +96,25 @@ class HostingsRelationManager extends RelationManager
             ])
             ->headerActions([
                 // Solo permitir crear si el usuario es reseller o admin
-                Tables\Actions\CreateAction::make()
+                CreateAction::make()
                     ->label('Crear Alojamiento')
                     ->visible(fn ($livewire) => $livewire->getOwnerRecord()->is_admin
                     ),
             ])
-            ->actions([
-                Tables\Actions\ViewAction::make()
+            ->recordActions([
+                ViewAction::make()
                     ->label('Ver Detalles'),
                 // Solo permitir editar/eliminar si el usuario es reseller o admin
-                Tables\Actions\EditAction::make()
+                EditAction::make()
                     ->visible(fn ($livewire) => $livewire->getOwnerRecord()->is_admin
                     ),
-                Tables\Actions\DeleteAction::make()
+                DeleteAction::make()
                     ->visible(fn ($livewire) => $livewire->getOwnerRecord()->is_admin
                     ),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make()
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make()
                         ->visible(fn ($livewire) => $livewire->getOwnerRecord()->is_admin
                         ),
                 ]),

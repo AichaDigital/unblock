@@ -1,3 +1,10 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+/* daisyUI Configuration with Winter (light) and dark themes */
+@plugin "daisyui" {
+  themes: winter --default, dark --prefersdark;
+  exclude: properties; /* Exclude properties to avoid conflicts with Tailwind */
+}
+
+/* Custom variant for dark theme support */
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));

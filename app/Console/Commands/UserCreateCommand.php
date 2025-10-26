@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use App\Models\User;
+use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\{DB, Hash, Validator};
 use Illuminate\Validation\Rules\Password;
@@ -182,7 +183,7 @@ class UserCreateCommand extends Command
             }
 
             return self::SUCCESS;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->error('❌ Failed to create user: '.$e->getMessage());
 
             return self::FAILURE;

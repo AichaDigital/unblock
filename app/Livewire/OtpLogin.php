@@ -3,17 +3,17 @@
 namespace App\Livewire;
 
 use App\Models\User;
-use App\Traits\AuditLoginTrait;
+use App\Traits\{AuditLoginTrait, HasNotifications};
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\{Layout, On};
 use Livewire\Component;
-use WireUi\Traits\WireUiActions;
 
 #[Layout('layouts.guest')]
 class OtpLogin extends Component
 {
-    use AuditLoginTrait, WireUiActions;
+    use AuditLoginTrait, HasNotifications;
 
     // Email step
     public string $email = '';
@@ -32,6 +32,44 @@ class OtpLogin extends Component
     // Internal state
     public ?User $user = null;
 
+    /**
+     * Check if simple mode is enabled
+     */
+    private function isSimpleMode(): bool
+    {
+        return config('unblock.simple_mode.enabled', false);
+    }
+
+    /**
+     * Get dynamic title based on mode
+     */
+    public function getTitle(): string
+    {
+        return $this->isSimpleMode()
+            ? __('auth.simple_mode_title')
+            : __('Solo cuentas de cliente');
+    }
+
+    /**
+     * Get dynamic email placeholder based on mode
+     */
+    public function getEmailPlaceholder(): string
+    {
+        return $this->isSimpleMode()
+            ? __('auth.simple_mode_email_placeholder')
+            : __('Cuenta de correo electrónico de usuario');
+    }
+
+    /**
+     * Get dynamic email help text based on mode
+     */
+    public function getEmailHelpText(): string
+    {
+        return $this->isSimpleMode()
+            ? __('auth.simple_mode_email_help')
+            : __('Cuenta de usuario o usuario autorizado');
+    }
+
     public function mount()
     {
         // If user is already authenticated, redirect to dashboard
@@ -43,11 +81,11 @@ class OtpLogin extends Component
 
         // Check if there's a session expired message
         if (session()->has('message')) {
-            $this->notification()->send([
-                'icon' => 'warning',
-                'title' => 'Sesión expirada',
-                'description' => session('message'),
-            ]);
+            $this->warning(
+                'Sesión expirada',
+                session('message')
+            );
+            session()->forget('message');
         }
     }
 
@@ -70,11 +108,30 @@ class OtpLogin extends Component
         $this->email = trim($this->email);
 
         try {
-            $this->validate([
-                'email' => 'required|email|exists:users,email',
-            ]);
+            // Adaptive validation based on mode
+            $rules = ['email' => 'required|email'];
+            if (! $this->isSimpleMode()) {
+                $rules['email'] .= '|exists:users,email';
+            }
+            $this->validate($rules);
 
-            $this->user = User::whereEmail($this->email)->first();
+            // Get or create user based on mode
+            if ($this->isSimpleMode()) {
+                // Simple mode: Create temporary user if doesn't exist
+                $this->user = User::firstOrCreate(
+                    ['email' => $this->email],
+                    [
+                        'first_name' => 'Simple',
+                        'last_name' => 'Unblock',
+                        'password' => bcrypt(Str::random(32)),
+                        'is_admin' => false,
+                    ]
+                );
+            } else {
+                // Normal mode: User must exist
+                $this->user = User::whereEmail($this->email)->first();
+            }
+
             $this->audit($ip, 'email', null);
 
             // Send OTP using Spatie (with integrated rate limiting)
@@ -83,11 +140,10 @@ class OtpLogin extends Component
             // Bind OTP request to client IP for later verification
             session()->put('otp_request_ip', $ip);
 
-            $this->notification()->send([
-                'icon' => 'info',
-                'title' => 'Código enviado',
-                'description' => 'Se ha enviado un código de 6 dígitos a '.$this->email,
-            ]);
+            $this->info(
+                'Código enviado',
+                'Se ha enviado un código de 6 dígitos a '.$this->email
+            );
 
             $this->otpSent = true;
             $this->canResend = false;
@@ -98,11 +154,10 @@ class OtpLogin extends Component
         } catch (ValidationException $e) {
             $validationErrors = $e->validator->errors()->getMessages();
 
-            $this->notification()->send([
-                'icon' => 'error',
-                'title' => 'Error de validación',
-                'description' => $validationErrors['email'][0] ?? 'Email inválido',
-            ]);
+            $this->error(
+                'Error de validación',
+                $validationErrors['email'][0] ?? 'Email inválido'
+            );
 
             $validationError = $this->email.' : '.($validationErrors['email'][0] ?? 'Email inválido');
             $this->audit($ip, 'email', $validationError, true);
@@ -141,30 +196,40 @@ class OtpLogin extends Component
             $result = $this->user->attemptLoginUsingOneTimePassword($this->oneTimePassword);
 
             if ($result->isOk()) {
-                // Successful login - Spatie automatically authenticates the user
+                // Successful OTP verification
                 $this->audit($ip, 'otp_login', 'Successful OTP authentication');
 
-                // Set initial session activity timestamp
-                session()->put('last_activity', now()->timestamp);
+                if ($this->isSimpleMode()) {
+                    // Simple mode: Show success message, don't authenticate or redirect
+                    $this->success(
+                        'Código verificado correctamente',
+                        'Tu solicitud de desbloqueo ha sido procesada. Recibirás una notificación por email cuando esté completada.'
+                    );
 
-                $this->notification()->send([
-                    'icon' => 'success',
-                    'title' => 'Acceso autorizado',
-                    'description' => 'Bienvenido al sistema',
-                ]);
+                    // Reset form for new requests
+                    $this->resetForm();
+                } else {
+                    // Normal mode: Authenticate user and redirect to dashboard
+                    // Set initial session activity timestamp
+                    session()->put('last_activity', now()->timestamp);
 
-                $this->redirectRoute('dashboard');
+                    $this->success(
+                        'Acceso autorizado',
+                        'Bienvenido al sistema'
+                    );
+
+                    $this->redirectRoute('dashboard');
+                }
 
                 return;
             } else {
                 // Incorrect or expired OTP - get specific message from enum
                 $errorMessage = $result->validationMessage();
 
-                $this->notification()->send([
-                    'icon' => 'error',
-                    'title' => 'Código inválido',
-                    'description' => $errorMessage,
-                ]);
+                $this->error(
+                    'Código inválido',
+                    $errorMessage
+                );
 
                 $this->audit($ip, 'otp_login', 'Failed OTP attempt: '.$this->oneTimePassword, true);
 
@@ -179,11 +244,10 @@ class OtpLogin extends Component
             $validationErrors = $e->validator->errors()->getMessages();
 
             if (isset($validationErrors['oneTimePassword'])) {
-                $this->notification()->send([
-                    'icon' => 'error',
-                    'title' => 'Error de validación',
-                    'description' => $validationErrors['oneTimePassword'][0],
-                ]);
+                $this->error(
+                    'Error de validación',
+                    $validationErrors['oneTimePassword'][0]
+                );
 
                 $this->audit($ip, 'otp_login', 'Failed OTP validation: '.$this->oneTimePassword, true);
             }
@@ -207,11 +271,10 @@ class OtpLogin extends Component
 
         $this->user->sendOneTimePassword();
 
-        $this->notification()->send([
-            'icon' => 'info',
-            'title' => 'Código reenviado',
-            'description' => 'Se ha enviado un nuevo código a '.$this->email,
-        ]);
+        $this->info(
+            'Código reenviado',
+            'Se ha enviado un nuevo código a '.$this->email
+        );
 
         $this->canResend = false;
         $this->js('setTimeout(() => $wire.enableResend(), 60000)');

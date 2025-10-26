@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Actions\UnblockIpAction;
+use Exception;
 use Illuminate\Console\Command;
 
 class UnblockIpCommand extends Command
@@ -56,7 +57,7 @@ class UnblockIpCommand extends Command
                 return Command::FAILURE;
             }
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->error("Failed to unblock IP {$ip}: ".$e->getMessage());
 
             return Command::FAILURE;

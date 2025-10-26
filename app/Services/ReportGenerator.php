@@ -6,7 +6,10 @@ namespace App\Services;
 
 use App\Models\{Host, Report, User};
 use App\Services\Firewall\FirewallAnalysisResult;
+use DateTime;
+use Exception;
 use Illuminate\Support\Facades\Log;
+use JsonException;
 
 /**
  * Report Generator - Single Responsibility Pattern
@@ -52,7 +55,7 @@ class ReportGenerator
 
             return $report;
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to generate firewall report', [
                 'ip_address' => $ipAddress,
                 'user_id' => $user->id,
@@ -343,7 +346,7 @@ class ReportGenerator
     {
         preg_match('/(\d{14})/', $bfmData, $matches);
         if (isset($matches[1])) {
-            return \DateTime::createFromFormat('YmdHis', $matches[1])->format('Y-m-d H:i:s');
+            return DateTime::createFromFormat('YmdHis', $matches[1])->format('Y-m-d H:i:s');
         }
 
         return null;
@@ -463,7 +466,7 @@ class ReportGenerator
 
                     $processed[] = $entry;
                 }
-            } catch (\JsonException $e) {
+            } catch (JsonException $e) {
                 Log::error('Error parsing ModSecurity JSON in report: '.$e->getMessage(), [
                     'line' => $line,
                 ]);
