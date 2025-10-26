@@ -1,6 +1,23 @@
 <?php
 
 return [
+    // Actions
+    'actions' => [
+        'check' => 'Check Firewall',
+        'cancel' => 'Cancel',
+        'processing' => 'Processing...',
+        'close' => 'Close',
+        'new_check' => 'New Check',
+    ],
+
+    // Status
+    'status' => [
+        'request_submitted' => 'Request Submitted',
+        'submitted_message' => 'Your firewall query is being processed. You will receive a notification when it\'s ready.',
+        'ip_checked' => 'IP Checked',
+        'target_checked' => 'Target Checked',
+    ],
+
     'bfm' => [
         'removed' => 'IP removed from DirectAdmin BFM blacklist',
         'whitelist_added' => 'IP added to DirectAdmin BFM whitelist',

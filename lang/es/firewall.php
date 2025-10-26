@@ -30,6 +30,17 @@ return [
     'actions' => [
         'check' => 'Consultar Firewall',
         'cancel' => 'Cancelar',
+        'processing' => 'Procesando...',
+        'close' => 'Cerrar',
+        'new_check' => 'Nueva Consulta',
+    ],
+
+    // Status
+    'status' => [
+        'request_submitted' => 'Solicitud Enviada',
+        'submitted_message' => 'Tu consulta de firewall se está procesando. Recibirás una notificación cuando esté lista.',
+        'ip_checked' => 'IP Verificada',
+        'target_checked' => 'Objetivo Verificado',
     ],
 
     // Help System
