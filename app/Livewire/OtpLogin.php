@@ -5,10 +5,10 @@ namespace App\Livewire;
 use App\Models\User;
 use App\Traits\{AuditLoginTrait, HasNotifications};
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\{Layout, On};
 use Livewire\Component;
-use Illuminate\Support\Str;
 
 #[Layout('layouts.guest')]
 class OtpLogin extends Component
@@ -45,7 +45,7 @@ class OtpLogin extends Component
      */
     public function getTitle(): string
     {
-        return $this->isSimpleMode() 
+        return $this->isSimpleMode()
             ? __('auth.simple_mode_title')
             : __('Solo cuentas de cliente');
     }
@@ -110,7 +110,7 @@ class OtpLogin extends Component
         try {
             // Adaptive validation based on mode
             $rules = ['email' => 'required|email'];
-            if (!$this->isSimpleMode()) {
+            if (! $this->isSimpleMode()) {
                 $rules['email'] .= '|exists:users,email';
             }
             $this->validate($rules);
@@ -205,7 +205,7 @@ class OtpLogin extends Component
                         'Código verificado correctamente',
                         'Tu solicitud de desbloqueo ha sido procesada. Recibirás una notificación por email cuando esté completada.'
                     );
-                    
+
                     // Reset form for new requests
                     $this->resetForm();
                 } else {
