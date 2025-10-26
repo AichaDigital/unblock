@@ -690,7 +690,7 @@ class extends Component {
                                         <p class="text-xs text-warning">{{ __('firewall.help.ip_explanation.note') }}</p>
                                     </div>
 
-                                    <div class="border-t border-blue-200 pt-3">
+                                    <div class="border-t border-base-300 pt-3">
                                         <h5 class="font-medium text-info mb-2">{{ __('firewall.help.ip_detection.title') }}</h5>
                                         <ul class="text-sm text-info space-y-1 mb-3">
                                             <li>• {{ __('firewall.help.ip_detection.current_device') }}</li>

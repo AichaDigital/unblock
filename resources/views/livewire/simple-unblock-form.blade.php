@@ -1,17 +1,17 @@
-<div class="min-h-screen flex items-center justify-center bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
+<div class="min-h-screen flex items-center justify-center bg-base-200 py-12 px-4 sm:px-6 lg:px-8">
     <div class="max-w-md w-full space-y-8">
         <div>
-            <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+            <h2 class="mt-6 text-center text-3xl font-extrabold text-base-content">
                 {{ __('simple_unblock.title') }}
             </h2>
-            <p class="mt-2 text-center text-sm text-gray-600">
+            <p class="mt-2 text-center text-sm text-base-content/70">
                 {{ __('simple_unblock.subtitle') }}
             </p>
 
             {{-- Progress indicator --}}
             <div class="mt-4 flex justify-center items-center space-x-2">
                 <div class="flex items-center">
-                    <div class="flex items-center justify-center w-8 h-8 {{ $step === 1 ? 'bg-indigo-600 text-white' : 'bg-green-500 text-white' }} rounded-full">
+                    <div class="flex items-center justify-center w-8 h-8 {{ $step === 1 ? 'bg-primary text-primary-content' : 'bg-success text-success-content' }} rounded-full">
                         @if ($step === 1)
                             1
                         @else
@@ -20,16 +20,16 @@
                             </svg>
                         @endif
                     </div>
-                    <span class="ml-2 text-xs font-medium {{ $step === 1 ? 'text-indigo-600' : 'text-gray-500' }}">
+                    <span class="ml-2 text-xs font-medium {{ $step === 1 ? 'text-primary' : 'text-base-content/60' }}">
                         {{ __('simple_unblock.step1_label') }}
                     </span>
                 </div>
-                <div class="w-12 h-0.5 {{ $step === 2 ? 'bg-indigo-600' : 'bg-gray-300' }}"></div>
+                <div class="w-12 h-0.5 {{ $step === 2 ? 'bg-primary' : 'bg-base-300' }}"></div>
                 <div class="flex items-center">
-                    <div class="flex items-center justify-center w-8 h-8 {{ $step === 2 ? 'bg-indigo-600 text-white' : 'bg-gray-300 text-gray-600' }} rounded-full">
+                    <div class="flex items-center justify-center w-8 h-8 {{ $step === 2 ? 'bg-primary text-primary-content' : 'bg-base-300 text-base-content/60' }} rounded-full">
                         2
                     </div>
-                    <span class="ml-2 text-xs font-medium {{ $step === 2 ? 'text-indigo-600' : 'text-gray-500' }}">
+                    <span class="ml-2 text-xs font-medium {{ $step === 2 ? 'text-primary' : 'text-base-content/60' }}">
                         {{ __('simple_unblock.step2_label') }}
                     </span>
                 </div>
