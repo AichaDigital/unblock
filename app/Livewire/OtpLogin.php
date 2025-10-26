@@ -42,11 +42,10 @@ class OtpLogin extends Component
 
         // Check if there's a session expired message
         if (session()->has('message')) {
-            $this->dispatch('notify', [
-                'type' => 'warning',
-                'title' => 'Sesión expirada',
-                'description' => session('message'),
-            ]);
+            $this->warning(
+                'Sesión expirada',
+                session('message')
+            );
             session()->forget('message');
         }
     }
@@ -83,11 +82,10 @@ class OtpLogin extends Component
             // Bind OTP request to client IP for later verification
             session()->put('otp_request_ip', $ip);
 
-            $this->dispatch('notify', [
-                'type' => 'info',
-                'title' => 'Código enviado',
-                'description' => 'Se ha enviado un código de 6 dígitos a '.$this->email,
-            ]);
+            $this->info(
+                'Código enviado',
+                'Se ha enviado un código de 6 dígitos a '.$this->email
+            );
 
             $this->otpSent = true;
             $this->canResend = false;
@@ -98,11 +96,10 @@ class OtpLogin extends Component
         } catch (ValidationException $e) {
             $validationErrors = $e->validator->errors()->getMessages();
 
-            $this->dispatch('notify', [
-                'type' => 'error',
-                'title' => 'Error de validación',
-                'description' => $validationErrors['email'][0] ?? 'Email inválido',
-            ]);
+            $this->error(
+                'Error de validación',
+                $validationErrors['email'][0] ?? 'Email inválido'
+            );
 
             $validationError = $this->email.' : '.($validationErrors['email'][0] ?? 'Email inválido');
             $this->audit($ip, 'email', $validationError, true);
@@ -147,11 +144,10 @@ class OtpLogin extends Component
                 // Set initial session activity timestamp
                 session()->put('last_activity', now()->timestamp);
 
-                $this->dispatch('notify', [
-                    'type' => 'success',
-                    'title' => 'Acceso autorizado',
-                    'description' => 'Bienvenido al sistema',
-                ]);
+                $this->success(
+                    'Acceso autorizado',
+                    'Bienvenido al sistema'
+                );
 
                 $this->redirectRoute('dashboard');
 
@@ -160,11 +156,10 @@ class OtpLogin extends Component
                 // Incorrect or expired OTP - get specific message from enum
                 $errorMessage = $result->validationMessage();
 
-                $this->dispatch('notify', [
-                    'type' => 'error',
-                    'title' => 'Código inválido',
-                    'description' => $errorMessage,
-                ]);
+                $this->error(
+                    'Código inválido',
+                    $errorMessage
+                );
 
                 $this->audit($ip, 'otp_login', 'Failed OTP attempt: '.$this->oneTimePassword, true);
 
@@ -179,11 +174,10 @@ class OtpLogin extends Component
             $validationErrors = $e->validator->errors()->getMessages();
 
             if (isset($validationErrors['oneTimePassword'])) {
-                $this->dispatch('notify', [
-                    'type' => 'error',
-                    'title' => 'Error de validación',
-                    'description' => $validationErrors['oneTimePassword'][0],
-                ]);
+                $this->error(
+                    'Error de validación',
+                    $validationErrors['oneTimePassword'][0]
+                );
 
                 $this->audit($ip, 'otp_login', 'Failed OTP validation: '.$this->oneTimePassword, true);
             }
@@ -207,11 +201,10 @@ class OtpLogin extends Component
 
         $this->user->sendOneTimePassword();
 
-        $this->dispatch('notify', [
-            'type' => 'info',
-            'title' => 'Código reenviado',
-            'description' => 'Se ha enviado un nuevo código a '.$this->email,
-        ]);
+        $this->info(
+            'Código reenviado',
+            'Se ha enviado un nuevo código a '.$this->email
+        );
 
         $this->canResend = false;
         $this->js('setTimeout(() => $wire.enableResend(), 60000)');

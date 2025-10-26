@@ -11,7 +11,7 @@ trait HasNotifications
     /**
      * Send a notification to the user
      *
-     * @param array{icon: string, title: string, description: string} $notification
+     * @param  array{icon: string, title: string, description: string}  $notification
      */
     public function sendNotification(array $notification): void
     {
@@ -29,14 +29,14 @@ trait HasNotifications
 
         $type = $iconMap[$notification['icon']] ?? 'info';
 
-        // Dispatch browser event for Alpine.js to catch
-        $payload = json_encode([
+        $payload = [
             'type' => $type,
             'title' => $notification['title'],
             'description' => $notification['description'],
-        ]);
+        ];
 
-        $this->js("window.dispatchEvent(new CustomEvent('notify', { detail: {$payload} }))");
+        // Dispatch browser event for Alpine.js to catch
+        $this->js("window.dispatchEvent(new CustomEvent('notify', { detail: ".json_encode($payload).' }))');
     }
 
     /**
