@@ -35,6 +35,8 @@ return [
 
     'generic_response' => 'Hemos recibido tu solicitud y la estamos procesando.',
     'no_information_found' => 'No se encontró información para los datos proporcionados.',
+    'help_text' => 'Este formulario te permite desbloquear tu IP de forma rápida y segura. Solo necesitas proporcionar tu IP, dominio y email para recibir un código de verificación.',
+    'otp_verified_ready' => '¡Código verificado! Ahora puedes procesar tu solicitud de desbloqueo.',
 
     'mail' => [
         'success_subject' => 'IP Desbloqueada - :domain',

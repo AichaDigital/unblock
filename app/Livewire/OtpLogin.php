@@ -200,14 +200,16 @@ class OtpLogin extends Component
                 $this->audit($ip, 'otp_login', 'Successful OTP authentication');
 
                 if ($this->isSimpleMode()) {
-                    // Simple mode: Show success message, don't authenticate or redirect
+                    // Simple mode: Store email in session and redirect to simple unblock form
+                    session()->put('otp_request_email', $this->email);
+                    
                     $this->success(
                         'Código verificado correctamente',
-                        'Tu solicitud de desbloqueo ha sido procesada. Recibirás una notificación por email cuando esté completada.'
+                        'Redirigiendo al formulario de desbloqueo...'
                     );
 
-                    // Reset form for new requests
-                    $this->resetForm();
+                    // Redirect to simple unblock form
+                    $this->redirectRoute('simple.unblock');
                 } else {
                     // Normal mode: Authenticate user and redirect to dashboard
                     // Set initial session activity timestamp

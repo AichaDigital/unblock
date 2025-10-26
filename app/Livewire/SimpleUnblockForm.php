@@ -50,6 +50,15 @@ class SimpleUnblockForm extends Component
     {
         // Auto-detect user's IP address
         $this->ip = $this->detectUserIp();
+
+        // Check if user is coming from OTP login (simple mode)
+        if (session()->has('otp_request_ip') && session()->has('otp_request_email')) {
+            // User is authenticated via OTP, go directly to step 2
+            $this->step = 2;
+            $this->email = session()->get('otp_request_email');
+            $this->message = __('simple_unblock.otp_verified_ready');
+            $this->messageType = 'success';
+        }
     }
 
     /**
