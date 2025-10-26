@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\{Layout, On};
 use Livewire\Component;
+use Illuminate\Support\Str;
 
 #[Layout('layouts.guest')]
 class OtpLogin extends Component
@@ -30,6 +31,44 @@ class OtpLogin extends Component
 
     // Internal state
     public ?User $user = null;
+
+    /**
+     * Check if simple mode is enabled
+     */
+    private function isSimpleMode(): bool
+    {
+        return config('unblock.simple_mode.enabled', false);
+    }
+
+    /**
+     * Get dynamic title based on mode
+     */
+    public function getTitle(): string
+    {
+        return $this->isSimpleMode() 
+            ? __('auth.simple_mode_title')
+            : __('Solo cuentas de cliente');
+    }
+
+    /**
+     * Get dynamic email placeholder based on mode
+     */
+    public function getEmailPlaceholder(): string
+    {
+        return $this->isSimpleMode()
+            ? __('auth.simple_mode_email_placeholder')
+            : __('Cuenta de correo electrónico de usuario');
+    }
+
+    /**
+     * Get dynamic email help text based on mode
+     */
+    public function getEmailHelpText(): string
+    {
+        return $this->isSimpleMode()
+            ? __('auth.simple_mode_email_help')
+            : __('Cuenta de usuario o usuario autorizado');
+    }
 
     public function mount()
     {
@@ -69,11 +108,30 @@ class OtpLogin extends Component
         $this->email = trim($this->email);
 
         try {
-            $this->validate([
-                'email' => 'required|email|exists:users,email',
-            ]);
+            // Adaptive validation based on mode
+            $rules = ['email' => 'required|email'];
+            if (!$this->isSimpleMode()) {
+                $rules['email'] .= '|exists:users,email';
+            }
+            $this->validate($rules);
 
-            $this->user = User::whereEmail($this->email)->first();
+            // Get or create user based on mode
+            if ($this->isSimpleMode()) {
+                // Simple mode: Create temporary user if doesn't exist
+                $this->user = User::firstOrCreate(
+                    ['email' => $this->email],
+                    [
+                        'first_name' => 'Simple',
+                        'last_name' => 'Unblock',
+                        'password' => bcrypt(Str::random(32)),
+                        'is_admin' => false,
+                    ]
+                );
+            } else {
+                // Normal mode: User must exist
+                $this->user = User::whereEmail($this->email)->first();
+            }
+
             $this->audit($ip, 'email', null);
 
             // Send OTP using Spatie (with integrated rate limiting)
@@ -138,18 +196,30 @@ class OtpLogin extends Component
             $result = $this->user->attemptLoginUsingOneTimePassword($this->oneTimePassword);
 
             if ($result->isOk()) {
-                // Successful login - Spatie automatically authenticates the user
+                // Successful OTP verification
                 $this->audit($ip, 'otp_login', 'Successful OTP authentication');
 
-                // Set initial session activity timestamp
-                session()->put('last_activity', now()->timestamp);
+                if ($this->isSimpleMode()) {
+                    // Simple mode: Show success message, don't authenticate or redirect
+                    $this->success(
+                        'Código verificado correctamente',
+                        'Tu solicitud de desbloqueo ha sido procesada. Recibirás una notificación por email cuando esté completada.'
+                    );
+                    
+                    // Reset form for new requests
+                    $this->resetForm();
+                } else {
+                    // Normal mode: Authenticate user and redirect to dashboard
+                    // Set initial session activity timestamp
+                    session()->put('last_activity', now()->timestamp);
 
-                $this->success(
-                    'Acceso autorizado',
-                    'Bienvenido al sistema'
-                );
+                    $this->success(
+                        'Acceso autorizado',
+                        'Bienvenido al sistema'
+                    );
 
-                $this->redirectRoute('dashboard');
+                    $this->redirectRoute('dashboard');
+                }
 
                 return;
             } else {

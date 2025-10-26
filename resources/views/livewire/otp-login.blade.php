@@ -2,7 +2,7 @@
     <!-- Logo y título profesionales -->
     <div class="mb-6 text-center">
         <h2 class="mt-4 text-xl font-bold leading-9 tracking-tight text-base-content sm:text-2xl">
-            {{ __('Solo cuentas de cliente') }}
+            {{ $this->getTitle() }}
         </h2>
     </div>
 
@@ -22,11 +22,11 @@
                         type="email"
                         wire:model="email"
                         class="grow"
-                        placeholder="{{ __('Cuenta de correo electrónico de usuario') }}"
+                        placeholder="{{ $this->getEmailPlaceholder() }}"
                     />
                 </label>
                 <div class="label mt-2">
-                    <span class="label-text-alt text-base-content/60 break-words">{{ __('Cuenta de usuario o usuario autorizado') }}</span>
+                    <span class="label-text-alt text-base-content/60 break-words">{{ $this->getEmailHelpText() }}</span>
                 </div>
             </label>
 
