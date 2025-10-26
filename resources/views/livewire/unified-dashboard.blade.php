@@ -557,10 +557,10 @@ class extends Component {
 
                                 <!-- Domain Help -->
                                 <div x-show="showDomainHelp" class="mb-4 rounded-md bg-info/10 p-4">
-                                    <h4 class="font-medium text-info mb-2">{{ __('firewall.help.domain_explanation.title') }}</h4>
-                                    <p class="text-sm text-info mb-2">{{ __('firewall.help.domain_explanation.description') }}</p>
-                                    <p class="text-sm text-info mb-2">{{ __('firewall.help.domain_explanation.examples') }}</p>
-                                    <p class="text-xs text-info">{{ __('firewall.help.domain_explanation.note') }}</p>
+                                    <h4 class="font-medium text-base-content mb-2">{{ __('firewall.help.domain_explanation.title') }}</h4>
+                                    <p class="text-sm text-base-content/80 mb-2">{{ __('firewall.help.domain_explanation.description') }}</p>
+                                    <p class="text-sm text-base-content/80 mb-2">{{ __('firewall.help.domain_explanation.examples') }}</p>
+                                    <p class="text-xs text-base-content/70">{{ __('firewall.help.domain_explanation.note') }}</p>
                                 </div>
 
                                 <!-- Server Help -->
@@ -584,11 +584,11 @@ class extends Component {
                                                 </svg>
                                             </div>
                                             <div class="ml-3 flex-1">
-                                                <p class="text-sm font-medium text-info">
+                                                <p class="text-sm font-medium text-base-content">
                                                     <span x-show="selectedType === 'hosting'" x-text="selectedItem?.domain"></span>
                                                     <span x-show="selectedType === 'host'" x-text="selectedItem?.fqdn"></span>
                                                 </p>
-                                                <p class="text-xs text-info" x-show="selectedType === 'host' && selectedItem?.alias" x-text="selectedItem?.alias"></p>
+                                                <p class="text-xs text-base-content/70" x-show="selectedType === 'host' && selectedItem?.alias" x-text="selectedItem?.alias"></p>
                                             </div>
                                             <button type="button" wire:click="clearSelection" class="flex-shrink-0">
                                                 <svg class="h-4 w-4 text-info hover:text-info" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -672,15 +672,15 @@ class extends Component {
                             <!-- IP Helper (only for non-admin users) -->
                             @if (!$isAdmin && $showIpHelper)
                                 <div class="mb-4 rounded-md bg-info/10 p-4">
-                                    <h4 class="font-medium text-info mb-2">{{ __('firewall.help.ip_explanation.title') }}</h4>
-                                    <p class="text-sm text-info mb-2">{{ __('firewall.help.ip_explanation.description') }}</p>
+                                    <h4 class="font-medium text-base-content mb-2">{{ __('firewall.help.ip_explanation.title') }}</h4>
+                                    <p class="text-sm text-base-content/80 mb-2">{{ __('firewall.help.ip_explanation.description') }}</p>
 
-                                    <div class="bg-info/20 rounded-md p-3 mb-3">
-                                        <h5 class="font-medium text-info mb-2">{{ __('firewall.help.ip_explanation.what_is_ip') }}</h5>
-                                        <p class="text-sm text-info mb-2">{{ __('firewall.help.ip_explanation.why_default') }}</p>
+                                    <div class="bg-base-200 rounded-md p-3 mb-3">
+                                        <h5 class="font-medium text-base-content mb-2">{{ __('firewall.help.ip_explanation.what_is_ip') }}</h5>
+                                        <p class="text-sm text-base-content/80 mb-2">{{ __('firewall.help.ip_explanation.why_default') }}</p>
                                     </div>
 
-                                    <div class="text-sm text-info mb-2">
+                                    <div class="text-sm text-base-content/80 mb-2">
                                         <p class="mb-1"><strong>{{ __('firewall.help.ip_explanation.current_ip') }}</strong></p>
                                         <p class="mb-1"><strong>{{ __('firewall.help.ip_explanation.problem_ip') }}</strong></p>
                                     </div>
@@ -691,8 +691,8 @@ class extends Component {
                                     </div>
 
                                     <div class="border-t border-base-300 pt-3">
-                                        <h5 class="font-medium text-info mb-2">{{ __('firewall.help.ip_detection.title') }}</h5>
-                                        <ul class="text-sm text-info space-y-1 mb-3">
+                                        <h5 class="font-medium text-base-content mb-2">{{ __('firewall.help.ip_detection.title') }}</h5>
+                                        <ul class="text-sm text-base-content/80 space-y-1 mb-3">
                                             <li>• {{ __('firewall.help.ip_detection.current_device') }}</li>
                                             <li>· {!! __('firewall.help.ip_detection.how_to_find', ['url' => '<a href="https://whatismyipaddress.com" target="_blank">whatismyipaddress.com</a>']) !!}</li>
                                             <li>• {{ __('firewall.help.ip_detection.common_issues') }}</li>
@@ -700,7 +700,7 @@ class extends Component {
                                         @if ($detectedIp !== '0.0.0.0')
                                             <button type="button"
                                                     wire:click="useDetectedIp"
-                                                    class="text-info hover:text-info text-sm font-medium">
+                                                    class="text-primary hover:text-primary-focus text-sm font-medium underline">
                                                 {{ __('firewall.help.ip_detection.use_detected', ['ip' => $detectedIp]) }}
                                             </button>
                                         @endif
@@ -756,9 +756,9 @@ class extends Component {
                                                 </svg>
                                             </div>
                                             <div class="ml-3 flex-1">
-                                                <p class="text-sm font-medium text-info" x-text="formatUserName(selectedCopyUserData)"></p>
-                                                <p class="text-xs text-info" x-text="selectedCopyUserData?.email || ''"></p>
-                                                <p x-show="selectedCopyUserData?.company_name" class="text-xs text-info" x-text="selectedCopyUserData?.company_name || ''"></p>
+                                                <p class="text-sm font-medium text-base-content" x-text="formatUserName(selectedCopyUserData)"></p>
+                                                <p class="text-xs text-base-content/70" x-text="selectedCopyUserData?.email || ''"></p>
+                                                <p x-show="selectedCopyUserData?.company_name" class="text-xs text-base-content/70" x-text="selectedCopyUserData?.company_name || ''"></p>
                                             </div>
                                             <button type="button" wire:click="clearCopyUser" class="flex-shrink-0">
                                                 <svg class="h-4 w-4 text-info hover:text-info" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
