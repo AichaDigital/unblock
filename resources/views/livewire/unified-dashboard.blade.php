@@ -564,11 +564,11 @@ class extends Component {
                                 </div>
 
                                 <!-- Server Help -->
-                                <div x-show="showServerHelp" class="mb-4 rounded-md bg-success/10 p-4">
-                                    <h4 class="font-medium text-success mb-2">{{ __('firewall.help.server_explanation.title') }}</h4>
-                                    <p class="text-sm text-success mb-2">{{ __('firewall.help.server_explanation.description') }}</p>
-                                    <p class="text-sm text-success mb-2">{{ __('firewall.help.server_explanation.examples') }}</p>
-                                    <p class="text-xs text-success">{{ __('firewall.help.server_explanation.note') }}</p>
+                                <div x-show="showServerHelp" class="mb-4 rounded-md bg-success/10 border border-success/20 p-4">
+                                    <h4 class="font-medium text-base-content mb-2">{{ __('firewall.help.server_explanation.title') }}</h4>
+                                    <p class="text-sm text-base-content/80 mb-2">{{ __('firewall.help.server_explanation.description') }}</p>
+                                    <p class="text-sm text-base-content/80 mb-2">{{ __('firewall.help.server_explanation.examples') }}</p>
+                                    <p class="text-xs text-base-content/70">{{ __('firewall.help.server_explanation.note') }}</p>
                                 </div>
 
                                 <div class="mt-2">
@@ -686,8 +686,8 @@ class extends Component {
                                     </div>
 
                                     <div class="bg-warning/10 border border-warning rounded-md p-3 mb-3">
-                                        <p class="text-sm text-warning font-medium mb-1">{{ __('firewall.help.ip_explanation.example') }}</p>
-                                        <p class="text-xs text-warning">{{ __('firewall.help.ip_explanation.note') }}</p>
+                                        <p class="text-sm text-base-content font-medium mb-1">{{ __('firewall.help.ip_explanation.example') }}</p>
+                                        <p class="text-xs text-base-content/80">{{ __('firewall.help.ip_explanation.note') }}</p>
                                     </div>
 
                                     <div class="border-t border-base-300 pt-3">
