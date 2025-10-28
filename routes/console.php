@@ -19,3 +19,11 @@ Schedule::command('patterns:detect --force')->hourly();
 
 // GeoIP: Update MaxMind database (v1.4.0 - runs weekly on Sundays at 2am)
 Schedule::command('geoip:update')->weekly()->sundays()->at('02:00');
+
+// Accounts Sync: Synchronize hosting accounts from remote servers (Phase 2 - Simple Mode Refactor)
+if (config('unblock.sync.schedule_enabled')) {
+    Schedule::command('sync:accounts')
+        ->cron(config('unblock.sync.schedule_cron'))
+        ->withoutOverlapping()
+        ->runInBackground();
+}

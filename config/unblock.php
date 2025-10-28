@@ -78,4 +78,12 @@ return [
         'otp_expires_minutes' => env('UNBLOCK_SIMPLE_OTP_EXPIRES', 5),
         'otp_length' => env('UNBLOCK_SIMPLE_OTP_LENGTH', 6),
     ],
+
+    // Accounts Synchronization (Phase 2 - Simple Mode Refactor)
+    'sync' => [
+        'schedule_enabled' => env('SYNC_SCHEDULE_ENABLED', true),
+        'schedule_cron' => env('SYNC_SCHEDULE_CRON', '0 4,16 * * *'), // Run at 04:00 and 16:00 daily
+        'chunk_size' => 500, // Process accounts in chunks if more than this number
+        'timeout' => 300, // SSH timeout in seconds (5 minutes)
+    ],
 ];
