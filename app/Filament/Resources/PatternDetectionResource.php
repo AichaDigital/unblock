@@ -4,12 +4,10 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\PatternDetectionResource\Pages;
 use App\Models\PatternDetection;
+use Filament\Actions\{Action, BulkActionGroup, DeleteBulkAction};
 use Filament\Forms\Components\{DateTimePicker, Grid, Section, Select, TextInput, Textarea};
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Actions\Action;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\{SelectFilter, TernaryFilter};
 use Filament\Tables\Table;

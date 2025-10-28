@@ -72,8 +72,8 @@ class OtpLogin extends Component
 
     public function mount()
     {
-        // If user is already authenticated, redirect to dashboard
-        if (Auth::check()) {
+        // If user is already authenticated, redirect to dashboard (only in normal mode)
+        if (Auth::check() && ! $this->isSimpleMode()) {
             $this->redirectRoute('dashboard');
 
             return;
@@ -200,9 +200,11 @@ class OtpLogin extends Component
                 $this->audit($ip, 'otp_login', 'Successful OTP authentication');
 
                 if ($this->isSimpleMode()) {
-                    // Simple mode: Store email in session and redirect to simple unblock form
+                    // Simple mode: Authenticate temporary user and redirect to simple unblock form
+                    Auth::login($this->user);
+                    session()->put('last_activity', now()->timestamp);
                     session()->put('otp_request_email', $this->email);
-                    
+
                     $this->success(
                         'Código verificado correctamente',
                         'Redirigiendo al formulario de desbloqueo...'

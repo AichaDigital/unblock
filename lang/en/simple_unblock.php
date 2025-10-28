@@ -27,11 +27,18 @@ return [
 
     'submit_button' => 'Verify and Unblock',
     'processing' => 'Processing...',
+    'process_button' => 'Process Unblock',
 
     'processing_message' => 'Your request is being processed. You will receive an email with the results shortly.',
+    'success_message' => 'Request processed! You will receive an email with system details and possible unblock information.',
     'error_message' => 'An error occurred. Please try again later.',
 
     'rate_limit_exceeded' => 'You have exceeded the request limit. Please wait :seconds seconds.',
+
+    // Domain validation (Phase 3 - v1.5.0)
+    'domain_not_found' => 'Domain not found in our system. Please verify that you entered it correctly.',
+    'account_suspended' => 'The account associated with this domain is currently suspended. Please contact support.',
+    'account_deleted' => 'The account associated with this domain no longer exists. Please contact support.',
 
     'generic_response' => 'We have received your request and are processing it.',
     'no_information_found' => 'No information found for the provided data.',

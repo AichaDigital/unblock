@@ -60,9 +60,9 @@ class UserCreateCommand extends Command
         }
 
         // Check if all required parameters are provided for non-interactive mode
-        $isNonInteractive = $this->option('email') && 
-                           $this->option('first-name') && 
-                           $this->option('last-name') && 
+        $isNonInteractive = $this->option('email') &&
+                           $this->option('first-name') &&
+                           $this->option('last-name') &&
                            $this->option('password');
 
         if ($isNonInteractive) {
@@ -86,30 +86,34 @@ class UserCreateCommand extends Command
         $isAdmin = $this->option('admin');
 
         // Validate email
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $this->error('❌ Invalid email address: ' . $email);
+        if (! filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $this->error('❌ Invalid email address: '.$email);
+
             return self::FAILURE;
         }
 
         // Check if email already exists
         if (User::where('email', $email)->exists()) {
-            $this->error('❌ Email already exists: ' . $email);
+            $this->error('❌ Email already exists: '.$email);
+
             return self::FAILURE;
         }
 
         // Validate names
         if (strlen($firstName) < 2) {
             $this->error('❌ First name must be at least 2 characters');
+
             return self::FAILURE;
         }
 
         if (strlen($lastName) < 2) {
             $this->error('❌ Last name must be at least 2 characters');
+
             return self::FAILURE;
         }
 
         // Validate password if not in development mode
-        if (!$this->option('no-secure')) {
+        if (! $this->option('no-secure')) {
             try {
                 $validator = Validator::make(
                     ['password' => $password],
@@ -117,11 +121,13 @@ class UserCreateCommand extends Command
                 );
 
                 if ($validator->fails()) {
-                    $this->error('❌ Password validation failed: ' . $validator->errors()->first('password'));
+                    $this->error('❌ Password validation failed: '.$validator->errors()->first('password'));
+
                     return self::FAILURE;
                 }
             } catch (ValidationException $e) {
-                $this->error('❌ Password validation error: ' . $e->getMessage());
+                $this->error('❌ Password validation error: '.$e->getMessage());
+
                 return self::FAILURE;
             }
         }
@@ -159,6 +165,7 @@ class UserCreateCommand extends Command
             return self::SUCCESS;
         } catch (Exception $e) {
             $this->error('❌ Failed to create user: '.$e->getMessage());
+
             return self::FAILURE;
         }
     }

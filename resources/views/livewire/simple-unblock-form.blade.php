@@ -9,6 +9,7 @@
             </p>
 
             {{-- Progress indicator --}}
+            @if (!$isOtpVerified)
             <div class="mt-4 flex justify-center items-center space-x-2">
                 <div class="flex items-center">
                     <div class="flex items-center justify-center w-8 h-8 {{ $step === 1 ? 'bg-primary text-primary-content' : 'bg-success text-success-content' }} rounded-full">
@@ -34,6 +35,7 @@
                     </span>
                 </div>
             </div>
+            @endif
         </div>
 
         @if ($message)
@@ -196,6 +198,68 @@
                                     </span>
                                 </button>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        @endif
+
+        {{-- Direct processing form when OTP is already verified --}}
+        @if ($isOtpVerified)
+            <form wire:submit="processUnblock" class="mt-8 space-y-6">
+                <div class="card bg-base-100 shadow-xl">
+                    <div class="card-body">
+                        <div class="form-control">
+                            <label class="label" for="ip">
+                                <span class="label-text">{{ __('simple_unblock.ip_label') }}</span>
+                            </label>
+                            <input
+                                wire:model="ip"
+                                id="ip"
+                                type="text"
+                                required
+                                class="input input-bordered @error('ip') input-error @enderror"
+                                placeholder="{{ __('simple_unblock.ip_placeholder') }}"
+                            />
+                            @error('ip')
+                                <label class="label">
+                                    <span class="label-text-alt text-error">{{ $message }}</span>
+                                </label>
+                            @enderror
+                        </div>
+
+                        <div class="form-control">
+                            <label class="label" for="domain">
+                                <span class="label-text">{{ __('simple_unblock.domain_label') }}</span>
+                            </label>
+                            <input
+                                wire:model="domain"
+                                id="domain"
+                                type="text"
+                                required
+                                class="input input-bordered @error('domain') input-error @enderror"
+                                placeholder="{{ __('simple_unblock.domain_placeholder') }}"
+                            />
+                            @error('domain')
+                                <label class="label">
+                                    <span class="label-text-alt text-error">{{ $message }}</span>
+                                </label>
+                            @enderror
+                        </div>
+
+                        <div class="form-control mt-6">
+                            <button
+                                type="submit"
+                                wire:loading.attr="disabled"
+                                class="btn btn-primary"
+                            >
+                                <span wire:loading.remove>
+                                    {{ __('simple_unblock.process_button') }}
+                                </span>
+                                <span wire:loading>
+                                    {{ __('simple_unblock.processing') }}
+                                </span>
+                            </button>
                         </div>
                     </div>
                 </div>

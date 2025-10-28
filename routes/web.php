@@ -11,7 +11,7 @@ Volt::route('/', 'otp-login')
 
 // Rutas protegidas
 Volt::route('dashboard', 'unified-dashboard')
-    ->middleware(['auth', 'session.timeout'])
+    ->middleware(['auth', 'session.timeout', 'simple.mode'])
     ->name('dashboard');
 
 // Rutas de utilidad
@@ -21,6 +21,6 @@ Route::get('/report/{id}', ReportController::class)->name('report.show');
 // Simple Unblock Mode (conditional - only if enabled)
 if (config('unblock.simple_mode.enabled')) {
     Route::get('/simple-unblock', \App\Livewire\SimpleUnblockForm::class)
-        ->middleware(['throttle.simple.unblock'])
+        ->middleware(['auth', 'session.timeout', 'simple.mode', 'throttle.simple.unblock'])
         ->name('simple.unblock');
 }
