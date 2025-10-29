@@ -42,10 +42,6 @@ database/database.sqlite
 supervisor-laravel-worker.conf
 
 # Internal development docs (keep out of repo)
-docs/BUG_ANALYSIS*.md
-docs/CURRENT_*.md
-docs/*_INTERNAL*.md
-docs/SECURITY_*.md
-docs/SIMPLE_UNBLOCK_FEATURE.md
-docs/SIMPLE_MODE_REFACTOR.md
+/docs/internals/
+
 
