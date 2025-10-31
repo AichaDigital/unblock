@@ -120,9 +120,14 @@ class FirewallService
 
         return match ($type) {
             'csf' => "csf -g {$ip}",
+            'csf_specials' => "csf -g {$ip}", // Legacy: same as csf, kept for backward compatibility
             'csf_deny_check' => "cat /etc/csf/csf.deny | grep {$ip_escaped} || true",
             'csf_tempip_check' => "cat /var/lib/csf/csf.tempip | grep {$ip_escaped} || true",
             'mod_security_da' => "cat /var/log/nginx/modsec_audit.log | grep {$ip_escaped} || true",
+            // cPanel log checks
+            'exim_cpanel' => "cat /var/log/exim_mainlog | grep -Ea {$ip_escaped} | grep 'authenticator failed' || true",
+            'dovecot_cpanel' => "cat /var/log/maillog | grep -Ea {$ip_escaped} | grep 'auth failed' || true",
+            // DirectAdmin log checks
             'exim_directadmin' => "cat /var/log/exim/mainlog | grep -Ea {$ip_escaped} | grep 'authenticator failed'",
             'dovecot_directadmin' => "cat /var/log/mail.log | grep -Ea {$ip_escaped} | grep 'auth failed'",
             // FIXED: Use exact IP matching to avoid false positives (e.g., 10.192.168.1.100 matching 192.168.1.100)

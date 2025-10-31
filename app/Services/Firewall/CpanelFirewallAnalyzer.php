@@ -20,7 +20,6 @@ readonly class CpanelFirewallAnalyzer implements FirewallAnalyzerInterface
     ) {
         $this->serviceChecks = $serviceChecks ?? [
             'csf' => true,
-            'csf_specials' => true,
             'exim_cpanel' => true,
             'dovecot_cpanel' => true,
         ];
@@ -50,13 +49,6 @@ readonly class CpanelFirewallAnalyzer implements FirewallAnalyzerInterface
 
         // Solo si la IP está bloqueada, procedemos a buscar en los logs
         if ($wasBlocked === true) {
-            // Verificar CSF especial
-            if (($this->serviceChecks['csf_specials'] ?? false) === true) {
-                $csfSpecialsOutput = $this->firewallService->checkProblems($this->host, $sshKeyName, 'csf_specials', $ipAddress);
-                $logs['csf_specials'] = $csfSpecialsOutput;
-                $results[] = $this->analyzeCsfOutput($csfSpecialsOutput);
-            }
-
             // Verificar Exim
             if (($this->serviceChecks['exim_cpanel'] ?? false) === true) {
                 $eximOutput = $this->firewallService->checkProblems($this->host, $sshKeyName, 'exim_cpanel', $ipAddress);
@@ -71,11 +63,8 @@ readonly class CpanelFirewallAnalyzer implements FirewallAnalyzerInterface
                 $results[] = $this->analyzeDovecotOutput($dovecotOutput);
             }
 
-            // Si estaba bloqueada, procedemos a desbloquear y añadir a la lista blanca
-            if ($wasBlocked === true) {
-                $this->unblock($ipAddress, $sshKeyName);
-                $this->addToWhitelist($ipAddress, $sshKeyName);
-            }
+            // REMOVED: Auto-unblock logic - this must be done by the caller based on complete validation
+            // The analyzer should ONLY analyze and report, NOT make unblock decisions
         }
 
         return FirewallAnalysisResult::combine(...$results);

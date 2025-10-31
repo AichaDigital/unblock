@@ -4,10 +4,10 @@ namespace App\Filament\Resources\HostResource\Pages;
 
 use App\Filament\Actions\GenerateSshKeysAction;
 use App\Filament\Resources\HostResource;
-use Filament\Actions\DeleteAction;
-use Filament\Resources\Pages\EditRecord;
+use Filament\Actions\EditAction;
+use Filament\Resources\Pages\ViewRecord;
 
-class EditHost extends EditRecord
+class ViewHost extends ViewRecord
 {
     protected static string $resource = HostResource::class;
 
@@ -15,13 +15,13 @@ class EditHost extends EditRecord
     {
         return [
             GenerateSshKeysAction::make(),
-            DeleteAction::make(),
+            EditAction::make(),
         ];
     }
 
     protected function mutateFormDataBeforeFill(array $data): array
     {
-        // Make SSH keys visible for Filament forms
+        // Make SSH keys visible for viewing
         $record = $this->getRecord();
         $data['hash'] = $record->hash;
         $data['hash_public'] = $record->hash_public;

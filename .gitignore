@@ -44,4 +44,10 @@ supervisor-laravel-worker.conf
 # Internal development docs (keep out of repo)
 /docs/internals/
 
+# Infection mutation testing
+infection.json
+storage/infection/
+
+# Code coverage reports
+build/logs/
 

@@ -29,6 +29,7 @@
         "barryvdh/laravel-debugbar": "^3.15",
         "fakerphp/faker": "^1.23",
         "filament/upgrade": "^4.0",
+        "infection/infection": "^0.31.9",
         "larastan/larastan": "^3.6",
         "laravel/boost": "^1.1",
         "laravel/breeze": "^2.2",
@@ -132,6 +133,8 @@
         ],
         "test:coverage": "vendor/bin/pest --coverage-clover=build/logs/clover.xml",
         "coverage:check": "php scripts/coverage-check.php 85 build/logs/clover.xml",
+        "infection": "vendor/bin/infection --test-framework-options=\"--exclude-group=integration\"",
+        "infection:coverage": "@test-coverage && vendor/bin/infection --test-framework-options=\"--exclude-group=integration\"",
         "security:audit": "composer audit --format=json",
         "pre-commit": [
             "@syntax-check",
@@ -149,6 +152,7 @@
         "preferred-install": "dist",
         "sort-packages": true,
         "allow-plugins": {
+            "infection/extension-installer": true,
             "pestphp/pest-plugin": true,
             "php-http/discovery": true
         }

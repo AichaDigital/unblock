@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\{Model, SoftDeletes};
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\{HasMany, HasManyThrough};
 use Illuminate\Support\Facades\Crypt;
 use Throwable;
 
@@ -110,6 +110,23 @@ class Host extends Model
     public function hostings(): HasMany
     {
         return $this->hasMany(Hosting::class);
+    }
+
+    /**
+     * Get the accounts for the host (Simple Mode - Phase 2).
+     */
+    public function accounts(): HasMany
+    {
+        return $this->hasMany(Account::class);
+    }
+
+    /**
+     * Get all domains for the host through accounts (Simple Mode - Phase 3).
+     * This allows direct access to all domains in a host without loading accounts first.
+     */
+    public function domains(): HasManyThrough
+    {
+        return $this->hasManyThrough(Domain::class, Account::class);
     }
 
     /**

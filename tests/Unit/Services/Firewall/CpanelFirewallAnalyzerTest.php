@@ -35,17 +35,8 @@ test('analyze detects IP blocked in CSF', function () {
         ->with($this->host, TC::TEST_SSH_KEY, 'csf', TC::TEST_BLOCKED_IP)
         ->andReturn($csfOutput);
 
-    // Configurar mock para unblock
-    $this->firewallService
-        ->expects('checkProblems')
-        ->with($this->host, TC::TEST_SSH_KEY, 'unblock', TC::TEST_BLOCKED_IP)
-        ->andReturn('');
-
-    // Configurar mock para whitelist
-    $this->firewallService
-        ->expects('checkProblems')
-        ->with($this->host, TC::TEST_SSH_KEY, 'whitelist', TC::TEST_BLOCKED_IP)
-        ->andReturn('');
+    // REMOVED: Analyzer no longer auto-unblocks, so we don't expect these calls
+    // Auto-unblock was a security issue - unblocking must be done by caller
 
     // Configurar servicios
     $analyzer = $this->analyzer->withServiceChecks([
@@ -58,7 +49,7 @@ test('analyze detects IP blocked in CSF', function () {
     // Analizar con string como session (compatibility mode)
     $result = $analyzer->analyze(TC::TEST_BLOCKED_IP, TC::TEST_SSH_KEY);
 
-    // Verificar
+    // Verificar - analyzer only reports, doesn't unblock
     expect($result)->toBeInstanceOf(FirewallAnalysisResult::class)
         ->and($result->isBlocked())->toBeTrue();
 });
@@ -70,17 +61,17 @@ test('analyze detects authentication failures in Exim logs', function () {
     $csfOutput = $csfStub['cpanel'];
     $eximOutput = $eximStub['exim'];
 
-    // Configurar mock
+    // Configurar mock - only CSF and Exim, no unblock/whitelist
     $this->firewallService
         ->shouldReceive('checkProblems')
-        ->times(4)  // CSF, Exim, unblock y whitelist
+        ->times(2)  // CSF and Exim only (no auto-unblock anymore)
         ->withArgs(function ($host, $key, $service, $ip) {
             return $host === $this->host
                 && $key === 'test-key'
-                && in_array($service, ['csf', 'exim_cpanel', 'unblock', 'whitelist'])
+                && in_array($service, ['csf', 'exim_cpanel'])
                 && $ip === TC::TEST_BLOCKED_IP;
         })
-        ->andReturn($csfOutput, $eximOutput, '', '');
+        ->andReturn($csfOutput, $eximOutput);
 
     // Configurar servicios
     $analyzer = $this->analyzer->withServiceChecks([
@@ -93,29 +84,35 @@ test('analyze detects authentication failures in Exim logs', function () {
     // Analizar con string como session (compatibility mode)
     $result = $analyzer->analyze(TC::TEST_BLOCKED_IP, 'test-key');
 
-    // Verificar
+    // Verificar - analyzer only reports, doesn't unblock
     expect($result->isBlocked())->toBeTrue()
         ->and($result->getLogs())
         ->toHaveKey('csf')
         ->toHaveKey('exim');
 });
 
-test('analyze triggers unblock and whitelist for blocked IPs', function () {
-    // Cargar stub
+test('analyze DOES NOT trigger auto-unblock for blocked IPs', function () {
+    // Security test: verify analyzer doesn't auto-unblock
+    // Unblocking must be done by caller based on complete validation
+
     $stub = require base_path('tests/stubs/cpanel_deny.php');
     $csfOutput = $stub['cpanel'];
 
-    // Configurar mocks
+    // Configurar mock - should only call csf, NEVER unblock/whitelist
     $this->firewallService
         ->shouldReceive('checkProblems')
-        ->times(3)
-        ->withArgs(function ($host, $key, $service, $ip) {
-            return $host === $this->host
-                && $key === TC::TEST_SSH_KEY
-                && in_array($service, ['csf', 'unblock', 'whitelist'])
-                && $ip === TC::TEST_BLOCKED_IP;
-        })
+        ->once()
+        ->with($this->host, TC::TEST_SSH_KEY, 'csf', TC::TEST_BLOCKED_IP)
         ->andReturn($csfOutput);
+
+    // Should NOT receive calls to unblock or whitelist
+    $this->firewallService
+        ->shouldNotReceive('checkProblems')
+        ->with($this->host, TC::TEST_SSH_KEY, 'unblock', TC::TEST_BLOCKED_IP);
+
+    $this->firewallService
+        ->shouldNotReceive('checkProblems')
+        ->with($this->host, TC::TEST_SSH_KEY, 'whitelist', TC::TEST_BLOCKED_IP);
 
     // Configurar servicios
     $analyzer = $this->analyzer->withServiceChecks([
@@ -125,8 +122,11 @@ test('analyze triggers unblock and whitelist for blocked IPs', function () {
         'dovecot_cpanel' => false,
     ]);
 
-    // Analizar con string como session (compatibility mode)
-    $analyzer->analyze(TC::TEST_BLOCKED_IP, TC::TEST_SSH_KEY);
+    // Analizar - should detect block but NOT unblock
+    $result = $analyzer->analyze(TC::TEST_BLOCKED_IP, TC::TEST_SSH_KEY);
+
+    // Verify it detected the block
+    expect($result->isBlocked())->toBeTrue();
 });
 
 test('dovecot auth failed logs without csf blocks should not mark ip as blocked', function () {

@@ -123,10 +123,84 @@ class SyncCpanelAccountsAction
                 throw new Exception('Invalid whmapi1 response structure: missing data.acct');
             }
 
-            return $data['data']['acct'];
+            $accounts = $data['data']['acct'];
+
+            // Fetch domains for each account using uapi
+            foreach ($accounts as &$accountData) {
+                $username = $accountData['user'];
+                $accountData['domains'] = $this->fetchAccountDomains($session, $username);
+            }
+
+            return $accounts;
 
         } finally {
             $session->cleanup();
+        }
+    }
+
+    /**
+     * Fetch all domains for a specific account using uapi
+     */
+    private function fetchAccountDomains($session, string $username): array
+    {
+        try {
+            // Execute uapi DomainInfo list_domains for the specific user
+            $command = "uapi --user={$username} --output=json DomainInfo list_domains";
+            $output = $session->execute($command);
+
+            // Parse JSON response
+            $data = json_decode($output, true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                Log::warning('Failed to parse uapi JSON response for user domains', [
+                    'username' => $username,
+                    'error' => json_last_error_msg(),
+                ]);
+
+                return [];
+            }
+
+            if (! isset($data['result']['data'])) {
+                Log::warning('Invalid uapi response structure for user domains', [
+                    'username' => $username,
+                ]);
+
+                return [];
+            }
+
+            $domainData = $data['result']['data'];
+            $allDomains = [];
+
+            // Collect main domain
+            if (! empty($domainData['main_domain'])) {
+                $allDomains[] = $domainData['main_domain'];
+            }
+
+            // Collect addon domains
+            if (! empty($domainData['addon_domains']) && is_array($domainData['addon_domains'])) {
+                $allDomains = array_merge($allDomains, $domainData['addon_domains']);
+            }
+
+            // Collect parked domains (optional - they point to main domain)
+            if (! empty($domainData['parked_domains']) && is_array($domainData['parked_domains'])) {
+                $allDomains = array_merge($allDomains, $domainData['parked_domains']);
+            }
+
+            // Note: sub_domains are usually not needed for account-level sync
+            // but can be added if required:
+            // if (!empty($domainData['sub_domains']) && is_array($domainData['sub_domains'])) {
+            //     $allDomains = array_merge($allDomains, $domainData['sub_domains']);
+            // }
+
+            return array_unique($allDomains);
+
+        } catch (Exception $e) {
+            Log::warning('Failed to fetch domains for cPanel user', [
+                'username' => $username,
+                'error' => $e->getMessage(),
+            ]);
+
+            return [];
         }
     }
 

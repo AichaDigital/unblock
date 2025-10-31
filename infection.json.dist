@@ -1,0 +1,44 @@
+{
+    "$schema": "https://raw.githubusercontent.com/infection/infection/main/resources/schema.json",
+    "source": {
+        "directories": [
+            "app"
+        ],
+        "excludes": [
+            "app/Console/Kernel.php",
+            "app/Exceptions/Handler.php",
+            "app/Http/Kernel.php",
+            "app/Providers",
+            "app/Console/Commands/GeoIP/UpdateDatabaseCommand.php",
+            "routes/*"
+        ]
+    },
+    "logs": {
+        "text": "storage/infection/infection.log",
+        "summary": "storage/infection/summary.log",
+        "json": "storage/infection/infection.json",
+        "perMutator": "storage/infection/per-mutator.md"
+    },
+    "testFramework": "phpunit",
+    "phpUnit": {
+        "configDir": ".",
+        "customPath": "./vendor/bin/pest"
+    },
+    "bootstrap": "vendor/autoload.php",
+    "tmpDir": "storage/infection",
+    "initialTestsPhpOptions": "-d zend.enable_gc=0",
+    "ignoreMsiWithNoMutations": false,
+    "minMsi": 70,
+    "minCoveredMsi": 80,
+    "mutators": {
+        "@default": true,
+        "@function_signature": false,
+        "MethodCallRemoval": {
+            "ignore": [
+                "Illuminate\\Support\\Facades\\Log::*"
+            ]
+        }
+    },
+    "timeout": 120
+}
+

@@ -4,30 +4,53 @@ declare(strict_types=1);
 
 namespace App\Jobs;
 
-use App\Exceptions\{ConnectionFailedException, InvalidIpException};
-use App\Models\{Host, Report};
-use App\Services\{AnonymousUserService, FirewallUnblocker, SshConnectionManager};
-use App\Services\Firewall\{FirewallAnalysisResult, FirewallAnalyzerFactory};
+use App\Actions\SimpleUnblock\{
+    AnalyzeFirewallForIpAction,
+    CheckDomainInServerLogsAction,
+    CreateSimpleUnblockReportAction,
+    EvaluateUnblockMatchAction,
+    NotifySimpleUnblockResultAction,
+    ValidateDomainInDatabaseAction,
+    ValidateIpFormatAction
+};
+use App\Actions\UnblockIpAction;
+use App\Models\Host;
+use App\Services\AnonymousUserService;
 use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\{InteractsWithQueue, SerializesModels};
 use Illuminate\Support\Facades\{Cache, Log};
-use InvalidArgumentException;
 
 /**
- * Process Simple Unblock Job
+ * Process Simple Unblock Job (Refactored v2.0 - SOLID Compliant)
  *
  * Handles anonymous IP unblocking requests with domain validation.
  * This job is part of the decoupled "simple mode" architecture.
  *
+ * RESPONSIBILITIES (ONLY):
+ * - Serialization of job data for queue
+ * - Orchestration of atomic actions
+ * - Lock management for duplicate prevention
+ * - High-level error handling
+ *
+ * DOES NOT CONTAIN:
+ * - Business logic (moved to Actions)
+ * - Validation logic (moved to Actions)
+ * - SSH operations (handled by Actions)
+ * - Decision logic (moved to EvaluateUnblockMatchAction)
+ *
  * Flow:
- * 1. Analyze firewall on specified host
- * 2. Check if domain exists in server logs (Apache/Nginx/Exim)
- * 3. If IP blocked + domain matches: Unblock + notify user + admin
- * 4. If only IP blocked or only domain found: Silent log admin only
- * 5. If nothing found: Silent log admin
+ * 1. Check if already processed (lock)
+ * 2. Validate IP format
+ * 3. Validate domain in database
+ * 4. Analyze firewall status
+ * 5. Check domain in server logs
+ * 6. Evaluate unblock decision
+ * 7. Execute unblock if needed
+ * 8. Create report
+ * 9. Send notifications
  */
 class ProcessSimpleUnblockJob implements ShouldQueue
 {
@@ -44,16 +67,23 @@ class ProcessSimpleUnblockJob implements ShouldQueue
     ) {}
 
     /**
-     * Execute the job.
+     * Execute the job (Refactored - SOLID Compliant)
+     *
+     * Orchestrates atomic actions to process simple unblock request.
+     * NO business logic here - only action coordination.
      */
     public function handle(
-        SshConnectionManager $sshManager,
-        FirewallAnalyzerFactory $analyzerFactory,
-        FirewallUnblocker $unblocker
+        ValidateIpFormatAction $validateIp,
+        ValidateDomainInDatabaseAction $validateDomain,
+        AnalyzeFirewallForIpAction $analyzeFirewall,
+        CheckDomainInServerLogsAction $checkLogs,
+        EvaluateUnblockMatchAction $evaluateMatch,
+        UnblockIpAction $unblockIp,
+        CreateSimpleUnblockReportAction $createReport,
+        NotifySimpleUnblockResultAction $notify
     ): void {
-        // Check if another job already found a match and processed it
-        $lockKey = "simple_unblock_processed:{$this->ip}:{$this->domain}";
-        if (Cache::has($lockKey)) {
+        // 1. Early abort if already processed (prevent duplicate processing)
+        if ($this->isAlreadyProcessed()) {
             Log::info('Simple unblock already processed by another job', [
                 'ip' => $this->ip,
                 'domain' => $this->domain,
@@ -63,7 +93,7 @@ class ProcessSimpleUnblockJob implements ShouldQueue
             return;
         }
 
-        Log::info('Starting simple unblock job', [
+        Log::info('Starting simple unblock job (v2.0 SOLID)', [
             'ip' => $this->ip,
             'domain' => $this->domain,
             'email' => $this->email,
@@ -71,292 +101,191 @@ class ProcessSimpleUnblockJob implements ShouldQueue
         ]);
 
         try {
-            $host = $this->loadHost($this->hostId);
-            $this->validateIpAddress($this->ip);
+            // 2. Load host
+            $host = Host::findOrFail($this->hostId);
 
-            // 1. Perform firewall analysis
-            $analysisResult = $this->performFirewallAnalysis($this->ip, $host, $sshManager, $analyzerFactory);
-            $ipIsBlocked = $analysisResult->isBlocked();
+            // 3. Validate IP format
+            $validateIp->handle($this->ip);
 
-            // 2. Check if domain exists in server logs
-            $domainExistsOnHost = $this->checkDomainInServerLogs($this->ip, $this->domain, $host, $sshManager);
+            // 4. CRITICAL: Validate domain in database BEFORE SSH operations
+            $domainValidation = $validateDomain->handle($this->domain, $host->id);
+            if (! $domainValidation->exists) {
+                Log::warning('Simple unblock: Domain validation failed - ABORT', [
+                    'ip' => $this->ip,
+                    'domain' => $this->domain,
+                    'reason' => $domainValidation->reason,
+                    'host_fqdn' => $host->fqdn,
+                ]);
 
-            // 3. Evaluate match
-            if ($ipIsBlocked && $domainExistsOnHost) {
-                // FULL MATCH: Unblock + notify user + admin
-                $this->handleFullMatch($this->ip, $this->domain, $this->email, $host, $analysisResult, $unblocker);
+                $notify->handleSuspiciousAttempt(
+                    $this->ip,
+                    $this->domain,
+                    $this->email,
+                    $host,
+                    $domainValidation->reason
+                );
 
-                // Set lock to prevent other jobs from processing
-                Cache::put($lockKey, true, now()->addMinutes(10));
-            } elseif ($ipIsBlocked || $domainExistsOnHost) {
-                // PARTIAL MATCH: Silent log admin only (possible abuse)
-                $reason = $ipIsBlocked ? 'ip_blocked_but_domain_not_found' : 'domain_found_but_ip_not_blocked';
-                $this->logSilentAttempt($this->ip, $this->domain, $this->email, $host, $reason, $analysisResult);
-            } else {
-                // NO MATCH: Silent log admin
-                $this->logSilentAttempt($this->ip, $this->domain, $this->email, $host, 'no_match_found', $analysisResult);
+                return; // ABORT
             }
 
-        } catch (Exception $e) {
-            Log::error('Simple unblock job failed', [
-                'ip' => $this->ip,
-                'domain' => $this->domain,
-                'email' => $this->email,
-                'host_id' => $this->hostId,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
+            // 5. Analyze firewall status
+            $analysis = $analyzeFirewall->handle($this->ip, $host);
+
+            // 6. Check domain in server logs
+            $logsSearch = $checkLogs->handle($this->ip, $this->domain, $host);
+
+            // 7. Evaluate unblock decision (CRITICAL BUSINESS LOGIC)
+            $decision = $evaluateMatch->handle(
+                $analysis->isBlocked(),
+                $logsSearch->found,
+                $domainValidation->exists
+            );
+
+            Log::info('Unblock decision made', [
+                'decision' => $decision->reason,
+                'should_unblock' => $decision->shouldUnblock,
             ]);
 
-            // Notify admin about the failure
-            $this->notifyAdminFailure($this->ip, $this->domain, $this->email, $e->getMessage());
+            // 8. Execute unblock if decision is positive
+            $unblockResults = null;
+            if ($decision->shouldUnblock) {
+                $unblockResults = $unblockIp->handle($this->ip, $host, $analysis);
+                $this->markAsProcessed(); // Lock to prevent duplicates
+            }
 
+            // 9. Create report for audit trail
+            $report = $createReport->handle(
+                $this->ip,
+                $this->domain,
+                $this->email,
+                $host,
+                $analysis,
+                $unblockResults,
+                $decision
+            );
+
+            // 10. Send appropriate notifications
+            $notify->handle(
+                $decision,
+                $this->email,
+                $this->domain,
+                $report,
+                $host,
+                [
+                    'ip' => $this->ip,
+                    'was_blocked' => $analysis->isBlocked(),
+                    'logs_preview' => substr(json_encode($analysis->getLogs()), 0, 500),
+                ]
+            );
+
+            // 11. Log audit trail
+            $this->logAuditTrail($host, $decision, $report);
+
+            Log::info('Simple unblock job completed successfully', [
+                'report_id' => $report->id,
+                'decision' => $decision->reason,
+            ]);
+
+        } catch (Exception $e) {
+            $this->handleJobFailure($e, $notify);
             throw $e;
         }
     }
 
     /**
-     * Perform firewall analysis on the host
+     * Check if this request was already processed by another job
      */
-    private function performFirewallAnalysis(
-        string $ip,
-        Host $host,
-        SshConnectionManager $sshManager,
-        FirewallAnalyzerFactory $analyzerFactory
-    ): FirewallAnalysisResult {
-        $session = $sshManager->createSession($host);
-
-        try {
-            $analyzer = $analyzerFactory->createForHost($host);
-            $analysisResult = $analyzer->analyze($ip, $session);
-
-            Log::info('Firewall analysis completed in simple unblock job', [
-                'ip' => $ip,
-                'host_fqdn' => $host->fqdn,
-                'blocked' => $analysisResult->isBlocked(),
-            ]);
-
-            return $analysisResult;
-        } finally {
-            $session->cleanup();
-        }
-    }
-
-    /**
-     * Check if domain exists in server logs (Apache/Nginx/Exim)
-     */
-    private function checkDomainInServerLogs(
-        string $ip,
-        string $domain,
-        Host $host,
-        SshConnectionManager $sshManager
-    ): bool {
-        $session = $sshManager->createSession($host);
-
-        try {
-            // Build composite grep command to search in multiple log sources
-            $commands = $this->buildDomainSearchCommands($ip, $domain, $host->panel);
-            $combinedCommand = implode(' || ', $commands);
-
-            Log::debug('Searching for domain in server logs', [
-                'ip' => $ip,
-                'domain' => $domain,
-                'host_fqdn' => $host->fqdn,
-                'panel' => $host->panel,
-            ]);
-
-            $result = $session->execute($combinedCommand);
-            $found = ! empty(trim($result));
-
-            Log::info('Domain search completed', [
-                'ip' => $ip,
-                'domain' => $domain,
-                'host_fqdn' => $host->fqdn,
-                'found' => $found,
-                'result_preview' => substr($result, 0, 200),
-            ]);
-
-            return $found;
-
-        } catch (ConnectionFailedException $e) {
-            Log::warning('Could not check domain in logs (connection failed)', [
-                'ip' => $ip,
-                'domain' => $domain,
-                'host_id' => $host->id,
-                'error' => $e->getMessage(),
-            ]);
-
-            return false;
-        } finally {
-            $session->cleanup();
-        }
-    }
-
-    /**
-     * Build domain search commands based on panel type
-     */
-    private function buildDomainSearchCommands(string $ip, string $domain, string $panelType): array
+    private function isAlreadyProcessed(): bool
     {
-        $ipEscaped = escapeshellarg($ip);
-        $domainEscaped = escapeshellarg($domain);
+        $lockKey = "simple_unblock_processed:{$this->ip}:{$this->domain}";
 
-        $commands = [
-            // Apache access logs (last 7 days)
-            "find /var/log/apache2 -name 'access.log*' -mtime -7 -type f -exec grep -l {$ipEscaped} {} \\; 2>/dev/null | xargs grep -i {$domainEscaped} 2>/dev/null | head -1",
-
-            // Nginx access logs (last 7 days)
-            "find /var/log/nginx -name 'access.log*' -mtime -7 -type f -exec grep -l {$ipEscaped} {} \\; 2>/dev/null | xargs grep -i {$domainEscaped} 2>/dev/null | head -1",
-
-            // Exim mail logs (last 7 days)
-            "find /var/log/exim -name 'mainlog*' -mtime -7 -type f -exec grep -l {$ipEscaped} {} \\; 2>/dev/null | xargs grep -i {$domainEscaped} 2>/dev/null | head -1",
-        ];
-
-        if ($panelType === 'cpanel') {
-            // cPanel-specific: domlogs
-            $commands[] = "find /usr/local/apache/domlogs -name '*{$domain}*' -mtime -7 -type f -exec grep {$ipEscaped} {} \\; 2>/dev/null | head -1";
-        }
-
-        return $commands;
+        return Cache::has($lockKey);
     }
 
     /**
-     * Handle full match: unblock IP and notify user + admin
+     * Mark request as processed to prevent duplicate processing
      */
-    private function handleFullMatch(
-        string $ip,
-        string $domain,
-        string $email,
-        Host $host,
-        FirewallAnalysisResult $analysisResult,
-        FirewallUnblocker $unblocker
-    ): void {
-        Log::info('Simple unblock: FULL MATCH - proceeding with unblock', [
-            'ip' => $ip,
-            'domain' => $domain,
-            'email' => $email,
-            'host_fqdn' => $host->fqdn,
-        ]);
+    private function markAsProcessed(): void
+    {
+        $lockKey = "simple_unblock_processed:{$this->ip}:{$this->domain}";
+        Cache::put($lockKey, true, now()->addMinutes(10));
+    }
 
-        // Perform unblock operations
-        $unblockResults = $unblocker->unblockIp($ip, $host, $analysisResult);
-
-        // Create report (using anonymous system user)
-        $report = Report::create([
-            'ip' => $ip,
-            'user_id' => AnonymousUserService::get()->id,
-            'host_id' => $host->id,
-            'analysis' => [
-                'was_blocked' => true,
-                'domain' => $domain,
-                'email' => $email,
-                'simple_mode' => true,
-                'unblock_performed' => true,
-                'unblock_status' => $unblockResults,
-                'analysis_timestamp' => now()->toISOString(),
-            ],
-            'logs' => $analysisResult->getLogs(),
-        ]);
-
-        // Dispatch notification job
-        SendSimpleUnblockNotificationJob::dispatch(
-            reportId: (string) $report->id,
-            email: $email,
-            domain: $domain
-        );
-
-        // Log audit trail
+    /**
+     * Log audit trail for simple unblock operation
+     */
+    private function logAuditTrail($host, $decision, $report): void
+    {
         activity()
             ->withProperties([
-                'ip' => $ip,
-                'domain' => $domain,
-                'email' => $email,
+                'ip' => $this->ip,
+                'domain' => $this->domain,
+                'email' => $this->email,
                 'host_id' => $host->id,
                 'host_fqdn' => $host->fqdn,
                 'report_id' => $report->id,
-                'result' => 'unblocked',
+                'decision' => $decision->reason,
+                'unblocked' => $decision->shouldUnblock,
             ])
-            ->log('simple_unblock_success');
+            ->log($decision->shouldUnblock ? 'simple_unblock_success' : 'simple_unblock_no_match');
     }
 
     /**
-     * Log silent attempt (admin notification only)
+     * Handle job failure - create error report and notify admin
      */
-    private function logSilentAttempt(
-        string $ip,
-        string $domain,
-        string $email,
-        Host $host,
-        string $reason,
-        FirewallAnalysisResult $analysisResult
-    ): void {
-        Log::info('Simple unblock: Silent log (no user notification)', [
-            'ip' => $ip,
-            'domain' => $domain,
-            'email' => $email,
-            'host_fqdn' => $host->fqdn,
-            'reason' => $reason,
+    private function handleJobFailure(Exception $e, NotifySimpleUnblockResultAction $notify): void
+    {
+        Log::error('Simple unblock job failed', [
+            'ip' => $this->ip,
+            'domain' => $this->domain,
+            'email' => $this->email,
+            'host_id' => $this->hostId,
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString(),
         ]);
 
-        // Send admin-only notification
-        SendSimpleUnblockNotificationJob::dispatch(
-            reportId: null,
-            email: $email,
-            domain: $domain,
-            adminOnly: true,
-            reason: $reason,
-            hostFqdn: $host->fqdn,
-            analysisData: [
-                'ip' => $ip,
-                'was_blocked' => $analysisResult->isBlocked(),
-                'logs_preview' => substr(json_encode($analysisResult->getLogs()), 0, 500),
-            ]
-        );
+        // Create error report for audit trail
+        try {
+            $host = Host::find($this->hostId);
+            if ($host) {
+                \App\Models\Report::create([
+                    'ip' => $this->ip,
+                    'user_id' => AnonymousUserService::get()->id,
+                    'host_id' => $this->hostId,
+                    'analysis' => [
+                        'error' => true,
+                        'error_message' => $e->getMessage(),
+                        'domain' => $this->domain,
+                        'email' => $this->email,
+                        'simple_mode' => true,
+                        'unblock_performed' => false,
+                        'analysis_timestamp' => now()->toISOString(),
+                    ],
+                    'logs' => [
+                        'error' => $e->getMessage(),
+                        'trace' => $e->getTraceAsString(),
+                    ],
+                ]);
 
-        // Audit log
-        activity()
-            ->withProperties([
-                'ip' => $ip,
-                'domain' => $domain,
-                'email' => $email,
-                'host_id' => $host->id,
-                'host_fqdn' => $host->fqdn,
-                'reason' => $reason,
-                'ip_blocked' => $analysisResult->isBlocked(),
-            ])
-            ->log('simple_unblock_no_match');
-    }
-
-    /**
-     * Notify admin about job failure
-     */
-    private function notifyAdminFailure(string $ip, string $domain, string $email, string $error): void
-    {
-        SendSimpleUnblockNotificationJob::dispatch(
-            reportId: null,
-            email: $email,
-            domain: $domain,
-            adminOnly: true,
-            reason: 'job_failure',
-            analysisData: [
-                'ip' => $ip,
-                'error' => $error,
-            ]
-        );
-    }
-
-    private function loadHost(int $hostId): Host
-    {
-        $host = Host::find($hostId);
-        if (! $host) {
-            throw new InvalidArgumentException("Host with ID {$hostId} not found in job");
-        }
-
-        return $host;
-    }
-
-    private function validateIpAddress(string $ip): void
-    {
-        if (! filter_var($ip, FILTER_VALIDATE_IP)) {
-            throw new InvalidIpException("Invalid IP address format in job: {$ip}");
+                // Notify admin
+                SendSimpleUnblockNotificationJob::dispatch(
+                    reportId: null,
+                    email: $this->email,
+                    domain: $this->domain,
+                    adminOnly: true,
+                    reason: 'job_failure',
+                    hostFqdn: $host->fqdn,
+                    analysisData: [
+                        'ip' => $this->ip,
+                        'error' => $e->getMessage(),
+                    ]
+                );
+            }
+        } catch (Exception $reportError) {
+            Log::error('Failed to create error report', [
+                'original_error' => $e->getMessage(),
+                'report_error' => $reportError->getMessage(),
+            ]);
         }
     }
 }

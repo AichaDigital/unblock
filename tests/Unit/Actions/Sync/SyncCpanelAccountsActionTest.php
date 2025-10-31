@@ -33,6 +33,57 @@ beforeEach(function () {
 
     // Create action instance with mocked SSH manager
     $this->action = new SyncCpanelAccountsAction($this->mockSshManager);
+
+    // Helper function to create default uapi response for a domain
+    $this->createUapiResponse = function (string $mainDomain, array $addonDomains = []) {
+        return json_encode([
+            'result' => [
+                'data' => [
+                    'main_domain' => $mainDomain,
+                    'addon_domains' => $addonDomains,
+                    'parked_domains' => [],
+                    'sub_domains' => [],
+                ],
+            ],
+        ]);
+    };
+
+    // Helper to setup mock for accounts with automatic uapi responses
+    $this->mockAccountsSync = function (array $accounts, array $domainMap = []) {
+        $whmapi1Response = json_encode([
+            'data' => ['acct' => $accounts],
+        ]);
+
+        $this->mockSession
+            ->shouldReceive('execute')
+            ->andReturnUsing(function ($command) use ($whmapi1Response, $domainMap, $accounts) {
+                if ($command === 'whmapi1 listaccts --output=json') {
+                    return $whmapi1Response;
+                }
+
+                // Match uapi DomainInfo commands
+                if (preg_match('/uapi --user=(\w+) --output=json DomainInfo list_domains/', $command, $matches)) {
+                    $username = $matches[1];
+
+                    // If domain map provided, use it
+                    if (isset($domainMap[$username])) {
+                        return ($this->createUapiResponse)($domainMap[$username]['main'], $domainMap[$username]['addons'] ?? []);
+                    }
+
+                    // Otherwise, find the account domain from accounts array
+                    foreach ($accounts as $account) {
+                        if ($account['user'] === $username) {
+                            return ($this->createUapiResponse)($account['domain'], []);
+                        }
+                    }
+
+                    // Fallback: empty response
+                    return ($this->createUapiResponse)('', []);
+                }
+
+                throw new \Exception("Unexpected SSH command: {$command}");
+            });
+    };
 });
 
 describe('SyncCpanelAccountsAction', function () {
@@ -48,7 +99,7 @@ describe('SyncCpanelAccountsAction', function () {
 
     describe('handle() - initial sync mode', function () {
         it('creates new accounts from whmapi1 response', function () {
-            // Mock whmapi1 response
+            // Mock whmapi1 listaccts response
             $whmapi1Response = json_encode([
                 'data' => [
                     'acct' => [
@@ -57,24 +108,58 @@ describe('SyncCpanelAccountsAction', function () {
                             'domain' => 'user1.com',
                             'owner' => 'admin',
                             'suspended' => 0,
-                            'domains' => ['user1.com'],
                         ],
                         [
                             'user' => 'user2',
                             'domain' => 'user2.com',
                             'owner' => 'admin',
                             'suspended' => 1,
-                            'domains' => ['user2.com'],
                         ],
                     ],
                 ],
             ]);
 
+            // Mock uapi DomainInfo list_domains responses
+            $uapiUser1Response = json_encode([
+                'result' => [
+                    'data' => [
+                        'main_domain' => 'user1.com',
+                        'addon_domains' => [],
+                        'parked_domains' => [],
+                        'sub_domains' => [],
+                    ],
+                ],
+            ]);
+
+            $uapiUser2Response = json_encode([
+                'result' => [
+                    'data' => [
+                        'main_domain' => 'user2.com',
+                        'addon_domains' => [],
+                        'parked_domains' => [],
+                        'sub_domains' => [],
+                    ],
+                ],
+            ]);
+
+            // Setup mock expectations
             $this->mockSession
                 ->shouldReceive('execute')
                 ->with('whmapi1 listaccts --output=json')
                 ->once()
                 ->andReturn($whmapi1Response);
+
+            $this->mockSession
+                ->shouldReceive('execute')
+                ->with('uapi --user=user1 --output=json DomainInfo list_domains')
+                ->once()
+                ->andReturn($uapiUser1Response);
+
+            $this->mockSession
+                ->shouldReceive('execute')
+                ->with('uapi --user=user2 --output=json DomainInfo list_domains')
+                ->once()
+                ->andReturn($uapiUser2Response);
 
             // Execute initial sync
             $stats = $this->action->handle($this->host, isInitial: true);
@@ -121,10 +206,19 @@ describe('SyncCpanelAccountsAction', function () {
                 ],
             ]);
 
+            $uapiResponse = ($this->createUapiResponse)('new.com', []);
+
             $this->mockSession
                 ->shouldReceive('execute')
+                ->with('whmapi1 listaccts --output=json')
                 ->once()
                 ->andReturn($whmapi1Response);
+
+            $this->mockSession
+                ->shouldReceive('execute')
+                ->with('uapi --user=new_user --output=json DomainInfo list_domains')
+                ->once()
+                ->andReturn($uapiResponse);
 
             // Execute initial sync
             $stats = $this->action->handle($this->host, isInitial: true);
@@ -136,6 +230,7 @@ describe('SyncCpanelAccountsAction', function () {
         });
 
         it('syncs primary and addon domains', function () {
+            // Mock whmapi1 listaccts response
             $whmapi1Response = json_encode([
                 'data' => [
                     'acct' => [
@@ -144,16 +239,34 @@ describe('SyncCpanelAccountsAction', function () {
                             'domain' => 'user1.com',
                             'owner' => 'admin',
                             'suspended' => 0,
-                            'domains' => ['user1.com', 'addon1.com', 'addon2.com'],
                         ],
+                    ],
+                ],
+            ]);
+
+            // Mock uapi DomainInfo list_domains with addon domains
+            $uapiResponse = json_encode([
+                'result' => [
+                    'data' => [
+                        'main_domain' => 'user1.com',
+                        'addon_domains' => ['addon1.com', 'addon2.com'],
+                        'parked_domains' => [],
+                        'sub_domains' => [],
                     ],
                 ],
             ]);
 
             $this->mockSession
                 ->shouldReceive('execute')
+                ->with('whmapi1 listaccts --output=json')
                 ->once()
                 ->andReturn($whmapi1Response);
+
+            $this->mockSession
+                ->shouldReceive('execute')
+                ->with('uapi --user=user1 --output=json DomainInfo list_domains')
+                ->once()
+                ->andReturn($uapiResponse);
 
             $this->action->handle($this->host, isInitial: true);
 
@@ -166,7 +279,12 @@ describe('SyncCpanelAccountsAction', function () {
                 ->and($primaryDomain->account_id)->toBe($account->id);
 
             $addonDomain = Domain::where('domain_name', 'addon1.com')->first();
-            expect($addonDomain->type)->toBe('addon');
+            expect($addonDomain->type)->toBe('addon')
+                ->and($addonDomain->account_id)->toBe($account->id);
+
+            $addon2Domain = Domain::where('domain_name', 'addon2.com')->first();
+            expect($addon2Domain->type)->toBe('addon')
+                ->and($addon2Domain->account_id)->toBe($account->id);
         });
     });
 
@@ -181,24 +299,15 @@ describe('SyncCpanelAccountsAction', function () {
                 'suspended_at' => now(),
             ]);
 
-            // Mock whmapi1 with updated data
-            $whmapi1Response = json_encode([
-                'data' => [
-                    'acct' => [
-                        [
-                            'user' => 'user1',
-                            'domain' => 'new-domain.com',
-                            'owner' => 'new_owner',
-                            'suspended' => 0,
-                        ],
-                    ],
+            // Mock account sync
+            ($this->mockAccountsSync)([
+                [
+                    'user' => 'user1',
+                    'domain' => 'new-domain.com',
+                    'owner' => 'new_owner',
+                    'suspended' => 0,
                 ],
             ]);
-
-            $this->mockSession
-                ->shouldReceive('execute')
-                ->once()
-                ->andReturn($whmapi1Response);
 
             // Execute incremental sync
             $stats = $this->action->handle($this->host, isInitial: false);
@@ -226,24 +335,15 @@ describe('SyncCpanelAccountsAction', function () {
                 'username' => 'deleted_user2',
             ]);
 
-            // Mock whmapi1 without these accounts
-            $whmapi1Response = json_encode([
-                'data' => [
-                    'acct' => [
-                        [
-                            'user' => 'active_user',
-                            'domain' => 'active.com',
-                            'owner' => 'admin',
-                            'suspended' => 0,
-                        ],
-                    ],
+            // Mock account sync without deleted users
+            ($this->mockAccountsSync)([
+                [
+                    'user' => 'active_user',
+                    'domain' => 'active.com',
+                    'owner' => 'admin',
+                    'suspended' => 0,
                 ],
             ]);
-
-            $this->mockSession
-                ->shouldReceive('execute')
-                ->once()
-                ->andReturn($whmapi1Response);
 
             // Execute incremental sync
             $stats = $this->action->handle($this->host, isInitial: false);
@@ -265,24 +365,15 @@ describe('SyncCpanelAccountsAction', function () {
                 'username' => 'revived_user',
             ]);
 
-            // Mock whmapi1 with this account (reappeared)
-            $whmapi1Response = json_encode([
-                'data' => [
-                    'acct' => [
-                        [
-                            'user' => 'revived_user',
-                            'domain' => 'revived.com',
-                            'owner' => 'admin',
-                            'suspended' => 0,
-                        ],
-                    ],
+            // Mock account sync with revived account
+            ($this->mockAccountsSync)([
+                [
+                    'user' => 'revived_user',
+                    'domain' => 'revived.com',
+                    'owner' => 'admin',
+                    'suspended' => 0,
                 ],
             ]);
-
-            $this->mockSession
-                ->shouldReceive('execute')
-                ->once()
-                ->andReturn($whmapi1Response);
 
             // Execute sync
             $this->action->handle($this->host, isInitial: false);
@@ -302,14 +393,7 @@ describe('SyncCpanelAccountsAction', function () {
             ]);
 
             // Mock empty response for current host
-            $whmapi1Response = json_encode([
-                'data' => ['acct' => []],
-            ]);
-
-            $this->mockSession
-                ->shouldReceive('execute')
-                ->once()
-                ->andReturn($whmapi1Response);
+            ($this->mockAccountsSync)([]);
 
             // Execute sync
             $stats = $this->action->handle($this->host, isInitial: false);
@@ -337,14 +421,7 @@ describe('SyncCpanelAccountsAction', function () {
                 ];
             }
 
-            $whmapi1Response = json_encode([
-                'data' => ['acct' => $accounts],
-            ]);
-
-            $this->mockSession
-                ->shouldReceive('execute')
-                ->once()
-                ->andReturn($whmapi1Response);
+            ($this->mockAccountsSync)($accounts);
 
             // Execute sync
             $stats = $this->action->handle($this->host, isInitial: true);
@@ -368,14 +445,7 @@ describe('SyncCpanelAccountsAction', function () {
                 ];
             }
 
-            $whmapi1Response = json_encode([
-                'data' => ['acct' => $accounts],
-            ]);
-
-            $this->mockSession
-                ->shouldReceive('execute')
-                ->once()
-                ->andReturn($whmapi1Response);
+            ($this->mockAccountsSync)($accounts);
 
             // Execute sync
             $stats = $this->action->handle($this->host, isInitial: true);
@@ -423,23 +493,14 @@ describe('SyncCpanelAccountsAction', function () {
 
     describe('handle() - suspension handling', function () {
         it('marks suspended accounts correctly', function () {
-            $whmapi1Response = json_encode([
-                'data' => [
-                    'acct' => [
-                        [
-                            'user' => 'suspended_user',
-                            'domain' => 'suspended.com',
-                            'owner' => 'admin',
-                            'suspended' => 1,
-                        ],
-                    ],
+            ($this->mockAccountsSync)([
+                [
+                    'user' => 'suspended_user',
+                    'domain' => 'suspended.com',
+                    'owner' => 'admin',
+                    'suspended' => 1,
                 ],
             ]);
-
-            $this->mockSession
-                ->shouldReceive('execute')
-                ->once()
-                ->andReturn($whmapi1Response);
 
             $stats = $this->action->handle($this->host, isInitial: true);
 
@@ -456,24 +517,15 @@ describe('SyncCpanelAccountsAction', function () {
                 'username' => 'user1',
             ]);
 
-            // Mock whmapi1 with unsuspended status
-            $whmapi1Response = json_encode([
-                'data' => [
-                    'acct' => [
-                        [
-                            'user' => 'user1',
-                            'domain' => 'user1.com',
-                            'owner' => 'admin',
-                            'suspended' => 0,
-                        ],
-                    ],
+            // Mock account sync with unsuspended status
+            ($this->mockAccountsSync)([
+                [
+                    'user' => 'user1',
+                    'domain' => 'user1.com',
+                    'owner' => 'admin',
+                    'suspended' => 0,
                 ],
             ]);
-
-            $this->mockSession
-                ->shouldReceive('execute')
-                ->once()
-                ->andReturn($whmapi1Response);
 
             $this->action->handle($this->host, isInitial: false);
 
@@ -492,24 +544,15 @@ describe('SyncCpanelAccountsAction', function () {
 
             $originalUserId = $account->user_id;
 
-            // Mock whmapi1
-            $whmapi1Response = json_encode([
-                'data' => [
-                    'acct' => [
-                        [
-                            'user' => 'user1',
-                            'domain' => 'updated.com',
-                            'owner' => 'admin',
-                            'suspended' => 0,
-                        ],
-                    ],
+            // Mock account sync
+            ($this->mockAccountsSync)([
+                [
+                    'user' => 'user1',
+                    'domain' => 'updated.com',
+                    'owner' => 'admin',
+                    'suspended' => 0,
                 ],
             ]);
-
-            $this->mockSession
-                ->shouldReceive('execute')
-                ->once()
-                ->andReturn($whmapi1Response);
 
             // Execute sync
             $this->action->handle($this->host, isInitial: false);
@@ -534,20 +577,11 @@ describe('SyncCpanelAccountsAction', function () {
             ]);
 
             // Mock response: 1 existing (updated), 2 new, 1 suspended
-            $whmapi1Response = json_encode([
-                'data' => [
-                    'acct' => [
-                        ['user' => 'existing_user', 'domain' => 'existing.com', 'owner' => 'admin', 'suspended' => 0],
-                        ['user' => 'new_user1', 'domain' => 'new1.com', 'owner' => 'admin', 'suspended' => 0],
-                        ['user' => 'new_user2', 'domain' => 'new2.com', 'owner' => 'admin', 'suspended' => 1],
-                    ],
-                ],
+            ($this->mockAccountsSync)([
+                ['user' => 'existing_user', 'domain' => 'existing.com', 'owner' => 'admin', 'suspended' => 0],
+                ['user' => 'new_user1', 'domain' => 'new1.com', 'owner' => 'admin', 'suspended' => 0],
+                ['user' => 'new_user2', 'domain' => 'new2.com', 'owner' => 'admin', 'suspended' => 1],
             ]);
-
-            $this->mockSession
-                ->shouldReceive('execute')
-                ->once()
-                ->andReturn($whmapi1Response);
 
             $stats = $this->action->handle($this->host, isInitial: false);
 
