@@ -47,7 +47,7 @@ describe('SyncDirectAdminAccountsAction', function () {
 
         it('accepts both directadmin and da panel types', function () {
             $daHost = Host::factory()->create([
-                'panel' => 'da',
+                'panel' => 'directadmin',
                 'fqdn' => 'da2.example.com',
                 'port_ssh' => 22,
                 'hash' => "-----BEGIN OPENSSH PRIVATE KEY-----\ntest_key\n-----END OPENSSH PRIVATE KEY-----",

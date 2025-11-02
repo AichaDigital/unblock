@@ -44,6 +44,9 @@ class SendSimpleUnblockNotificationJob implements ShouldQueue
      */
     public function handle(): void
     {
+        // Set locale to APP_LOCALE for anonymous users (no authentication context)
+        app()->setLocale(config('app.locale'));
+
         try {
             if ($this->adminOnly) {
                 // Silent mode: Only notify admin

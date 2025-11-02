@@ -132,4 +132,3 @@ test('unblock action for DirectAdmin skips BFM removal if IP not in blacklist', 
 
     expect($result['success'])->toBeTrue();
 });
-

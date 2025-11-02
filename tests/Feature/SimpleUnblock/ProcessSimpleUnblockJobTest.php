@@ -57,7 +57,8 @@ test('job processes firewall analysis correctly', function () {
         app(\App\Actions\SimpleUnblock\EvaluateUnblockMatchAction::class),
         app(\App\Actions\UnblockIpAction::class),
         app(\App\Actions\SimpleUnblock\CreateSimpleUnblockReportAction::class),
-        app(\App\Actions\SimpleUnblock\NotifySimpleUnblockResultAction::class)
+        app(\App\Actions\SimpleUnblock\NotifySimpleUnblockResultAction::class),
+        app(\App\Services\SshConnectionManager::class)
     );
 
     // Should complete without errors
@@ -80,7 +81,8 @@ test('job validates IP format', function () {
         app(\App\Actions\SimpleUnblock\EvaluateUnblockMatchAction::class),
         app(\App\Actions\UnblockIpAction::class),
         app(\App\Actions\SimpleUnblock\CreateSimpleUnblockReportAction::class),
-        app(\App\Actions\SimpleUnblock\NotifySimpleUnblockResultAction::class)
+        app(\App\Actions\SimpleUnblock\NotifySimpleUnblockResultAction::class),
+        app(\App\Services\SshConnectionManager::class)
     ))->toThrow(\App\Exceptions\InvalidIpException::class);
 });
 
@@ -104,7 +106,8 @@ test('job skips processing if already handled by another job', function () {
         app(\App\Actions\SimpleUnblock\EvaluateUnblockMatchAction::class),
         app(\App\Actions\UnblockIpAction::class),
         app(\App\Actions\SimpleUnblock\CreateSimpleUnblockReportAction::class),
-        app(\App\Actions\SimpleUnblock\NotifySimpleUnblockResultAction::class)
+        app(\App\Actions\SimpleUnblock\NotifySimpleUnblockResultAction::class),
+        app(\App\Services\SshConnectionManager::class)
     );
 
     // Should not create report
@@ -202,7 +205,8 @@ test('job aborts when domain does not exist in database', function () {
         app(\App\Actions\SimpleUnblock\EvaluateUnblockMatchAction::class),
         app(\App\Actions\UnblockIpAction::class),
         app(\App\Actions\SimpleUnblock\CreateSimpleUnblockReportAction::class),
-        app(\App\Actions\SimpleUnblock\NotifySimpleUnblockResultAction::class)
+        app(\App\Actions\SimpleUnblock\NotifySimpleUnblockResultAction::class),
+        app(\App\Services\SshConnectionManager::class)
     );
 
     // Should send admin notification for suspicious attempt
@@ -246,7 +250,8 @@ test('job proceeds when domain exists in database for correct host', function ()
         app(\App\Actions\SimpleUnblock\EvaluateUnblockMatchAction::class),
         app(\App\Actions\UnblockIpAction::class),
         app(\App\Actions\SimpleUnblock\CreateSimpleUnblockReportAction::class),
-        app(\App\Actions\SimpleUnblock\NotifySimpleUnblockResultAction::class)
+        app(\App\Actions\SimpleUnblock\NotifySimpleUnblockResultAction::class),
+        app(\App\Services\SshConnectionManager::class)
     );
 
     // Should NOT abort - should proceed with firewall analysis
@@ -291,7 +296,8 @@ test('job aborts when domain exists but for different host', function () {
         app(\App\Actions\SimpleUnblock\EvaluateUnblockMatchAction::class),
         app(\App\Actions\UnblockIpAction::class),
         app(\App\Actions\SimpleUnblock\CreateSimpleUnblockReportAction::class),
-        app(\App\Actions\SimpleUnblock\NotifySimpleUnblockResultAction::class)
+        app(\App\Actions\SimpleUnblock\NotifySimpleUnblockResultAction::class),
+        app(\App\Services\SshConnectionManager::class)
     );
 
     // Should abort early - no report created
@@ -328,7 +334,8 @@ test('job aborts when domain exists but account is suspended', function () {
         app(\App\Actions\SimpleUnblock\EvaluateUnblockMatchAction::class),
         app(\App\Actions\UnblockIpAction::class),
         app(\App\Actions\SimpleUnblock\CreateSimpleUnblockReportAction::class),
-        app(\App\Actions\SimpleUnblock\NotifySimpleUnblockResultAction::class)
+        app(\App\Actions\SimpleUnblock\NotifySimpleUnblockResultAction::class),
+        app(\App\Services\SshConnectionManager::class)
     );
 
     // Should abort early - no report created
@@ -365,7 +372,8 @@ test('job aborts when domain exists but account is deleted', function () {
         app(\App\Actions\SimpleUnblock\EvaluateUnblockMatchAction::class),
         app(\App\Actions\UnblockIpAction::class),
         app(\App\Actions\SimpleUnblock\CreateSimpleUnblockReportAction::class),
-        app(\App\Actions\SimpleUnblock\NotifySimpleUnblockResultAction::class)
+        app(\App\Actions\SimpleUnblock\NotifySimpleUnblockResultAction::class),
+        app(\App\Services\SshConnectionManager::class)
     );
 
     // Should abort early - no report created

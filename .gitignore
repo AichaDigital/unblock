@@ -43,6 +43,7 @@ supervisor-laravel-worker.conf
 
 # Internal development docs (keep out of repo)
 /docs/internals/
+/docs/archive/
 
 # Infection mutation testing
 infection.json

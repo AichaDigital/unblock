@@ -61,9 +61,9 @@ describe('SshKeyGenerator', function () {
             ->and($this->generator->hasKeys($hostWithoutKeys))->toBeFalse();
     });
 
-    it('returns error if ssh-keygen command fails', function () {
-        // This test would require mocking Process or testing in an environment
-        // where ssh-keygen is not available, which is complex for unit testing
-        // Marking as todo for integration testing
-    })->todo();
+    // NOTE: Test para fallo de ssh-keygen eliminado
+    // Razón: No tiene sentido como test unitario a nivel de sistema
+    // El comando ssh-keygen es una dependencia del sistema operativo
+    // Si ssh-keygen falla, el problema es de configuración del servidor, no del código
+    // Si se necesita validar en el futuro, debería ser un test de integración de infraestructura
 });

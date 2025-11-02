@@ -93,4 +93,3 @@ test('works for DirectAdmin servers', function () {
 
     expect($result->foundInLogs)->toBeTrue();
 });
-

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions\Sync;
 
+use App\Enums\PanelType;
 use App\Models\{Account, Domain, Host};
 use App\Services\SshConnectionManager;
 use Exception;
@@ -41,8 +42,8 @@ class SyncDirectAdminAccountsAction
      */
     public function handle(Host $host, bool $isInitial = false): array
     {
-        if (! in_array($host->panel, ['directadmin', 'da'])) {
-            throw new \InvalidArgumentException("Host {$host->fqdn} is not a DirectAdmin server (panel: {$host->panel})");
+        if ($host->panel !== PanelType::DIRECTADMIN) {
+            throw new \InvalidArgumentException("Host {$host->fqdn} is not a DirectAdmin server (panel: {$host->panel->value})");
         }
 
         Log::info('Starting DirectAdmin accounts sync', [

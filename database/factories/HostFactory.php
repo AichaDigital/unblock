@@ -19,7 +19,7 @@ class HostFactory extends Factory
             'ip' => $this->faker->ipv4(),
             'port_ssh' => $this->faker->numberBetween(22, 2222),
             'hash' => Crypt::encryptString($this->faker->password()),
-            'panel' => $this->faker->randomElement(['cpanel', 'directadmin', 'da']),
+            'panel' => $this->faker->randomElement(['cpanel', 'directadmin']),
             'admin' => 'admin',
             'whmcs_server_id' => null,
             'hash_public' => null,

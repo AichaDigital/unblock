@@ -20,4 +20,3 @@ Table  Chain            num   pkts bytes target     prot opt in     out     sour
 No matches found for 8.8.8.8 in ip6tables
 EOD,
 ];
-

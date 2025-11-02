@@ -43,13 +43,15 @@ class FirewallAnalyzerFactory
      */
     public function createForHost(Host $host): FirewallAnalyzerInterface
     {
-        if (! isset($this->analyzers[$host->panel])) {
+        $panelValue = $host->panel->value;
+
+        if (! isset($this->analyzers[$panelValue])) {
             throw new InvalidArgumentException(
-                "No analyzer available for panel type: {$host->panel}"
+                "No analyzer available for panel type: {$panelValue}"
             );
         }
 
-        $analyzerClass = $this->analyzers[$host->panel];
+        $analyzerClass = $this->analyzers[$panelValue];
 
         return new $analyzerClass($this->firewallService, $host);
     }

@@ -102,7 +102,7 @@ class AddHostKeyCommand extends Command
         }
 
         $options = $hosts->mapWithKeys(fn ($host) => [
-            $host->id => "ID: {$host->id} | {$host->fqdn}:{$host->port_ssh} ({$host->panel})",
+            $host->id => "ID: {$host->id} | {$host->fqdn}:{$host->port_ssh} ({$host->panel->value})",
         ])->toArray();
 
         $selectedId = select('Selecciona el host:', $options);

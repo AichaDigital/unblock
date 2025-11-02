@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ $isAdminCopy ? '[ADMIN COPY]' : '' }} IP Unblocked Successfully</title>
+    <title>{{ $isAdminCopy ? __('simple_unblock.mail.admin_copy_badge') : '' }} {{ __('simple_unblock.mail.title_success') }}</title>
     <style>
         body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
         .container { max-width: 600px; margin: 0 auto; padding: 20px; }
@@ -23,62 +23,88 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>{{ $isAdminCopy ? '[ADMIN COPY]' : '' }} IP Unblocked Successfully</h1>
+            <h1>{{ $isAdminCopy ? __('simple_unblock.mail.admin_copy_badge') . ' ' : '' }}{{ __('simple_unblock.mail.title_success') }}</h1>
         </div>
 
         <div class="content">
             @if($isAdminCopy)
                 <div class="admin-copy">
-                    <strong>This is an admin copy of the user notification.</strong><br><br>
-                    <strong>User Email:</strong> {{ $email }}<br>
-                    <strong>Domain:</strong> {{ $domain }}<br>
-                    <strong>IP Address:</strong> {{ $report->ip }}<br>
-                    <strong>Host:</strong> {{ $report->host->fqdn ?? 'Unknown' }}<br>
-                    <strong>Report ID:</strong> {{ $report->id }}
+                    <strong>{{ __('simple_unblock.mail.admin_info_intro') }}</strong><br><br>
+                    <strong>{{ __('simple_unblock.mail.admin_info_user_email') }}:</strong> {{ $email }}<br>
+                    <strong>{{ __('simple_unblock.mail.admin_info_domain') }}:</strong> {{ $domain }}<br>
+                    <strong>{{ __('simple_unblock.mail.admin_info_ip') }}:</strong> {{ $report->ip }}<br>
+                    <strong>{{ __('simple_unblock.mail.admin_info_host') }}:</strong> {{ $report->host->fqdn ?? 'Unknown' }}<br>
+                    <strong>{{ __('simple_unblock.mail.admin_info_report_id') }}:</strong> {{ $report->id }}
                 </div>
                 <hr>
             @endif
 
-            <p>Hello,</p>
+            <p>{{ __('simple_unblock.mail.greeting') }}</p>
 
-            <p>Your IP address <strong>{{ $report->ip }}</strong> for domain <strong>{{ $domain }}</strong> has been successfully analyzed and unblocked.</p>
+            <p>{!! __('simple_unblock.mail.success_message', ['ip' => $report->ip, 'domain' => $domain]) !!}</p>
 
             <div class="success">
-                <h2>Analysis Results</h2>
+                <h2>{{ __('simple_unblock.mail.analysis_results_title') }}</h2>
                 <ul>
-                    <li><strong>Status:</strong> IP was blocked and has been unblocked</li>
-                    <li><strong>Server:</strong> {{ $report->host->fqdn ?? 'Unknown' }}</li>
-                    <li><strong>Timestamp:</strong> {{ $report->created_at->format('Y-m-d H:i:s') }}</li>
+                    <li><strong>{{ __('simple_unblock.mail.analysis_status_label') }}:</strong> {{ __('simple_unblock.mail.analysis_status_value') }}</li>
+                    <li><strong>{{ __('simple_unblock.mail.analysis_server_label') }}:</strong> {{ $report->host->fqdn ?? 'Unknown' }}</li>
+                    <li><strong>{{ __('simple_unblock.mail.analysis_timestamp_label') }}:</strong> {{ $report->created_at->format('Y-m-d H:i:s') }}</li>
                 </ul>
             </div>
 
+            @php
+                $blockSummary = $report->analysis['block_summary'] ?? null;
+            @endphp
+
+            @if($blockSummary && $blockSummary['blocked'])
+                <h2>{{ __('simple_unblock.mail.block_details_title') }}</h2>
+                <ul>
+                    @if(!empty($blockSummary['reason_short']))
+                        <li><strong>{{ __('simple_unblock.mail.block_reason') }}:</strong> {{ $blockSummary['reason_short'] }}</li>
+                    @endif
+                    @if(!empty($blockSummary['attempts']))
+                        <li><strong>{{ __('simple_unblock.mail.block_attempts') }}:</strong> {{ $blockSummary['attempts'] }}
+                            @if(!empty($blockSummary['timeframe']))
+                                {{ __('simple_unblock.mail.block_timeframe', ['seconds' => $blockSummary['timeframe']]) }}
+                            @endif
+                        </li>
+                    @endif
+                    @if(!empty($blockSummary['location']))
+                        <li><strong>{{ __('simple_unblock.mail.block_location') }}:</strong> {{ $blockSummary['location'] }}</li>
+                    @endif
+                    @if(!empty($blockSummary['blocked_since']))
+                        <li><strong>{{ __('simple_unblock.mail.block_since') }}:</strong> {{ $blockSummary['blocked_since'] }}</li>
+                    @endif
+                </ul>
+            @endif
+
             @if($report->logs)
-                <h2>Firewall Logs</h2>
-                <p>The following services had blocks:</p>
+                <h2>{{ __('simple_unblock.mail.firewall_logs_title') }}</h2>
+                <p>{{ __('simple_unblock.mail.firewall_logs_intro') }}</p>
                 @foreach($report->logs as $service => $log)
-                    <p><strong>{{ ucfirst($service) }}:</strong> {{ is_array($log) ? 'Multiple entries' : (strlen($log) > 100 ? substr($log, 0, 100) . '...' : $log) }}</p>
+                    <p><strong>{{ ucfirst($service) }}:</strong> {{ is_array($log) ? __('simple_unblock.mail.firewall_logs_multiple') : (strlen($log) > 100 ? substr($log, 0, 100) . '...' : $log) }}</p>
                 @endforeach
             @endif
 
-            <h2>What's Next?</h2>
-            <p>Your IP should now have access to the server. If you continue experiencing issues, please contact our support team.</p>
+            <h2>{{ __('simple_unblock.mail.next_steps_title') }}</h2>
+            <p>{{ __('simple_unblock.mail.next_steps_message') }}</p>
 
             @if($isAdminCopy)
                 <hr>
-                <h2>Admin Notes</h2>
+                <h2>{{ __('simple_unblock.mail.admin_notes_title') }}</h2>
                 <ul>
-                    <li>This was an anonymous simple unblock request</li>
-                    <li>Email provided: {{ $email }}</li>
-                    <li>Domain validated in server logs</li>
-                    <li>IP was confirmed blocked before unblocking</li>
+                    <li>{{ __('simple_unblock.mail.admin_note_anonymous') }}</li>
+                    <li>{{ __('simple_unblock.mail.admin_note_email', ['email' => $email]) }}</li>
+                    <li>{{ __('simple_unblock.mail.admin_note_domain_validated') }}</li>
+                    <li>{{ __('simple_unblock.mail.admin_note_ip_confirmed') }}</li>
                 </ul>
             @endif
         </div>
 
         <div class="footer">
-            <p>Thanks,<br>{{ $companyName }}</p>
+            <p>{{ __('simple_unblock.mail.footer_thanks') }}<br>{{ __('simple_unblock.mail.footer_company', ['company' => $companyName]) }}</p>
             @if(!$isAdminCopy)
-                <p><em>If you didn't request this unblock, please contact {{ $supportEmail }} immediately.</em></p>
+                <p><em>{{ __('simple_unblock.mail.footer_security_notice', ['supportEmail' => $supportEmail]) }}</em></p>
             @endif
         </div>
     </div>

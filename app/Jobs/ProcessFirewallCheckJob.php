@@ -6,7 +6,7 @@ namespace App\Jobs;
 
 use App\Actions\Firewall\ValidateUserAccessToHostAction;
 use App\Actions\SimpleUnblock\{AnalyzeFirewallForIpAction, ValidateIpFormatAction};
-use App\Actions\UnblockIpAction;
+use App\Actions\UnblockIpActionNormalMode;
 use App\Exceptions\FirewallException;
 use App\Models\{Host, User};
 use App\Services\{AuditService, ReportGenerator};
@@ -77,7 +77,7 @@ class ProcessFirewallCheckJob implements ShouldQueue
         ValidateIpFormatAction $validateIp,
         ValidateUserAccessToHostAction $validateAccess,
         AnalyzeFirewallForIpAction $analyzeFirewall,
-        UnblockIpAction $unblockIp,
+        UnblockIpActionNormalMode $unblockIp,
         ReportGenerator $reportGenerator,
         AuditService $auditService
     ): void {
@@ -117,7 +117,7 @@ class ProcessFirewallCheckJob implements ShouldQueue
                         'host_fqdn' => $host->fqdn,
                     ]);
 
-                    $unblockResults = $unblockIp->handle($this->ip, $host, $analysis);
+                    $unblockResults = $unblockIp->handle($this->ip, $host->id, $analysis);
                 }
 
                 // 6. Generate comprehensive report

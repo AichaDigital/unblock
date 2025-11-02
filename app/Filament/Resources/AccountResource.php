@@ -4,15 +4,12 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\AccountResource\Pages;
 use App\Filament\Resources\AccountResource\RelationManagers\DomainsRelationManager;
-use App\Models\{Account, Host, User};
+use App\Models\{Account, User};
 use BackedEnum;
-use Filament\Actions;
-use Filament\Forms;
-use Filament\Infolists;
+use Filament\{Actions, Forms, Infolists, Tables};
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
-use Filament\Tables;
 use Filament\Tables\Table;
 
 class AccountResource extends Resource

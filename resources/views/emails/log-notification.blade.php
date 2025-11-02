@@ -76,11 +76,6 @@
         @if(!empty($report['logs']))
             <h3>{{ __('firewall.email.technical_details') }}</h3>
 
-            <!-- Debug: Mostrar todas las claves de logs -->
-            <div style="background-color: #f8f9fa; padding: 10px; margin-bottom: 10px; font-family: monospace;">
-                DEBUG - Claves de logs: {{ implode(', ', array_keys($report['logs'])) }}
-            </div>
-
             @foreach($report['logs'] as $logType => $logContent)
                 @if(!empty($logContent))
                     @php
@@ -88,10 +83,6 @@
                         $normalizedKey = strtolower(str_replace(['da_', 'DA_'], '', $logType));
                         $logDescription = __('firewall.logs.descriptions.' . $normalizedKey, [], null);
                     @endphp
-                    <!-- Debug: Mostrar tipo de log actual -->
-                    <div style="background-color: #e9ecef; padding: 5px; margin-bottom: 5px; font-family: monospace;">
-                        DEBUG - LogType: "{{ $logType }}" - NormalizedKey: "{{ $normalizedKey }}"
-                    </div>
                     <div style="margin-bottom: 20px; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;">
                         <div style="background-color: #f1f5f9; padding: 10px; border-bottom: 1px solid #e2e8f0;">
                             @if($logDescription && is_array($logDescription))

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions;
 
+use App\Enums\PanelType;
 use App\Models\Host;
 use App\Services\FirewallService;
 use Illuminate\Support\Facades\Log;
@@ -51,7 +52,7 @@ class UnblockIpAction
             $this->firewallService->checkProblems($host, $keyName, 'whitelist_simple', $ip);
 
             // 3. For DirectAdmin servers, also handle BFM
-            if ($host->panel === 'directadmin' || $host->panel === 'da') {
+            if ($host->panel === PanelType::DIRECTADMIN) {
                 try {
                     // a) Check if IP is in BFM blacklist
                     $bfmCheck = $this->firewallService->checkProblems($host, $keyName, 'da_bfm_check', $ip);

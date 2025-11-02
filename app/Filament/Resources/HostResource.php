@@ -2,10 +2,11 @@
 
 namespace App\Filament\Resources;
 
+use App\Enums\PanelType;
 use App\Filament\Resources\HostResource\Pages\{CreateHost, EditHost, ListHosts};
 use App\Filament\Resources\HostResource\{Pages, RelationManagers};
 use App\Models\Host;
-use Filament\Forms\Components\{TextInput, Textarea, Toggle};
+use Filament\Forms\Components\{Select, TextInput, Textarea, Toggle};
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\{IconColumn, TextColumn};
@@ -52,10 +53,11 @@ class HostResource extends Resource
                             ->numeric()
                             ->minValue(1)
                             ->maxValue(65535),
-                        TextInput::make('panel')
-                            ->default('directadmin')
-                            ->required()
-                            ->mutateDehydratedStateUsing(fn (?string $state): ?string => $state ? strtolower(trim($state)) : null),
+                        Select::make('panel')
+                            ->label('Panel de Control')
+                            ->options(PanelType::class)
+                            ->default(PanelType::DIRECTADMIN->value)
+                            ->required(),
                         TextInput::make('admin')
                             ->required(),
                     ])->columns(2),
@@ -100,11 +102,6 @@ class HostResource extends Resource
                     ->toggleable(),
                 TextColumn::make('panel')
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'cpanel' => 'success',
-                        'directadmin' => 'warning',
-                        default => 'gray',
-                    })
                     ->toggleable(),
                 TextColumn::make('hostings_count')
                     ->label('Hostings')
@@ -149,10 +146,7 @@ class HostResource extends Resource
             ->filters([
                 TrashedFilter::make(),
                 SelectFilter::make('panel')
-                    ->options([
-                        'cpanel' => 'cPanel',
-                        'directadmin' => 'DirectAdmin',
-                    ]),
+                    ->options(PanelType::class),
                 TernaryFilter::make('is_active')
                     ->label('Activo'),
                 TernaryFilter::make('hosting_manual')

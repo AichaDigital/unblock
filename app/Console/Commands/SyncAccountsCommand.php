@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use App\Actions\Sync\{SyncCpanelAccountsAction, SyncDirectAdminAccountsAction};
+use App\Enums\PanelType;
 use App\Models\Host;
 use Exception;
 use Illuminate\Console\Command;
@@ -149,10 +150,11 @@ class SyncAccountsCommand extends Command
         $panelType = $host->panel;
 
         // Select appropriate action based on panel type
+        // Note: $panelType is an Enum, so we compare with Enum cases or use ->value
         $action = match ($panelType) {
-            'cpanel' => $cpanelAction,
-            'directadmin', 'da' => $directAdminAction,
-            default => throw new Exception("Unsupported panel type: {$panelType}")
+            PanelType::CPANEL => $cpanelAction,
+            PanelType::DIRECTADMIN => $directAdminAction,
+            default => throw new Exception("Unsupported panel type: {$panelType->value}")
         };
 
         // Execute sync

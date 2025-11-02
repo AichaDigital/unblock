@@ -35,7 +35,7 @@ class CheckIpInServerLogsAction
             'ip' => $ip,
             'domain_ignored' => $domain,
             'host_fqdn' => $host->fqdn,
-            'panel' => $host->panel,
+            'panel' => $host->panel->value,
         ]);
 
         $foundInLogs = false;
@@ -43,7 +43,7 @@ class CheckIpInServerLogsAction
 
         try {
             // Determine log commands based on panel type
-            $commands = $this->getLogCommands($host->panel);
+            $commands = $this->getLogCommands($host->panel->value);
 
             foreach ($commands as $service => $command) {
                 $result = $this->firewallService->checkProblems($host, $keyPath, $command, $ip);
@@ -102,4 +102,3 @@ class CheckIpInServerLogsAction
         };
     }
 }
-

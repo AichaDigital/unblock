@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\UserResource\RelationManagers;
 
+use App\Enums\PanelType;
 use App\Models\Host;
 use Filament\Actions\{AttachAction, BulkActionGroup, DetachAction, DetachBulkAction, EditAction};
 use Filament\Forms\Components\{Select, Toggle};
@@ -36,7 +37,7 @@ class HostsRelationManager extends RelationManager
                                 return Host::whereNotIn('id', $assignedHostIds)
                                     ->get()
                                     ->mapWithKeys(fn ($host) => [
-                                        $host->id => "{$host->fqdn} ({$host->ip}) - {$host->panel}",
+                                        $host->id => "{$host->fqdn} ({$host->ip}) - {$host->panel->getLabel()}",
                                     ]);
                             })
                             ->required()
@@ -74,11 +75,6 @@ class HostsRelationManager extends RelationManager
                 TextColumn::make('panel')
                     ->label('Panel')
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'cpanel' => 'success',
-                        'directadmin' => 'warning',
-                        default => 'gray',
-                    })
                     ->toggleable(),
                 TextColumn::make('created_at')
                     ->label('Asignado')
@@ -88,10 +84,7 @@ class HostsRelationManager extends RelationManager
             ])
             ->filters([
                 SelectFilter::make('panel')
-                    ->options([
-                        'cpanel' => 'cPanel',
-                        'directadmin' => 'DirectAdmin',
-                    ]),
+                    ->options(PanelType::class),
                 TernaryFilter::make('pivot.is_active')
                     ->label('Activo'),
             ])
@@ -108,7 +101,7 @@ class HostsRelationManager extends RelationManager
                         return $query->whereNotIn('id', $assignedHostIds);
                     })
                     ->recordSelectSearchColumns(['fqdn', 'alias', 'ip'])
-                    ->recordTitle(fn ($record) => "{$record->fqdn} ({$record->ip}) - {$record->panel}"),
+                    ->recordTitle(fn ($record) => "{$record->fqdn} ({$record->ip}) - {$record->panel->getLabel()}"),
             ])
             ->recordActions([
                 EditAction::make()
@@ -143,7 +136,7 @@ class HostsRelationManager extends RelationManager
                         return $query->whereNotIn('id', $assignedHostIds);
                     })
                     ->recordSelectSearchColumns(['fqdn', 'alias', 'ip'])
-                    ->recordTitle(fn ($record) => "{$record->fqdn} ({$record->ip}) - {$record->panel}"),
+                    ->recordTitle(fn ($record) => "{$record->fqdn} ({$record->ip}) - {$record->panel->getLabel()}"),
             ]);
     }
 }

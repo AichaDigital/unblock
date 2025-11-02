@@ -15,7 +15,7 @@ use App\Actions\SimpleUnblock\{
 };
 use App\Actions\UnblockIpAction;
 use App\Models\Host;
-use App\Services\AnonymousUserService;
+use App\Services\{AnonymousUserService, SshConnectionManager};
 use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -80,7 +80,8 @@ class ProcessSimpleUnblockJob implements ShouldQueue
         EvaluateUnblockMatchAction $evaluateMatch,
         UnblockIpAction $unblockIp,
         CreateSimpleUnblockReportAction $createReport,
-        NotifySimpleUnblockResultAction $notify
+        NotifySimpleUnblockResultAction $notify,
+        SshConnectionManager $sshManager
     ): void {
         // 1. Early abort if already processed (prevent duplicate processing)
         if ($this->isAlreadyProcessed()) {
@@ -128,29 +129,37 @@ class ProcessSimpleUnblockJob implements ShouldQueue
                 return; // ABORT
             }
 
-            // 5. Analyze firewall status
-            $analysis = $analyzeFirewall->handle($this->ip, $host);
+            // 5. Generate SSH key file (PATH, not content)
+            $keyPath = $sshManager->generateSshKey($host->hash);
 
-            // 6. Check IP in server logs (domain not used in search)
-            $logsSearch = $checkLogs->handle($host, $host->hash, $this->ip, $this->domain);
+            try {
+                // 6. Analyze firewall status
+                $analysis = $analyzeFirewall->handle($this->ip, $host);
 
-            // 7. Evaluate unblock decision (CRITICAL BUSINESS LOGIC)
-            $decision = $evaluateMatch->handle(
-                $analysis->isBlocked(),
-                $logsSearch->foundInLogs,
-                $domainValidation->exists
-            );
+                // 7. Check IP in server logs (CORRECTED: use key PATH)
+                $logsSearch = $checkLogs->handle($host, $keyPath, $this->ip, $this->domain);
 
-            Log::info('Unblock decision made', [
-                'decision' => $decision->reason,
-                'should_unblock' => $decision->shouldUnblock,
-            ]);
+                // 8. Evaluate unblock decision (CRITICAL BUSINESS LOGIC)
+                $decision = $evaluateMatch->handle(
+                    $analysis->isBlocked(),
+                    $logsSearch->foundInLogs,
+                    $domainValidation->exists
+                );
 
-            // 8. Execute unblock if decision is positive
-            $unblockResults = null;
-            if ($decision->shouldUnblock) {
-                $unblockResults = $unblockIp->handle($this->ip, $host->id, $host->hash);
-                $this->markAsProcessed(); // Lock to prevent duplicates
+                Log::info('Unblock decision made', [
+                    'decision' => $decision->reason,
+                    'should_unblock' => $decision->shouldUnblock,
+                ]);
+
+                // 9. Execute unblock if decision is positive (CORRECTED: use key PATH)
+                $unblockResults = null;
+                if ($decision->shouldUnblock) {
+                    $unblockResults = $unblockIp->handle($this->ip, $host->id, $keyPath);
+                    $this->markAsProcessed(); // Lock to prevent duplicates
+                }
+            } finally {
+                // CRITICAL: Always cleanup SSH key file
+                $sshManager->removeSshKey($keyPath);
             }
 
             // 9. Create report for audit trail

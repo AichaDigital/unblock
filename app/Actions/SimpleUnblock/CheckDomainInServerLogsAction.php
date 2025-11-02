@@ -34,14 +34,14 @@ class CheckDomainInServerLogsAction
             'ip' => $ip,
             'domain' => $domain,
             'host_fqdn' => $host->fqdn,
-            'panel' => $host->panel,
+            'panel' => $host->panel->value,
         ]);
 
         $session = $this->sshManager->createSession($host);
 
         try {
             // Build search commands
-            $commands = $this->buildCommands->handle($ip, $domain, $host->panel);
+            $commands = $this->buildCommands->handle($ip, $domain, $host->panel->value);
             $searchedPaths = $this->extractSearchPaths($commands);
 
             // Combine commands with OR operator

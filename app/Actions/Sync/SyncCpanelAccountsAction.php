@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions\Sync;
 
+use App\Enums\PanelType;
 use App\Models\{Account, Domain, Host};
 use App\Services\SshConnectionManager;
 use Exception;
@@ -39,8 +40,8 @@ class SyncCpanelAccountsAction
      */
     public function handle(Host $host, bool $isInitial = false): array
     {
-        if ($host->panel !== 'cpanel') {
-            throw new \InvalidArgumentException("Host {$host->fqdn} is not a cPanel server (panel: {$host->panel})");
+        if ($host->panel !== PanelType::CPANEL) {
+            throw new \InvalidArgumentException("Host {$host->fqdn} is not a cPanel server (panel: {$host->panel->value})");
         }
 
         Log::info('Starting cPanel accounts sync', [

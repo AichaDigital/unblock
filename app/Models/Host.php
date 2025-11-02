@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\PanelType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\{Model, SoftDeletes};
 use Illuminate\Database\Eloquent\Relations\{HasMany, HasManyThrough};
@@ -37,6 +38,7 @@ class Host extends Model
      * @var array<string, string>
      */
     protected $casts = [
+        'panel' => PanelType::class,
         'hosting_manual' => 'boolean',
         'port_ssh' => 'integer',
         'whmcs_server_id' => 'integer',
@@ -135,5 +137,31 @@ class Host extends Model
     public function users(): HasMany
     {
         return $this->hasMany(User::class);
+    }
+
+    /**
+     * Get array representation safe for logging (excludes sensitive data)
+     *
+     * NEVER log $host directly - always use this method to prevent
+     * SSH keys from being exposed in logs.
+     *
+     * @return array<string, mixed>
+     */
+    public function toSafeLogArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'fqdn' => $this->fqdn,
+            'alias' => $this->alias,
+            'ip' => $this->ip,
+            'port_ssh' => $this->port_ssh,
+            'panel' => $this->panel,
+            'admin' => $this->admin,
+            'whmcs_server_id' => $this->whmcs_server_id,
+            'hosting_manual' => $this->hosting_manual,
+            // Explicitly EXCLUDE:
+            // - hash (private SSH key)
+            // - hash_public (public SSH key)
+        ];
     }
 }

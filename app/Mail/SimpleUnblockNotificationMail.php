@@ -34,7 +34,10 @@ class SimpleUnblockNotificationMail extends Mailable
         public readonly ?string $reason = null,
         public readonly ?string $hostFqdn = null,
         public readonly ?array $analysisData = null
-    ) {}
+    ) {
+        // Set locale for email rendering (anonymous users use APP_LOCALE)
+        app()->setLocale(config('app.locale'));
+    }
 
     /**
      * Get the message envelope.

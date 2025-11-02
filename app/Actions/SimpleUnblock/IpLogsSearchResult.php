@@ -17,4 +17,3 @@ readonly class IpLogsSearchResult
         public array $logEntries = []
     ) {}
 }
-

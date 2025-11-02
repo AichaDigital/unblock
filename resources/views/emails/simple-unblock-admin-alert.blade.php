@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>[ADMIN ALERT] Simple Unblock Attempt</title>
+    <title>{{ __('simple_unblock.mail.admin_copy_badge') }} {{ __('simple_unblock.mail.title_admin_alert') }}</title>
     <style>
         body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
         .container { max-width: 600px; margin: 0 auto; padding: 20px; }
@@ -24,75 +24,72 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>[ADMIN ALERT] Simple Unblock Attempt</h1>
+            <h1>{{ __('simple_unblock.mail.admin_copy_badge') }} {{ __('simple_unblock.mail.title_admin_alert') }}</h1>
         </div>
 
         <div class="content">
-            <p><strong>Reason:</strong> {{ $reason ?? 'Unknown' }}</p>
+            <p><strong>{{ __('simple_unblock.mail.admin_alert.reason_label') }}:</strong> {{ $reason ?? __('simple_unblock.mail.admin_alert.unknown') }}</p>
 
-            <h2>Request Details</h2>
+            <h2>{{ __('simple_unblock.mail.admin_alert.request_details_title') }}</h2>
             <ul>
-                <li><strong>Email:</strong> {{ $email }}</li>
-                <li><strong>Domain:</strong> {{ $domain }}</li>
-                <li><strong>IP Address:</strong> {{ $analysisData['ip'] ?? 'Unknown' }}</li>
-                <li><strong>Host:</strong> {{ $hostFqdn ?? 'Multiple hosts checked' }}</li>
-                <li><strong>Timestamp:</strong> {{ now()->format('Y-m-d H:i:s') }}</li>
+                <li><strong>{{ __('simple_unblock.mail.admin_info_user_email') }}:</strong> {{ $email }}</li>
+                <li><strong>{{ __('simple_unblock.mail.admin_info_domain') }}:</strong> {{ $domain }}</li>
+                <li><strong>{{ __('simple_unblock.mail.admin_info_ip') }}:</strong> {{ $analysisData['ip'] ?? __('simple_unblock.mail.admin_alert.unknown') }}</li>
+                <li><strong>{{ __('simple_unblock.mail.admin_info_host') }}:</strong> {{ $hostFqdn ?? __('simple_unblock.mail.admin_alert.multiple_hosts') }}</li>
+                <li><strong>{{ __('simple_unblock.mail.analysis_timestamp_label') }}:</strong> {{ now()->format('Y-m-d H:i:s') }}</li>
             </ul>
 
-            <h2>Reason Details</h2>
+            <h2>{{ __('simple_unblock.mail.admin_alert.reason_details_title') }}</h2>
 
             @if($reason === 'ip_blocked_but_domain_not_found')
                 <div class="alert">
-                    <strong>⚠️ IP was blocked but domain was NOT found in server logs</strong><br><br>
-                    This could indicate:<br>
-                    • User provided wrong domain<br>
-                    • Domain doesn't exist on this server<br>
-                    • Possible abuse attempt<br><br>
-                    <strong>Action:</strong> No unblock performed (silent)
+                    <strong>⚠️ {{ __('simple_unblock.mail.admin_alert.blocked_no_domain_title') }}</strong><br><br>
+                    {{ __('simple_unblock.mail.admin_alert.blocked_no_domain_description') }}<br><br>
+                    <strong>{{ __('simple_unblock.mail.admin_alert.action_label') }}:</strong> {{ __('simple_unblock.mail.admin_alert.no_unblock_silent') }}
                 </div>
             @elseif($reason === 'domain_found_but_ip_not_blocked')
                 <div class="info">
-                    <strong>ℹ️ Domain was found but IP was NOT blocked</strong><br><br>
-                    The user's IP is not currently blocked in the firewall.<br><br>
-                    <strong>Action:</strong> No unblock needed (silent)
+                    <strong>ℹ️ {{ __('simple_unblock.mail.admin_alert.domain_found_not_blocked_title') }}</strong><br><br>
+                    {{ __('simple_unblock.mail.admin_alert.domain_found_not_blocked_description') }}<br><br>
+                    <strong>{{ __('simple_unblock.mail.admin_alert.action_label') }}:</strong> {{ __('simple_unblock.mail.admin_alert.no_unblock_needed') }}
                 </div>
             @elseif($reason === 'no_match_found')
                 <div class="info">
-                    <strong>ℹ️ No match found</strong><br><br>
-                    Neither IP blocked nor domain found on any server.<br><br>
-                    <strong>Action:</strong> No action taken (silent)
+                    <strong>ℹ️ {{ __('simple_unblock.mail.admin_alert.no_match_title') }}</strong><br><br>
+                    {{ __('simple_unblock.mail.admin_alert.no_match_description') }}<br><br>
+                    <strong>{{ __('simple_unblock.mail.admin_alert.action_label') }}:</strong> {{ __('simple_unblock.mail.admin_alert.no_action_silent') }}
                 </div>
             @elseif($reason === 'job_failure')
                 <div class="error">
-                    <strong>❌ Job execution failed</strong><br><br>
-                    Error: {{ $analysisData['error'] ?? 'Unknown error' }}<br><br>
-                    <strong>Action:</strong> Review logs and investigate
+                    <strong>❌ {{ __('simple_unblock.mail.admin_alert.job_failure_title') }}</strong><br><br>
+                    {{ __('simple_unblock.mail.admin_alert.error_label') }}: {{ $analysisData['error'] ?? __('simple_unblock.mail.admin_alert.unknown_error') }}<br><br>
+                    <strong>{{ __('simple_unblock.mail.admin_alert.action_label') }}:</strong> {{ __('simple_unblock.mail.admin_alert.review_logs') }}
                 </div>
             @else
                 <div class="alert">
-                    <strong>Unknown reason:</strong> {{ $reason }}
+                    <strong>{{ __('simple_unblock.mail.admin_alert.unknown_reason') }}:</strong> {{ $reason }}
                 </div>
             @endif
 
             @if(isset($analysisData['was_blocked']))
-                <h2>Analysis Data</h2>
+                <h2>{{ __('simple_unblock.mail.admin_alert.analysis_data_title') }}</h2>
                 <ul>
-                    <li><strong>IP Blocked:</strong> {{ $analysisData['was_blocked'] ? 'Yes' : 'No' }}</li>
+                    <li><strong>{{ __('simple_unblock.mail.admin_alert.ip_blocked_label') }}:</strong> {{ $analysisData['was_blocked'] ? __('simple_unblock.mail.admin_alert.yes') : __('simple_unblock.mail.admin_alert.no') }}</li>
                 </ul>
             @endif
 
             @if(isset($analysisData['logs_preview']))
-                <h2>Logs Preview</h2>
+                <h2>{{ __('simple_unblock.mail.admin_alert.logs_preview_title') }}</h2>
                 <code>{{ $analysisData['logs_preview'] }}</code>
             @endif
 
             <hr style="margin: 30px 0;">
 
-            <p><strong>Note:</strong> The user was NOT notified about this attempt (silent logging).</p>
+            <p><strong>{{ __('simple_unblock.mail.admin_alert.note_label') }}:</strong> {{ __('simple_unblock.mail.admin_alert.user_not_notified') }}</p>
         </div>
 
         <div class="footer">
-            <p>Thanks,<br>{{ $companyName }} System</p>
+            <p>{{ __('simple_unblock.mail.footer_thanks') }}<br>{{ __('simple_unblock.mail.footer_company', ['company' => $companyName]) }} {{ __('simple_unblock.mail.admin_alert.system_suffix') }}</p>
         </div>
     </div>
 </body>

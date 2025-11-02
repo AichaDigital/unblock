@@ -87,4 +87,3 @@ class DomainsRelationManager extends RelationManager
             ->defaultSort('type', 'asc');
     }
 }
-

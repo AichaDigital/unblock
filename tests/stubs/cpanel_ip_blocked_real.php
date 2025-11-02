@@ -26,4 +26,3 @@ No matches found for 62.57.40.116 in ip6tables
 csf.deny: 62.57.40.116 # lfd: (imapd) Failed IMAP login from 62.57.40.116 (62.57.40.116.dyn.user.ono.com): 10 in the last 3600 secs - Mon Aug  4 16:59:13 2025
 EOD,
 ];
-

@@ -74,4 +74,3 @@ test('da_bfm_whitelist_add command appends IP to whitelist', function () {
         ->toContain('echo')
         ->toContain('/usr/local/directadmin/data/admin/ip_whitelist');
 });
-

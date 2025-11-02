@@ -32,7 +32,7 @@ class AnalyzeFirewallForIpAction
         Log::info('Starting firewall analysis', [
             'ip' => $ip,
             'host_fqdn' => $host->fqdn,
-            'host_panel' => $host->panel,
+            'host_panel' => $host->panel->value,
         ]);
 
         $session = $this->sshManager->createSession($host);
