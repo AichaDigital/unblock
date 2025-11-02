@@ -190,6 +190,7 @@ class CheckServerFirewallAction
             match ($host->panel) {
                 \App\Enums\PanelType::DIRECTADMIN => $this->checkDirectAdminServices($host, $keyName, $ip),
                 \App\Enums\PanelType::CPANEL => $this->checkCpanelServices($host, $keyName, $ip),
+                \App\Enums\PanelType::NONE => null, // No panel-specific checks
             };
         }
 

@@ -49,22 +49,25 @@ class ValidateDomainInDatabaseAction
         }
 
         // Check if account is suspended
-        if ($domainRecord->account->suspended_at) {
+        /** @var \App\Models\Account $account */
+        $account = $domainRecord->account;
+
+        if ($account->suspended_at) {
             Log::info('Domain validation failed: account suspended', [
                 'domain' => $domain,
                 'account_id' => $domainRecord->account_id,
-                'suspended_at' => $domainRecord->account->suspended_at,
+                'suspended_at' => $account->suspended_at,
             ]);
 
             return DomainValidationResult::failure('account_suspended');
         }
 
         // Check if account is deleted
-        if ($domainRecord->account->deleted_at) {
+        if ($account->deleted_at) {
             Log::info('Domain validation failed: account deleted', [
                 'domain' => $domain,
                 'account_id' => $domainRecord->account_id,
-                'deleted_at' => $domainRecord->account->deleted_at,
+                'deleted_at' => $account->deleted_at,
             ]);
 
             return DomainValidationResult::failure('account_deleted');

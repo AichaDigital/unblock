@@ -75,9 +75,16 @@ readonly class CpanelFirewallAnalyzer implements FirewallAnalyzerInterface
         $this->firewallService->checkProblems($this->host, $sshKeyName, 'unblock', $ip);
     }
 
+    /**
+     * Add IP to whitelist for 24 hours
+     *
+     * @param  string  $ip  IP address to whitelist
+     * @param  string  $sshKeyName  SSH key name for authentication
+     * @phpstan-ignore method.unused
+     */
     private function addToWhitelist(string $ip, string $sshKeyName): void
     {
-        // Añadir IP a la lista blanca por 24 horas (86400 segundos)
+        // Add IP to whitelist for 24 hours (86400 seconds)
         $this->firewallService->checkProblems($this->host, $sshKeyName, 'whitelist', $ip);
     }
 

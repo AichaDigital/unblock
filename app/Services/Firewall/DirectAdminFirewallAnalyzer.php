@@ -273,6 +273,7 @@ readonly class DirectAdminFirewallAnalyzer implements FirewallAnalyzerInterface
      *
      * @param  string  $ip  IP address to whitelist
      * @param  string  $sshKeyName  SSH key name for authentication
+     * @phpstan-ignore method.unused
      */
     private function addToWhitelist(string $ip, string $sshKeyName): void
     {

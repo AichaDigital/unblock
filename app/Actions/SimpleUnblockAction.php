@@ -53,6 +53,7 @@ class SimpleUnblockAction
         ]);
 
         // Find domain in local database with eager loading
+        /** @var \App\Models\Domain|null $domainRecord */
         $domainRecord = Domain::with('account.host')
             ->where('domain_name', $normalizedDomain)
             ->first();
@@ -70,8 +71,11 @@ class SimpleUnblockAction
             return;
         }
 
-        // Get host directly from domain->account->host relationship
-        $host = $domainRecord->account->host;
+        // Get account and host from relationships
+        /** @var \App\Models\Account $account */
+        $account = $domainRecord->account;
+        /** @var \App\Models\Host $host */
+        $host = $account->host;
 
         // Dispatch unblock job for the specific host
         ProcessSimpleUnblockJob::dispatch(
@@ -90,7 +94,7 @@ class SimpleUnblockAction
                 'email_domain' => $emailDomain,
                 'host_id' => $host->id,
                 'host_fqdn' => $host->fqdn,
-                'account_id' => $domainRecord->account->id,
+                'account_id' => $account->id,
                 'request_ip' => request()->ip(),
                 'user_agent' => request()->userAgent(),
             ])
