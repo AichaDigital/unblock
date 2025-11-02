@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace App\Actions;
 
 use App\Events\SimpleUnblock\SimpleUnblockRequestProcessed;
-use App\Jobs\ProcessSimpleUnblockJob;
-use App\Models\Host;
+use App\Jobs\{ProcessSimpleUnblockJob, SendSimpleUnblockNotificationJob};
+use App\Models\Domain;
+use Exception;
 use Illuminate\Support\Facades\{Log, RateLimiter};
 use InvalidArgumentException;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -23,7 +24,10 @@ class SimpleUnblockAction
     use AsAction;
 
     /**
-     * Handle the simple unblock request
+     * Handle the simple unblock request (Phase 3 - Optimized with local DB)
+     *
+     * Uses local accounts/domains cache to instantly identify the target host,
+     * eliminating the need for SSH loops across all servers.
      */
     public function handle(string $ip, string $domain, string $email): void
     {
@@ -48,24 +52,38 @@ class SimpleUnblockAction
             'request_ip' => request()->ip(),
         ]);
 
-        // Get all hosts
-        $hosts = Host::all();
+        // Find domain in local database with eager loading
+        /** @var \App\Models\Domain|null $domainRecord */
+        $domainRecord = Domain::with('account.host')
+            ->where('domain_name', $normalizedDomain)
+            ->first();
 
-        if ($hosts->isEmpty()) {
-            Log::warning('No hosts available for simple unblock');
+        if (! $domainRecord) {
+            Log::warning('Simple unblock: Domain not found in local database', [
+                'ip' => $ip,
+                'domain' => $normalizedDomain,
+                'email_hash' => $emailHash,
+            ]);
+
+            // Notify admin about domain not found
+            $this->notifyAdminSilentAttempt($ip, $normalizedDomain, $email, 'domain_not_found');
 
             return;
         }
 
-        // Dispatch job for EACH host (will stop at first match)
-        foreach ($hosts as $host) {
-            ProcessSimpleUnblockJob::dispatch(
-                ip: $ip,
-                domain: $normalizedDomain,
-                email: $email,
-                hostId: $host->id
-            );
-        }
+        // Get account and host from relationships
+        /** @var \App\Models\Account $account */
+        $account = $domainRecord->account;
+        /** @var \App\Models\Host $host */
+        $host = $account->host;
+
+        // Dispatch unblock job for the specific host
+        ProcessSimpleUnblockJob::dispatch(
+            ip: $ip,
+            domain: $normalizedDomain,
+            email: $email,
+            hostId: $host->id
+        );
 
         // Log activity (GDPR compliant - email hashed)
         activity()
@@ -74,7 +92,9 @@ class SimpleUnblockAction
                 'domain' => $normalizedDomain,
                 'email_hash' => $emailHash,
                 'email_domain' => $emailDomain,
-                'hosts_count' => $hosts->count(),
+                'host_id' => $host->id,
+                'host_fqdn' => $host->fqdn,
+                'account_id' => $account->id,
                 'request_ip' => request()->ip(),
                 'user_agent' => request()->userAgent(),
             ])
@@ -178,5 +198,29 @@ class SimpleUnblockAction
         }
 
         return $normalized;
+    }
+
+    /**
+     * Notify admin about silent attempt (no user notification)
+     */
+    private function notifyAdminSilentAttempt(string $ip, string $domain, string $email, string $reason): void
+    {
+        try {
+            SendSimpleUnblockNotificationJob::dispatch(
+                reportId: null,
+                email: $email,
+                domain: $domain,
+                adminOnly: true,
+                reason: $reason
+            );
+        } catch (Exception $e) {
+            Log::error('Failed to send admin notification for silent attempt', [
+                'ip' => $ip,
+                'domain' => $domain,
+                'email' => $email,
+                'reason' => $reason,
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 }

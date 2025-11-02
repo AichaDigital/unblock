@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Host;
+use App\Services\SshKeyGenerator;
 use Illuminate\Console\Command;
 use Symfony\Component\Process\Process;
 
@@ -101,7 +102,7 @@ class AddHostKeyCommand extends Command
         }
 
         $options = $hosts->mapWithKeys(fn ($host) => [
-            $host->id => "ID: {$host->id} | {$host->fqdn}:{$host->port_ssh} ({$host->panel})",
+            $host->id => "ID: {$host->id} | {$host->fqdn}:{$host->port_ssh} ({$host->panel->value})",
         ])->toArray();
 
         $selectedId = select('Selecciona el host:', $options);
@@ -113,58 +114,18 @@ class AddHostKeyCommand extends Command
     {
         info("Generando claves SSH para {$host->fqdn}...");
 
-        $hostname = gethostname();
-        $whoami = get_current_user();
-        $keyName = "id_ed25519_{$hostname}_{$host->id}";
+        $generator = new SshKeyGenerator;
+        $result = $generator->generateForHost($host);
 
-        // Usar directorio temporal DENTRO del proyecto
-        $tempDir = base_path('storage/app/temp');
-        if (! is_dir($tempDir)) {
-            mkdir($tempDir, 0755, true);
-        }
-
-        $keyPath = $tempDir.'/'.$keyName;
-
-        // Generar claves SSH usando el formato específico del usuario
-        $command = sprintf(
-            'ssh-keygen -t ed25519 -a 100 -C "%s@%s" -f %s -N ""',
-            $whoami,
-            $hostname,
-            escapeshellarg($keyPath)
-        );
-
-        info("Ejecutando: {$command}");
-
-        $process = Process::fromShellCommandline($command);
-        $process->run();
-
-        if (! $process->isSuccessful()) {
-            error('Error al generar claves SSH: '.$process->getErrorOutput());
-
-            return;
-        }
-
-        // Leer las claves generadas
-        $privateKey = file_get_contents($keyPath);
-        $publicKey = file_get_contents($keyPath.'.pub');
-
-        if ($privateKey && $publicKey) {
-            // Actualizar el host en la base de datos
-            $host->update([
-                'hash' => $privateKey,
-                'hash_public' => $publicKey,
-            ]);
-
+        if ($result['success']) {
             info('✅ Claves SSH generadas y guardadas en la base de datos');
             info('🔑 Clave pública para añadir al servidor remoto:');
-            $this->line($publicKey);
-
-            // Limpiar archivos temporales
-            unlink($keyPath);
-            unlink($keyPath.'.pub');
-            info('🧹 Archivos temporales eliminados');
+            $this->line($result['public_key']);
         } else {
-            error('Error al leer las claves generadas');
+            error($result['message']);
+            if (isset($result['error'])) {
+                error($result['error']);
+            }
         }
     }
 }

@@ -24,6 +24,11 @@
             <file>app/Jobs/SendReportNotificationJob.php</file>
         </include>
     </source>
+    <coverage>
+        <report>
+            <clover outputFile="build/logs/clover.xml"/>
+        </report>
+    </coverage>
     <php>
         <env name="APP_ENV" value="testing"/>
         <env name="APP_MAINTENANCE_DRIVER" value="file"/>

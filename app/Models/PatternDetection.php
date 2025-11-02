@@ -82,7 +82,11 @@ class PatternDetection extends Model
 
     public const TYPE_COORDINATED_ATTACK = 'coordinated_attack';
 
+    public const TYPE_ANOMALY = 'anomaly';
+
     public const TYPE_ANOMALY_SPIKE = 'anomaly_spike';
+
+    public const TYPE_OTHER = 'other';
 
     /**
      * Severity constants
@@ -149,7 +153,9 @@ class PatternDetection extends Model
             self::TYPE_DISTRIBUTED_ATTACK => 'Distributed Attack',
             self::TYPE_SUBNET_SCAN => 'Subnet Scan',
             self::TYPE_COORDINATED_ATTACK => 'Coordinated Attack',
+            self::TYPE_ANOMALY => 'Traffic Anomaly',
             self::TYPE_ANOMALY_SPIKE => 'Anomaly Spike',
+            self::TYPE_OTHER => 'Other',
             default => ucfirst(str_replace('_', ' ', $this->pattern_type)),
         };
     }

@@ -206,16 +206,9 @@ readonly class DirectAdminFirewallAnalyzer implements FirewallAnalyzerInterface
                 }
             }
 
-            // STEP 6: Execute blocking actions only for CSF-related blocks
-            if ($wasBlocked) {
-
-                // Only unblock/whitelist for CSF-related blocks, not for ModSecurity
-                if (in_array('csf_primary', $blockSources) || in_array('csf_deny', $blockSources) || in_array('csf_tempip', $blockSources)) {
-                    Log::debug("Unblocking IP {$ipAddress} from CSF", ['host' => $this->host->fqdn]);
-                    $this->unblock($ipAddress, $sshKeyName);
-                    $this->addToWhitelist($ipAddress, $sshKeyName);
-                }
-            }
+            // REMOVED: Auto-unblock logic (STEP 6)
+            // The analyzer should ONLY analyze and report, NOT make unblock decisions
+            // Unblocking must be done by the caller based on complete validation (domain + IP + logs)
 
             // Log resultado final para debug
             Log::debug("Firewall analysis completed for {$ipAddress}", [
@@ -280,6 +273,8 @@ readonly class DirectAdminFirewallAnalyzer implements FirewallAnalyzerInterface
      *
      * @param  string  $ip  IP address to whitelist
      * @param  string  $sshKeyName  SSH key name for authentication
+     *
+     * @phpstan-ignore method.unused
      */
     private function addToWhitelist(string $ip, string $sshKeyName): void
     {

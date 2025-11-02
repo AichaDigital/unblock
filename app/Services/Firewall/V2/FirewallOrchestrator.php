@@ -124,9 +124,9 @@ class FirewallOrchestrator
         ]);
 
         $analysisResult = match ($host->panel) {
-            'directadmin' => $this->logAnalyzer->analyzeDirectAdmin($ipAddress, $host),
-            'cpanel' => throw new FirewallException('cPanel analysis not yet implemented'),
-            default => throw new FirewallException("Unsupported panel type: {$host->panel}")
+            \App\Enums\PanelType::DIRECTADMIN => $this->logAnalyzer->analyzeDirectAdmin($ipAddress, $host),
+            \App\Enums\PanelType::CPANEL => throw new FirewallException('cPanel analysis not yet implemented'),
+            default => throw new FirewallException("Unsupported panel type: {$host->panel->value}")
         };
 
         Log::info('Firewall log analysis completed', [

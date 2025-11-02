@@ -283,4 +283,82 @@ return [
         'created_until' => 'Hasta',
         'empty_state' => 'No hay informes de firewall todavía.',
     ],
+
+    // Email Notifications
+    'email' => [
+        'block_origin_title' => 'Origen del Bloqueo',
+        'actions_taken' => 'Acciones Realizadas',
+        'action_csf_remove' => 'IP eliminada de la lista de denegación de CSF',
+        'action_csf_whitelist' => 'IP añadida a la lista blanca temporal de CSF',
+        'action_bfm_remove' => 'IP eliminada de la lista negra de BFM de DirectAdmin',
+        'action_mail_remove' => 'Registros de correo procesados',
+        'action_web_remove' => 'Registros web procesados',
+        'technical_details' => 'Detalles Técnicos',
+        'analysis_title' => 'Resumen del Análisis',
+        'was_blocked' => '¿Estaba Bloqueada?',
+        'yes' => 'Sí',
+        'no' => 'No',
+        'unblock_performed' => 'Desbloqueo Realizado',
+        'analysis_timestamp' => 'Fecha y Hora del Análisis',
+        'web_report' => 'Informe Web Completo',
+        'web_report_available' => 'Puede ver el informe completo en línea:',
+        'web_report_link' => 'Ver informe completo',
+    ],
+
+    // Log Descriptions
+    'logs' => [
+        'descriptions' => [
+            'csf' => [
+                'title' => 'ConfigServer Firewall (CSF)',
+                'description' => 'Sistema principal de firewall del servidor',
+                'wiki_link' => 'https://docs.configserver.com/csf/',
+            ],
+            'csf_deny' => [
+                'title' => 'Lista de Denegación CSF',
+                'description' => 'IPs bloqueadas permanentemente por CSF',
+            ],
+            'csf_tempip' => [
+                'title' => 'Lista Temporal CSF',
+                'description' => 'IPs bloqueadas temporalmente por CSF',
+            ],
+            'bfm' => [
+                'title' => 'Brute Force Monitor (BFM) de DirectAdmin',
+                'description' => 'Monitor de intentos de fuerza bruta de DirectAdmin',
+            ],
+            'mod_security' => [
+                'title' => 'ModSecurity - Web Application Firewall',
+                'description' => 'Firewall de aplicaciones web que detecta y bloquea ataques',
+                'wiki_link' => 'https://modsecurity.org/about.html',
+            ],
+            'exim' => [
+                'title' => 'Logs de Exim (SMTP)',
+                'description' => 'Servidor de correo saliente - Logs de autenticación e intentos fallidos',
+            ],
+            'exim_cpanel' => [
+                'title' => 'Logs de Exim (cPanel)',
+                'description' => 'Servidor de correo saliente - Logs de autenticación e intentos fallidos',
+            ],
+            'exim_directadmin' => [
+                'title' => 'Logs de Exim (DirectAdmin)',
+                'description' => 'Servidor de correo saliente - Logs de autenticación e intentos fallidos',
+            ],
+            'dovecot' => [
+                'title' => 'Logs de Dovecot (IMAP/POP3)',
+                'description' => 'Servidor de correo entrante - Logs de autenticación e intentos fallidos',
+            ],
+            'dovecot_cpanel' => [
+                'title' => 'Logs de Dovecot (cPanel)',
+                'description' => 'Servidor de correo entrante - Logs de autenticación e intentos fallidos',
+            ],
+            'dovecot_directadmin' => [
+                'title' => 'Logs de Dovecot (DirectAdmin)',
+                'description' => 'Servidor de correo entrante - Logs de autenticación e intentos fallidos',
+            ],
+        ],
+    ],
+
+    // Help
+    'help' => [
+        'more_info_wiki' => 'Más información en la documentación',
+    ],
 ];

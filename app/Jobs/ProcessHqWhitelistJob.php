@@ -58,7 +58,7 @@ class ProcessHqWhitelistJob implements ShouldQueue
             }
 
             // Whitelist temporarily (default 7200s as per config)
-            $firewallService->checkProblems($hqHost, $keyPath, 'whitelist_7200', $this->ip);
+            $firewallService->checkProblems($hqHost, $keyPath, 'whitelist_hq', $this->ip);
 
             // Notify admin only if it was blocked on HQ and include modsec logs
             $this->notifyAdmin($hqHost);

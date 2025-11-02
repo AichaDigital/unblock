@@ -30,11 +30,6 @@ class CheckServerFirewallAction
 {
     use AsAction;
 
-    /**
-     * @var array<string> List of supported panels
-     */
-    protected array $supportedPanels = ['directadmin', 'cpanel', 'da'];
-
     public function __construct(
         protected FirewallService $firewallService
     ) {}
@@ -105,7 +100,7 @@ class CheckServerFirewallAction
      */
     private function isDirectAdminPanel(Host $host): bool
     {
-        return $host->panel && in_array(trim($host->panel), ['directadmin', 'da']);
+        return $host->panel === \App\Enums\PanelType::DIRECTADMIN;
     }
 
     /**
@@ -191,19 +186,12 @@ class CheckServerFirewallAction
         $this->firewallService->setData('csf_specials', $csfSpecialsOutput);
 
         // Check panel-specific services if panel is supported
-        if ($host->panel && trim($host->panel) !== '' && in_array($host->panel, $this->supportedPanels)) {
+        if ($host->panel !== null) {
             match ($host->panel) {
-                'directadmin', 'da' => $this->checkDirectAdminServices($host, $keyName, $ip),
-                'cpanel' => $this->checkCpanelServices($host, $keyName, $ip),
-                default => null, // No debería llegar aquí debido al in_array check
+                \App\Enums\PanelType::DIRECTADMIN => $this->checkDirectAdminServices($host, $keyName, $ip),
+                \App\Enums\PanelType::CPANEL => $this->checkCpanelServices($host, $keyName, $ip),
+                \App\Enums\PanelType::NONE => null, // No panel-specific checks
             };
-        } elseif ($host->panel && trim($host->panel) !== '' && ! in_array($host->panel, $this->supportedPanels)) {
-            throw new FirewallException(
-                __('messages.firewall.unsupported_panel'),
-                $host->fqdn,
-                $ip,
-                ['panel' => $host->panel]
-            );
         }
 
         $logs = $this->firewallService->getData();

@@ -112,28 +112,66 @@ class FirewallService
     }
 
     /**
+     * Get all available commands (useful for testing and documentation)
+     */
+    public function getAvailableCommands(): array
+    {
+        $ip = '{ip}'; // Placeholder for documentation
+
+        return [
+            'csf' => "csf -g {$ip}",
+            'csf_specials' => "csf -g {$ip}",
+            'csf_deny_check' => "cat /etc/csf/csf.deny | grep '{ip}' || true",
+            'csf_tempip_check' => "cat /var/lib/csf/csf.tempip | grep '{ip}' || true",
+            'mod_security_da' => "cat /var/log/nginx/modsec_audit.log | grep '{ip}' || true",
+            'exim_cpanel' => "cat /var/log/exim_mainlog | grep -Ea '{ip}' | grep 'authenticator failed' || true",
+            'dovecot_cpanel' => "cat /var/log/maillog | grep -Ea '{ip}' | grep 'auth failed' || true",
+            'exim_directadmin' => "cat /var/log/exim/mainlog | grep -Ea '{ip}' | grep 'authenticator failed'",
+            'dovecot_directadmin' => "cat /var/log/mail.log | grep -Ea '{ip}' | grep 'auth failed'",
+            'da_bfm_check' => "cat /usr/local/directadmin/data/admin/ip_blacklist | grep -E '^{ip}(\\s|\$)' || true",
+            'da_bfm_remove' => "sed -i '/^{ip}(\\s|\$)/d' /usr/local/directadmin/data/admin/ip_blacklist",
+            'da_bfm_whitelist_add' => "echo '{ip}' >> /usr/local/directadmin/data/admin/ip_whitelist",
+            // Unblock: ONLY remove from deny lists (NO whitelist)
+            'unblock' => "csf -dr {$ip} && csf -tr {$ip}",
+            // Whitelist commands with different TTLs
+            'whitelist' => "csf -ta {$ip} ".config('unblock.whitelist_ttl', 86400),
+            'whitelist_simple' => "csf -ta {$ip} ".config('unblock.simple_mode.whitelist_ttl', 3600),
+            'whitelist_hq' => "csf -ta {$ip} ".config('unblock.hq.ttl', 7200),
+        ];
+    }
+
+    /**
      * Build SSH command based on type and IP
      */
     private function buildCommand(string $type, string $ip): ?string
     {
         $ip_escaped = escapeshellarg($ip);
 
-        return match ($type) {
+        $commands = [
             'csf' => "csf -g {$ip}",
+            'csf_specials' => "csf -g {$ip}", // Legacy: same as csf, kept for backward compatibility
             'csf_deny_check' => "cat /etc/csf/csf.deny | grep {$ip_escaped} || true",
             'csf_tempip_check' => "cat /var/lib/csf/csf.tempip | grep {$ip_escaped} || true",
             'mod_security_da' => "cat /var/log/nginx/modsec_audit.log | grep {$ip_escaped} || true",
+            // cPanel log checks
+            'exim_cpanel' => "cat /var/log/exim_mainlog | grep -Ea {$ip_escaped} | grep 'authenticator failed' || true",
+            'dovecot_cpanel' => "cat /var/log/maillog | grep -Ea {$ip_escaped} | grep 'auth failed' || true",
+            // DirectAdmin log checks
             'exim_directadmin' => "cat /var/log/exim/mainlog | grep -Ea {$ip_escaped} | grep 'authenticator failed'",
             'dovecot_directadmin' => "cat /var/log/mail.log | grep -Ea {$ip_escaped} | grep 'auth failed'",
-            // FIXED: Use exact IP matching to avoid false positives (e.g., 10.192.168.1.100 matching 192.168.1.100)
+            // FIXED: Use exact IP matching to avoid false positives
             'da_bfm_check' => "cat /usr/local/directadmin/data/admin/ip_blacklist | grep -E '^{$ip_escaped}(\\s|\$)' || true",
             'da_bfm_remove' => "sed -i '/^{$ip_escaped}(\\s|\$)/d' /usr/local/directadmin/data/admin/ip_blacklist",
             'da_bfm_whitelist_add' => "echo '{$ip}' >> /usr/local/directadmin/data/admin/ip_whitelist",
-            'unblock' => "csf -dr {$ip} && csf -tr {$ip} && csf -ta {$ip} 86400",
-            'whitelist' => "csf -ta {$ip} 86400",
-            'whitelist_7200' => "csf -ta {$ip} ".max(60, (int) (config('unblock.hq.ttl') ?? 7200)),
-            default => null
-        };
+            // Unblock: ONLY remove from deny lists (NO whitelist)
+            'unblock' => "csf -dr {$ip} && csf -tr {$ip}",
+            // Whitelist commands with different TTLs from config
+            'whitelist' => "csf -ta {$ip} ".config('unblock.whitelist_ttl', 86400),
+            'whitelist_simple' => "csf -ta {$ip} ".config('unblock.simple_mode.whitelist_ttl', 3600),
+            'whitelist_hq' => "csf -ta {$ip} ".config('unblock.hq.ttl', 7200),
+        ];
+
+        return $commands[$type] ?? null;
     }
 
     /**

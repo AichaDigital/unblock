@@ -215,4 +215,82 @@ return [
         'created_until' => 'Until',
         'empty_state' => 'No firewall reports yet.',
     ],
+
+    // Email Notifications
+    'email' => [
+        'block_origin_title' => 'Block Origin',
+        'actions_taken' => 'Actions Taken',
+        'action_csf_remove' => 'IP removed from CSF deny list',
+        'action_csf_whitelist' => 'IP added to CSF temporary whitelist',
+        'action_bfm_remove' => 'IP removed from DirectAdmin BFM blacklist',
+        'action_mail_remove' => 'Mail logs processed',
+        'action_web_remove' => 'Web logs processed',
+        'technical_details' => 'Technical Details',
+        'analysis_title' => 'Analysis Summary',
+        'was_blocked' => 'Was Blocked?',
+        'yes' => 'Yes',
+        'no' => 'No',
+        'unblock_performed' => 'Unblock Performed',
+        'analysis_timestamp' => 'Analysis Date and Time',
+        'web_report' => 'Full Web Report',
+        'web_report_available' => 'You can view the full report online:',
+        'web_report_link' => 'View full report',
+    ],
+
+    // Log Descriptions
+    'logs' => [
+        'descriptions' => [
+            'csf' => [
+                'title' => 'ConfigServer Firewall (CSF)',
+                'description' => 'Main server firewall system',
+                'wiki_link' => 'https://docs.configserver.com/csf/',
+            ],
+            'csf_deny' => [
+                'title' => 'CSF Deny List',
+                'description' => 'IPs permanently blocked by CSF',
+            ],
+            'csf_tempip' => [
+                'title' => 'CSF Temporary List',
+                'description' => 'IPs temporarily blocked by CSF',
+            ],
+            'bfm' => [
+                'title' => 'DirectAdmin Brute Force Monitor (BFM)',
+                'description' => 'DirectAdmin brute force attempt monitor',
+            ],
+            'mod_security' => [
+                'title' => 'ModSecurity - Web Application Firewall',
+                'description' => 'Web application firewall that detects and blocks attacks',
+                'wiki_link' => 'https://modsecurity.org/about.html',
+            ],
+            'exim' => [
+                'title' => 'Exim Logs (SMTP)',
+                'description' => 'Outgoing mail server - Authentication logs and failed attempts',
+            ],
+            'exim_cpanel' => [
+                'title' => 'Exim Logs (cPanel)',
+                'description' => 'Outgoing mail server - Authentication logs and failed attempts',
+            ],
+            'exim_directadmin' => [
+                'title' => 'Exim Logs (DirectAdmin)',
+                'description' => 'Outgoing mail server - Authentication logs and failed attempts',
+            ],
+            'dovecot' => [
+                'title' => 'Dovecot Logs (IMAP/POP3)',
+                'description' => 'Incoming mail server - Authentication logs and failed attempts',
+            ],
+            'dovecot_cpanel' => [
+                'title' => 'Dovecot Logs (cPanel)',
+                'description' => 'Incoming mail server - Authentication logs and failed attempts',
+            ],
+            'dovecot_directadmin' => [
+                'title' => 'Dovecot Logs (DirectAdmin)',
+                'description' => 'Incoming mail server - Authentication logs and failed attempts',
+            ],
+        ],
+    ],
+
+    // Help
+    'help' => [
+        'more_info_wiki' => 'More information in the documentation',
+    ],
 ];

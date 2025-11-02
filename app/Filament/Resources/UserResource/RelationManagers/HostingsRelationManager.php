@@ -60,16 +60,19 @@ class HostingsRelationManager extends RelationManager
                     ->label('Servidor')
                     ->description(fn ($record) => "ID: {$record->host_id}")
                     ->sortable()
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(),
                 TextColumn::make('domain')
                     ->label('Dominio')
                     ->searchable()
                     ->sortable()
-                    ->description(fn ($record) => "Usuario: {$record->username}"),
+                    ->description(fn ($record) => "Usuario: {$record->username}")
+                    ->toggleable(),
                 IconColumn::make('hosting_manual')
                     ->label('Manual')
                     ->boolean()
-                    ->tooltip('Indica si el alojamiento fue creado manualmente'),
+                    ->tooltip('Indica si el alojamiento fue creado manualmente')
+                    ->toggleable(),
                 TextColumn::make('created_at')
                     ->label('Creado')
                     ->dateTime()

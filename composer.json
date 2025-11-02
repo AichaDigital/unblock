@@ -8,7 +8,7 @@
         "php": "^8.2",
         "danharrin/livewire-rate-limiting": "^2.0",
         "filament/filament": "^4.0",
-        "geoip2/geoip2": "~2.0",
+        "geoip2/geoip2": "^3.2",
         "graham-campbell/throttle": "^11",
         "laravel/framework": "^12.0",
         "laravel/prompts": "^0.3.5",
@@ -17,7 +17,7 @@
         "livewire/volt": "^1.6",
         "lorisleiva/laravel-actions": "^v2.9.0",
         "phpseclib/phpseclib": "^3.0",
-        "predis/predis": "^2.2",
+        "predis/predis": "^2.2|^3.0",
         "spatie/laravel-activitylog": "*",
         "spatie/laravel-honeypot": "^4.6",
         "spatie/laravel-one-time-passwords": "*",
@@ -29,6 +29,7 @@
         "barryvdh/laravel-debugbar": "^3.15",
         "fakerphp/faker": "^1.23",
         "filament/upgrade": "^4.0",
+        "infection/infection": "^0.31.9",
         "larastan/larastan": "^3.6",
         "laravel/boost": "^1.1",
         "laravel/breeze": "^2.2",
@@ -64,7 +65,9 @@
             "@php artisan vendor:publish --tag=laravel-assets --ansi --force",
             "@php artisan vendor:publish --tag=livewire:assets --ansi --force",
             "npm ci || echo 'npm not available, skipping frontend build'",
-            "npm run build || echo 'npm not available, skipping frontend build'"
+            "npm run build || echo 'npm not available, skipping frontend build'",
+            "@php artisan filament:optimize-clear",
+            "@php artisan filament:optimize"
         ],
         "post-root-package-install": [
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
@@ -132,6 +135,8 @@
         ],
         "test:coverage": "vendor/bin/pest --coverage-clover=build/logs/clover.xml",
         "coverage:check": "php scripts/coverage-check.php 85 build/logs/clover.xml",
+        "infection": "vendor/bin/infection --test-framework-options=\"--exclude-group=integration\"",
+        "infection:coverage": "@test-coverage && vendor/bin/infection --test-framework-options=\"--exclude-group=integration\"",
         "security:audit": "composer audit --format=json",
         "pre-commit": [
             "@syntax-check",
@@ -149,6 +154,7 @@
         "preferred-install": "dist",
         "sort-packages": true,
         "allow-plugins": {
+            "infection/extension-installer": true,
             "pestphp/pest-plugin": true,
             "php-http/discovery": true
         }

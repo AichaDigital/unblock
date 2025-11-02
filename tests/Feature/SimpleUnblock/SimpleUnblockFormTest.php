@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use App\Livewire\SimpleUnblockForm;
-use App\Models\Host;
+use App\Models\{Account, Domain, Host};
 use Illuminate\Support\Facades\{Config, Queue, RateLimiter, Route};
 use Livewire\Livewire;
 
@@ -19,8 +19,28 @@ beforeEach(function () {
         ->name('simple.unblock');
 
     // Create hosts for testing
-    Host::factory()->create(['panel' => 'cpanel']);
-    Host::factory()->create(['panel' => 'directadmin']);
+    $this->host1 = Host::factory()->create(['panel' => 'cpanel']);
+    $this->host2 = Host::factory()->create(['panel' => 'directadmin']);
+
+    // Create test accounts (Phase 3 requirement)
+    $this->account = Account::factory()->create([
+        'host_id' => $this->host1->id,
+        'username' => 'testuser',
+        'domain' => 'example.com',
+    ]);
+
+    // Create test domains (Phase 3 requirement)
+    $this->domain = Domain::factory()->create([
+        'account_id' => $this->account->id,
+        'domain_name' => 'example.com',
+        'type' => 'primary',
+    ]);
+
+    Domain::factory()->create([
+        'account_id' => $this->account->id,
+        'domain_name' => 'sub.example.com',
+        'type' => 'subdomain',
+    ]);
 
     // Clear rate limiters (v1.1.1)
     RateLimiter::clear('simple_unblock:email:'.hash('sha256', 'test@example.com'));
@@ -143,7 +163,6 @@ test('simple unblock dispatches jobs after valid OTP verification', function () 
 
     Queue::fake();
 
-    $hostsCount = Host::count();
     $email = 'test@example.com';
 
     // Create user and prepare OTP
@@ -157,7 +176,8 @@ test('simple unblock dispatches jobs after valid OTP verification', function () 
         email: $email
     );
 
-    Queue::assertPushed(\App\Jobs\ProcessSimpleUnblockJob::class, $hostsCount);
+    // Phase 3: Only 1 job dispatched for specific host (not all hosts)
+    Queue::assertPushed(\App\Jobs\ProcessSimpleUnblockJob::class, 1);
 });
 
 test('simple unblock logs activity after OTP verification', function () {

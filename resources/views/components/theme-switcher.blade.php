@@ -32,7 +32,7 @@
     }"
     class="dropdown dropdown-end"
 >
-    <div tabindex="0" role="button" class="btn btn-ghost btn-sm btn-circle bg-base-100/80 backdrop-blur-sm hover:bg-base-100" aria-label="Cambiar tema">
+    <div tabindex="0" role="button" class="btn btn-ghost btn-sm btn-circle bg-base-100/80 backdrop-blur-sm hover:bg-base-100 border border-base-300" aria-label="Cambiar tema">
         {{-- Sun icon for light mode --}}
         <svg
             x-show="theme === 'winter'"
@@ -71,6 +71,9 @@
         >
             <path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 0 1-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0 1 15 18.257V17.25m6-12V15a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 15V5.25m18 0A2.25 2.25 0 0 0 18.75 3H5.25A2.25 2.25 0 0 0 3 5.25m18 0V12a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 12V5.25" />
         </svg>
+
+        {{-- Fallback text for accessibility --}}
+        <span class="sr-only" x-text="theme === 'winter' ? 'Modo claro' : theme === 'dark' ? 'Modo oscuro' : 'Modo automático'"></span>
     </div>
 
     <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow mt-3">

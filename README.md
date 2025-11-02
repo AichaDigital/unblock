@@ -183,6 +183,11 @@ UNBLOCK_SIMPLE_BLOCK_DURATION=15
 - Admin receives detailed logs of all attempts (success and failed)
 - Users only receive confirmation emails when IP is actually unblocked
 
+**Documentation:**
+- **User Guide**: [Simple Mode User Guide](docs/SIMPLE_MODE_USER_GUIDE.md) - End-user documentation
+- **Testing Guide**: [Simple Mode Testing Guide](docs/SIMPLE_MODE_TESTING_GUIDE.md) - Testing with real data
+- **Technical Docs**: See `docs/internals/` for implementation details
+
 ## 🔧 Configuration
 
 ### Queue Workers

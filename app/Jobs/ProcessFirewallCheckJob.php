@@ -1,11 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Jobs;
 
-use App\Exceptions\{FirewallException, InvalidIpException};
+use App\Actions\Firewall\ValidateUserAccessToHostAction;
+use App\Actions\SimpleUnblock\{AnalyzeFirewallForIpAction, ValidateIpFormatAction};
+use App\Actions\UnblockIpActionNormalMode;
+use App\Exceptions\FirewallException;
 use App\Models\{Host, User};
-use App\Services\{AuditService, FirewallUnblocker, ReportGenerator, SshConnectionManager};
-use App\Services\Firewall\{FirewallAnalysisResult, FirewallAnalyzerFactory};
+use App\Services\{AuditService, ReportGenerator};
 use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -14,6 +18,41 @@ use Illuminate\Queue\{InteractsWithQueue, SerializesModels};
 use Illuminate\Support\Facades\{DB, Log};
 use InvalidArgumentException;
 
+/**
+ * Process Firewall Check Job (Refactored v2.0 - SOLID Compliant)
+ *
+ * Handles authenticated user IP unblocking requests (Normal Mode).
+ * This is the standard flow for logged-in users with specific host access.
+ *
+ * RESPONSIBILITIES (ONLY):
+ * - Serialization of job data for queue
+ * - Orchestration of atomic actions
+ * - Transaction management (DB)
+ * - High-level error handling
+ *
+ * DOES NOT CONTAIN:
+ * - Business logic (moved to Actions)
+ * - Validation logic (moved to Actions)
+ * - SSH operations (handled by Actions/Services)
+ * - Access control logic (moved to Action)
+ *
+ * Differences with Simple Mode:
+ * - User is authenticated (has User model)
+ * - User selected specific host (no domain search needed)
+ * - Access control validation required
+ * - Report generated using authenticated user context
+ * - No OTP verification
+ *
+ * Flow:
+ * 1. Load user and host
+ * 2. Validate IP format
+ * 3. Validate user has access to host
+ * 4. Analyze firewall status
+ * 5. Execute unblock if IP blocked
+ * 6. Generate comprehensive report
+ * 7. Audit operation
+ * 8. Send notifications
+ */
 class ProcessFirewallCheckJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
@@ -29,78 +68,82 @@ class ProcessFirewallCheckJob implements ShouldQueue
     ) {}
 
     /**
-     * Execute the job.
+     * Execute the job (Refactored - SOLID Compliant)
+     *
+     * Orchestrates atomic actions to process firewall check.
+     * NO business logic here - only action coordination.
      */
     public function handle(
-        SshConnectionManager $sshManager,
-        FirewallAnalyzerFactory $analyzerFactory,
-        FirewallUnblocker $unblocker,
+        ValidateIpFormatAction $validateIp,
+        ValidateUserAccessToHostAction $validateAccess,
+        AnalyzeFirewallForIpAction $analyzeFirewall,
+        UnblockIpActionNormalMode $unblockIp,
         ReportGenerator $reportGenerator,
         AuditService $auditService
     ): void {
-        Log::info('Starting firewall check job', [
+        Log::info('Starting firewall check job (v2.0 SOLID)', [
             'ip_address' => $this->ip,
             'user_id' => $this->userId,
             'host_id' => $this->hostId,
         ]);
 
         try {
-            // It's safe to re-load models inside the job.
-            $user = $this->loadUser($this->userId);
-            $host = $this->loadHost($this->hostId);
+            DB::transaction(function () use (
+                $validateIp,
+                $validateAccess,
+                $analyzeFirewall,
+                $unblockIp,
+                $reportGenerator,
+                $auditService
+            ) {
+                // 1. Load models
+                $user = $this->loadUser();
+                $host = $this->loadHost();
 
-            // It's good practice to re-validate inside the job too.
-            $this->validateIpAddress($this->ip);
-            $this->validateUserAccess($user, $host);
+                // 2. Validate IP format
+                $validateIp->handle($this->ip);
 
-            DB::transaction(function () use ($user, $host, $sshManager, $analyzerFactory, $unblocker, $reportGenerator, $auditService) {
-                // 1. Perform firewall analysis
-                $analysisResult = $this->performFirewallAnalysis($this->ip, $host, $sshManager, $analyzerFactory);
+                // 3. Validate user has access to host (Normal Mode specific)
+                $validateAccess->handle($user, $host);
 
-                // 2. Perform unblock if IP is blocked
+                // 4. Analyze firewall status
+                $analysis = $analyzeFirewall->handle($this->ip, $host);
+
+                // 5. Execute unblock if IP is blocked
                 $unblockResults = null;
-                if ($analysisResult->isBlocked()) {
-                    $unblockResults = $this->performUnblockOperations($this->ip, $host, $analysisResult, $unblocker);
+                if ($analysis->isBlocked()) {
+                    Log::info('IP is blocked, proceeding with unblock', [
+                        'ip' => $this->ip,
+                        'host_fqdn' => $host->fqdn,
+                    ]);
+
+                    $unblockResults = $unblockIp->handle($this->ip, $host->id, $analysis);
                 }
 
-                // 3. Generate comprehensive report
+                // 6. Generate comprehensive report
                 $report = $reportGenerator->generateReport(
                     $this->ip,
                     $user,
                     $host,
-                    $analysisResult,
+                    $analysis,
                     $unblockResults
                 );
 
-                // 4. Audit the operation
-                $auditService->logFirewallCheck($user, $host, $this->ip, $analysisResult->isBlocked());
+                // 7. Audit the operation
+                $auditService->logFirewallCheck($user, $host, $this->ip, $analysis->isBlocked());
 
-                // 5. Manually dispatch notification job with copyUserId
+                // 8. Dispatch notification job with copyUserId
                 SendReportNotificationJob::dispatch((string) $report->id, $this->copyUserId);
 
                 Log::info('Firewall check process completed successfully', [
                     'report_id' => $report->id,
                     'ip_address' => $this->ip,
+                    'was_blocked' => $analysis->isBlocked(),
                 ]);
             });
+
         } catch (Exception $e) {
-            Log::error('Firewall check job failed', [
-                'ip_address' => $this->ip,
-                'user_id' => $this->userId,
-                'host_id' => $this->hostId,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-            ]);
-
-            // We need to find the user again for auditing in case of failure before user load
-            $userForAudit = User::find($this->userId);
-            $hostForAudit = Host::find($this->hostId);
-            if ($userForAudit && $hostForAudit) {
-                $auditService->logFirewallCheckFailure($userForAudit, $hostForAudit, $this->ip, $e->getMessage());
-            }
-
-            // The exception will be logged by the queue worker.
-            // We can re-throw it to make the job fail explicitly.
+            $this->handleJobFailure($e, $auditService);
             throw new FirewallException(
                 "Firewall check failed for IP {$this->ip} on host ID {$this->hostId}: ".$e->getMessage(),
                 previous: $e
@@ -108,67 +151,63 @@ class ProcessFirewallCheckJob implements ShouldQueue
         }
     }
 
-    private function performFirewallAnalysis(string $ip, Host $host, SshConnectionManager $sshManager, FirewallAnalyzerFactory $analyzerFactory): FirewallAnalysisResult
+    /**
+     * Load user from database
+     */
+    private function loadUser(): User
     {
-        $session = $sshManager->createSession($host);
-        try {
-            $analyzer = $analyzerFactory->createForHost($host);
-            $analysisResult = $analyzer->analyze($ip, $session);
-            Log::info('Firewall analysis completed in job', [
-                'ip_address' => $ip,
-                'host_fqdn' => $host->fqdn,
-                'blocked' => $analysisResult->isBlocked(),
-            ]);
-
-            return $analysisResult;
-        } finally {
-            $session->cleanup();
-        }
-    }
-
-    private function performUnblockOperations(string $ip, Host $host, FirewallAnalysisResult $analysisResult, FirewallUnblocker $unblocker): array
-    {
-        Log::info('Starting unblock operations in job', ['ip_address' => $ip, 'host_fqdn' => $host->fqdn]);
-        $unblockResults = $unblocker->unblockIp($ip, $host, $analysisResult);
-        Log::info('Unblock operations completed in job', ['ip_address' => $ip, 'host_fqdn' => $host->fqdn]);
-
-        return $unblockResults;
-    }
-
-    private function loadUser(int $userId): User
-    {
-        $user = User::find($userId);
+        $user = User::find($this->userId);
         if (! $user) {
-            throw new InvalidArgumentException("User with ID {$userId} not found in job");
+            throw new InvalidArgumentException("User with ID {$this->userId} not found in job");
         }
 
         return $user;
     }
 
-    private function loadHost(int $hostId): Host
+    /**
+     * Load host from database
+     */
+    private function loadHost(): Host
     {
-        $host = Host::find($hostId);
+        $host = Host::find($this->hostId);
         if (! $host) {
-            throw new InvalidArgumentException("Host with ID {$hostId} not found in job");
+            throw new InvalidArgumentException("Host with ID {$this->hostId} not found in job");
         }
 
         return $host;
     }
 
-    private function validateIpAddress(string $ip): void
+    /**
+     * Handle job failure - audit and log
+     */
+    private function handleJobFailure(Exception $e, AuditService $auditService): void
     {
-        if (! filter_var($ip, FILTER_VALIDATE_IP)) {
-            throw new InvalidIpException("Invalid IP address format in job: {$ip}");
-        }
-    }
+        Log::error('Firewall check job failed', [
+            'ip_address' => $this->ip,
+            'user_id' => $this->userId,
+            'host_id' => $this->hostId,
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString(),
+        ]);
 
-    private function validateUserAccess(User $user, Host $host): void
-    {
-        if ($user->is_admin) {
-            return;
-        }
-        if (! $user->hasAccessToHost($host->id)) {
-            throw new Exception("Access denied in job: User {$user->id} does not have permission for host {$host->id}");
+        // Audit the failure
+        try {
+            $userForAudit = User::find($this->userId);
+            $hostForAudit = Host::find($this->hostId);
+
+            if ($userForAudit && $hostForAudit) {
+                $auditService->logFirewallCheckFailure(
+                    $userForAudit,
+                    $hostForAudit,
+                    $this->ip,
+                    $e->getMessage()
+                );
+            }
+        } catch (Exception $auditError) {
+            Log::error('Failed to audit firewall check failure', [
+                'original_error' => $e->getMessage(),
+                'audit_error' => $auditError->getMessage(),
+            ]);
         }
     }
 }

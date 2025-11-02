@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use App\Actions\SimpleUnblockAction;
 use App\Jobs\ProcessSimpleUnblockJob;
-use App\Models\Host;
+use App\Models\{Account, Domain, Host};
 use Illuminate\Support\Facades\{Config, Queue, RateLimiter};
 
 use function Pest\Laravel\assertDatabaseHas;
@@ -15,7 +15,28 @@ beforeEach(function () {
     Config::set('unblock.simple_mode.throttle_email_per_hour', 5);
     Config::set('unblock.simple_mode.throttle_domain_per_hour', 10);
 
-    Host::factory()->count(3)->create();
+    // Create test host
+    $this->host = Host::factory()->create();
+
+    // Create test account
+    $this->account = Account::factory()->create([
+        'host_id' => $this->host->id,
+        'username' => 'testuser',
+        'domain' => 'example.com',
+    ]);
+
+    // Create test domains (Phase 3 requirement)
+    $this->domain = Domain::factory()->create([
+        'account_id' => $this->account->id,
+        'domain_name' => 'example.com',
+        'type' => 'primary',
+    ]);
+
+    Domain::factory()->create([
+        'account_id' => $this->account->id,
+        'domain_name' => 'sub.example.com',
+        'type' => 'subdomain',
+    ]);
 
     // Clear rate limiters
     RateLimiter::clear('simple_unblock:email:'.hash('sha256', 'test@example.com'));
@@ -60,32 +81,29 @@ test('action validates domain format', function () {
     ))->toThrow(\InvalidArgumentException::class);
 });
 
-test('action dispatches job for each host', function () {
-    $hostsCount = Host::count();
-
+test('action dispatches job for specific host only (Phase 3)', function () {
+    // Phase 3: Now only dispatches 1 job for the specific host where domain is hosted
     SimpleUnblockAction::run(
         ip: '192.168.1.1',
         domain: 'example.com',
         email: 'test@example.com'
     );
 
-    Queue::assertPushed(ProcessSimpleUnblockJob::class, $hostsCount);
+    Queue::assertPushed(ProcessSimpleUnblockJob::class, 1);
 });
 
-test('action dispatches jobs with correct parameters', function () {
-    $host = Host::first();
-
+test('action dispatches job with correct parameters for domain host', function () {
     SimpleUnblockAction::run(
         ip: '192.168.1.1',
         domain: 'example.com',
         email: 'test@example.com'
     );
 
-    Queue::assertPushed(ProcessSimpleUnblockJob::class, function ($job) use ($host) {
+    Queue::assertPushed(ProcessSimpleUnblockJob::class, function ($job) {
         return $job->ip === '192.168.1.1'
             && $job->domain === 'example.com'
             && $job->email === 'test@example.com'
-            && $job->hostId === $host->id;
+            && $job->hostId === $this->host->id; // Uses domain's host
     });
 });
 
@@ -101,16 +119,20 @@ test('action logs activity', function () {
     ]);
 });
 
-test('action handles no hosts gracefully', function () {
-    Host::query()->delete();
-
+test('action handles domain not found gracefully (Phase 3)', function () {
+    // Phase 3: If domain doesn't exist in local DB, no unblock job is dispatched
+    // but admin notification is sent
     SimpleUnblockAction::run(
         ip: '192.168.1.1',
-        domain: 'example.com',
+        domain: 'nonexistent.com', // Domain not in database
         email: 'test@example.com'
     );
 
-    Queue::assertNothingPushed();
+    // Should not dispatch unblock job
+    Queue::assertNotPushed(ProcessSimpleUnblockJob::class);
+
+    // Should dispatch admin notification job
+    Queue::assertPushed(\App\Jobs\SendSimpleUnblockNotificationJob::class);
 });
 
 test('action handles multiple domain formats', function () {
@@ -216,7 +238,7 @@ test('different emails have separate rate limits', function () {
     );
 
     // Both should succeed because they're different emails
-    expect(true)->toBeTrue();
+    Queue::assertPushed(ProcessSimpleUnblockJob::class, 2);
 });
 
 test('activity log contains hashed email', function () {

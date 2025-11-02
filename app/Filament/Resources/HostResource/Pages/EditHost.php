@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\HostResource\Pages;
 
+use App\Filament\Actions\GenerateSshKeysAction;
 use App\Filament\Resources\HostResource;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
@@ -13,6 +14,7 @@ class EditHost extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            GenerateSshKeysAction::make(),
             DeleteAction::make(),
         ];
     }

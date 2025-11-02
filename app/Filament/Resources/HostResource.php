@@ -2,9 +2,11 @@
 
 namespace App\Filament\Resources;
 
+use App\Enums\PanelType;
 use App\Filament\Resources\HostResource\Pages\{CreateHost, EditHost, ListHosts};
+use App\Filament\Resources\HostResource\{Pages, RelationManagers};
 use App\Models\Host;
-use Filament\Forms\Components\{TextInput, Textarea, Toggle};
+use Filament\Forms\Components\{Select, TextInput, Textarea, Toggle};
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\{IconColumn, TextColumn};
@@ -51,21 +53,27 @@ class HostResource extends Resource
                             ->numeric()
                             ->minValue(1)
                             ->maxValue(65535),
-                        TextInput::make('panel')
-                            ->default('directadmin')
+                        Select::make('panel')
+                            ->label('Panel de Control')
+                            ->options(PanelType::class)
+                            ->default(PanelType::DIRECTADMIN->value)
                             ->required(),
                         TextInput::make('admin')
                             ->required(),
                     ])->columns(2),
 
-                \Filament\Schemas\Components\Fieldset::make('Claves SSH')
+                \Filament\Schemas\Components\Fieldset::make(__('hosts.ssh_keys.title'))
                     ->schema([
                         Textarea::make('hash')
-                            ->label('Clave Privada')
-                            ->rows(5),
+                            ->label(__('hosts.ssh_keys.private_key'))
+                            ->rows(5)
+                            ->helperText(__('hosts.ssh_keys.private_key_help'))
+                            ->placeholder('-----BEGIN OPENSSH PRIVATE KEY-----'),
                         Textarea::make('hash_public')
-                            ->label('Clave Pública')
-                            ->rows(5),
+                            ->label(__('hosts.ssh_keys.public_key'))
+                            ->rows(5)
+                            ->helperText(__('hosts.ssh_keys.public_key_help'))
+                            ->placeholder('ssh-ed25519 AAAA...'),
                     ])
                     ->columns(1),
             ])->columns(3);
@@ -79,28 +87,51 @@ class HostResource extends Resource
                     ->label('FQDN')
                     ->searchable()
                     ->sortable()
-                    ->copyable(),
+                    ->copyable()
+                    ->toggleable(),
                 TextColumn::make('alias')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
                 TextColumn::make('ip')
                     ->label('IP')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(),
                 TextColumn::make('port_ssh')
-                    ->label('Puerto SSH'),
+                    ->label('Puerto SSH')
+                    ->toggleable(),
                 TextColumn::make('panel')
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'cpanel' => 'success',
-                        'directadmin' => 'warning',
-                        default => 'gray',
-                    }),
+                    ->toggleable(),
+                TextColumn::make('hostings_count')
+                    ->label('Hostings')
+                    ->counts('hostings')
+                    ->badge()
+                    ->color('info')
+                    ->sortable()
+                    ->toggleable(),
+                TextColumn::make('accounts_count')
+                    ->label('Accounts')
+                    ->counts('accounts')
+                    ->badge()
+                    ->color('success')
+                    ->sortable()
+                    ->toggleable(),
+                TextColumn::make('domains_count')
+                    ->label('Domains')
+                    ->counts('domains')
+                    ->badge()
+                    ->color('primary')
+                    ->sortable()
+                    ->toggleable(),
                 IconColumn::make('is_active')
                     ->label('Activo')
-                    ->boolean(),
+                    ->boolean()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 IconColumn::make('hosting_manual')
                     ->label('Manual')
-                    ->boolean(),
+                    ->boolean()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
                     ->label('Creado')
                     ->dateTime()
@@ -115,16 +146,14 @@ class HostResource extends Resource
             ->filters([
                 TrashedFilter::make(),
                 SelectFilter::make('panel')
-                    ->options([
-                        'cpanel' => 'cPanel',
-                        'directadmin' => 'DirectAdmin',
-                    ]),
+                    ->options(PanelType::class),
                 TernaryFilter::make('is_active')
                     ->label('Activo'),
                 TernaryFilter::make('hosting_manual')
                     ->label('Manual'),
             ])
             ->recordActions([
+                \Filament\Actions\ViewAction::make(),
                 \Filament\Actions\EditAction::make(),
                 \Filament\Actions\DeleteAction::make(),
                 \Filament\Actions\RestoreAction::make(),
@@ -140,11 +169,21 @@ class HostResource extends Resource
             ]));
     }
 
+    public static function getRelations(): array
+    {
+        return [
+            RelationManagers\HostingsRelationManager::class,
+            RelationManagers\AccountsRelationManager::class,
+            RelationManagers\DomainsRelationManager::class,
+        ];
+    }
+
     public static function getPages(): array
     {
         return [
             'index' => ListHosts::route('/'),
             'create' => CreateHost::route('/create'),
+            'view' => Pages\ViewHost::route('/{record}'),
             'edit' => EditHost::route('/{record}/edit'),
         ];
     }

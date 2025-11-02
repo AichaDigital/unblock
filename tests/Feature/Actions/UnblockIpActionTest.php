@@ -40,8 +40,10 @@ test('unblocks ip successfully', function () {
         'ip' => TC::TEST_HOST_IP,
         'port_ssh' => TC::TEST_SSH_PORT,
         'admin' => TC::TEST_ADMIN_USER,
+        'panel' => 'cpanel',
     ]);
 
+    // Expect unblock command
     $this->firewallService
         ->expects('checkProblems')
         ->once()
@@ -49,6 +51,18 @@ test('unblocks ip successfully', function () {
             \Mockery::on(fn ($arg) => $arg instanceof Host && $arg->id === $host->id),
             TC::TEST_SSH_KEY,
             'unblock',
+            TC::TEST_IP
+        )
+        ->andReturn('success');
+
+    // Expect whitelist_simple command
+    $this->firewallService
+        ->expects('checkProblems')
+        ->once()
+        ->with(
+            \Mockery::on(fn ($arg) => $arg instanceof Host && $arg->id === $host->id),
+            TC::TEST_SSH_KEY,
+            'whitelist_simple',
             TC::TEST_IP
         )
         ->andReturn('success');

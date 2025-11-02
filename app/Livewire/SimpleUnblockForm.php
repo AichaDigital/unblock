@@ -6,8 +6,10 @@ namespace App\Livewire;
 
 use App\Actions\SimpleUnblockAction;
 use App\Events\SimpleUnblock\{SimpleUnblockIpMismatch, SimpleUnblockOtpFailed, SimpleUnblockOtpSent, SimpleUnblockOtpVerified};
-use App\Models\User;
+use App\Models\{Domain, User};
+use Closure;
 use Exception;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 use Livewire\Attributes\{Layout, Title};
 use Livewire\Component;
@@ -33,7 +35,9 @@ class SimpleUnblockForm extends Component
 
     public string $oneTimePassword = '';
 
-    public int $step = 1; // 1 = Request OTP, 2 = Verify OTP
+    public int $step = 1; // 1 = Request OTP, 2 = Verify OTP, 3 = Process (from OTP login)
+
+    public bool $isOtpVerified = false; // Flag to indicate OTP is already verified
 
     public bool $processing = false;
 
@@ -50,6 +54,70 @@ class SimpleUnblockForm extends Component
     {
         // Auto-detect user's IP address
         $this->ip = $this->detectUserIp();
+
+        // Check if user is coming from OTP login (simple mode)
+        // Look for the email in session OR check if user is authenticated as simple mode user
+        if (session()->has('otp_request_email') || $this->isSimpleModeUser()) {
+            // User is authenticated via OTP, go directly to processing step
+            $this->step = 3;
+            $this->isOtpVerified = true;
+            $this->email = session()->get('otp_request_email', Auth::user()->email ?? '');
+            $this->message = __('simple_unblock.otp_verified_ready');
+            $this->messageType = 'success';
+        }
+    }
+
+    /**
+     * Check if current user is a simple mode user (temporary user created for simple unblock)
+     */
+    private function isSimpleModeUser(): bool
+    {
+        if (! Auth::check()) {
+            return false;
+        }
+
+        $user = Auth::user();
+
+        return $user->first_name === 'Simple' &&
+               $user->last_name === 'Unblock' &&
+               ! $user->is_admin;
+    }
+
+    /**
+     * Custom validation rule for domain against local database
+     */
+    protected function validateDomainRule(): Closure
+    {
+        return function (string $attribute, mixed $value, Closure $fail): void {
+            // Normalize domain (lowercase, remove www prefix)
+            $normalized = strtolower(trim($value));
+            $normalized = preg_replace('/^www\./i', '', $normalized);
+
+            // Search domain in local database with eager loading
+            $domain = Domain::with('account')
+                ->where('domain_name', $normalized)
+                ->first();
+
+            if (! $domain) {
+                $fail(__('simple_unblock.domain_not_found'));
+
+                return;
+            }
+
+            // Verify account is not suspended
+            if ($domain->account->suspended_at) {
+                $fail(__('simple_unblock.account_suspended'));
+
+                return;
+            }
+
+            // Verify account is not deleted
+            if ($domain->account->deleted_at) {
+                $fail(__('simple_unblock.account_deleted'));
+
+                return;
+            }
+        };
     }
 
     /**
@@ -59,7 +127,7 @@ class SimpleUnblockForm extends Component
     {
         $this->validate([
             'ip' => 'required|ip',
-            'domain' => ['required', 'string', 'regex:/^[a-z0-9.-]+\.[a-z]{2,}$/i'],
+            'domain' => ['required', 'string', 'regex:/^[a-z0-9.-]+\.[a-z]{2,}$/i', $this->validateDomainRule()],
             'email' => 'required|email',
         ]);
 
@@ -211,6 +279,47 @@ class SimpleUnblockForm extends Component
     private function detectUserIp(): string
     {
         return (string) request()->ip();
+    }
+
+    /**
+     * Process unblock request directly (when OTP is already verified)
+     */
+    public function processUnblock(): void
+    {
+        $this->validate([
+            'ip' => 'required|ip',
+            'domain' => ['required', 'string', 'regex:/^[a-z0-9.-]+\.[a-z]{2,}$/i', $this->validateDomainRule()],
+        ]);
+
+        $this->processing = true;
+
+        try {
+            $action = new SimpleUnblockAction;
+            $action->handle(
+                ip: $this->ip,
+                domain: $this->domain,
+                email: $this->email
+            );
+
+            $this->message = __('simple_unblock.success_message');
+            $this->messageType = 'success';
+
+            // Reset form
+            $this->ip = $this->detectUserIp();
+            $this->domain = '';
+        } catch (Exception $e) {
+            Log::error('Simple unblock processing failed', [
+                'ip' => $this->ip,
+                'domain' => $this->domain,
+                'email' => $this->email,
+                'error' => $e->getMessage(),
+            ]);
+
+            $this->message = __('simple_unblock.error_message');
+            $this->messageType = 'error';
+        } finally {
+            $this->processing = false;
+        }
     }
 
     /**
