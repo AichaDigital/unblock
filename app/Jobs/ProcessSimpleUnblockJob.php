@@ -6,7 +6,7 @@ namespace App\Jobs;
 
 use App\Actions\SimpleUnblock\{
     AnalyzeFirewallForIpAction,
-    CheckDomainInServerLogsAction,
+    CheckIpInServerLogsAction,
     CreateSimpleUnblockReportAction,
     EvaluateUnblockMatchAction,
     NotifySimpleUnblockResultAction,
@@ -76,7 +76,7 @@ class ProcessSimpleUnblockJob implements ShouldQueue
         ValidateIpFormatAction $validateIp,
         ValidateDomainInDatabaseAction $validateDomain,
         AnalyzeFirewallForIpAction $analyzeFirewall,
-        CheckDomainInServerLogsAction $checkLogs,
+        CheckIpInServerLogsAction $checkLogs,
         EvaluateUnblockMatchAction $evaluateMatch,
         UnblockIpAction $unblockIp,
         CreateSimpleUnblockReportAction $createReport,
@@ -131,13 +131,13 @@ class ProcessSimpleUnblockJob implements ShouldQueue
             // 5. Analyze firewall status
             $analysis = $analyzeFirewall->handle($this->ip, $host);
 
-            // 6. Check domain in server logs
-            $logsSearch = $checkLogs->handle($this->ip, $this->domain, $host);
+            // 6. Check IP in server logs (domain not used in search)
+            $logsSearch = $checkLogs->handle($host, $host->hash, $this->ip, $this->domain);
 
             // 7. Evaluate unblock decision (CRITICAL BUSINESS LOGIC)
             $decision = $evaluateMatch->handle(
                 $analysis->isBlocked(),
-                $logsSearch->found,
+                $logsSearch->foundInLogs,
                 $domainValidation->exists
             );
 
@@ -149,7 +149,7 @@ class ProcessSimpleUnblockJob implements ShouldQueue
             // 8. Execute unblock if decision is positive
             $unblockResults = null;
             if ($decision->shouldUnblock) {
-                $unblockResults = $unblockIp->handle($this->ip, $host, $analysis);
+                $unblockResults = $unblockIp->handle($this->ip, $host->id, $host->hash);
                 $this->markAsProcessed(); // Lock to prevent duplicates
             }
 

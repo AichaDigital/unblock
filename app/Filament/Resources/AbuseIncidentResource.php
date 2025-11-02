@@ -48,10 +48,11 @@ class AbuseIncidentResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema
+            ->columns(1)
             ->components([
                 \Filament\Schemas\Components\Section::make(__('firewall.abuse_incidents.incident_information'))
                     ->schema([
-                        \Filament\Schemas\Components\Grid::make(2)
+                        \Filament\Schemas\Components\Grid::make(3)
                             ->schema([
                                 Select::make('incident_type')
                                     ->label(__('firewall.abuse_incidents.incident_type'))
@@ -76,6 +77,9 @@ class AbuseIncidentResource extends Resource
                                         'critical' => __('firewall.abuse_incidents.severity_levels.critical'),
                                     ])
                                     ->required()
+                                    ->disabled(),
+                                DateTimePicker::make('resolved_at')
+                                    ->label(__('firewall.abuse_incidents.resolved_at'))
                                     ->disabled(),
                             ]),
                     ]),
@@ -107,13 +111,6 @@ class AbuseIncidentResource extends Resource
                             ->label(__('firewall.abuse_incidents.metadata'))
                             ->rows(5)
                             ->formatStateUsing(fn ($state) => json_encode($state, JSON_PRETTY_PRINT))
-                            ->disabled(),
-                    ]),
-
-                \Filament\Schemas\Components\Section::make(__('firewall.abuse_incidents.resolution'))
-                    ->schema([
-                        DateTimePicker::make('resolved_at')
-                            ->label(__('firewall.abuse_incidents.resolved_at'))
                             ->disabled(),
                     ]),
             ]);

@@ -42,23 +42,40 @@ class UnblockIpAction
     {
         try {
             $host = Host::findOrFail($hostId);
+            $ttl = config('unblock.simple_mode.whitelist_ttl', 3600);
 
-            // Standard CSF unblock
+            // 1. Standard CSF unblock (remove from deny lists)
             $this->firewallService->checkProblems($host, $keyName, 'unblock', $ip);
 
-            // For DirectAdmin servers, also check and remove from BFM blacklist
+            // 2. Add to CSF temporary whitelist
+            $this->firewallService->checkProblems($host, $keyName, 'whitelist_simple', $ip);
+
+            // 3. For DirectAdmin servers, also handle BFM
             if ($host->panel === 'directadmin' || $host->panel === 'da') {
                 try {
-                    // Check if IP is in BFM blacklist
+                    // a) Check if IP is in BFM blacklist
                     $bfmCheck = $this->firewallService->checkProblems($host, $keyName, 'da_bfm_check', $ip);
 
-                    // If IP found in BFM blacklist, remove it
+                    // b) If found in blacklist, remove it
                     if (! empty(trim($bfmCheck))) {
                         $this->firewallService->checkProblems($host, $keyName, 'da_bfm_remove', $ip);
                     }
+
+                    // c) Add to BFM whitelist (always, even if not in blacklist)
+                    $this->firewallService->checkProblems($host, $keyName, 'da_bfm_whitelist_add', $ip);
+
+                    // d) Register in database for scheduled cleanup
+                    \App\Models\BfmWhitelistEntry::create([
+                        'host_id' => $host->id,
+                        'ip_address' => $ip,
+                        'added_at' => now(),
+                        'expires_at' => now()->addSeconds($ttl),
+                        'notes' => 'Auto-added by UnblockIpAction',
+                    ]);
+
                 } catch (Throwable $bfmException) {
                     // Log BFM error but don't fail the whole operation
-                    Log::warning('Failed to check/remove IP from DirectAdmin BFM blacklist', [
+                    Log::warning('Failed to process DirectAdmin BFM', [
                         'ip' => $ip,
                         'host' => $host->fqdn,
                         'error' => $bfmException->getMessage(),

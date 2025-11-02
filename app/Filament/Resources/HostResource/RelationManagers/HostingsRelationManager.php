@@ -28,18 +28,22 @@ class HostingsRelationManager extends RelationManager
             ->columns([
                 Tables\Columns\TextColumn::make('domain')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('username')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('user.email')
                     ->label('User')
                     ->searchable()
                     ->sortable()
-                    ->default('-'),
+                    ->default('-')
+                    ->toggleable(),
                 Tables\Columns\IconColumn::make('hosting_manual')
                     ->label('Manual')
-                    ->boolean(),
+                    ->boolean()
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

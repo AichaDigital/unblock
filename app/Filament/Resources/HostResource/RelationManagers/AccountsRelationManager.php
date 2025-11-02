@@ -35,27 +35,34 @@ class AccountsRelationManager extends RelationManager
             ->columns([
                 Tables\Columns\TextColumn::make('username')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('domain')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->copyable()
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('owner')
                     ->searchable()
                     ->sortable()
-                    ->default('-'),
+                    ->default('-')
+                    ->toggleable(),
                 Tables\Columns\IconColumn::make('suspended_at')
                     ->label('Suspended')
                     ->boolean()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
                 Tables\Columns\IconColumn::make('deleted_at')
                     ->label('Deleted')
                     ->boolean()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('last_synced_at')
                     ->label('Last Sync')
                     ->dateTime()
                     ->sortable()
-                    ->since(),
+                    ->since()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 Tables\Filters\TernaryFilter::make('suspended_at')

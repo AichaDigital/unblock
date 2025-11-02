@@ -52,12 +52,15 @@ class DelegatedUsersRelationManager extends RelationManager
             ->columns([
                 TextColumn::make('first_name')
                     ->label('Nombre')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(),
                 TextColumn::make('last_name')
                     ->label('Apellidos')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(),
                 TextColumn::make('email')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

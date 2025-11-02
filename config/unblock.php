@@ -49,18 +49,31 @@ return [
         ],
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Whitelist TTL (Time To Live)
+    |--------------------------------------------------------------------------
+    |
+    | Default TTL for IP whitelist after unblock (in seconds).
+    | - CSF uses -ta flag with automatic expiration.
+    | - DirectAdmin BFM requires manual cleanup via scheduled job.
+    |
+    */
+    'whitelist_ttl' => env('UNBLOCK_WHITELIST_TTL', 86400), // 24 hours default
+
     // HQ host configuration (Headquarters)
     'hq' => [
         // Prefer host_id; fallback to fqdn
         'host_id' => env('HQ_HOST_ID'),
         'fqdn' => env('HQ_HOST_FQDN', ''),
         // Temporary whitelist TTL in seconds
-        'ttl' => env('HQ_WHITELIST_TTL', 7200),
+        'ttl' => env('HQ_WHITELIST_TTL', 14000),
     ],
 
     // Simple Unblock Mode (v1.2.0+)
     'simple_mode' => [
         'enabled' => env('UNBLOCK_SIMPLE_MODE', false),
+        'whitelist_ttl' => env('UNBLOCK_SIMPLE_WHITELIST_TTL', 3600), // 1 hour for simple mode
 
         // Multi-vector rate limiting (defense against botnets)
         'throttle_per_minute' => env('UNBLOCK_SIMPLE_THROTTLE_PER_MINUTE', 3),

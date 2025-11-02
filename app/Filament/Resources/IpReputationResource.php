@@ -47,6 +47,7 @@ class IpReputationResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema
+            ->columns(1)
             ->components([
                 \Filament\Schemas\Components\Section::make(__('firewall.ip_reputation.ip_information'))
                     ->schema([
@@ -127,7 +128,7 @@ class IpReputationResource extends Resource
                             ->label(__('firewall.ip_reputation.admin_notes'))
                             ->rows(4)
                             ->helperText(__('firewall.ip_reputation.admin_notes_helper')),
-                    ]),
+                    ])->columns(1),
             ]);
     }
 

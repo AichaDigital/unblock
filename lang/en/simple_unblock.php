@@ -42,8 +42,8 @@ return [
 
     'generic_response' => 'We have received your request and are processing it.',
     'no_information_found' => 'No information found for the provided data.',
-    'help_text' => 'This form allows you to unblock your IP quickly and securely. You only need to provide your IP, domain, and email to receive a verification code.',
-    'otp_verified_ready' => 'Code verified! You can now process your unblock request.',
+    'help_text' => 'Verify your identity with the code received to process your IP unblock.',
+    'otp_verified_ready' => 'Code verified successfully!',
 
     'mail' => [
         'success_subject' => 'IP Unblocked - :domain',

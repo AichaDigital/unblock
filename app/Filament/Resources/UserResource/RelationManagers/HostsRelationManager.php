@@ -57,16 +57,20 @@ class HostsRelationManager extends RelationManager
                 TextColumn::make('fqdn')
                     ->label('FQDN')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
                 TextColumn::make('alias')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
                 TextColumn::make('ip')
                     ->label('IP')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(),
                 IconColumn::make('pivot.is_active')
                     ->label('Activo')
-                    ->boolean(),
+                    ->boolean()
+                    ->toggleable(),
                 TextColumn::make('panel')
                     ->label('Panel')
                     ->badge()
@@ -74,11 +78,13 @@ class HostsRelationManager extends RelationManager
                         'cpanel' => 'success',
                         'directadmin' => 'warning',
                         default => 'gray',
-                    }),
+                    })
+                    ->toggleable(),
                 TextColumn::make('created_at')
                     ->label('Asignado')
                     ->dateTime()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 SelectFilter::make('panel')

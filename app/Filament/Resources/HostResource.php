@@ -85,40 +85,48 @@ class HostResource extends Resource
                     ->label('FQDN')
                     ->searchable()
                     ->sortable()
-                    ->copyable(),
+                    ->copyable()
+                    ->toggleable(),
                 TextColumn::make('alias')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
                 TextColumn::make('ip')
                     ->label('IP')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(),
                 TextColumn::make('port_ssh')
-                    ->label('Puerto SSH'),
+                    ->label('Puerto SSH')
+                    ->toggleable(),
                 TextColumn::make('panel')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
                         'cpanel' => 'success',
                         'directadmin' => 'warning',
                         default => 'gray',
-                    }),
+                    })
+                    ->toggleable(),
                 TextColumn::make('hostings_count')
                     ->label('Hostings')
                     ->counts('hostings')
                     ->badge()
                     ->color('info')
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
                 TextColumn::make('accounts_count')
                     ->label('Accounts')
                     ->counts('accounts')
                     ->badge()
                     ->color('success')
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
                 TextColumn::make('domains_count')
                     ->label('Domains')
                     ->counts('domains')
                     ->badge()
                     ->color('primary')
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
                 IconColumn::make('is_active')
                     ->label('Activo')
                     ->boolean()

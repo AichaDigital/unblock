@@ -47,6 +47,7 @@ class EmailReputationResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema
+            ->columns(1)
             ->components([
                 \Filament\Schemas\Components\Section::make(__('firewall.email_reputation.email_information'))
                     ->schema([

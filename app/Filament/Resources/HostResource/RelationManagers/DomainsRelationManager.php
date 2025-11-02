@@ -36,7 +36,8 @@ class DomainsRelationManager extends RelationManager
                     ->label('Domain')
                     ->searchable()
                     ->sortable()
-                    ->copyable(),
+                    ->copyable()
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('type')
                     ->label('Type')
                     ->badge()
@@ -46,12 +47,14 @@ class DomainsRelationManager extends RelationManager
                         'parked' => 'warning',
                         default => 'gray',
                     })
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('account.username')
                     ->label('Account')
                     ->searchable()
                     ->sortable()
-                    ->default('-'),
+                    ->default('-')
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('account.domain')
                     ->label('Account Domain')
                     ->searchable()
