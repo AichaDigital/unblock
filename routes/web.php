@@ -24,3 +24,8 @@ if (config('unblock.simple_mode.enabled')) {
         ->middleware(['auth', 'session.timeout', 'simple.mode', 'throttle.simple.unblock'])
         ->name('simple.unblock');
 }
+
+// Admin OTP Verification
+Route::get('/admin/otp/verify', \App\Livewire\AdminOtpVerification::class)
+    ->middleware(['web', 'auth'])
+    ->name('admin.otp.verify');
