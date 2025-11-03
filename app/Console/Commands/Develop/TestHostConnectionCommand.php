@@ -46,9 +46,11 @@ class TestHostConnectionCommand extends Command
             return null;
         }
 
-        $options = $hosts->mapWithKeys(fn ($host) => [
-            $host->id => "{$host->fqdn}:{$host->port_ssh} ({$host->panel})",
-        ])->toArray();
+        $options = $hosts->mapWithKeys(function ($host) {
+            $panelValue = $host->panel?->value ?? 'N/A';
+
+            return [$host->id => "{$host->fqdn}:{$host->port_ssh} ({$panelValue})"];
+        })->toArray();
 
         $selectedId = select('Selecciona el host:', $options);
 
@@ -60,7 +62,7 @@ class TestHostConnectionCommand extends Command
         table(['Campo', 'Valor'], [
             ['FQDN', $host->fqdn],
             ['Puerto', $host->port_ssh ?? 22],
-            ['Panel', $host->panel],
+            ['Panel', $host->panel?->value ?? 'N/A'],
             ['Hash Length', strlen($host->hash).' chars'],
         ]);
     }
