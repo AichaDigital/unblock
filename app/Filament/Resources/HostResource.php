@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Enums\PanelType;
+use App\Filament\Forms\Components\SshKeyGeneratorField;
 use App\Filament\Resources\HostResource\Pages\{CreateHost, EditHost, ListHosts};
 use App\Filament\Resources\HostResource\{Pages, RelationManagers};
 use App\Models\Host;
@@ -64,6 +65,8 @@ class HostResource extends Resource
 
                 \Filament\Schemas\Components\Fieldset::make(__('hosts.ssh_keys.title'))
                     ->schema([
+                        SshKeyGeneratorField::make('ssh_key_generator')
+                            ->hiddenOn('edit'), // Solo mostrar en create
                         Textarea::make('hash')
                             ->label(__('hosts.ssh_keys.private_key'))
                             ->rows(5)
