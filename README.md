@@ -78,18 +78,21 @@ php artisan migrate --seed
 ### 5. Create Admin User
 
 ```bash
-php artisan tinker
+# Interactive mode (recommended)
+php artisan user:create --admin
+
+# Non-interactive mode
+php artisan user:create --admin \
+    --email="admin@yourcompany.com" \
+    --first-name="Admin" \
+    --last-name="System" \
+    --password="YourSecurePassword123!"
+
+# Development mode (simple passwords allowed)
+php artisan user:create --admin --no-secure
 ```
 
-```php
-App\Models\User::create([
-    'first_name' => 'Admin',
-    'last_name' => 'System',
-    'email' => 'admin@yourcompany.com',
-    'password' => bcrypt('your-secure-password'),
-    'is_admin' => true,
-]);
-```
+**Note:** The `user:create` command handles all custom fields and validations specific to our User model. Do not use `tinker` or `make:filament-user` as they don't account for the table structure.
 
 ### 6. Start Development Server
 

@@ -123,4 +123,30 @@ return [
 
     'system_route_prefix' => 'filament',
 
+    /*
+    |--------------------------------------------------------------------------
+    | Admin Panel Access Whitelist
+    |--------------------------------------------------------------------------
+    |
+    | Control which admin users can access the Filament panel based on their
+    | email address. Users must have is_admin = true AND be in the whitelist.
+    |
+    | If both arrays are empty, all admin users can access the panel.
+    | If either array has values, only matching admins can access.
+    |
+    | Examples:
+    | - emails: ['admin@company.com', 'support@company.com']
+    | - domains: ['company.com', 'holding.com']
+    |
+    */
+
+    'admin_whitelist' => [
+        'emails' => array_filter(
+            explode(',', env('FILAMENT_ADMIN_WHITELIST_EMAILS', ''))
+        ),
+        'domains' => array_filter(
+            explode(',', env('FILAMENT_ADMIN_WHITELIST_DOMAINS', ''))
+        ),
+    ],
+
 ];
