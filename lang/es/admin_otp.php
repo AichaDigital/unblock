@@ -14,8 +14,6 @@ return [
     'resend_wait' => 'Espera para reenviar',
     'cancel_button' => 'Cancelar y Cerrar Sesión',
 
-    'or' => 'o',
-
     // Messages
     'otp_sent' => 'Código de verificación enviado a tu email',
     'otp_resent' => 'Código reenviado correctamente',

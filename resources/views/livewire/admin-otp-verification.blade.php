@@ -77,8 +77,6 @@
                     </div>
                 </form>
 
-                <div class="divider">{{ __('admin_otp.or') }}</div>
-
                 {{-- Resend Button --}}
                 <button
                     wire:click="resend"

@@ -14,8 +14,6 @@ return [
     'resend_wait' => 'Wait to resend',
     'cancel_button' => 'Cancel and Logout',
 
-    'or' => 'or',
-
     // Messages
     'otp_sent' => 'Verification code sent to your email',
     'otp_resent' => 'Code resent successfully',

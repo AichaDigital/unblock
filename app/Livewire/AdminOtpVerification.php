@@ -34,14 +34,28 @@ class AdminOtpVerification extends Component
      */
     public function mount(): void
     {
+        // CRITICAL: Verify user is actually authenticated
+        if (! Auth::check()) {
+            session()->flush();
+            $this->redirect(route('filament.admin.auth.login'));
+
+            return;
+        }
+
         // Redirect if already verified
         if ($this->isOtpVerified()) {
             $this->redirect(route('filament.admin.pages.dashboard'));
+
+            return;
         }
 
         // Redirect if no pending OTP
         if (! session()->has('admin_otp_pending_user_id')) {
+            session()->flush();
+            Auth::logout();
             $this->redirect(route('filament.admin.auth.login'));
+
+            return;
         }
 
         // Check if OTP was just sent
@@ -139,8 +153,8 @@ class AdminOtpVerification extends Component
             $this->message = __('admin_otp.verification_success');
             $this->messageType = 'success';
 
-            // Redirect to admin dashboard
-            $this->redirect(route('filament.admin.pages.dashboard'), navigate: true);
+            // Redirect to admin dashboard (force full page reload to reset Alpine/Livewire state)
+            $this->redirect(route('filament.admin.pages.dashboard'), navigate: false);
 
         } catch (\Exception $e) {
             $this->message = __('admin_otp.verification_error');
