@@ -207,13 +207,13 @@ class TestHostConnectionCommand extends Command
         }
 
         $sshCmd = sprintf(
-            'ssh -i %s -p %d -o StrictHostKeyChecking=no -o ConnectTimeout=10 root@%s "csf -v" 2>&1',
+            'ssh -i %s -p %d -o StrictHostKeyChecking=no -o ConnectTimeout=10 root@%s whoami 2>&1',
             escapeshellarg($keyFile),
             $host->port_ssh ?? 22,
             escapeshellarg($host->fqdn)
         );
 
-        info("Ejecutando: ssh -i [key] -p {$host->port_ssh} root@{$host->fqdn} \"csf -v\"");
+        info("Ejecutando: ssh -i [key] -p {$host->port_ssh} root@{$host->fqdn} whoami");
 
         $output = [];
         $returnCode = 0;
@@ -221,10 +221,9 @@ class TestHostConnectionCommand extends Command
 
         $result = implode("\n", $output);
 
-        if ($returnCode === 0 && str_contains($result, 'csf')) {
+        if ($returnCode === 0 && trim($result) === 'root') {
             info('✅ CONEXIÓN SSH EXITOSA');
-            $this->line('Versión CSF detectada:');
-            $this->line($result);
+            $this->line('Usuario remoto: '.trim($result));
         } else {
             error('❌ CONEXIÓN SSH FALLÓ');
             $this->line('Código de salida: '.$returnCode);
@@ -243,7 +242,8 @@ class TestHostConnectionCommand extends Command
             }
             if (str_contains($result, 'Command not allowed')) {
                 warning('🔒 Comando no permitido por unblock-wrapper.sh');
-                warning('ℹ️  El wrapper solo permite comandos CSF específicos');
+                warning('ℹ️  Asegúrate de que el wrapper incluye "whoami" en los comandos permitidos');
+                warning('📖 Ver: docs/ssh-keys-setup.md para el wrapper script correcto');
             }
         }
 
