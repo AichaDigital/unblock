@@ -20,6 +20,29 @@ return [
 
     // Help System
     'help' => [
+        'need_help' => 'Need help?',
+        'domain_explanation' => [
+            'title' => 'What is a domain?',
+            'description' => 'A domain is the name of your website (e.g., mycompany.com)',
+            'examples' => 'Examples: yourdomain.com, blog.example.es',
+            'note' => 'Select the domain where you have the access problem',
+        ],
+        'server_explanation' => [
+            'title' => 'What is a server?',
+            'description' => 'A server is the machine where your websites are hosted',
+            'examples' => 'Examples: server1.hosting.com, vps-madrid-01',
+            'note' => 'Select the server if you manage multiple domains on it',
+        ],
+        'ip_explanation' => [
+            'title' => 'What IP address should I use?',
+            'description' => 'The IP is the address from which you are trying to access your site',
+            'what_is_ip' => 'What is an IP address?',
+            'why_default' => 'By default we show your current IP, which is where you are browsing from now',
+            'current_ip' => 'Your current IP: From this device and network',
+            'problem_ip' => 'Problem IP: If the block is from another location, change it',
+            'example' => 'Example: If you work from home but the block is at the office, use the office IP',
+            'note' => '⚠️ Important: Use the IP from where you CANNOT access, not from where it DOES work',
+        ],
         'ip_detection' => [
             'title' => 'How to know my IP address?',
             'current_device' => 'Automatic: We already detected your current IP',
@@ -27,6 +50,7 @@ return [
             'common_issues' => 'If you use VPN or proxy, the IP may change',
             'use_detected' => 'Use detected IP: {ip}',
         ],
+        'more_info_wiki' => 'More information in the documentation',
     ],
 
     'bfm' => [
@@ -296,10 +320,5 @@ return [
         'description' => 'You can send a copy of the report to another user in your account',
         'search_placeholder' => 'Search user by name or email...',
         'no_users_found' => 'No users found',
-    ],
-
-    // Help
-    'help' => [
-        'more_info_wiki' => 'More information in the documentation',
     ],
 ];
