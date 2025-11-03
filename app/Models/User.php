@@ -99,10 +99,50 @@ class User extends Authenticatable implements FilamentUser
 
     /**
      * Determine if the user can access the given Filament panel.
+     *
+     * Access is granted if:
+     * 1. User is an admin (is_admin = true)
+     * 2. AND user's email is in the whitelist (if configured)
+     *
+     * Whitelist can be configured in .env:
+     * - FILAMENT_ADMIN_WHITELIST_EMAILS: Comma-separated list of full emails
+     * - FILAMENT_ADMIN_WHITELIST_DOMAINS: Comma-separated list of domains
+     *
+     * Example:
+     * FILAMENT_ADMIN_WHITELIST_EMAILS="admin@company.com,support@company.com"
+     * FILAMENT_ADMIN_WHITELIST_DOMAINS="company.com,holding.com"
      */
     public function canAccessPanel(Panel $panel): bool
     {
-        return $this->is_admin;
+        // Must be admin first
+        if (! $this->is_admin) {
+            return false;
+        }
+
+        // Get whitelist configuration
+        $whitelistEmails = config('filament.admin_whitelist.emails', []);
+        $whitelistDomains = config('filament.admin_whitelist.domains', []);
+
+        // If no whitelist is configured, allow all admins
+        if (empty($whitelistEmails) && empty($whitelistDomains)) {
+            return true;
+        }
+
+        // Check if email is in whitelist
+        if (! empty($whitelistEmails) && in_array($this->email, $whitelistEmails)) {
+            return true;
+        }
+
+        // Check if email domain is in whitelist
+        if (! empty($whitelistDomains)) {
+            $emailDomain = substr(strrchr($this->email, '@'), 1);
+            if (in_array($emailDomain, $whitelistDomains)) {
+                return true;
+            }
+        }
+
+        // Admin but not in whitelist
+        return false;
     }
 
     /**
