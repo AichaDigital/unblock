@@ -4,63 +4,31 @@ declare(strict_types=1);
 
 namespace App\Filament\Forms\Components;
 
-use App\Services\SshKeyGenerator;
-use Filament\Forms\Components\Actions\Action;
-use Filament\Forms\Components\{Component};
-use Filament\Forms\{Get, Set};
-use Filament\Notifications\Notification;
+use Filament\Forms\Components\Placeholder;
+use Illuminate\Support\HtmlString;
 
-class SshKeyGeneratorField extends Component
+class SshKeyGeneratorField extends Placeholder
 {
-    protected string $view = 'filament.forms.components.ssh-key-generator';
-
-    public static function make(string $name = 'ssh_key_generator'): static
+    public static function make(?string $name = 'ssh_key_generator'): static
     {
-        return app(static::class, ['name' => $name]);
-    }
-
-    public function generateAction(): Action
-    {
-        return Action::make('generate')
-            ->label(__('hosts.ssh_keys.generate'))
-            ->icon('heroicon-o-key')
-            ->color('primary')
-            ->requiresConfirmation()
-            ->modalHeading(__('hosts.ssh_keys.generate_confirm_title'))
-            ->modalDescription(__('hosts.ssh_keys.generate_confirm_description'))
-            ->modalSubmitActionLabel(__('hosts.ssh_keys.generate_confirm'))
-            ->action(function (Set $set, Get $get) {
-                try {
-                    $fqdn = $get('fqdn');
-
-                    if (! $fqdn) {
-                        Notification::make()
-                            ->title(__('hosts.ssh_keys.fqdn_required'))
-                            ->danger()
-                            ->send();
-
-                        return;
-                    }
-
-                    $generator = app(SshKeyGenerator::class);
-                    $keys = $generator->generateForFqdn($fqdn);
-
-                    $set('hash', $keys['private']);
-                    $set('hash_public', $keys['public']);
-
-                    Notification::make()
-                        ->title(__('hosts.ssh_keys.generated_success'))
-                        ->body(__('hosts.ssh_keys.generated_success_body'))
-                        ->success()
-                        ->send();
-
-                } catch (\Exception $e) {
-                    Notification::make()
-                        ->title(__('hosts.ssh_keys.generation_failed'))
-                        ->body($e->getMessage())
-                        ->danger()
-                        ->send();
-                }
-            });
+        return parent::make($name)
+            ->label(__('hosts.ssh_keys.generation_notice_title'))
+            ->content(fn () => new HtmlString('
+                <div class="fi-fo-placeholder-content text-sm text-gray-600 dark:text-gray-400">
+                    <div class="flex items-start gap-3 rounded-lg border border-info-600 bg-info-50 p-4 dark:border-info-400 dark:bg-info-950">
+                        <svg class="h-5 w-5 text-info-600 dark:text-info-400 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <div class="flex-1">
+                            <p class="font-medium text-info-900 dark:text-info-100">
+                                '.__('hosts.ssh_keys.generation_notice_title').'
+                            </p>
+                            <p class="mt-1 text-info-700 dark:text-info-300">
+                                '.__('hosts.ssh_keys.generation_notice_body').'
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            '));
     }
 }

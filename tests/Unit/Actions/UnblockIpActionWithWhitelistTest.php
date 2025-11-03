@@ -132,3 +132,111 @@ test('unblock action for DirectAdmin skips BFM removal if IP not in blacklist', 
 
     expect($result['success'])->toBeTrue();
 });
+
+test('unblock action handles BFM failure gracefully without failing whole operation', function () {
+    /** @var FirewallService&MockInterface */
+    $firewallService = mock(FirewallService::class);
+
+    // CSF operations succeed
+    $firewallService->shouldReceive('checkProblems')
+        ->with(\Mockery::type(Host::class), 'test-key-da', 'unblock', '10.11.12.13')
+        ->andReturn('IP removed');
+
+    $firewallService->shouldReceive('checkProblems')
+        ->with(\Mockery::type(Host::class), 'test-key-da', 'whitelist_simple', '10.11.12.13')
+        ->andReturn('Whitelist added');
+
+    // BFM check throws exception
+    $firewallService->shouldReceive('checkProblems')
+        ->once()
+        ->with(\Mockery::type(Host::class), 'test-key-da', 'da_bfm_check', '10.11.12.13')
+        ->andThrow(new \Exception('BFM service unavailable'));
+
+    $action = new UnblockIpAction($firewallService);
+    $result = $action->handle('10.11.12.13', $this->hostDa->id, 'test-key-da');
+
+    // Operation should still succeed even though BFM failed
+    expect($result['success'])->toBeTrue();
+    expect($result['message'])->toBe(__('messages.firewall.ip_unblocked'));
+});
+
+test('unblock action respects custom TTL from config', function () {
+    // Arrange - Set custom TTL
+    config()->set('unblock.simple_mode.whitelist_ttl', 7200); // 2 hours
+
+    /** @var FirewallService&MockInterface */
+    $firewallService = mock(FirewallService::class);
+
+    // Mock all CSF operations
+    $firewallService->shouldReceive('checkProblems')
+        ->with(\Mockery::type(Host::class), 'test-key-da', 'unblock', '11.12.13.14')
+        ->andReturn('IP removed');
+
+    $firewallService->shouldReceive('checkProblems')
+        ->with(\Mockery::type(Host::class), 'test-key-da', 'whitelist_simple', '11.12.13.14')
+        ->andReturn('Whitelist added');
+
+    // Mock BFM operations
+    $firewallService->shouldReceive('checkProblems')
+        ->with(\Mockery::type(Host::class), 'test-key-da', 'da_bfm_check', '11.12.13.14')
+        ->andReturn('11.12.13.14');
+
+    $firewallService->shouldReceive('checkProblems')
+        ->with(\Mockery::type(Host::class), 'test-key-da', 'da_bfm_remove', '11.12.13.14')
+        ->andReturn('Removed');
+
+    $firewallService->shouldReceive('checkProblems')
+        ->with(\Mockery::type(Host::class), 'test-key-da', 'da_bfm_whitelist_add', '11.12.13.14')
+        ->andReturn('Added');
+
+    // Act
+    $action = new UnblockIpAction($firewallService);
+    $result = $action->handle('11.12.13.14', $this->hostDa->id, 'test-key-da');
+
+    // Assert
+    expect($result['success'])->toBeTrue();
+
+    // Verify TTL was applied correctly
+    $entry = BfmWhitelistEntry::where('ip_address', '11.12.13.14')->first();
+    expect($entry)->not->toBeNull();
+
+    $expectedExpiration = now()->addSeconds(7200);
+    $actualExpiration = $entry->expires_at;
+
+    // Allow 2 seconds tolerance for test execution time
+    expect($actualExpiration->diffInSeconds($expectedExpiration, false))->toBeLessThanOrEqual(2);
+});
+
+test('unblock action for cpanel does not attempt BFM operations', function () {
+    /** @var FirewallService&MockInterface */
+    $firewallService = mock(FirewallService::class);
+
+    // CSF operations
+    $firewallService->shouldReceive('checkProblems')
+        ->once()
+        ->with(\Mockery::type(Host::class), 'test-key', 'unblock', '12.13.14.15')
+        ->andReturn('IP removed');
+
+    $firewallService->shouldReceive('checkProblems')
+        ->once()
+        ->with(\Mockery::type(Host::class), 'test-key', 'whitelist_simple', '12.13.14.15')
+        ->andReturn('Whitelist added');
+
+    // Should NOT receive any BFM-related calls
+    $firewallService->shouldNotReceive('checkProblems')
+        ->with(\Mockery::any(), \Mockery::any(), 'da_bfm_check', \Mockery::any());
+
+    $firewallService->shouldNotReceive('checkProblems')
+        ->with(\Mockery::any(), \Mockery::any(), 'da_bfm_remove', \Mockery::any());
+
+    $firewallService->shouldNotReceive('checkProblems')
+        ->with(\Mockery::any(), \Mockery::any(), 'da_bfm_whitelist_add', \Mockery::any());
+
+    $action = new UnblockIpAction($firewallService);
+    $result = $action->handle('12.13.14.15', $this->host->id, 'test-key');
+
+    expect($result['success'])->toBeTrue();
+
+    // Verify no BFM whitelist entry was created
+    expect(BfmWhitelistEntry::where('ip_address', '12.13.14.15')->count())->toBe(0);
+});

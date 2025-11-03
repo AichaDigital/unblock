@@ -179,9 +179,7 @@ test('sends notification to requesting user, configured admin and copy user', fu
         'is_admin' => false,
     ]);
 
-    $host = Host::factory()->create([
-        'fqdn' => 'test.example.com',
-    ]);
+    $host = Host::factory()->create(['fqdn' => 'test.example.com']);
 
     $report = Report::factory()->create([
         'user_id' => $user->id,
@@ -191,7 +189,7 @@ test('sends notification to requesting user, configured admin and copy user', fu
         'analysis' => ['was_blocked' => true],
     ]);
 
-    // Act - execute job directly to test internal logic
+    // Act
     $job = new SendReportNotificationJob($report->id, $copyUser->id);
     $job->handle();
 
@@ -209,6 +207,121 @@ test('sends notification to requesting user, configured admin and copy user', fu
     });
 
     // Verify three emails were queued
+    Mail::assertQueuedCount(3);
+});
+
+test('does not send duplicate emails when users overlap', function () {
+    // Arrange - User IS the admin
+    $user = User::factory()->create([
+        'email' => 'admin@example.com',
+        'is_admin' => true,
+    ]);
+
+    Config::set('unblock.admin_email', null); // Use database admin
+
+    $host = Host::factory()->create();
+
+    $report = Report::factory()->create([
+        'user_id' => $user->id,
+        'host_id' => $host->id,
+        'ip' => '5.6.7.8',
+        'logs' => ['csf' => 'test'],
+        'analysis' => ['was_blocked' => false],
+    ]);
+
+    // Act
+    $job = new SendReportNotificationJob($report->id);
+    $job->handle();
+
+    // Assert - Only ONE email should be sent
+    Mail::assertQueued(LogNotificationMail::class, function ($mail) use ($user) {
+        return $mail->hasTo($user->email);
+    });
+
+    Mail::assertQueuedCount(1); // No duplicate
+});
+
+test('does not send to copy user if it is the same as requesting user', function () {
+    // Arrange
+    $user = User::factory()->create(['email' => 'user@example.com']);
+    $host = Host::factory()->create();
+
+    Config::set('unblock.admin_email', null);
+
+    $report = Report::factory()->create([
+        'user_id' => $user->id,
+        'host_id' => $host->id,
+        'ip' => '6.7.8.9',
+        'logs' => ['test' => 'data'],
+        'analysis' => ['was_blocked' => true],
+    ]);
+
+    // Act - copyUserId is the same as user_id
+    $job = new SendReportNotificationJob($report->id, $user->id);
+    $job->handle();
+
+    // Assert - Only ONE email sent
+    Mail::assertQueuedCount(1);
+});
+
+test('handles non-existent copy user gracefully', function () {
+    // Arrange
+    $user = User::factory()->create(['email' => 'user@example.com']);
+    $host = Host::factory()->create();
+
+    Config::set('unblock.admin_email', null);
+
+    $report = Report::factory()->create([
+        'user_id' => $user->id,
+        'host_id' => $host->id,
+        'ip' => '8.9.10.11',
+    ]);
+
+    // Act
+    $job = new SendReportNotificationJob($report->id, 999999); // Non-existent
+    $job->handle();
+
+    // Assert - Only user email sent
+    Mail::assertQueuedCount(1);
+});
+
+test('determines was_blocked correctly from analysis', function () {
+    // Arrange
+    $user = User::factory()->create();
+    $host = Host::factory()->create();
+
+    Config::set('unblock.admin_email', null);
+
+    // Test with was_blocked = true
+    $reportBlocked = Report::factory()->create([
+        'user_id' => $user->id,
+        'host_id' => $host->id,
+        'ip' => '9.10.11.12',
+        'analysis' => ['was_blocked' => true],
+    ]);
+
+    // Test with was_blocked = false
+    $reportNotBlocked = Report::factory()->create([
+        'user_id' => $user->id,
+        'host_id' => $host->id,
+        'ip' => '10.11.12.13',
+        'analysis' => ['was_blocked' => false],
+    ]);
+
+    // Test with no analysis
+    $reportNoAnalysis = Report::factory()->create([
+        'user_id' => $user->id,
+        'host_id' => $host->id,
+        'ip' => '11.12.13.14',
+        'analysis' => null,
+    ]);
+
+    // Act
+    (new SendReportNotificationJob($reportBlocked->id))->handle();
+    (new SendReportNotificationJob($reportNotBlocked->id))->handle();
+    (new SendReportNotificationJob($reportNoAnalysis->id))->handle();
+
+    // Assert - All jobs complete successfully
     Mail::assertQueuedCount(3);
 });
 
