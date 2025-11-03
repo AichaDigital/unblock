@@ -289,6 +289,15 @@ return [
         ],
     ],
 
+    // Copy Report
+    'copy_report' => [
+        'title' => 'Send report copy',
+        'optional' => '(optional)',
+        'description' => 'You can send a copy of the report to another user in your account',
+        'search_placeholder' => 'Search user by name or email...',
+        'no_users_found' => 'No users found',
+    ],
+
     // Help
     'help' => [
         'more_info_wiki' => 'More information in the documentation',

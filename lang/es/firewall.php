@@ -357,6 +357,15 @@ return [
         ],
     ],
 
+    // Copy Report
+    'copy_report' => [
+        'title' => 'Enviar copia del informe',
+        'optional' => '(opcional)',
+        'description' => 'Puedes enviar una copia del informe a otro usuario de tu cuenta',
+        'search_placeholder' => 'Buscar usuario por nombre o email...',
+        'no_users_found' => 'No se encontraron usuarios',
+    ],
+
     // Help
     'help' => [
         'more_info_wiki' => 'Más información en la documentación',
