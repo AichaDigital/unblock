@@ -12,6 +12,11 @@ test('admin can access user edit page', function () {
     // Act - Access the edit page as admin
     $this->actingAs($admin);
 
+    // Simulate OTP verification session
+    session()->put('admin_otp_verified', true);
+    session()->put('admin_otp_user_id', $admin->id);
+    session()->put('admin_otp_verified_at', now()->timestamp);
+
     $response = $this->get('/admin/users/'.$parentUser->id.'/edit');
 
     // Assert - Page should load successfully
@@ -35,6 +40,11 @@ test('parent user can assign hosting permissions to authorized users', function 
 
     // Act - Create the permission (simulating what would happen through the command)
     $this->actingAs($admin);
+
+    // Simulate OTP verification session
+    session()->put('admin_otp_verified', true);
+    session()->put('admin_otp_user_id', $admin->id);
+    session()->put('admin_otp_verified_at', now()->timestamp);
 
     $permission = UserHostingPermission::create([
         'user_id' => $authorizedUser->id,
@@ -63,6 +73,11 @@ test('parent user can assign host permissions to authorized users', function () 
 
     // Act - Create the permission (simulating what would happen through the command)
     $this->actingAs($admin);
+
+    // Simulate OTP verification session
+    session()->put('admin_otp_verified', true);
+    session()->put('admin_otp_user_id', $admin->id);
+    session()->put('admin_otp_verified_at', now()->timestamp);
 
     $authorizedUser->hosts()->attach($host->id, ['is_active' => true]);
 
@@ -122,6 +137,7 @@ test('unauthorized users cannot access admin panel', function () {
     $this->actingAs($regularUser);
 
     // This should fail because regular users can't access Filament admin panel
+    // The OTP middleware will pass (since user is not admin), but VerifyIsAdminMiddleware will block
     $response = $this->get('/admin/users/'.$parentUser->id.'/edit');
     $response->assertStatus(403); // Forbidden
 });

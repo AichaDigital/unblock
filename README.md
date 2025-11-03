@@ -235,8 +235,9 @@ php artisan test --parallel
 - **WHMCS**: Create read-only MySQL user for WHMCS integration
 - **Session Timeout**: 4-hour inactivity timeout
 - **OTP Authentication**: Time-based OTP for client access
+- **Admin 2FA**: Email-based OTP two-factor authentication for admin panel (configurable)
 
-See [SECURITY.md](SECURITY.md) for security best practices.
+See [SECURITY.md](SECURITY.md) for security best practices and [docs/admin-otp-flow.md](docs/admin-otp-flow.md) for admin 2FA configuration.
 
 ## 🌍 Internationalization
 
