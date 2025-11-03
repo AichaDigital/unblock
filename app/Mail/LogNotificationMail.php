@@ -19,7 +19,10 @@ class LogNotificationMail extends Mailable implements ShouldQueue
         public readonly string $ip,
         public readonly bool $is_unblock,
         public readonly string $report_uuid,
-    ) {}
+    ) {
+        // Set locale for email rendering
+        app()->setLocale($user->locale ?? config('app.locale'));
+    }
 
     public function envelope(): Envelope
     {

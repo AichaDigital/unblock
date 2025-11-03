@@ -81,7 +81,10 @@
                     @php
                         // Normalize the key (remove prefixes like DA_, etc)
                         $normalizedKey = strtolower(str_replace(['da_', 'DA_'], '', $logType));
-                        $logDescription = __('firewall.logs.descriptions.' . $normalizedKey, [], null);
+                        $translationKey = 'firewall.logs.descriptions.' . $normalizedKey;
+                        
+                        // Get translation as array if exists, null otherwise
+                        $logDescription = trans()->has($translationKey) ? __($translationKey) : null;
                     @endphp
                     <div style="margin-bottom: 20px; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;">
                         <div style="background-color: #f1f5f9; padding: 10px; border-bottom: 1px solid #e2e8f0;">
