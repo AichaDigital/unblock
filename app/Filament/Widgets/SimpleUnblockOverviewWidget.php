@@ -230,7 +230,8 @@ class SimpleUnblockOverviewWidget extends BaseWidget
             ->selectRaw('SUM(total_requests) as total, SUM(verified_requests) as verified')
             ->first();
 
-        if (! $stats || $stats->total === 0) {
+        // Handle null or zero cases to prevent division by zero
+        if (! $stats || ! $stats->total || $stats->total <= 0) {
             return 0.0;
         }
 
@@ -264,7 +265,8 @@ class SimpleUnblockOverviewWidget extends BaseWidget
                 ->selectRaw('SUM(total_requests) as total, SUM(verified_requests) as verified')
                 ->first();
 
-            if ($stats && $stats->total > 0) {
+            // Handle null or zero cases to prevent division by zero
+            if ($stats && $stats->total && $stats->total > 0) {
                 $rate = ($stats->verified / $stats->total) * 100;
                 $data[] = (int) $rate;
             } else {
