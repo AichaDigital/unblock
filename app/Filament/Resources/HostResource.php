@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Enums\PanelType;
+use App\Filament\Forms\Components\SshKeyGeneratorField;
 use App\Filament\Resources\HostResource\Pages\{CreateHost, EditHost, ListHosts};
 use App\Filament\Resources\HostResource\{Pages, RelationManagers};
 use App\Models\Host;
@@ -26,22 +27,21 @@ class HostResource extends Resource
     {
         return $schema
             ->components([
-                TextInput::make('whmcs_server_id')
-                    ->label('WHMCS Server ID')
-                    ->nullable(),
-                TextInput::make('fqdn')
-                    ->label('FQDN')
-                    ->required()
-                    ->unique(ignoreRecord: true),
-                TextInput::make('alias')
-                    ->required()
-                    ->unique(ignoreRecord: true),
-                Toggle::make('hosting_manual')
-                    ->label('Manual')
-                    ->default(false),
-
                 \Filament\Schemas\Components\Fieldset::make('Acceso')
                     ->schema([
+                        TextInput::make('whmcs_server_id')
+                            ->label('WHMCS Server ID')
+                            ->nullable(),
+                        TextInput::make('fqdn')
+                            ->label('FQDN')
+                            ->required()
+                            ->unique(ignoreRecord: true),
+                        TextInput::make('alias')
+                            ->required()
+                            ->unique(ignoreRecord: true),
+                        Toggle::make('hosting_manual')
+                            ->label('Manual')
+                            ->default(false),
                         TextInput::make('ip')
                             ->label('IP')
                             ->required()
@@ -64,6 +64,9 @@ class HostResource extends Resource
 
                 \Filament\Schemas\Components\Fieldset::make(__('hosts.ssh_keys.title'))
                     ->schema([
+                        SshKeyGeneratorField::make('ssh_key_generator')
+                            ->hiddenOn('edit')
+                            ->columnSpanFull(),
                         Textarea::make('hash')
                             ->label(__('hosts.ssh_keys.private_key'))
                             ->rows(5)
@@ -76,7 +79,7 @@ class HostResource extends Resource
                             ->placeholder('ssh-ed25519 AAAA...'),
                     ])
                     ->columns(1),
-            ])->columns(3);
+            ])->columns(2);
     }
 
     public static function table(Table $table): Table

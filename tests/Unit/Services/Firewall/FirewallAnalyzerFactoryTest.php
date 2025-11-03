@@ -105,3 +105,15 @@ test('factory maintains analyzer instances separately', function () {
         ->and($analyzerCP1)->toBeInstanceOf(CpanelFirewallAnalyzer::class)
         ->and($analyzerDA2)->toBeInstanceOf(DirectAdminFirewallAnalyzer::class);
 });
+
+test('throws exception for panel type none', function () {
+    // Arrange
+    $host = Host::factory()->create([
+        'panel' => 'none',
+        'fqdn' => 'test-none.example.com',
+    ]);
+
+    // Act & Assert
+    expect(fn () => $this->factory->createForHost($host))
+        ->toThrow(InvalidArgumentException::class, 'No analyzer available for panel type: none');
+});

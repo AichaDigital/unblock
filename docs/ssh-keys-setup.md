@@ -74,7 +74,7 @@ logger -t unblock-ssh "Command: $SSH_ORIGINAL_COMMAND from $SSH_CLIENT"
 
 case "$SSH_ORIGINAL_COMMAND" in
     # CSF Commands
-    "csf -g "*|"csf -t")
+    "csf -g "*|"csf -t"|"csf -v")
         $SSH_ORIGINAL_COMMAND
         ;;
     "csf -dr "*)
@@ -83,21 +83,32 @@ case "$SSH_ORIGINAL_COMMAND" in
     "csf -tr "*)
         $SSH_ORIGINAL_COMMAND
         ;;
+    "csf -ta "*)
+        $SSH_ORIGINAL_COMMAND
+        ;;
     "csf -tf")
         $SSH_ORIGINAL_COMMAND
         ;;
     
-    # DirectAdmin BFM
-    "/usr/local/directadmin/plugins/brute_force_monitor/scripts/blacklist.sh check "*)
+    # DirectAdmin BFM - Direct file access
+    "cat /usr/local/directadmin/data/admin/ip_blacklist"*)
         $SSH_ORIGINAL_COMMAND
         ;;
-    "/usr/local/directadmin/plugins/brute_force_monitor/scripts/blacklist.sh remove "*)
+    "sed -i "*/usr/local/directadmin/data/admin/ip_blacklist)
+        $SSH_ORIGINAL_COMMAND
+        ;;
+    "echo "*" >> /usr/local/directadmin/data/admin/ip_whitelist")
+        $SSH_ORIGINAL_COMMAND
+        ;;
+    
+    # Diagnostic commands
+    "whoami")
         $SSH_ORIGINAL_COMMAND
         ;;
     
     # Log Reading (read-only)
     "grep "*)
-        if [[ "$SSH_ORIGINAL_COMMAND" =~ /var/log/(exim|dovecot|messages|secure|maillog|modsec_audit) ]]; then
+        if [[ "$SSH_ORIGINAL_COMMAND" =~ /var/log/(exim|dovecot|messages|secure|maillog|modsec_audit|nginx) ]]; then
             $SSH_ORIGINAL_COMMAND
         else
             echo "ERROR: Log file not allowed"
@@ -105,18 +116,18 @@ case "$SSH_ORIGINAL_COMMAND" in
         fi
         ;;
     
-    "cat /var/log/"*)
-        if [[ "$SSH_ORIGINAL_COMMAND" =~ /var/log/(exim|dovecot|messages|secure|maillog|modsec_audit) ]]; then
+    "cat "*)
+        if [[ "$SSH_ORIGINAL_COMMAND" =~ (/var/log/|/etc/csf/csf\.deny|/var/lib/csf/csf\.tempip|/usr/local/directadmin/data/admin/ip_) ]]; then
             $SSH_ORIGINAL_COMMAND
         else
-            echo "ERROR: Log file not allowed"
+            echo "ERROR: File access not allowed"
             exit 1
         fi
         ;;
     
     # Tail for real-time monitoring
     "tail "*)
-        if [[ "$SSH_ORIGINAL_COMMAND" =~ /var/log/(exim|dovecot|messages|secure|maillog|modsec_audit) ]]; then
+        if [[ "$SSH_ORIGINAL_COMMAND" =~ /var/log/(exim|dovecot|messages|secure|maillog|modsec_audit|nginx) ]]; then
             $SSH_ORIGINAL_COMMAND
         else
             echo "ERROR: Log file not allowed"

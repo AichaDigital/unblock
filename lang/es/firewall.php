@@ -75,6 +75,7 @@ return [
             'common_issues' => 'Si usas VPN o proxy, la IP puede cambiar',
             'use_detected' => 'Usar IP detectada: {ip}',
         ],
+        'more_info_wiki' => 'Más información en la documentación',
     ],
 
     // Validation
@@ -357,8 +358,12 @@ return [
         ],
     ],
 
-    // Help
-    'help' => [
-        'more_info_wiki' => 'Más información en la documentación',
+    // Copy Report
+    'copy_report' => [
+        'title' => 'Enviar copia del informe',
+        'optional' => '(opcional)',
+        'description' => 'Puedes enviar una copia del informe a otro usuario de tu cuenta',
+        'search_placeholder' => 'Buscar usuario por nombre o email...',
+        'no_users_found' => 'No se encontraron usuarios',
     ],
 ];

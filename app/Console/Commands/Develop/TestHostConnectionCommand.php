@@ -46,9 +46,11 @@ class TestHostConnectionCommand extends Command
             return null;
         }
 
-        $options = $hosts->mapWithKeys(fn ($host) => [
-            $host->id => "{$host->fqdn}:{$host->port_ssh} ({$host->panel})",
-        ])->toArray();
+        $options = $hosts->mapWithKeys(function ($host) {
+            $panelValue = $host->panel?->value ?? 'N/A';
+
+            return [$host->id => "{$host->fqdn}:{$host->port_ssh} ({$panelValue})"];
+        })->toArray();
 
         $selectedId = select('Selecciona el host:', $options);
 
@@ -60,7 +62,7 @@ class TestHostConnectionCommand extends Command
         table(['Campo', 'Valor'], [
             ['FQDN', $host->fqdn],
             ['Puerto', $host->port_ssh ?? 22],
-            ['Panel', $host->panel],
+            ['Panel', $host->panel?->value ?? 'N/A'],
             ['Hash Length', strlen($host->hash).' chars'],
         ]);
     }
@@ -237,6 +239,11 @@ class TestHostConnectionCommand extends Command
             }
             if (str_contains($result, 'Connection refused')) {
                 warning('🌐 Conexión rechazada - puerto o host incorrectos');
+            }
+            if (str_contains($result, 'Command not allowed')) {
+                warning('🔒 Comando no permitido por unblock-wrapper.sh');
+                warning('ℹ️  Asegúrate de que el wrapper incluye "whoami" en los comandos permitidos');
+                warning('📖 Ver: docs/ssh-keys-setup.md para el wrapper script correcto');
             }
         }
 
