@@ -134,4 +134,3 @@ test('whitelist works with mixed configuration', function () {
     expect($userInternal->canAccessPanel($this->panel))->toBeTrue();
     expect($userBlocked->canAccessPanel($this->panel))->toBeFalse();
 });
-
