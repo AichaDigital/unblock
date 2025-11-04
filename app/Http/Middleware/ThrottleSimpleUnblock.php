@@ -33,7 +33,7 @@ class ThrottleSimpleUnblock
         // Vector 1: Per IP (3 req/min)
         $exceeded = $this->checkRateLimit(
             key: "simple_unblock:ip:{$ip}",
-            maxAttempts: config('unblock.simple_mode.throttle_per_minute', 3),
+            maxAttempts: (int) config('unblock.simple_mode.throttle_per_minute', 3),
             decaySeconds: 60,
             vectorName: 'IP'
         );
@@ -46,7 +46,7 @@ class ThrottleSimpleUnblock
         $subnet = $this->getSubnet($ip);
         $exceeded = $this->checkRateLimit(
             key: "simple_unblock:subnet:{$subnet}",
-            maxAttempts: config('unblock.simple_mode.throttle_subnet_per_hour', 20),
+            maxAttempts: (int) config('unblock.simple_mode.throttle_subnet_per_hour', 20),
             decaySeconds: 3600,
             vectorName: 'Subnet'
         );
@@ -58,7 +58,7 @@ class ThrottleSimpleUnblock
         // Vector 3: Global (500 req/hour)
         $exceeded = $this->checkRateLimit(
             key: 'simple_unblock:global',
-            maxAttempts: config('unblock.simple_mode.throttle_global_per_hour', 500),
+            maxAttempts: (int) config('unblock.simple_mode.throttle_global_per_hour', 500),
             decaySeconds: 3600,
             vectorName: 'Global'
         );
