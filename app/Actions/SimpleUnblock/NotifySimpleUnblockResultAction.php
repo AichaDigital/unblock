@@ -30,74 +30,31 @@ class NotifySimpleUnblockResultAction
         Host $host,
         ?array $analysisData = null
     ): void {
-        Log::info('Sending notifications for simple unblock', [
+        Log::info('Dispatching notification for simple unblock result.', [
             'decision' => $decision->reason,
-            'notify_user' => $decision->notifyUser,
-            'notify_admin' => $decision->notifyAdmin,
+            'should_unblock' => $decision->shouldUnblock,
             'domain' => $domain,
+            'report_id' => $report?->id,
         ]);
 
-        if ($decision->shouldUnblock) {
-            // Success case: Notify both user and admin
-            $this->notifySuccess($email, $domain, $report);
-        } else {
-            // No match or abort: Notify admin only
-            $this->notifyAdminOnly($email, $domain, $decision->reason, $host, $analysisData);
-        }
-    }
-
-    /**
-     * Notify user and admin about successful unblock
-     */
-    private function notifySuccess(string $email, string $domain, ?Report $report): void
-    {
-        if (! $report) {
-            Log::warning('Cannot send success notification without report');
-
-            return;
-        }
-
+        // Per business rules, always notify both user and admin of the investigation result.
         SendSimpleUnblockNotificationJob::dispatch(
-            reportId: (string) $report->id,
+            reportId: (string) $report?->id,
             email: $email,
             domain: $domain,
-            adminOnly: false
-        );
-
-        Log::info('Success notification dispatched', [
-            'report_id' => $report->id,
-            'email' => $email,
-        ]);
-    }
-
-    /**
-     * Notify admin only (silent from user perspective)
-     */
-    private function notifyAdminOnly(
-        string $email,
-        string $domain,
-        string $reason,
-        Host $host,
-        ?array $analysisData = null
-    ): void {
-        SendSimpleUnblockNotificationJob::dispatch(
-            reportId: null,
-            email: $email,
-            domain: $domain,
-            adminOnly: true,
-            reason: $reason,
+            // The `adminOnly` flag is removed to ensure user is always notified.
+            // The Job will handle sending a copy to the admin.
+            reason: $decision->reason,
             hostFqdn: $host->fqdn,
             analysisData: $analysisData
         );
-
-        Log::info('Admin-only notification dispatched', [
-            'email' => $email,
-            'domain' => $domain,
-            'reason' => $reason,
-        ]);
     }
 
     /**
+     * REVIEW: This handles a pre-check validation failure.
+     * It correctly notifies only the admin of a potential abuse attempt.
+     * This logic is separate from the main investigation flow.
+     *
      * Handle suspicious attempt (domain not in database)
      */
     public function handleSuspiciousAttempt(
@@ -119,7 +76,7 @@ class NotifySimpleUnblockResultAction
             reportId: null,
             email: $email,
             domain: $domain,
-            adminOnly: true,
+            adminOnly: true, // This is a special case for admin-only alerts.
             reason: $reason,
             hostFqdn: $host->fqdn,
             analysisData: [

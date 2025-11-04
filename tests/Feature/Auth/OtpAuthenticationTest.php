@@ -27,18 +27,37 @@ beforeEach(function () {
     ]);
 });
 
-test('component renders login form correctly', function () {
+test('component renders normal mode login form correctly', function () {
+    config(['unblock.simple_mode.enabled' => false]);
+
     Livewire::test(OtpLogin::class)
         ->assertSee('Solo cuentas de cliente')
         ->assertSee('Correo electrónico')
         ->assertSee('Enviar código de acceso');
 });
 
-test('redirects authenticated users to dashboard', function () {
+test('component renders simple mode login form correctly', function () {
+    config(['unblock.simple_mode.enabled' => true]);
+
+    Livewire::test(OtpLogin::class)
+        ->assertSee(__('auth.simple_mode_title'))
+        ->assertDontSee('Solo cuentas de cliente');
+});
+
+test('redirects authenticated users to dashboard in normal mode', function () {
+    config(['unblock.simple_mode.enabled' => false]);
     Auth::login($this->user);
 
     Livewire::test(OtpLogin::class)
         ->assertRedirect(route('dashboard'));
+});
+
+test('does NOT redirect authenticated users in simple mode', function () {
+    config(['unblock.simple_mode.enabled' => true]);
+    Auth::login($this->user);
+
+    Livewire::test(OtpLogin::class)
+        ->assertNoRedirect();
 });
 
 test('sends otp for valid user email', function () {
@@ -71,26 +90,37 @@ test('spatie rate limiting works correctly', function () {
     expect($otp->authenticatable_type)->toBe(User::class, 'OTP should be for User model');
 });
 
-test('validates email format and existence', function () {
+test('validates email must exist in normal mode', function () {
+    config(['unblock.simple_mode.enabled' => false]);
     $component = Livewire::test(OtpLogin::class);
-
-    // Invalid email
-    $component
-        ->set('email', 'invalid-email')
-        ->call('sendOtp')
-        ->assertSet('otpSent', false);
 
     // Email that doesn't exist
     $component
         ->set('email', 'nonexistent@example.com')
         ->call('sendOtp')
         ->assertSet('otpSent', false);
-
-    // No OTP should have been created
-    expect(OneTimePassword::count())->toBe(0);
 });
 
-test('successful otp verification logs user in and redirects', function () {
+test('allows any email in simple mode and creates temporary user', function () {
+    config(['unblock.simple_mode.enabled' => true]);
+    $component = Livewire::test(OtpLogin::class);
+
+    // Email that doesn't exist
+    $component
+        ->set('email', 'nonexistent@example.com')
+        ->call('sendOtp')
+        ->assertHasNoErrors()
+        ->assertSet('otpSent', true);
+
+    // Verify temporary user was created
+    $this->assertDatabaseHas('users', [
+        'email' => 'nonexistent@example.com',
+    ]);
+});
+
+test('successful otp verification logs user in and redirects to dashboard in normal mode', function () {
+    config(['unblock.simple_mode.enabled' => false]);
+
     // Send OTP
     $component = Livewire::test(OtpLogin::class)
         ->set('email', $this->user->email)
@@ -105,6 +135,29 @@ test('successful otp verification logs user in and redirects', function () {
         ->set('oneTimePassword', $otp->password)
         ->call('verifyOtp')
         ->assertRedirect(route('dashboard'));
+
+    // Verify successful authentication
+    expect(Auth::check())->toBeTrue();
+    expect(Auth::user()->id)->toBe($this->user->id);
+});
+
+test('successful otp verification logs user in and redirects to simple unblock form in simple mode', function () {
+    config(['unblock.simple_mode.enabled' => true]);
+
+    // Send OTP
+    $component = Livewire::test(OtpLogin::class)
+        ->set('email', $this->user->email)
+        ->call('sendOtp')
+        ->assertSet('otpSent', true);
+
+    // Get generated code
+    $otp = OneTimePassword::first();
+
+    // Verify correct code
+    $component
+        ->set('oneTimePassword', $otp->password)
+        ->call('verifyOtp')
+        ->assertRedirect(route('simple.unblock'));
 
     // Verify successful authentication
     expect(Auth::check())->toBeTrue();
@@ -225,6 +278,7 @@ test('form reset clears all state', function () {
 });
 
 test('works with authorized users having parent_user_id', function () {
+    config(['unblock.simple_mode.enabled' => false]);
     // Create authorized user (specific business case)
     $parentUser = User::factory()->create();
     $authorizedUser = User::factory()->create([

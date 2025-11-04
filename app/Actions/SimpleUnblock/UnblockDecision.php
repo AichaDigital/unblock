@@ -8,27 +8,34 @@ namespace App\Actions\SimpleUnblock;
  * Unblock Decision DTO
  *
  * Immutable data transfer object representing the decision
- * of whether to unblock an IP or not, and what notifications to send.
+ * of whether to unblock an IP or not.
  */
 readonly class UnblockDecision
 {
     public function __construct(
         public bool $shouldUnblock,
-        public string $reason,
-        public bool $notifyUser,
-        public bool $notifyAdmin
+        public string $reason
     ) {}
 
     /**
-     * Create a decision to unblock and notify both user and admin
+     * Create a decision to unblock
      */
     public static function unblock(string $reason): self
     {
         return new self(
             shouldUnblock: true,
-            reason: $reason,
-            notifyUser: true,
-            notifyAdmin: true
+            reason: $reason
+        );
+    }
+
+    /**
+     * Create a decision to gather data without unblocking (e.g., logs found but no block)
+     */
+    public static function gatherData(string $reason): self
+    {
+        return new self(
+            shouldUnblock: false,
+            reason: $reason
         );
     }
 
@@ -39,22 +46,18 @@ readonly class UnblockDecision
     {
         return new self(
             shouldUnblock: false,
-            reason: $reason,
-            notifyUser: false,
-            notifyAdmin: true
+            reason: $reason
         );
     }
 
     /**
-     * Create a decision to abort (suspicious activity)
+     * Create a decision to abort (e.g., invalid pre-condition)
      */
     public static function abort(string $reason): self
     {
         return new self(
             shouldUnblock: false,
-            reason: $reason,
-            notifyUser: false,
-            notifyAdmin: true
+            reason: $reason
         );
     }
 }

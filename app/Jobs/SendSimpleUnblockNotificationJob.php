@@ -33,10 +33,12 @@ class SendSimpleUnblockNotificationJob implements ShouldQueue
         public readonly ?string $reportId,
         public readonly string $email,
         public readonly string $domain,
-        public readonly bool $adminOnly = false,
         public readonly ?string $reason = null,
         public readonly ?string $hostFqdn = null,
-        public readonly ?array $analysisData = null
+        public readonly ?array $analysisData = null,
+        // This is kept for backward compatibility with handleSuspiciousAttempt,
+        // but the main flow no longer uses it.
+        public readonly bool $adminOnly = false
     ) {}
 
     /**
@@ -44,105 +46,94 @@ class SendSimpleUnblockNotificationJob implements ShouldQueue
      */
     public function handle(): void
     {
-        // Set locale to APP_LOCALE for anonymous users (no authentication context)
+        // Set locale for email translations
         app()->setLocale(config('app.locale'));
 
         try {
+            // Special case for admin-only alerts (e.g., suspicious activity)
             if ($this->adminOnly) {
-                // Silent mode: Only notify admin
-                $this->sendAdminOnlyNotification();
-            } else {
-                // Full match: Notify user + admin
-                $this->sendUserAndAdminNotification();
+                $this->sendAdminAlert();
+
+                return;
             }
-        } catch (Throwable $e) {
-            Log::error('Failed to send simple unblock notifications', [
-                'report_id' => $this->reportId,
+
+            $report = $this->reportId ? Report::find($this->reportId) : null;
+            if (! $report) {
+                Log::warning('Report not found for simple unblock notification, sending admin alert instead.', [
+                    'report_id' => $this->reportId,
+                ]);
+                $this->sendAdminAlert('report_not_found');
+
+                return;
+            }
+
+            // Determine success based on the report's content
+            $isSuccess = $report->was_unblocked;
+
+            Log::info('Sending simple unblock notification to user and admin', [
+                'report_id' => $report->id,
                 'email' => $this->email,
                 'domain' => $this->domain,
-                'admin_only' => $this->adminOnly,
+                'is_success' => $isSuccess,
+            ]);
+
+            // 1. Send to user
+            Mail::to($this->email)->send(
+                new SimpleUnblockNotificationMail(
+                    email: $this->email,
+                    domain: $this->domain,
+                    report: $report,
+                    isSuccess: $isSuccess,
+                    isAdminCopy: false
+                )
+            );
+
+            // 2. Send copy to admin
+            $adminEmail = config('unblock.admin_email');
+            if ($adminEmail && $adminEmail !== $this->email) {
+                Mail::to($adminEmail)->send(
+                    new SimpleUnblockNotificationMail(
+                        email: $this->email,
+                        domain: $this->domain,
+                        report: $report,
+                        isSuccess: $isSuccess,
+                        isAdminCopy: true
+                    )
+                );
+            }
+
+            Log::info('Simple unblock notifications sent successfully', [
+                'report_id' => $report->id,
+            ]);
+
+        } catch (Throwable $e) {
+            Log::error('Failed to send simple unblock notification', [
+                'report_id' => $this->reportId,
+                'email' => $this->email,
                 'error' => $e->getMessage(),
             ]);
 
+            // We rethrow the exception to let the queue handle retries/failures.
             throw $e;
         }
     }
 
     /**
-     * Send notification to both user and admin (full match scenario)
+     * Send notification to admin only (for alerts like suspicious activity)
      */
-    private function sendUserAndAdminNotification(): void
-    {
-        if (! $this->reportId) {
-            Log::warning('Cannot send user notification without report ID');
-
-            return;
-        }
-
-        $report = Report::find($this->reportId);
-        if (! $report) {
-            Log::warning('Report not found for simple unblock notification', [
-                'report_id' => $this->reportId,
-            ]);
-
-            return;
-        }
-
-        Log::info('Sending simple unblock notification to user and admin', [
-            'report_id' => $report->id,
-            'email' => $this->email,
-            'domain' => $this->domain,
-        ]);
-
-        // 1. Send to user
-        Mail::to($this->email)->send(
-            new SimpleUnblockNotificationMail(
-                email: $this->email,
-                domain: $this->domain,
-                report: $report,
-                isSuccess: true,
-                isAdminCopy: false
-            )
-        );
-
-        // 2. Send to admin
-        $adminEmail = config('unblock.admin_email');
-        if ($adminEmail && $adminEmail !== $this->email) {
-            Mail::to($adminEmail)->send(
-                new SimpleUnblockNotificationMail(
-                    email: $this->email,
-                    domain: $this->domain,
-                    report: $report,
-                    isSuccess: true,
-                    isAdminCopy: true
-                )
-            );
-        }
-
-        Log::info('Simple unblock notifications sent successfully', [
-            'report_id' => $report->id,
-            'user_email' => $this->email,
-            'admin_email' => $adminEmail ?? 'none',
-        ]);
-    }
-
-    /**
-     * Send notification to admin only (no match / partial match / failure)
-     */
-    private function sendAdminOnlyNotification(): void
+    private function sendAdminAlert(?string $reason = null): void
     {
         $adminEmail = config('unblock.admin_email');
         if (! $adminEmail) {
-            Log::warning('No admin email configured for simple unblock silent notification');
+            Log::warning('No admin email configured for simple unblock admin alert');
 
             return;
         }
 
-        Log::info('Sending simple unblock silent notification to admin only', [
+        Log::info('Sending simple unblock admin alert', [
             'email' => $this->email,
             'domain' => $this->domain,
-            'reason' => $this->reason,
-            'host_fqdn' => $this->hostFqdn,
+            'reason' => $reason ?? $this->reason,
         ]);
 
         Mail::to($adminEmail)->send(
@@ -152,15 +143,10 @@ class SendSimpleUnblockNotificationJob implements ShouldQueue
                 report: null,
                 isSuccess: false,
                 isAdminCopy: true,
-                reason: $this->reason,
+                reason: $reason ?? $this->reason,
                 hostFqdn: $this->hostFqdn,
                 analysisData: $this->analysisData
             )
         );
-
-        Log::info('Simple unblock silent notification sent to admin', [
-            'admin_email' => $adminEmail,
-            'reason' => $this->reason,
-        ]);
     }
 }

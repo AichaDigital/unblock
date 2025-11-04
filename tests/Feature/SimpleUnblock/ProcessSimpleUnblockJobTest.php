@@ -6,8 +6,10 @@ use App\Jobs\{ProcessSimpleUnblockJob, SendSimpleUnblockNotificationJob};
 use App\Models\{Account, Domain, Host, Report};
 use App\Services\AnonymousUserService;
 use Illuminate\Support\Facades\{Cache, Queue};
+use Mockery\MockInterface;
 
 beforeEach(function () {
+    Cache::flush(); // Must be first to clear locks
     Queue::fake();
 
     // Ensure anonymous user exists
@@ -132,26 +134,25 @@ test('job logs silent attempt on partial match', function () {
     // Full test would require mocking SSH and domain checks
 });
 
-test('job dispatches notification on success', function () {
-    Queue::fake();
+test('job dispatches correct simple mode notification', function () {
+    // Arrange
+    $account = Account::factory()->create(['host_id' => $this->host->id, 'domain' => $this->domain, 'suspended_at' => null, 'deleted_at' => null]);
+    Domain::factory()->create(['account_id' => $account->id, 'domain_name' => $this->domain]);
 
-    // Verify the job structure allows notification dispatching
-    expect(class_exists(SendSimpleUnblockNotificationJob::class))->toBeTrue();
-});
+    // Mock dependencies to force the success path
+    $analysisResult = new \App\Services\Firewall\FirewallAnalysisResult(true, ['csf' => 'Blocked']);
+    $this->mock(\App\Actions\SimpleUnblock\AnalyzeFirewallForIpAction::class, fn (MockInterface $mock) => $mock->shouldReceive('handle')->andReturn($analysisResult));
+    $this->mock(\App\Actions\SimpleUnblock\CheckIpInServerLogsAction::class, fn (MockInterface $mock) => $mock->shouldReceive('handle')->andReturn(new \App\Actions\SimpleUnblock\IpLogsSearchResult($this->ip, true, [])));
+    $this->mock(\App\Actions\UnblockIpAction::class, fn (MockInterface $mock) => $mock->shouldReceive('handle'));
+    $this->mock(\App\Actions\SimpleUnblock\CreateSimpleUnblockReportAction::class, fn (MockInterface $mock) => $mock->shouldReceive('handle')->andReturn(Report::factory()->create()));
 
-test('job dispatches admin notification on failure', function () {
-    Queue::fake();
+    // Act
+    $job = new ProcessSimpleUnblockJob($this->ip, $this->domain, $this->email, $this->host->id);
+    app()->call([$job, 'handle']); // Use app()->call to respect method injection with mocks
 
-    // Verify notification job can be dispatched
-    SendSimpleUnblockNotificationJob::dispatch(
-        reportId: null,
-        email: 'test@example.com',
-        domain: 'example.com',
-        adminOnly: true,
-        reason: 'test_reason'
-    );
-
-    Queue::assertPushed(SendSimpleUnblockNotificationJob::class);
+    // Assert
+    Queue::assertPushed(\App\Jobs\SendSimpleUnblockNotificationJob::class);
+    Queue::assertNotPushed(\App\Jobs\SendReportNotificationJob::class);
 });
 
 test('job builds domain search commands for cpanel', function () {

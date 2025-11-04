@@ -14,21 +14,9 @@
     </testsuites>
     <source>
         <include>
-            <file>app/Actions/CreateFirewallReportAction.php</file>
-            <file>app/Actions/SendFirewallReportAction.php</file>
-            <file>app/Actions/UnblockIpAction.php</file>
-            <file>app/Services/Firewall/FirewallAnalysisResult.php</file>
-            <file>app/Services/Firewall/FirewallAnalyzerFactory.php</file>
-            <file>app/Services/Firewall/FirewallAnalyzerInterface.php</file>
-            <file>app/Services/Firewall/V2/FirewallOrchestrator.php</file>
-            <file>app/Jobs/SendReportNotificationJob.php</file>
+            <directory suffix=".php">./app</directory>
         </include>
     </source>
-    <coverage>
-        <report>
-            <clover outputFile="build/logs/clover.xml"/>
-        </report>
-    </coverage>
     <php>
         <env name="APP_ENV" value="testing"/>
         <env name="APP_MAINTENANCE_DRIVER" value="file"/>
@@ -42,5 +30,6 @@
         <env name="SESSION_DRIVER" value="array"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
         <env name="LOG_LEVEL" value="error"/>
+        <env name="UNBLOCK_SIMPLE_MODE" value="true"/>
     </php>
 </phpunit>

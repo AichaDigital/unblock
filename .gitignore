@@ -14,6 +14,14 @@ CLAUDE.md
 /public/js/*
 /public/css/*
 /storage/*.key
+/storage/app/*.key
+/storage/app/ssh/*.key
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/testing/*
+/storage/framework/views/*
+/storage/logs/*.log
+/storage/infection/
 /database/unblock.sqlite
 /database/backup/*
 /vendor
@@ -52,3 +60,14 @@ storage/infection/
 # Code coverage reports
 build/logs/
 
+# Ingection testing reports
+infection-report.txt
+infection_run.log
+storage/infection/
+
+# PHPStan reports
+phpstan.neon
+phpstan-report.txt
+storage/phpstan/
+build/logs/phpstan.neon
+build/logs/phpstan.log

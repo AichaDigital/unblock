@@ -47,7 +47,7 @@ test('authenticated user is redirected to dashboard from home', function () {
     // Actuar como usuario autenticado
     $response = $this
         ->actingAs($user)
-        ->get(route('login')); // Ruta '/'
+        ->get('/'); // Ruta '/'
 
     // Verificar que es redirigido al dashboard
     $response->assertRedirect(route('dashboard'));
@@ -55,7 +55,7 @@ test('authenticated user is redirected to dashboard from home', function () {
 
 test('guest sees otp login form on home page', function () {
     // Access main page without authentication
-    $response = $this->get(route('login')); // Ruta '/'
+    $response = $this->get('/'); // Ruta '/'
 
     // Verificar que ve el componente otp-login
     $response->assertOk()

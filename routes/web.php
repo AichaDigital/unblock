@@ -6,7 +6,7 @@ use Livewire\Volt\Volt;
 
 // Ruta principal '/' - Sistema OTP Login usando componente Livewire
 Volt::route('/', 'otp-login')
-    ->middleware('throttle:10,1')
+    ->middleware(['guest', 'throttle:10,1'])
     ->name('login');
 
 // Rutas protegidas
@@ -19,9 +19,9 @@ Route::get('/error/{code}', ErrorController::class)->name('error.show');
 Route::get('/report/{id}', ReportController::class)->name('report.show');
 
 // Simple Unblock Mode (conditional - only if enabled)
-if (config('unblock.simple_mode.enabled')) {
+if (config('unblock.simple_mode.enabled', false)) {
     Route::get('/simple-unblock', \App\Livewire\SimpleUnblockForm::class)
-        ->middleware(['auth', 'session.timeout', 'simple.mode', 'throttle.simple.unblock'])
+        ->middleware(['throttle.simple.unblock'])
         ->name('simple.unblock');
 }
 

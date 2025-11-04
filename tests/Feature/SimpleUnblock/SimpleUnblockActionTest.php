@@ -5,12 +5,15 @@ declare(strict_types=1);
 use App\Actions\SimpleUnblockAction;
 use App\Jobs\ProcessSimpleUnblockJob;
 use App\Models\{Account, Domain, Host};
-use Illuminate\Support\Facades\{Config, Queue, RateLimiter};
+use Illuminate\Support\Facades\{Cache, Config, Queue, RateLimiter};
 
 use function Pest\Laravel\assertDatabaseHas;
 
 beforeEach(function () {
     Queue::fake();
+
+    // Flush the cache before each test to ensure RateLimiter is cleared.
+    Cache::flush();
 
     Config::set('unblock.simple_mode.throttle_email_per_hour', 5);
     Config::set('unblock.simple_mode.throttle_domain_per_hour', 10);
@@ -37,19 +40,23 @@ beforeEach(function () {
         'domain_name' => 'sub.example.com',
         'type' => 'subdomain',
     ]);
-
-    // Clear rate limiters
-    RateLimiter::clear('simple_unblock:email:'.hash('sha256', 'test@example.com'));
-    RateLimiter::clear('simple_unblock:domain:example.com');
 });
 
-afterEach(function () {
-    // Clear rate limiters
-    RateLimiter::clear('simple_unblock:email:'.hash('sha256', 'test@example.com'));
-    RateLimiter::clear('simple_unblock:domain:example.com');
+test('action does not run when simple mode is disabled', function () {
+    Config::set('unblock.simple_mode.enabled', false);
+
+    // We expect the action to do nothing, maybe throw an exception in a future refactor.
+    SimpleUnblockAction::run(
+        ip: '192.168.1.1',
+        domain: 'example.com',
+        email: 'test@example.com'
+    );
+
+    Queue::assertNothingPushed();
 });
 
 test('action normalizes domain to lowercase', function () {
+    Config::set('unblock.simple_mode.enabled', true);
     SimpleUnblockAction::run(
         ip: '192.168.1.1',
         domain: 'EXAMPLE.COM',
@@ -62,6 +69,7 @@ test('action normalizes domain to lowercase', function () {
 });
 
 test('action removes www prefix from domain', function () {
+    Config::set('unblock.simple_mode.enabled', true);
     SimpleUnblockAction::run(
         ip: '192.168.1.1',
         domain: 'www.example.com',
@@ -74,6 +82,7 @@ test('action removes www prefix from domain', function () {
 });
 
 test('action validates domain format', function () {
+    Config::set('unblock.simple_mode.enabled', true);
     expect(fn () => SimpleUnblockAction::run(
         ip: '192.168.1.1',
         domain: 'invalid domain!',
@@ -83,6 +92,7 @@ test('action validates domain format', function () {
 
 test('action dispatches job for specific host only (Phase 3)', function () {
     // Phase 3: Now only dispatches 1 job for the specific host where domain is hosted
+    Config::set('unblock.simple_mode.enabled', true);
     SimpleUnblockAction::run(
         ip: '192.168.1.1',
         domain: 'example.com',
@@ -93,6 +103,7 @@ test('action dispatches job for specific host only (Phase 3)', function () {
 });
 
 test('action dispatches job with correct parameters for domain host', function () {
+    Config::set('unblock.simple_mode.enabled', true);
     SimpleUnblockAction::run(
         ip: '192.168.1.1',
         domain: 'example.com',
@@ -108,6 +119,7 @@ test('action dispatches job with correct parameters for domain host', function (
 });
 
 test('action logs activity', function () {
+    Config::set('unblock.simple_mode.enabled', true);
     SimpleUnblockAction::run(
         ip: '192.168.1.1',
         domain: 'example.com',
@@ -122,6 +134,7 @@ test('action logs activity', function () {
 test('action handles domain not found gracefully (Phase 3)', function () {
     // Phase 3: If domain doesn't exist in local DB, no unblock job is dispatched
     // but admin notification is sent
+    Config::set('unblock.simple_mode.enabled', true);
     SimpleUnblockAction::run(
         ip: '192.168.1.1',
         domain: 'nonexistent.com', // Domain not in database
@@ -136,6 +149,7 @@ test('action handles domain not found gracefully (Phase 3)', function () {
 });
 
 test('action handles multiple domain formats', function () {
+    Config::set('unblock.simple_mode.enabled', true);
     $testCases = [
         ['input' => 'example.com', 'expected' => 'example.com'],
         ['input' => 'EXAMPLE.COM', 'expected' => 'example.com'],
@@ -160,6 +174,7 @@ test('action handles multiple domain formats', function () {
 });
 
 test('action rejects invalid domain formats', function () {
+    Config::set('unblock.simple_mode.enabled', true);
     $invalidDomains = [
         'invalid',
         'invalid domain',
@@ -242,6 +257,7 @@ test('different emails have separate rate limits', function () {
 });
 
 test('activity log contains hashed email', function () {
+    Config::set('unblock.simple_mode.enabled', true);
     SimpleUnblockAction::run(
         ip: '192.168.1.1',
         domain: 'example.com',
@@ -257,6 +273,7 @@ test('activity log contains hashed email', function () {
 });
 
 test('activity log contains email domain', function () {
+    Config::set('unblock.simple_mode.enabled', true);
     SimpleUnblockAction::run(
         ip: '192.168.1.1',
         domain: 'example.com',
@@ -272,6 +289,7 @@ test('activity log contains email domain', function () {
 });
 
 test('activity log does NOT contain plaintext email', function () {
+    Config::set('unblock.simple_mode.enabled', true);
     SimpleUnblockAction::run(
         ip: '192.168.1.1',
         domain: 'example.com',
