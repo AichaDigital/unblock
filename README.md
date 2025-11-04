@@ -27,7 +27,7 @@
 
 - **PHP**: 8.3 or higher
 - **Laravel**: 12.x
-- **Database**: SQLite (recommended) or MySQL 8.0+
+- **Database**: SQLite (recommended)
 - **Web Server**: Nginx or Apache
 - **Node.js**: 18+ (for asset compilation)
 - **SSH Access**: To managed servers running CSF/DirectAdmin
