@@ -40,8 +40,11 @@ class NotifySimpleUnblockResultAction
         if ($decision->shouldUnblock) {
             // Success case: Notify both user and admin
             $this->notifySuccess($email, $domain, $report);
+        } elseif ($decision->notifyUser) {
+            // No unblock needed but user is notified (valid domain, not blocked)
+            $this->notifyNoUnblockNeeded($email, $domain, $report, $decision->reason);
         } else {
-            // No match or abort: Notify admin only
+            // Suspicious/Invalid: Notify admin only
             $this->notifyAdminOnly($email, $domain, $decision->reason, $host, $analysisData);
         }
     }
@@ -67,6 +70,32 @@ class NotifySimpleUnblockResultAction
         Log::info('Success notification dispatched', [
             'report_id' => $report->id,
             'email' => $email,
+        ]);
+    }
+
+    /**
+     * Notify user that no unblock was needed (IP not blocked)
+     */
+    private function notifyNoUnblockNeeded(string $email, string $domain, ?Report $report, string $reason): void
+    {
+        if (! $report) {
+            Log::warning('Cannot send no-unblock-needed notification without report');
+
+            return;
+        }
+
+        SendSimpleUnblockNotificationJob::dispatch(
+            reportId: (string) $report->id,
+            email: $email,
+            domain: $domain,
+            adminOnly: false,
+            reason: $reason
+        );
+
+        Log::info('No-unblock-needed notification dispatched to user', [
+            'report_id' => $report->id,
+            'email' => $email,
+            'reason' => $reason,
         ]);
     }
 

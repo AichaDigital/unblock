@@ -5,10 +5,17 @@ declare(strict_types=1);
 use App\Jobs\{ProcessSimpleUnblockJob, SendSimpleUnblockNotificationJob};
 use App\Models\{Account, Domain, Host, Report};
 use App\Services\AnonymousUserService;
-use Illuminate\Support\Facades\{Cache, Queue};
+use Illuminate\Support\Facades\{Cache, Config, Queue};
 
 beforeEach(function () {
     Queue::fake();
+
+    // Configure SimpleUnblock mode explicitly (don't depend on .env.testing)
+    Config::set('unblock.simple_mode.enabled', true);
+    Config::set('queue.default', 'sync'); // Explicit queue mode for tests
+
+    // Configure admin email for notifications
+    Config::set('unblock.admin_email', 'admin@test.example.com');
 
     // Ensure anonymous user exists
     AnonymousUserService::clearCache();

@@ -34,13 +34,14 @@ readonly class UnblockDecision
 
     /**
      * Create a decision to not unblock (no match)
+     * User IS notified because their domain is valid - they should know the result
      */
     public static function noMatch(string $reason): self
     {
         return new self(
             shouldUnblock: false,
             reason: $reason,
-            notifyUser: false,
+            notifyUser: true,  // Changed from false - user deserves feedback
             notifyAdmin: true
         );
     }
