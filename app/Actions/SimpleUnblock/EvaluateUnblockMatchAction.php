@@ -20,13 +20,16 @@ use Lorisleiva\Actions\Concerns\AsAction;
  * │ true       │ false        │ true        │ UNBLOCK*     │ YES        │ YES         │
  * │ true       │ true         │ false       │ ABORT        │ NO         │ YES (alert) │
  * │ true       │ false        │ false       │ ABORT        │ NO         │ YES (alert) │
- * │ false      │ true         │ true        │ NO UNBLOCK   │ NO         │ YES (info)  │
- * │ false      │ false        │ true        │ NO MATCH     │ NO         │ YES (info)  │
+ * │ false      │ true         │ true        │ NO UNBLOCK   │ YES**      │ YES (info)  │
+ * │ false      │ false        │ true        │ NO MATCH     │ YES**      │ YES (info)  │
  * │ false      │ *            │ false       │ ABORT        │ NO         │ YES (alert) │
  * └────────────┴──────────────┴─────────────┴──────────────┴────────────┴─────────────┘
  *
  * * IMPORTANT: If domain is validated in DB and IP is blocked, we UNBLOCK
  *   even if not found in recent logs (logs may be rotated/cleaned).
+ *
+ * ** FIXED: User IS notified when domain is valid but IP not blocked
+ *   (They deserve feedback about their request result)
  */
 class EvaluateUnblockMatchAction
 {
