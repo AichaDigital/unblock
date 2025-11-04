@@ -27,16 +27,45 @@ class RequireAdminOtp
             return $next($request);
         }
 
-        // Skip if not authenticated (will be handled by Authenticate middleware)
+        // Check if user is authenticated
         if (! Auth::check()) {
             return $next($request);
         }
 
         $user = Auth::user();
 
-        // Skip if not admin
+        // Skip if not admin (VerifyIsAdminMiddleware will handle this)
         if (! $user->is_admin) {
             return $next($request);
+        }
+
+        // CRITICAL: Detect and handle invalid session states
+        // If user has cookies but no valid session data, force full logout
+        $sessionId = session()->getId();
+        $lastActivity = session()->get('last_activity');
+
+        // Check if session is stale or invalid
+        if (! $sessionId || ! $lastActivity) {
+            Log::warning('Admin detected with invalid session, forcing logout', [
+                'user_id' => $user->id,
+                'email' => $user->email,
+                'has_session_id' => (bool) $sessionId,
+                'has_last_activity' => (bool) $lastActivity,
+                'ip' => $request->ip(),
+            ]);
+
+            // Force complete cleanup
+            session()->invalidate();
+            session()->regenerateToken();
+            Auth::logout();
+
+            // Clear all authentication cookies
+            $request->session()->flush();
+
+            return redirect()->route('filament.admin.auth.login')
+                ->withCookie(cookie()->forget('remember_web'))
+                ->withCookie(cookie()->forget(config('session.cookie')))
+                ->with('status', __('admin_otp.session_invalid'));
         }
 
         // Check if OTP is already verified in this session
@@ -54,10 +83,13 @@ class RequireAdminOtp
                 'expired_at' => $otpVerifiedAt,
             ]);
 
-            session()->flush();
+            session()->invalidate();
+            session()->regenerateToken();
             Auth::logout();
 
             return redirect()->route('filament.admin.auth.login')
+                ->withCookie(cookie()->forget('remember_web'))
+                ->withCookie(cookie()->forget(config('session.cookie')))
                 ->with('status', __('admin_otp.session_expired'));
         }
 
