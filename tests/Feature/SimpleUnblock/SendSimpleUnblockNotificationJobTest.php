@@ -23,47 +23,59 @@ beforeEach(function () {
     $this->domain = 'example.com';
 });
 
-test('notification job sends email to user on success', function () {
+test('notification sends SUCCESS email when report indicates unblock', function () {
     $report = Report::factory()->anonymous()->create([
-        'ip' => '192.168.1.1',
-        'host_id' => $this->host->id,
+        'was_unblocked' => true, // Explicitly set success state
     ]);
 
     $job = new SendSimpleUnblockNotificationJob(
         reportId: (string) $report->id,
         email: $this->email,
         domain: $this->domain,
-        adminOnly: false
     );
 
     $job->handle();
 
+    // 1. Check user email
     Mail::assertSent(SimpleUnblockNotificationMail::class, function ($mail) {
         return $mail->hasTo($this->email)
             && $mail->isSuccess === true
-            && $mail->isAdminCopy === false;
+            && ! $mail->isAdminCopy;
+    });
+
+    // 2. Check admin copy
+    Mail::assertSent(SimpleUnblockNotificationMail::class, function ($mail) {
+        return $mail->hasTo(config('unblock.admin_email'))
+            && $mail->isSuccess === true
+            && $mail->isAdminCopy;
     });
 });
 
-test('notification job sends email to admin on success', function () {
+test('notification sends INFO email when report indicates NO unblock', function () {
     $report = Report::factory()->anonymous()->create([
-        'ip' => '192.168.1.1',
-        'host_id' => $this->host->id,
+        'was_unblocked' => false, // Explicitly set non-success state
     ]);
 
     $job = new SendSimpleUnblockNotificationJob(
         reportId: (string) $report->id,
         email: $this->email,
         domain: $this->domain,
-        adminOnly: false
     );
 
     $job->handle();
 
+    // 1. Check user email
+    Mail::assertSent(SimpleUnblockNotificationMail::class, function ($mail) {
+        return $mail->hasTo($this->email)
+            && $mail->isSuccess === false
+            && ! $mail->isAdminCopy;
+    });
+
+    // 2. Check admin copy
     Mail::assertSent(SimpleUnblockNotificationMail::class, function ($mail) {
         return $mail->hasTo(config('unblock.admin_email'))
-            && $mail->isSuccess === true
-            && $mail->isAdminCopy === true;
+            && $mail->isSuccess === false
+            && $mail->isAdminCopy;
     });
 });
 
@@ -71,30 +83,31 @@ test('notification job does not duplicate admin email', function () {
     $adminEmail = config('unblock.admin_email');
 
     $report = Report::factory()->anonymous()->create([
-        'ip' => '192.168.1.1',
-        'host_id' => $this->host->id,
+        'was_unblocked' => true,
     ]);
 
     $job = new SendSimpleUnblockNotificationJob(
         reportId: (string) $report->id,
-        email: $adminEmail, // Same as admin email
+        email: $adminEmail, // User email is the same as admin email
         domain: $this->domain,
-        adminOnly: false
     );
 
     $job->handle();
 
-    // Should only send once (not to both user and admin separately)
+    // Should only send once to the admin address.
     Mail::assertSent(SimpleUnblockNotificationMail::class, 1);
+    Mail::assertSent(SimpleUnblockNotificationMail::class, function ($mail) use ($adminEmail) {
+        return $mail->hasTo($adminEmail);
+    });
 });
 
-test('notification job sends admin-only notification on no match', function () {
+test('notification job sends admin-only ALERT on no match (suspicious activity)', function () {
     $job = new SendSimpleUnblockNotificationJob(
         reportId: null,
         email: $this->email,
         domain: $this->domain,
-        adminOnly: true,
-        reason: 'no_match_found'
+        reason: 'no_match_found',
+        adminOnly: true // This simulates a call from a pre-check failure, like `handleSuspiciousAttempt`
     );
 
     $job->handle();
@@ -105,21 +118,27 @@ test('notification job sends admin-only notification on no match', function () {
             && $mail->reason === 'no_match_found';
     });
 
-    // Should NOT send to user
+    // Should NOT send to user in this specific alert case
     Mail::assertNotSent(SimpleUnblockNotificationMail::class, fn ($mail) => $mail->hasTo($this->email));
 });
 
-test('notification job handles missing report gracefully', function () {
+test('notification job sends admin-only ALERT for missing report', function () {
     $job = new SendSimpleUnblockNotificationJob(
-        reportId: '99999',
+        reportId: '99999', // A non-existent report ID
         email: $this->email,
         domain: $this->domain,
-        adminOnly: false
     );
 
     $job->handle();
 
-    Mail::assertNothingSent();
+    // Should send an admin alert, not nothing.
+    Mail::assertSent(SimpleUnblockNotificationMail::class, function ($mail) {
+        return $mail->hasTo(config('unblock.admin_email'))
+            && $mail->isSuccess === false
+            && $mail->reason === 'report_not_found';
+    });
+    // Should NOT send to the user.
+    Mail::assertNotSent(SimpleUnblockNotificationMail::class, fn ($mail) => $mail->hasTo($this->email));
 });
 
 test('notification job handles missing admin email gracefully', function () {
@@ -129,8 +148,8 @@ test('notification job handles missing admin email gracefully', function () {
         reportId: null,
         email: $this->email,
         domain: $this->domain,
-        adminOnly: true,
-        reason: 'no_match_found'
+        reason: 'no_match_found',
+        adminOnly: true
     );
 
     $job->handle();
@@ -153,8 +172,8 @@ test('notification job includes reason in admin alert', function () {
             reportId: null,
             email: $this->email,
             domain: $this->domain,
-            adminOnly: true,
-            reason: $reason
+            reason: $reason,
+            adminOnly: true
         );
 
         $job->handle();
@@ -176,9 +195,9 @@ test('notification job includes analysis data in admin alert', function () {
         reportId: null,
         email: $this->email,
         domain: $this->domain,
-        adminOnly: true,
         reason: 'ip_blocked_but_domain_not_found',
-        analysisData: $analysisData
+        analysisData: $analysisData,
+        adminOnly: true
     );
 
     $job->handle();

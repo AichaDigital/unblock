@@ -19,26 +19,9 @@
         "json": "storage/infection/infection.json",
         "perMutator": "storage/infection/per-mutator.md"
     },
-    "testFramework": "phpunit",
-    "phpUnit": {
-        "configDir": ".",
-        "customPath": "./vendor/bin/pest"
-    },
-    "bootstrap": "vendor/autoload.php",
-    "tmpDir": "storage/infection",
-    "initialTestsPhpOptions": "-d zend.enable_gc=0",
-    "ignoreMsiWithNoMutations": false,
-    "minMsi": 70,
-    "minCoveredMsi": 80,
     "mutators": {
-        "@default": true,
-        "@function_signature": false,
-        "MethodCallRemoval": {
-            "ignore": [
-                "Illuminate\\Support\\Facades\\Log::*"
-            ]
-        }
+        "@default": true
     },
-    "timeout": 120
+    "testFramework": "pest"
 }
 

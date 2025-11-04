@@ -19,6 +19,7 @@ class Report extends Model
     protected $casts = [
         'logs' => 'array',
         'analysis' => 'array',
+        'was_unblocked' => 'boolean',
         'last_read' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',

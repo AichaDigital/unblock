@@ -136,7 +136,10 @@
         "test:coverage": "vendor/bin/pest --coverage-clover=build/logs/clover.xml",
         "coverage:check": "php scripts/coverage-check.php 85 build/logs/clover.xml",
         "infection": "vendor/bin/infection --test-framework-options=\"--exclude-group=integration\"",
-        "infection:coverage": "@test-coverage && vendor/bin/infection --test-framework-options=\"--exclude-group=integration\"",
+        "infection:coverage": [
+            "@test-coverage",
+            "vendor/bin/infection --test-framework-options=\"--exclude-group=integration\""
+        ],
         "security:audit": "composer audit --format=json",
         "pre-commit": [
             "@syntax-check",

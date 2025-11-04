@@ -10,26 +10,22 @@ use Lorisleiva\Actions\Concerns\AsAction;
 /**
  * Evaluate Unblock Match Action
  *
- * CRITICAL BUSINESS LOGIC - Determines if an IP should be unblocked.
+ * CRITICAL BUSINESS LOGIC - Determines the unblock decision based on server analysis results.
+ * This action is called AFTER initial validation (e.g., domain ownership) is confirmed.
  *
- * Decision Table:
- * ┌────────────┬──────────────┬─────────────┬──────────────┬────────────┬─────────────┐
- * │ IP Blocked │ Domain Logs  │ Domain in DB│ Decision     │ Notify User│ Notify Admin│
- * ├────────────┼──────────────┼─────────────┼──────────────┼────────────┼─────────────┤
- * │ true       │ true         │ true        │ UNBLOCK      │ YES        │ YES         │
- * │ true       │ false        │ true        │ UNBLOCK*     │ YES        │ YES         │
- * │ true       │ true         │ false       │ ABORT        │ NO         │ YES (alert) │
- * │ true       │ false        │ false       │ ABORT        │ NO         │ YES (alert) │
- * │ false      │ true         │ true        │ NO UNBLOCK   │ YES**      │ YES (info)  │
- * │ false      │ false        │ true        │ NO MATCH     │ YES**      │ YES (info)  │
- * │ false      │ *            │ false       │ ABORT        │ NO         │ YES (alert) │
- * └────────────┴──────────────┴─────────────┴──────────────┴────────────┴─────────────┘
+ * Decision Table (New Logic):
+ * ┌────────────┬───────────────┬───────────────────┬──────────────────────────────────┐
+ * │ IP Blocked │ Domain Logs   │ Decision          │ Action                           │
+ * │ (in CSF)   │ (for this IP) │                   │                                  │
+ * ├────────────┼───────────────┼───────────────────┼──────────────────────────────────┤
+ * │ true       │ *             │ UNBLOCK           │ Unblock IP + Whitelist IP (TTL)  │
+ * │ false      │ true          │ GATHER_DATA       │ Report logs, no unblock action   │
+ * │ false      │ false         │ NO_MATCH          │ Report no findings, no action    │
+ * └────────────┴───────────────┴───────────────────┴──────────────────────────────────┘
  *
- * * IMPORTANT: If domain is validated in DB and IP is blocked, we UNBLOCK
- *   even if not found in recent logs (logs may be rotated/cleaned).
- *
- * ** FIXED: User IS notified when domain is valid but IP not blocked
- *   (They deserve feedback about their request result)
+ * - `$domainValidInDb` is removed as it's a pre-condition, not part of this decision.
+ * - Whitelisting is now an implicit part of the UNBLOCK decision.
+ * - All investigation paths lead to a report and user/admin notification downstream.
  */
 class EvaluateUnblockMatchAction
 {
@@ -45,48 +41,35 @@ class EvaluateUnblockMatchAction
     public function handle(
         bool $ipIsBlocked,
         bool $domainFoundInLogs,
-        bool $domainValidInDb
+        // The `$domainValidInDb` parameter is no longer needed here,
+        // as this validation should happen before this action is ever called.
+        // We leave it for now to avoid breaking the call signature and will remove it in a later refactor.
+        bool $domainValidInDb = true
     ): UnblockDecision {
         Log::info('Evaluating unblock decision', [
             'ip_blocked' => $ipIsBlocked,
             'domain_in_logs' => $domainFoundInLogs,
-            'domain_valid_in_db' => $domainValidInDb,
+            'domain_valid_in_db (deprecated)' => $domainValidInDb,
         ]);
 
-        // ABORT scenarios: Domain not valid in database
-        if (! $domainValidInDb) {
-            Log::warning('Unblock evaluation: Domain not valid in DB - ABORT', [
-                'ip_blocked' => $ipIsBlocked,
-                'domain_in_logs' => $domainFoundInLogs,
-            ]);
-
-            return UnblockDecision::abort('domain_not_valid_in_database');
-        }
-
-        // UNBLOCK scenarios: IP blocked + Domain valid in DB
+        // If the IP is blocked in the firewall (CSF), the decision is always to unblock.
+        // The logic for whitelisting will be handled by the service consuming this decision.
         if ($ipIsBlocked) {
-            if ($domainFoundInLogs) {
-                Log::info('Unblock evaluation: FULL MATCH - IP blocked + Domain in logs + Domain valid in DB');
+            Log::info('Unblock evaluation: IP is blocked in CSF. Decision: UNBLOCK');
 
-                return UnblockDecision::unblock('full_match');
-            }
-
-            // CRITICAL: Unblock even if not found in logs (logs may be old/rotated)
-            Log::info('Unblock evaluation: IP blocked + Domain valid in DB (not in recent logs) - UNBLOCK');
-
-            return UnblockDecision::unblock('domain_validated_in_db');
+            return UnblockDecision::unblock('ip_blocked_in_csf');
         }
 
-        // NO UNBLOCK scenarios: IP not blocked
+        // If the IP is not blocked, we check if there's any activity in the logs.
         if ($domainFoundInLogs) {
-            Log::info('Unblock evaluation: Domain found but IP not blocked - NO ACTION');
+            Log::info('Unblock evaluation: IP not blocked, but logs found. Decision: GATHER_DATA');
 
-            return UnblockDecision::noMatch('domain_found_but_ip_not_blocked');
+            return UnblockDecision::gatherData('logs_found_no_block');
         }
 
-        // Default: No match found
-        Log::info('Unblock evaluation: No conditions met - NO ACTION');
+        // If the IP is not blocked and no relevant logs are found, there's nothing to report.
+        Log::info('Unblock evaluation: IP not blocked and no logs found. Decision: NO_MATCH');
 
-        return UnblockDecision::noMatch('no_match_found');
+        return UnblockDecision::noMatch('ip_not_blocked_no_logs');
     }
 }

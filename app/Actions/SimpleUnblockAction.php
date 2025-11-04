@@ -31,6 +31,13 @@ class SimpleUnblockAction
      */
     public function handle(string $ip, string $domain, string $email): void
     {
+        // Do not run if simple mode is disabled in config
+        if (! config('unblock.simple_mode.enabled', false)) {
+            Log::warning('SimpleUnblockAction called while simple mode is disabled.');
+
+            return;
+        }
+
         // Normalize domain
         $normalizedDomain = $this->normalizeDomain($domain);
 

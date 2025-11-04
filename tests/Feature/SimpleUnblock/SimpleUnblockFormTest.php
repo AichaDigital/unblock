@@ -4,20 +4,12 @@ declare(strict_types=1);
 
 use App\Livewire\SimpleUnblockForm;
 use App\Models\{Account, Domain, Host};
-use Illuminate\Support\Facades\{Config, Queue, RateLimiter, Route};
+use Illuminate\Support\Facades\{Queue, RateLimiter};
 use Livewire\Livewire;
 
 use function Pest\Laravel\{assertDatabaseHas, get};
 
 beforeEach(function () {
-    // Enable simple mode for tests
-    Config::set('unblock.simple_mode.enabled', true);
-
-    // Register simple unblock route for testing
-    Route::get('/simple-unblock', \App\Livewire\SimpleUnblockForm::class)
-        ->middleware(['throttle.simple.unblock'])
-        ->name('simple.unblock');
-
     // Create hosts for testing
     $this->host1 = Host::factory()->create(['panel' => 'cpanel']);
     $this->host2 = Host::factory()->create(['panel' => 'directadmin']);
@@ -51,6 +43,15 @@ test('simple unblock form is accessible when enabled', function () {
     get('/simple-unblock')
         ->assertOk()
         ->assertSeeLivewire(SimpleUnblockForm::class);
+});
+
+test('simple unblock form is NOT accessible when disabled', function () {
+    // This test requires UNBLOCK_SIMPLE_MODE=false in phpunit.xml
+    // We need a separate test suite to run this scenario.
+    $this->markTestSkipped('Requires a separate test suite with UNBLOCK_SIMPLE_MODE=false.');
+
+    get('/simple-unblock')
+        ->assertNotFound();
 });
 
 test('simple unblock form autodetects user IP', function () {
