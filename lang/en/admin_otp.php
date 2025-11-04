@@ -30,4 +30,5 @@ return [
 
     // Session
     'session_expired' => 'Your session has expired for security. Please log in again with your password and verify the new OTP code.',
+    'session_invalid' => 'Invalid session detected. Please log in again.',
 ];

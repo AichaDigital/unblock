@@ -67,13 +67,18 @@ Create `/usr/local/bin/unblock-wrapper.sh` on the managed server:
 ```bash
 #!/bin/bash
 # Unblock Firewall Manager - Command Wrapper
-# Only allows specific CSF and log reading commands
+# Only allows specific CSF, cPanel/DirectAdmin and log reading commands
+# Version: 2.0
 
 # Log all commands for audit
 logger -t unblock-ssh "Command: $SSH_ORIGINAL_COMMAND from $SSH_CLIENT"
 
 case "$SSH_ORIGINAL_COMMAND" in
-    # CSF Commands
+    #===========================================================================
+    # SHARED COMMANDS (Used by both Natural Mode and Simple Mode)
+    #===========================================================================
+    
+    # CSF Commands - Firewall Management
     "csf -g "*|"csf -t"|"csf -v")
         $SSH_ORIGINAL_COMMAND
         ;;
@@ -90,7 +95,7 @@ case "$SSH_ORIGINAL_COMMAND" in
         $SSH_ORIGINAL_COMMAND
         ;;
     
-    # DirectAdmin BFM - Direct file access
+    # DirectAdmin BFM - Brute Force Monitor
     "cat /usr/local/directadmin/data/admin/ip_blacklist"*)
         $SSH_ORIGINAL_COMMAND
         ;;
@@ -106,9 +111,47 @@ case "$SSH_ORIGINAL_COMMAND" in
         $SSH_ORIGINAL_COMMAND
         ;;
     
-    # Log Reading (read-only)
+    # CSF Files - Direct Access
+    "cat /etc/csf/csf.deny"*|"cat /var/lib/csf/csf.tempip"*)
+        $SSH_ORIGINAL_COMMAND
+        ;;
+    
+    #===========================================================================
+    # NATURAL MODE COMMANDS (Multi-user mode with authentication)
+    #===========================================================================
+    
+    # cPanel WHM API - Account Management
+    "whmapi1 listaccts --output=json")
+        $SSH_ORIGINAL_COMMAND
+        ;;
+    
+    # cPanel UAPI - Domain Management per User
+    "uapi --user="*" --output=json DomainInfo list_domains")
+        $SSH_ORIGINAL_COMMAND
+        ;;
+    
+    # DirectAdmin - User Management
+    "ls -1 /usr/local/directadmin/data/users"*)
+        $SSH_ORIGINAL_COMMAND
+        ;;
+    
+    # DirectAdmin - User Configuration Files
+    "cat /usr/local/directadmin/data/users/"*"/user.conf"*)
+        $SSH_ORIGINAL_COMMAND
+        ;;
+    
+    # DirectAdmin - Domain Lists
+    "cat /usr/local/directadmin/data/users/"*"/domains.list"*)
+        $SSH_ORIGINAL_COMMAND
+        ;;
+    
+    #===========================================================================
+    # SIMPLE MODE COMMANDS (Single-user mode, no authentication)
+    #===========================================================================
+    
+    # Log Reading - Grep with IP/Domain Search
     "grep "*)
-        if [[ "$SSH_ORIGINAL_COMMAND" =~ /var/log/(exim|dovecot|messages|secure|maillog|modsec_audit|nginx) ]]; then
+        if [[ "$SSH_ORIGINAL_COMMAND" =~ /var/log/(exim|exim_mainlog|dovecot|messages|secure|maillog|mail\.log|modsec_audit|nginx) ]]; then
             $SSH_ORIGINAL_COMMAND
         else
             echo "ERROR: Log file not allowed"
@@ -116,6 +159,7 @@ case "$SSH_ORIGINAL_COMMAND" in
         fi
         ;;
     
+    # Log Files - Direct Cat Access
     "cat "*)
         if [[ "$SSH_ORIGINAL_COMMAND" =~ (/var/log/|/etc/csf/csf\.deny|/var/lib/csf/csf\.tempip|/usr/local/directadmin/data/admin/ip_) ]]; then
             $SSH_ORIGINAL_COMMAND
@@ -127,7 +171,7 @@ case "$SSH_ORIGINAL_COMMAND" in
     
     # Tail for real-time monitoring
     "tail "*)
-        if [[ "$SSH_ORIGINAL_COMMAND" =~ /var/log/(exim|dovecot|messages|secure|maillog|modsec_audit|nginx) ]]; then
+        if [[ "$SSH_ORIGINAL_COMMAND" =~ /var/log/(exim|exim_mainlog|dovecot|messages|secure|maillog|mail\.log|modsec_audit|nginx) ]]; then
             $SSH_ORIGINAL_COMMAND
         else
             echo "ERROR: Log file not allowed"
@@ -135,7 +179,9 @@ case "$SSH_ORIGINAL_COMMAND" in
         fi
         ;;
     
-    # Deny everything else
+    #===========================================================================
+    # DENY ALL OTHER COMMANDS
+    #===========================================================================
     *)
         echo "ERROR: Command not allowed: $SSH_ORIGINAL_COMMAND"
         logger -t unblock-ssh "DENIED: $SSH_ORIGINAL_COMMAND from $SSH_CLIENT"
@@ -150,35 +196,85 @@ Make it executable:
 chmod +x /usr/local/bin/unblock-wrapper.sh
 ```
 
+### 📋 Wrapper Structure
+
+The wrapper is organized into three sections for better maintainability:
+
+1. **Shared Commands**: Used by both Natural and Simple modes (CSF, BFM, diagnostics)
+2. **Natural Mode**: Multi-user environment with authentication (cPanel/DA APIs, account sync)
+3. **Simple Mode**: Single-user, anonymous unblocking (log searches only)
+
+This structure makes it easy to:
+- Enable/disable modes by commenting sections
+- Review what each mode requires
+- Audit command usage per mode
+
 ## 🧪 Step 5: Test Connection
 
-From your **Unblock server**, test the SSH connection:
+After adding the SSH keys to Unblock (Step 6), you can test the connection **from within Unblock**:
+
+### Option A: From Admin Panel (Recommended)
+
+1. Go to **Hosts** → **Edit Host** (for the host you just configured)
+2. Click the **"Test Connection"** button in the top-right actions
+3. Review the test results in the UI
+
+### Option B: From Command Line
 
 ```bash
-# Test basic connection
-ssh -i ~/.ssh/unblock_csf root@managed-server.example.com "csf -g 1.2.3.4"
+# Test SSH connection for a specific host
+php artisan develop:test-host-connection --host-id=1
 
-# Test CSF temporary check
-ssh -i ~/.ssh/unblock_csf root@managed-server.example.com "csf -t"
-
-# Test denied command (should fail if wrapper is configured)
-ssh -i ~/.ssh/unblock_csf root@managed-server.example.com "ls -la"
+# Interactive mode (select from available hosts)
+php artisan develop:test-host-connection
 ```
 
 Expected results:
-- ✅ CSF commands should work
-- ✅ Log reading should work
-- ❌ Other commands should be denied
+- ✅ SSH connection successful
+- ✅ `whoami` returns `root` (or configured admin user)
+- ✅ Host panel type detected correctly
+- ❌ Other commands should be denied (if wrapper is configured)
+
+**Important Notes:**
+- SSH keys are **encrypted and stored in the database**, not on the filesystem
+- Unblock creates temporary key files only during SSH operations
+- You cannot test the keys manually with `ssh -i` because they're encrypted
+- Always use Unblock's built-in test tools
+
+### Testing Wrapper Restrictions (Optional)
+
+If you want to verify the wrapper script denies unauthorized commands:
+
+```bash
+# This should work (allowed command)
+php artisan tinker
+>>> $host = \App\Models\Host::find(1);
+>>> $service = app(\App\Services\FirewallService::class);
+>>> $session = $service->generateSshKey($host, '/tmp');
+>>> $output = $service->executeCommand($session, 'whoami');
+>>> echo $output; // Should show: root
+
+# This should fail (blocked command)
+>>> $output = $service->executeCommand($session, 'ls -la /root');
+>>> echo $output; // Should show: ERROR: Command not allowed
+```
 
 ## 📋 Step 6: Add Key to Unblock
 
 In the Unblock admin panel:
 
-1. Go to **Hosts** → **Edit Host**
-2. Paste the **private key** content (`~/.ssh/unblock_csf`)
-3. Save
+1. Go to **Hosts** → **Create Host** or **Edit Host**
+2. Fill in the required fields (FQDN, IP, Port, Panel, etc.)
+3. Paste the **private key** content from `~/.ssh/unblock_csf` (Step 1)
+4. Paste the **public key** content from `~/.ssh/unblock_csf.pub` (Step 2)
+5. Save
 
-⚠️ **Important**: Never commit private keys to Git or share them publicly!
+**Alternative:** You can generate keys automatically using the **"Generate SSH Keys"** button in the edit page after creating the host.
+
+⚠️ **Important**: 
+- Never commit private keys to Git or share them publicly!
+- Keys are automatically encrypted when saved to the database
+- For setup instructions, see: https://github.com/AichaDigital/unblock/blob/main/docs/ssh-keys-setup.md
 
 ## 🔍 Troubleshooting
 
@@ -204,7 +300,9 @@ chmod 700 ~/.ssh
 
 - Ensure the private key is correct (not the .pub file)
 - Verify SSH user is correct (usually `root`)
-- Test connection manually from command line first
+- **Use the "Test Connection" button** in the host edit page to diagnose issues
+- Check the test output for specific error messages
+- If test fails, review the wrapper script configuration on the remote server
 
 ## 🔐 Security Checklist
 

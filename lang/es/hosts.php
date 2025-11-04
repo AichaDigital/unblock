@@ -30,4 +30,20 @@ return [
         'generate_error_title' => 'Error al generar claves SSH',
         'generate_error_body' => ':message',
     ],
+
+    'actions' => [
+        'test_connection' => 'Probar Conexión',
+        'test_connection_modal_title' => 'Probar Conexión SSH',
+        'test_connection_modal_description' => 'Esto probará la conexión SSH al host usando las claves configuradas. El test ejecutará el comando "whoami" en el servidor remoto.',
+        'test_connection_submit' => 'Probar Ahora',
+    ],
+
+    'notifications' => [
+        'test_success_title' => '✅ Conexión Exitosa',
+        'test_success_body' => 'La conexión SSH al host :fqdn funciona correctamente.',
+        'test_failed_title' => '❌ Conexión Fallida',
+        'test_failed_body' => 'No se pudo conectar al host. Consulte con el administrador de sistemas para depuración en shell.',
+        'test_error_title' => '⚠️ Error de Prueba',
+        'test_error_body' => 'Error al ejecutar la prueba. Consulte los logs del sistema.',
+    ],
 ];

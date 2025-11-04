@@ -109,12 +109,15 @@ return [
     | All admins must verify their identity with a code sent to their email
     | after successful password authentication.
     |
+    | Note: Session lifetime is controlled by Laravel's SESSION_LIFETIME
+    | config (in minutes) from config/session.php. The OTP verification
+    | remains valid for the entire session lifetime.
+    |
     */
     'admin_otp' => [
         'enabled' => env('ADMIN_OTP_ENABLED', true),
         'ttl' => env('ADMIN_OTP_TTL', 600), // OTP code valid for 10 minutes
         'resend_throttle' => env('ADMIN_OTP_RESEND_THROTTLE', 60), // Allow resend after 60 seconds
         'max_attempts' => env('ADMIN_OTP_MAX_ATTEMPTS', 5), // Max verification attempts
-        'session_ttl' => env('ADMIN_OTP_SESSION_TTL', 28800), // 8 hours session after OTP verification
     ],
 ];
