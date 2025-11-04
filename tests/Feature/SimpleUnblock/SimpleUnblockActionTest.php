@@ -199,6 +199,7 @@ test('action rejects invalid domain formats', function () {
 // v1.1.1: Email and Domain rate limiting tests
 
 test('email rate limiting blocks excessive requests', function () {
+    config()->set('unblock.simple_mode.enabled', true);
     Config::set('unblock.simple_mode.throttle_email_per_hour', 3);
 
     // First 3 requests should succeed
@@ -219,6 +220,7 @@ test('email rate limiting blocks excessive requests', function () {
 });
 
 test('domain rate limiting blocks excessive requests', function () {
+    config()->set('unblock.simple_mode.enabled', true);
     Config::set('unblock.simple_mode.throttle_domain_per_hour', 3);
 
     // First 3 requests should succeed
@@ -242,6 +244,7 @@ test('domain rate limiting blocks excessive requests', function () {
 });
 
 test('different emails have separate rate limits', function () {
+    config()->set('unblock.simple_mode.enabled', true);
     Config::set('unblock.simple_mode.throttle_email_per_hour', 2);
 
     SimpleUnblockAction::run(
@@ -308,6 +311,7 @@ test('activity log does NOT contain plaintext email', function () {
 });
 
 test('rate limit exception logs contain hashed email', function () {
+    config()->set('unblock.simple_mode.enabled', true);
     Config::set('unblock.simple_mode.throttle_email_per_hour', 1);
 
     SimpleUnblockAction::run(

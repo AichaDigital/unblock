@@ -47,6 +47,7 @@ class CreateSimpleUnblockReportAction
             'ip' => $ip,
             'user_id' => AnonymousUserService::get()->id,
             'host_id' => $host->id,
+            'was_unblocked' => $decision->shouldUnblock, // CRITICAL: Direct column for email notifications
             'analysis' => [
                 'was_blocked' => $analysis->isBlocked(),
                 'domain' => $domain,
