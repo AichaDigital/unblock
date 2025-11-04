@@ -74,10 +74,44 @@ class SimpleUnblockAction
         // Get account and host from relationships
         /** @var \App\Models\Account $account */
         $account = $domainRecord->account;
+
+        if (! $account) {
+            Log::error('Simple unblock: Domain found but account is NULL', [
+                'ip' => $ip,
+                'domain' => $normalizedDomain,
+                'domain_id' => $domainRecord->id,
+                'email_hash' => $emailHash,
+            ]);
+
+            $this->notifyAdminSilentAttempt($ip, $normalizedDomain, $email, 'account_null');
+
+            return;
+        }
+
         /** @var \App\Models\Host $host */
         $host = $account->host;
 
+        if (! $host) {
+            Log::error('Simple unblock: Account found but host is NULL', [
+                'ip' => $ip,
+                'domain' => $normalizedDomain,
+                'account_id' => $account->id,
+                'email_hash' => $emailHash,
+            ]);
+
+            $this->notifyAdminSilentAttempt($ip, $normalizedDomain, $email, 'host_null');
+
+            return;
+        }
+
         // Dispatch unblock job for the specific host
+        Log::info('Dispatching SimpleUnblock job to queue', [
+            'ip' => $ip,
+            'domain' => $normalizedDomain,
+            'host_id' => $host->id,
+            'host_fqdn' => $host->fqdn,
+        ]);
+
         ProcessSimpleUnblockJob::dispatch(
             ip: $ip,
             domain: $normalizedDomain,
