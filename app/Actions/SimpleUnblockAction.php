@@ -74,7 +74,7 @@ class SimpleUnblockAction
         // Get account and host from relationships
         /** @var \App\Models\Account $account */
         $account = $domainRecord->account;
-        
+
         if (! $account) {
             Log::error('Simple unblock: Domain found but account is NULL', [
                 'ip' => $ip,
