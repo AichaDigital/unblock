@@ -173,7 +173,13 @@ class AccountResource extends Resource
                 Tables\Columns\TextColumn::make('user.first_name')
                     ->label(__('User'))
                     ->formatStateUsing(fn (Account $record) => $record->user?->getFullNameAttribute() ?? '-')
-                    ->searchable(['users.first_name', 'users.last_name', 'users.email'])
+                    ->searchable(query: function ($query, $search) {
+                        return $query->whereHas('user', function ($q) use ($search) {
+                            $q->where('first_name', 'like', "%{$search}%")
+                                ->orWhere('last_name', 'like', "%{$search}%")
+                                ->orWhere('email', 'like', "%{$search}%");
+                        });
+                    })
                     ->sortable()
                     ->url(fn (Account $record) => $record->user_id ? UserResource::getUrl('view', ['record' => $record->user_id]) : null)
                     ->placeholder('-')
