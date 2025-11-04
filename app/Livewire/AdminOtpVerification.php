@@ -137,7 +137,6 @@ class AdminOtpVerification extends Component
             // OTP verified successfully!
             session()->put('admin_otp_verified', true);
             session()->put('admin_otp_user_id', $user->id);
-            session()->put('admin_otp_verified_at', now()->timestamp);
             session()->forget('admin_otp_pending_user_id');
             session()->forget('admin_otp_sent_at');
 

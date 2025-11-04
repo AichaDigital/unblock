@@ -71,27 +71,10 @@ class RequireAdminOtp
         // Check if OTP is already verified in this session
         $otpVerified = session()->get('admin_otp_verified');
         $otpUserId = session()->get('admin_otp_user_id');
-        $otpVerifiedAt = session()->get('admin_otp_verified_at');
 
-        // Check if OTP verification has expired
-        $sessionTtl = config('unblock.admin_otp.session_ttl', 28800); // 8 hours default
-        if ($otpVerifiedAt && now()->timestamp - $otpVerifiedAt > $sessionTtl) {
-            // OTP verification expired - logout completely (password + OTP both invalidated)
-            Log::info('Admin OTP session expired, logging out', [
-                'user_id' => $user->id,
-                'email' => $user->email,
-                'expired_at' => $otpVerifiedAt,
-            ]);
-
-            session()->invalidate();
-            session()->regenerateToken();
-            Auth::logout();
-
-            return redirect()->route('filament.admin.auth.login')
-                ->withCookie(cookie()->forget('remember_web'))
-                ->withCookie(cookie()->forget(config('session.cookie')))
-                ->with('status', __('admin_otp.session_expired'));
-        }
+        // Laravel handles session expiration automatically via SESSION_LIFETIME
+        // No need to check custom TTL - if session is alive, OTP verification is valid
+        // If session expires, user must re-authenticate (password + OTP)
 
         // If OTP is verified and matches current user, allow access
         if ($otpVerified && $otpUserId === $user->id) {

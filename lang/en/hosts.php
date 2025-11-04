@@ -30,4 +30,20 @@ return [
         'generate_error_title' => 'SSH Key Generation Error',
         'generate_error_body' => ':message',
     ],
+
+    'actions' => [
+        'test_connection' => 'Test Connection',
+        'test_connection_modal_title' => 'Test SSH Connection',
+        'test_connection_modal_description' => 'This will test the SSH connection to the host using the configured keys. The test will execute the "whoami" command on the remote server.',
+        'test_connection_submit' => 'Test Now',
+    ],
+
+    'notifications' => [
+        'test_success_title' => '✅ Connection Successful',
+        'test_success_body' => 'SSH connection to host :fqdn is working correctly.',
+        'test_failed_title' => '❌ Connection Failed',
+        'test_failed_body' => 'Could not connect to host. Please consult system administrator for shell debugging.',
+        'test_error_title' => '⚠️ Test Error',
+        'test_error_body' => 'Error executing test. Please check system logs.',
+    ],
 ];
