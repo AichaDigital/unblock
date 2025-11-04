@@ -140,4 +140,3 @@ test('notification behavior works correctly with explicit queue configuration', 
         return $job->email === 'queuetest@example.com';
     });
 });
-
