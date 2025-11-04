@@ -124,6 +124,8 @@ class SyncAccountsCommand extends Command
 
     /**
      * Get hosts to synchronize based on options
+     *
+     * Syncs ALL cPanel/DirectAdmin hosts (accounts exist on ALL servers)
      */
     private function getHostsToSync(?string $hostId): \Illuminate\Database\Eloquent\Collection
     {

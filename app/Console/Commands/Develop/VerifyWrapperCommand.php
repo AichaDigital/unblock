@@ -26,6 +26,9 @@ class VerifyWrapperCommand extends Command
      * Core commands used by Unblock
      */
     private const REQUIRED_COMMANDS = [
+        // Shared - SSH Internal
+        'bash -se' => 'SSH command execution via stdin (CRITICAL for all commands)',
+
         // Shared - CSF Commands
         'csf -g 1.2.3.4' => 'Firewall IP check',
         'csf -dr 1.2.3.4' => 'Remove from deny list',
