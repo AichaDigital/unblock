@@ -78,6 +78,11 @@ case "$SSH_ORIGINAL_COMMAND" in
     # SHARED COMMANDS (Used by both Natural Mode and Simple Mode)
     #===========================================================================
     
+    # SSH Internal - Command Execution via stdin
+    "bash -se")
+        $SSH_ORIGINAL_COMMAND
+        ;;
+    
     # CSF Commands - Firewall Management
     "csf -g "*|"csf -t"|"csf -v")
         $SSH_ORIGINAL_COMMAND
