@@ -38,8 +38,6 @@ test('DirectAdmin BFM check command is correct', function () {
     expect($command)->toContain('/usr/local/directadmin/data/admin/ip_blacklist')
         ->and($command)->toContain('grep')
         ->and($command)->toContain($ipAddress);
-
-    dump("Comando BFM check: {$command}");
 });
 
 test('DirectAdmin BFM detection works with exact IP match', function () {
@@ -71,10 +69,6 @@ test('DirectAdmin BFM grep command uses correct escape', function () {
     $ipAddress = '192.168.1.100';
     $escapedForShell = escapeshellarg($ipAddress);
     $escapedForGrep = preg_quote($ipAddress, '/');
-
-    dump("IP original: {$ipAddress}");
-    dump("Escaped for shell: {$escapedForShell}");
-    dump("Escaped for grep regex: {$escapedForGrep}");
 
     // El comando debe usar el escape correcto para evitar falsos positivos
     // Ejemplo: grep "^192\.168\.1\.100(\s|$)" en lugar de solo grep "192.168.1.100"
