@@ -37,13 +37,25 @@ class SubnetScanDetector
     {
         $detections = [];
 
-        // Get subnets with recent incidents
-        $recentSubnets = DB::table('abuse_incidents')
-            ->select(DB::raw('SUBSTRING(ip_address, 1, INSTR(ip_address || ".", ".", 1, 3)) as subnet_prefix'))
+        // Get recent incidents with multiple emails
+        // Extract subnet prefix in PHP to be database-agnostic
+        $recentIncidents = DB::table('abuse_incidents')
+            ->select('ip_address', 'email_hash')
             ->where('created_at', '>=', now()->subMinutes(self::TIME_WINDOW))
-            ->groupBy('subnet_prefix')
-            ->having(DB::raw('COUNT(DISTINCT email_hash)'), '>=', self::MIN_EMAILS)
-            ->pluck('subnet_prefix');
+            ->whereNotNull('email_hash')
+            ->get();
+
+        // Group by subnet prefix in PHP (database-agnostic approach)
+        $subnetGroups = $recentIncidents->groupBy(function ($incident) {
+            return $this->extractSubnetPrefix($incident->ip_address);
+        });
+
+        // Filter subnets with enough unique emails
+        $recentSubnets = $subnetGroups
+            ->filter(function ($incidents) {
+                return $incidents->pluck('email_hash')->unique()->count() >= self::MIN_EMAILS;
+            })
+            ->keys();
 
         foreach ($recentSubnets as $subnetPrefix) {
             if ($detection = $this->detectForSubnet($subnetPrefix)) {
@@ -52,6 +64,30 @@ class SubnetScanDetector
         }
 
         return $detections;
+    }
+
+    /**
+     * Extract subnet prefix from IP address (database-agnostic)
+     * Returns first 3 octets for IPv4 (e.g., "192.168.1" from "192.168.1.100")
+     */
+    private function extractSubnetPrefix(string $ipAddress): string
+    {
+        // IPv4
+        if (filter_var($ipAddress, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+            $parts = explode('.', $ipAddress);
+
+            return implode('.', array_slice($parts, 0, 3));
+        }
+
+        // IPv6 - take first 3 segments
+        if (filter_var($ipAddress, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
+            $parts = explode(':', $ipAddress);
+
+            return implode(':', array_slice($parts, 0, 3));
+        }
+
+        // Fallback
+        return $ipAddress;
     }
 
     /**

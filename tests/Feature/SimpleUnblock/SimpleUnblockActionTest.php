@@ -148,6 +148,10 @@ test('action handles domain not found gracefully (Phase 3)', function () {
     Queue::assertPushed(\App\Jobs\SendSimpleUnblockNotificationJob::class);
 });
 
+// NOTE: Tests for null account/host cannot be automated with SQLite foreign key constraints
+// The validation logic in SimpleUnblockAction (lines 78-105) handles these edge cases
+// by logging errors and notifying admins. Production logs will show if these occur.
+
 test('action handles multiple domain formats', function () {
     Config::set('unblock.simple_mode.enabled', true);
     $testCases = [

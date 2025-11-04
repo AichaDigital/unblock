@@ -26,7 +26,10 @@ class GeoIPService
     public function __construct()
     {
         $this->enabled = config('services.maxmind.enabled', true);
-        $this->databasePath = config('services.maxmind.database_path');
+        $configPath = config('services.maxmind.database_path');
+
+        // Normalize path: if relative, convert to absolute using base_path()
+        $this->databasePath = $this->normalizePath($configPath);
 
         if ($this->enabled && file_exists($this->databasePath)) {
             try {
@@ -42,10 +45,26 @@ class GeoIPService
             if ($this->enabled) {
                 Log::info('GeoIP: Database not found, service disabled', [
                     'path' => $this->databasePath,
+                    'config_path' => $configPath,
+                    'file_exists' => file_exists($this->databasePath),
                 ]);
             }
             $this->enabled = false;
         }
+    }
+
+    /**
+     * Normalize database path (handle both absolute and relative paths)
+     */
+    private function normalizePath(string $path): string
+    {
+        // If path is already absolute, return as-is
+        if ($path[0] === '/' || (DIRECTORY_SEPARATOR === '\\' && preg_match('/^[A-Za-z]:/', $path))) {
+            return $path;
+        }
+
+        // If path is relative, resolve from base_path
+        return base_path($path);
     }
 
     /**

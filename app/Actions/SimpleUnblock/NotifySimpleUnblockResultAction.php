@@ -13,7 +13,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
  * Notify Simple Unblock Result Action
  *
  * Orchestrates email notifications based on unblock decision.
- * Dispatches appropriate notification jobs for user and/or admin.
+ * Dispatches a job to send notifications to the user and admin after an investigation.
  */
 class NotifySimpleUnblockResultAction
 {
