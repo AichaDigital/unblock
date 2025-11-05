@@ -31,7 +31,9 @@ return [
 
     'processing_message' => 'Tu solicitud está siendo procesada. Recibirás un email con los resultados en breve.',
     'success_message' => '¡Solicitud procesada! Recibirás un email con los detalles del sistema y el posible desbloqueo.',
+    'request_submitted' => '¡Solicitud enviada correctamente! Recibirás un email con el resultado del análisis en unos minutos. Revisa tu bandeja de entrada.',
     'error_message' => 'Ha ocurrido un error. Por favor, intenta de nuevo más tarde.',
+    'cooldown_active' => 'Por favor espera :seconds segundos antes de enviar otra solicitud.',
 
     'rate_limit_exceeded' => 'Has excedido el límite de solicitudes. Por favor, espera :seconds segundos.',
 

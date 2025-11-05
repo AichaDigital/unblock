@@ -31,7 +31,9 @@ return [
 
     'processing_message' => 'Your request is being processed. You will receive an email with the results shortly.',
     'success_message' => 'Request processed! You will receive an email with system details and possible unblock information.',
+    'request_submitted' => 'Request submitted successfully! You will receive an email with the analysis results in a few minutes. Check your inbox.',
     'error_message' => 'An error occurred. Please try again later.',
+    'cooldown_active' => 'Please wait :seconds seconds before submitting another request.',
 
     'rate_limit_exceeded' => 'You have exceeded the request limit. Please wait :seconds seconds.',
 

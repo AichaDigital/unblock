@@ -205,7 +205,17 @@
 
         {{-- Direct processing form when OTP is already verified --}}
         @if ($isOtpVerified)
-            <form wire:submit="processUnblock" class="mt-8 space-y-6">
+            <form wire:submit="processUnblock" class="mt-8 space-y-6" x-data="{ cooldownRemaining: @entangle('cooldownSeconds').live }" x-init="
+                if (cooldownRemaining > 0) {
+                    let interval = setInterval(() => {
+                        cooldownRemaining--;
+                        if (cooldownRemaining <= 0) {
+                            clearInterval(interval);
+                            $wire.call('checkCooldown');
+                        }
+                    }, 1000);
+                }
+            ">
                 <div class="card bg-base-100 shadow-xl">
                     <div class="card-body">
                         <div class="form-control">
@@ -219,6 +229,7 @@
                                 required
                                 class="input input-bordered @error('ip') input-error @enderror"
                                 placeholder="{{ __('simple_unblock.ip_placeholder') }}"
+                                @if($cooldownActive) disabled @endif
                             />
                             @error('ip')
                                 <label class="label">
@@ -238,6 +249,7 @@
                                 required
                                 class="input input-bordered @error('domain') input-error @enderror"
                                 placeholder="{{ __('simple_unblock.domain_placeholder') }}"
+                                @if($cooldownActive) disabled @endif
                             />
                             @error('domain')
                                 <label class="label">
@@ -250,16 +262,31 @@
                             <button
                                 type="submit"
                                 wire:loading.attr="disabled"
-                                class="btn btn-primary"
+                                @if($cooldownActive) disabled @endif
+                                class="btn btn-primary {{ $cooldownActive ? 'btn-disabled' : '' }}"
                             >
                                 <span wire:loading.remove>
-                                    {{ __('simple_unblock.process_button') }}
+                                    @if($cooldownActive)
+                                        <span x-text="'{{ __('simple_unblock.cooldown_active', ['seconds' => '']) }}' + cooldownRemaining + 's'"></span>
+                                    @else
+                                        {{ __('simple_unblock.process_button') }}
+                                    @endif
                                 </span>
                                 <span wire:loading>
                                     {{ __('simple_unblock.processing') }}
                                 </span>
                             </button>
                         </div>
+
+                        {{-- Cooldown info alert --}}
+                        @if($cooldownActive)
+                            <div class="alert alert-info mt-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <span x-text="'{{ __('simple_unblock.cooldown_active', ['seconds' => '']) }}' + cooldownRemaining + '{{ __('s') }}'"></span>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </form>
