@@ -71,6 +71,7 @@ class RequireAdminOtp
         // Check if OTP is already verified in this session
         $otpVerified = session()->get('admin_otp_verified');
         $otpUserId = session()->get('admin_otp_user_id');
+        $pendingOtpUserId = session()->get('admin_otp_pending_user_id');
 
         // Laravel handles session expiration automatically via SESSION_LIFETIME
         // No need to check custom TTL - if session is alive, OTP verification is valid
@@ -79,6 +80,19 @@ class RequireAdminOtp
         // If OTP is verified and matches current user, allow access
         if ($otpVerified && $otpUserId === $user->id) {
             return $next($request);
+        }
+
+        // CRITICAL: If admin authenticated via OTP login (/) but doesn't have admin_otp flags
+        // and wasn't pending verification, it means they came from user login route
+        // They need to complete admin OTP verification
+        if (! $otpVerified && ! $pendingOtpUserId) {
+            Log::info('Admin authenticated via OTP login needs admin OTP verification', [
+                'user_id' => $user->id,
+                'email' => $user->email,
+                'ip' => $request->ip(),
+            ]);
+            // Don't logout, just require OTP verification for admin panel access
+            // This will send OTP and set pending_user_id below
         }
 
         // Check if we're already on the OTP verification page (avoid redirect loop)
