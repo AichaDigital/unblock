@@ -115,7 +115,13 @@ class HostingResource extends Resource
                 TextColumn::make('user.first_name')
                     ->label('Usuario')
                     ->formatStateUsing(fn ($record) => $record->user?->name ?? '-')
-                    ->searchable(['users.first_name', 'users.last_name', 'users.email'])
+                    ->searchable(query: function ($query, $search) {
+                        return $query->whereHas('user', function ($q) use ($search) {
+                            $q->where('first_name', 'like', "%{$search}%")
+                                ->orWhere('last_name', 'like', "%{$search}%")
+                                ->orWhere('email', 'like', "%{$search}%");
+                        });
+                    })
                     ->sortable()
                     ->description(fn ($record) => $record->user?->email ?? '-')
                     ->toggleable(),

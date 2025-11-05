@@ -116,7 +116,13 @@ class UserResource extends Resource
                     ->boolean(),
                 TextColumn::make('parentUser.name')
                     ->label('Responsable')
-                    ->searchable(['users.first_name', 'users.last_name'])
+                    ->searchable(query: function ($query, $search) {
+                        return $query->whereHas('parentUser', function ($q) use ($search) {
+                            $q->where('first_name', 'like', "%{$search}%")
+                                ->orWhere('last_name', 'like', "%{$search}%")
+                                ->orWhere('email', 'like', "%{$search}%");
+                        });
+                    })
                     ->placeholder('Usuario Principal')
                     ->description(fn ($record) => $record->parentUser ? 'Autorizado por: '.$record->parentUser->email : 'Usuario independiente')
                     ->badge()
