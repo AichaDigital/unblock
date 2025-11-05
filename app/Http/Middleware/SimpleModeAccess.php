@@ -51,6 +51,12 @@ class SimpleModeAccess
             }
         }
 
+        // CRITICAL: Admins trying to access user dashboard should be redirected to admin panel
+        // This applies when admin authenticated via OTP login (/) in normal mode
+        if ($user->is_admin && $request->routeIs('dashboard') && ! config('unblock.simple_mode.enabled', false)) {
+            return redirect()->route('filament.admin.pages.dashboard');
+        }
+
         return $next($request);
     }
 }
