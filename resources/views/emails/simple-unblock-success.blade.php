@@ -7,15 +7,19 @@
     <style>
         body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
         .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-        .header { background: #d4edda; padding: 20px; border-radius: 5px; margin-bottom: 20px; }
+        .header { background: #d4edda; padding: 20px; border-radius: 5px; margin-bottom: 20px; border: 2px solid #28a745; }
         .content { background: #fff; padding: 20px; border: 1px solid #ddd; border-radius: 5px; }
         .admin-copy { background: #f8f9fa; border: 1px solid #dee2e6; padding: 15px; border-radius: 5px; margin: 15px 0; }
-        .success { background: #d4edda; border: 1px solid #c3e6cb; padding: 15px; border-radius: 5px; margin: 15px 0; }
+        .success { background: #d4edda; border: 2px solid #28a745; padding: 20px; border-radius: 5px; margin: 20px 0; }
+        .success h2 { margin-top: 0; color: #155724; }
+        .support-box { background: #f8f9fa; border: 2px solid #28a745; padding: 20px; border-radius: 5px; margin: 20px 0; text-align: center; }
+        .support-box a { display: inline-block; background: #28a745; color: #fff; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; margin-top: 10px; }
+        .support-box a:hover { background: #218838; }
         .footer { margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; font-size: 12px; color: #666; }
         h1 { color: #155724; margin: 0; }
-        h2 { color: #495057; margin-top: 25px; }
-        ul { margin: 10px 0; }
-        li { margin: 5px 0; }
+        h2 { color: #155724; margin-top: 25px; }
+        ul { margin: 10px 0; padding-left: 20px; }
+        li { margin: 8px 0; }
         code { background: #f8f9fa; padding: 2px 4px; border-radius: 3px; font-family: monospace; }
         .highlight { background: #d4edda; padding: 2px 4px; border-radius: 3px; }
     </style>
@@ -88,6 +92,14 @@
 
             <h2>{{ __('simple_unblock.mail.next_steps_title') }}</h2>
             <p>{{ __('simple_unblock.mail.next_steps_message') }}</p>
+
+            @if($supportTicketUrl && !$isAdminCopy)
+                <div class="support-box">
+                    <h2 style="margin-top: 0; color: #28a745;">{{ __('simple_unblock.mail.need_more_help') }}</h2>
+                    <p>{{ __('simple_unblock.mail.support_available') }}</p>
+                    <a href="{{ $supportTicketUrl }}">{{ __('simple_unblock.mail.contact_support') }}</a>
+                </div>
+            @endif
 
             @if($isAdminCopy)
                 <hr>

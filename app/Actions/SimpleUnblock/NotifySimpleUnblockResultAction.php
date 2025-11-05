@@ -21,6 +21,9 @@ class NotifySimpleUnblockResultAction
 
     /**
      * Send notifications based on unblock decision
+     *
+     * CRITICAL: ALWAYS sends email to BOTH user and admin when there's a report.
+     * The decision (blocked/not-blocked) is communicated in the email content.
      */
     public function handle(
         UnblockDecision $decision,
@@ -37,13 +40,12 @@ class NotifySimpleUnblockResultAction
             'report_id' => $report?->id,
         ]);
 
-        // Per business rules, always notify both user and admin of the investigation result.
+        // ALWAYS notify both user and admin when we have a report.
+        // The Job will determine which email template to use based on whether IP was blocked.
         SendSimpleUnblockNotificationJob::dispatch(
             reportId: (string) $report?->id,
             email: $email,
             domain: $domain,
-            // The `adminOnly` flag is removed to ensure user is always notified.
-            // The Job will handle sending a copy to the admin.
             reason: $decision->reason,
             hostFqdn: $host->fqdn,
             analysisData: $analysisData

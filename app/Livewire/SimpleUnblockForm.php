@@ -45,6 +45,10 @@ class SimpleUnblockForm extends Component
 
     public ?string $messageType = null;
 
+    public bool $cooldownActive = false;
+
+    public int $cooldownSeconds = 0;
+
     private ?User $otpUser = null;
 
     /**
@@ -65,6 +69,9 @@ class SimpleUnblockForm extends Component
             $this->message = __('simple_unblock.otp_verified_ready');
             $this->messageType = 'success';
         }
+
+        // Check if there's an active cooldown
+        $this->checkCooldown();
     }
 
     /**
@@ -286,6 +293,14 @@ class SimpleUnblockForm extends Component
      */
     public function processUnblock(): void
     {
+        // Check cooldown before processing
+        if ($this->cooldownActive) {
+            $this->message = __('simple_unblock.cooldown_active', ['seconds' => $this->cooldownSeconds]);
+            $this->messageType = 'warning';
+
+            return;
+        }
+
         $this->validate([
             'ip' => 'required|ip',
             'domain' => ['required', 'string', 'regex:/^[a-z0-9.-]+\.[a-z]{2,}$/i', $this->validateDomainRule()],
@@ -301,12 +316,26 @@ class SimpleUnblockForm extends Component
                 email: $this->email
             );
 
-            $this->message = __('simple_unblock.success_message');
+            // Set cooldown (60 seconds for simple mode)
+            $cooldownDuration = config('unblock.simple_mode.cooldown_seconds', 60);
+            $this->setCooldown($cooldownDuration);
+
+            // Success message with email notification info
+            $this->message = __('simple_unblock.request_submitted');
             $this->messageType = 'success';
 
-            // Reset form
-            $this->ip = $this->detectUserIp();
-            $this->domain = '';
+            // Reset form fields but keep IP
+            $savedIp = $this->ip;
+            $this->reset(['domain']);
+            $this->ip = $savedIp;
+
+            // Log activity
+            Log::info('Simple unblock request submitted', [
+                'ip' => $this->ip,
+                'domain' => $this->domain,
+                'email_hash' => hash('sha256', $this->email),
+            ]);
+
         } catch (Exception $e) {
             Log::error('Simple unblock processing failed', [
                 'ip' => $this->ip,
@@ -319,6 +348,45 @@ class SimpleUnblockForm extends Component
             $this->messageType = 'error';
         } finally {
             $this->processing = false;
+        }
+    }
+
+    /**
+     * Set cooldown to prevent spam
+     */
+    private function setCooldown(int $seconds): void
+    {
+        $expiresAt = now()->addSeconds($seconds);
+        session()->put('simple_unblock_cooldown', $expiresAt->timestamp);
+
+        $this->cooldownActive = true;
+        $this->cooldownSeconds = $seconds;
+    }
+
+    /**
+     * Check if cooldown is active
+     */
+    public function checkCooldown(): void
+    {
+        $cooldownTimestamp = session()->get('simple_unblock_cooldown');
+
+        if (! $cooldownTimestamp) {
+            $this->cooldownActive = false;
+            $this->cooldownSeconds = 0;
+
+            return;
+        }
+
+        $now = now()->timestamp;
+
+        if ($cooldownTimestamp > $now) {
+            $this->cooldownActive = true;
+            $this->cooldownSeconds = $cooldownTimestamp - $now;
+        } else {
+            // Cooldown expired, clear session
+            session()->forget('simple_unblock_cooldown');
+            $this->cooldownActive = false;
+            $this->cooldownSeconds = 0;
         }
     }
 
