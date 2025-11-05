@@ -68,4 +68,3 @@ test('action exception message is provided', function () {
         expect($e->getMessage())->not->toBeEmpty();
     }
 });
-

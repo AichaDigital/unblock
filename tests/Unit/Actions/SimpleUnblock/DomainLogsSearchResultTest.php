@@ -103,4 +103,3 @@ test('DTO preserves matching logs order', function () {
         ->and($result->matchingLogs[0])->toBe('2023-01-01 First log')
         ->and($result->matchingLogs[2])->toBe('2023-01-03 Third log');
 });
-

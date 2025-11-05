@@ -390,4 +390,3 @@ test('action marks simple_mode flag as true', function () {
 
     expect($report->analysis['simple_mode'])->toBeTrue();
 });
-

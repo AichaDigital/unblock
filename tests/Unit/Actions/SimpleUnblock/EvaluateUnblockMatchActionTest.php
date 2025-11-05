@@ -119,4 +119,3 @@ test('action domainValidInDb parameter is deprecated but accepted', function () 
     expect($decision1->shouldUnblock)->toBe($decision2->shouldUnblock)
         ->and($decision1->reason)->toBe($decision2->reason);
 });
-

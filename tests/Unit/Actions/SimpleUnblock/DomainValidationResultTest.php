@@ -59,4 +59,3 @@ test('DomainValidationResult is immutable', function () {
 
     expect($reflection->isReadOnly())->toBeTrue();
 });
-

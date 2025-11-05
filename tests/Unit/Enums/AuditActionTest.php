@@ -91,4 +91,3 @@ test('AuditAction cases returns all enum cases', function () {
         ->and($cases[4])->toBe(AuditAction::TooManyRequests)
         ->and($cases[5])->toBe(AuditAction::OtpLogin);
 });
-

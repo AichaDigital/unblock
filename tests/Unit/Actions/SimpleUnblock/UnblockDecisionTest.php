@@ -89,4 +89,3 @@ test('UnblockDecision multiple instances are independent', function () {
         ->and($decision2->shouldUnblock)->toBeFalse()
         ->and($decision2->reason)->toBe('Reason 2');
 });
-

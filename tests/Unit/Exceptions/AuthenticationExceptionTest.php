@@ -106,4 +106,3 @@ test('AuthenticationException is throwable', function () {
         );
     })->toThrow(AuthenticationException::class);
 });
-

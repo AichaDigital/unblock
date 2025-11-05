@@ -98,4 +98,3 @@ test('PanelType implements HasColor interface', function () {
 test('PanelType implements HasIcon interface', function () {
     expect(PanelType::CPANEL)->toBeInstanceOf(Filament\Support\Contracts\HasIcon::class);
 });
-

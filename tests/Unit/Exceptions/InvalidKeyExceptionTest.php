@@ -60,4 +60,3 @@ test('InvalidKeyException report logs empty message', function () {
         ->once()
         ->with('');
 });
-
