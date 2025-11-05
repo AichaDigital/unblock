@@ -25,7 +25,12 @@ beforeEach(function () {
 
 test('notification sends SUCCESS email when report indicates unblock', function () {
     $report = Report::factory()->anonymous()->create([
-        'was_unblocked' => true, // Explicitly set success state
+        'was_unblocked' => true, // IP was blocked and unblocked
+        'analysis' => [
+            'was_blocked' => true, // Explicitly: IP was blocked
+            'csf' => ['blocked' => true],
+            'logs' => ['some logs'],
+        ],
     ]);
 
     $job = new SendSimpleUnblockNotificationJob(
@@ -39,21 +44,28 @@ test('notification sends SUCCESS email when report indicates unblock', function 
     // 1. Check user email
     Mail::assertSent(SimpleUnblockNotificationMail::class, function ($mail) {
         return $mail->hasTo($this->email)
-            && $mail->isSuccess === true
+            && $mail->isSuccess === true // Analysis completed successfully
+            && $mail->wasBlocked === true // IP was blocked
             && ! $mail->isAdminCopy;
     });
 
     // 2. Check admin copy
     Mail::assertSent(SimpleUnblockNotificationMail::class, function ($mail) {
         return $mail->hasTo(config('unblock.admin_email'))
-            && $mail->isSuccess === true
+            && $mail->isSuccess === true // Analysis completed successfully
+            && $mail->wasBlocked === true // IP was blocked
             && $mail->isAdminCopy;
     });
 });
 
 test('notification sends INFO email when report indicates NO unblock', function () {
     $report = Report::factory()->anonymous()->create([
-        'was_unblocked' => false, // Explicitly set non-success state
+        'was_unblocked' => false, // IP was NOT blocked
+        'analysis' => [
+            'was_blocked' => false, // Explicitly: IP was not blocked
+            'csf' => [],
+            'logs' => [],
+        ],
     ]);
 
     $job = new SendSimpleUnblockNotificationJob(
@@ -64,17 +76,19 @@ test('notification sends INFO email when report indicates NO unblock', function 
 
     $job->handle();
 
-    // 1. Check user email
+    // 1. Check user email (isSuccess=true because analysis completed, wasBlocked=false)
     Mail::assertSent(SimpleUnblockNotificationMail::class, function ($mail) {
         return $mail->hasTo($this->email)
-            && $mail->isSuccess === false
+            && $mail->isSuccess === true // Analysis completed successfully
+            && $mail->wasBlocked === false // But IP was NOT blocked
             && ! $mail->isAdminCopy;
     });
 
     // 2. Check admin copy
     Mail::assertSent(SimpleUnblockNotificationMail::class, function ($mail) {
         return $mail->hasTo(config('unblock.admin_email'))
-            && $mail->isSuccess === false
+            && $mail->isSuccess === true // Analysis completed successfully
+            && $mail->wasBlocked === false // But IP was NOT blocked
             && $mail->isAdminCopy;
     });
 });

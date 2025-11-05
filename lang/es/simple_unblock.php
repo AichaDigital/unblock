@@ -28,10 +28,15 @@ return [
     'submit_button' => 'Verificar y Desbloquear',
     'processing' => 'Procesando...',
     'process_button' => 'Procesar Desbloqueo',
+    'button_disabled' => 'Espera para enviar otra solicitud',
 
     'processing_message' => 'Tu solicitud está siendo procesada. Recibirás un email con los resultados en breve.',
     'success_message' => '¡Solicitud procesada! Recibirás un email con los detalles del sistema y el posible desbloqueo.',
+    'request_submitted' => '¡Solicitud enviada correctamente! Recibirás un email con el resultado del análisis en unos minutos. Revisa tu bandeja de entrada.',
     'error_message' => 'Ha ocurrido un error. Por favor, intenta de nuevo más tarde.',
+    'cooldown_active' => 'Por favor espera :seconds segundos antes de enviar otra solicitud.',
+    'cooldown_message' => 'Podrás enviar otra solicitud en',
+    'seconds' => 'segundos',
 
     'rate_limit_exceeded' => 'Has excedido el límite de solicitudes. Por favor, espera :seconds segundos.',
 
@@ -62,6 +67,26 @@ return [
         'admin_info_report_id' => 'ID del Reporte',
 
         'greeting' => 'Hola,',
+
+        // Not blocked email
+        'not_blocked' => [
+            'title' => 'Resultado del Análisis de tu IP',
+            'result_title' => '✓ Buenas Noticias',
+            'result_message' => 'Tu dirección IP :ip NO está bloqueada en el firewall de :domain',
+            'analysis_title' => 'Lo que verificamos:',
+            'check_1' => 'Revisamos los logs del firewall del servidor',
+            'check_2' => 'Verificamos las reglas de bloqueo activas',
+            'check_3' => 'Comprobamos el historial reciente de accesos',
+            'possible_causes_title' => 'Si sigues teniendo problemas de acceso, puede deberse a:',
+            'cause_1' => 'Problemas de DNS (los cambios pueden tardar hasta 24-48 horas)',
+            'cause_2' => 'Problemas en tu conexión local o ISP',
+            'cause_3' => 'Errores de configuración en tu aplicación o servicio',
+            'cause_4' => 'Restricciones adicionales a nivel de aplicación (no del firewall)',
+            'need_help' => '¿Sigues necesitando ayuda?',
+            'support_message' => 'Si el problema persiste, nuestro equipo de soporte puede ayudarte a investigar más a fondo.',
+            'open_ticket' => 'Abrir Ticket de Soporte',
+        ],
+
         'success_message' => 'Tu dirección IP <strong>:ip</strong> para el dominio <strong>:domain</strong> ha sido analizada y desbloqueada exitosamente.',
 
         'analysis_results_title' => 'Resultados del Análisis',
@@ -83,6 +108,9 @@ return [
 
         'next_steps_title' => '¿Qué Sigue?',
         'next_steps_message' => 'Tu IP debería tener acceso al servidor ahora. Si continúas experimentando problemas, por favor contacta con nuestro equipo de soporte.',
+        'need_more_help' => '¿Necesitas más ayuda?',
+        'support_available' => 'Nuestro equipo de soporte está disponible para ayudarte con cualquier problema adicional.',
+        'contact_support' => 'Contactar Soporte',
 
         'admin_notes_title' => 'Notas del Administrador',
         'admin_note_anonymous' => 'Esta fue una solicitud anónima de desbloqueo simple',
