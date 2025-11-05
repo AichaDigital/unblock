@@ -37,6 +37,7 @@ class HqWhitelistMail extends Mailable implements ShouldQueue
                 'userName' => $this->user->name,
                 'ttlSeconds' => $this->ttlSeconds,
                 'ttlHours' => round($this->ttlSeconds / 3600, 2),
+                'companyName' => config('company.name'),
             ],
         );
     }
