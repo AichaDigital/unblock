@@ -108,6 +108,9 @@ return [
 
         'next_steps_title' => '¿Qué Sigue?',
         'next_steps_message' => 'Tu IP debería tener acceso al servidor ahora. Si continúas experimentando problemas, por favor contacta con nuestro equipo de soporte.',
+        'need_more_help' => '¿Necesitas más ayuda?',
+        'support_available' => 'Nuestro equipo de soporte está disponible para ayudarte con cualquier problema adicional.',
+        'contact_support' => 'Contactar Soporte',
 
         'admin_notes_title' => 'Notas del Administrador',
         'admin_note_anonymous' => 'Esta fue una solicitud anónima de desbloqueo simple',

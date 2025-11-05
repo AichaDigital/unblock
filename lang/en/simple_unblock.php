@@ -108,6 +108,9 @@ return [
 
         'next_steps_title' => 'What\'s Next?',
         'next_steps_message' => 'Your IP should now have access to the server. If you continue experiencing issues, please contact our support team.',
+        'need_more_help' => 'Need more help?',
+        'support_available' => 'Our support team is available to help you with any additional issues.',
+        'contact_support' => 'Contact Support',
 
         'admin_notes_title' => 'Admin Notes',
         'admin_note_anonymous' => 'This was an anonymous simple unblock request',
