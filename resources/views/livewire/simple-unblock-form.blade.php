@@ -266,11 +266,7 @@
                                 class="btn btn-primary {{ $cooldownActive ? 'btn-disabled' : '' }}"
                             >
                                 <span wire:loading.remove>
-                                    @if($cooldownActive)
-                                        <span x-text="'{{ __('simple_unblock.cooldown_active', ['seconds' => '']) }}' + cooldownRemaining + 's'"></span>
-                                    @else
-                                        {{ __('simple_unblock.process_button') }}
-                                    @endif
+                                    {{ $cooldownActive ? __('simple_unblock.button_disabled') : __('simple_unblock.process_button') }}
                                 </span>
                                 <span wire:loading>
                                     {{ __('simple_unblock.processing') }}
@@ -284,7 +280,7 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                 </svg>
-                                <span x-text="'{{ __('simple_unblock.cooldown_active', ['seconds' => '']) }}' + cooldownRemaining + '{{ __('s') }}'"></span>
+                                <span x-text="'{{ __('simple_unblock.cooldown_message') }} ' + cooldownRemaining + ' {{ __('simple_unblock.seconds') }}'"></span>
                             </div>
                         @endif
                     </div>

@@ -69,12 +69,14 @@ class SendSimpleUnblockNotificationJob implements ShouldQueue
 
             // Determine success based on the report's content
             $isSuccess = $report->was_unblocked;
+            $wasBlocked = $report->analysis['was_blocked'] ?? true; // Check if IP was actually blocked
 
             Log::info('Sending simple unblock notification to user and admin', [
                 'report_id' => $report->id,
                 'email' => $this->email,
                 'domain' => $this->domain,
                 'is_success' => $isSuccess,
+                'was_blocked' => $wasBlocked,
             ]);
 
             // 1. Send to user
@@ -84,7 +86,8 @@ class SendSimpleUnblockNotificationJob implements ShouldQueue
                     domain: $this->domain,
                     report: $report,
                     isSuccess: $isSuccess,
-                    isAdminCopy: false
+                    isAdminCopy: false,
+                    wasBlocked: $wasBlocked
                 )
             );
 
@@ -97,7 +100,8 @@ class SendSimpleUnblockNotificationJob implements ShouldQueue
                         domain: $this->domain,
                         report: $report,
                         isSuccess: $isSuccess,
-                        isAdminCopy: true
+                        isAdminCopy: true,
+                        wasBlocked: $wasBlocked
                     )
                 );
             }

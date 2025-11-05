@@ -91,6 +91,9 @@ return [
         'otp_enabled' => env('UNBLOCK_SIMPLE_OTP_ENABLED', true),
         'otp_expires_minutes' => env('UNBLOCK_SIMPLE_OTP_EXPIRES', 5),
         'otp_length' => env('UNBLOCK_SIMPLE_OTP_LENGTH', 6),
+
+        // Support ticket configuration
+        'support_ticket_url' => env('SUPPORT_TICKET_URL', ''),
     ],
 
     // Accounts Synchronization (Phase 2 - Simple Mode Refactor)
