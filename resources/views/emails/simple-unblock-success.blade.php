@@ -86,7 +86,18 @@
                 <h2>{{ __('simple_unblock.mail.firewall_logs_title') }}</h2>
                 <p>{{ __('simple_unblock.mail.firewall_logs_intro') }}</p>
                 @foreach($report->logs as $service => $log)
-                    <p><strong>{{ ucfirst($service) }}:</strong> {{ is_array($log) ? __('simple_unblock.mail.firewall_logs_multiple') : (strlen($log) > 100 ? substr($log, 0, 100) . '...' : $log) }}</p>
+                    <div style="margin-bottom: 15px; border: 1px solid #d4edda; border-radius: 5px; overflow: hidden;">
+                        <div style="background-color: #d4edda; padding: 10px; border-bottom: 1px solid #28a745;">
+                            <strong style="color: #155724;">{{ ucfirst($service) }}</strong>
+                        </div>
+                        <div style="padding: 12px; background-color: #ffffff; font-family: 'Courier New', Courier, monospace; word-wrap: break-word; word-break: break-word; white-space: pre-wrap; overflow-wrap: break-word; font-size: 13px; max-width: 100%; color: #333;">
+                            @if(is_array($log))
+                                {{ __('simple_unblock.mail.firewall_logs_multiple') }}
+                            @else
+                                {{ $log }}
+                            @endif
+                        </div>
+                    </div>
                 @endforeach
             @endif
 
