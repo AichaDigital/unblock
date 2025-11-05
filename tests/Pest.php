@@ -1,83 +1,90 @@
 <?php
 
-/*
-|--------------------------------------------------------------------------
-| Test Case
-|--------------------------------------------------------------------------
-|
-| The closure you provide to your test functions is always bound to a specific PHPUnit test
-| case class. By default, that class is "PHPUnit\Framework\TestCase". Of course, you may
-| need to change it using the "uses()" function to bind a different classes or traits.
-|
-*/
+declare(strict_types=1);
 
-use App\Models\User;
+use Illuminate\Foundation\Testing\{RefreshDatabase};
+use Tests\Helpers\SimpleModeTestHelper;
 
-use function Pest\Laravel\actingAs;
-
-pest()->extend(Tests\TestCase::class)
-    ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
-    ->in('Feature', 'Unit');
-
-/*
-|--------------------------------------------------------------------------
-| Expectations
-|--------------------------------------------------------------------------
-|
-| When you're writing tests, you often need to check that values meet certain conditions. The
-| "expect()" function gives you access to a set of "expectations" methods that you can use
-| to assert different things. Of course, you may extend the Expectation API at any time.
-|
-*/
-
-expect()->extend('toBeOne', function () {
-    return $this->toBe(1);
-});
-
-/*
-|--------------------------------------------------------------------------
-| Functions
-|--------------------------------------------------------------------------
-|
-| While Pest is very powerful out-of-the-box, you may have some testing code specific to your
-| project that you don't want to repeat in every file. Here you can also expose helpers as
-| global functions to help you to reduce the number of lines of code in your test files.
-|
-*/
+uses(
+    Tests\TestCase::class,
+    RefreshDatabase::class,
+)->in('Feature', 'Unit');
 
 /**
- * Login as a user and return the user instance
+ * Custom Pest helpers for Simple Mode testing
  */
-function loginAsUser(?User $user = null): User
+
+/**
+ * Enable Simple Mode for the current test
+ *
+ * Usage: $this->enableSimpleMode()
+ */
+function enableSimpleMode(): void
 {
-    /** @var User $user */
-    $user = $user ?? User::factory()->create();
-
-    actingAs($user);
-
-    return $user;
+    SimpleModeTestHelper::enableSimpleMode();
 }
 
 /**
- * Login as an admin user and return the user instance
+ * Disable Simple Mode for the current test (Admin Mode)
+ *
+ * Usage: $this->disableSimpleMode()
  */
-function loginAsAdmin(): User
+function disableSimpleMode(): void
 {
-    /** @var User $user */
-    $user = User::factory()->admin()->create();
-
-    actingAs($user);
-
-    return $user;
+    SimpleModeTestHelper::disableSimpleMode();
 }
 
+/**
+ * Create a temporary user (Simple Mode user)
+ *
+ * Usage: $user = $this->createTemporaryUser()
+ */
+function createTemporaryUser(string $email = 'simple@example.com'): \App\Models\User
+{
+    return SimpleModeTestHelper::createTemporaryUser($email);
+}
+
+/**
+ * Create an admin user (Admin Mode user)
+ *
+ * Usage: $admin = $this->createAdminUser()
+ */
+function createAdminUser(string $email = 'admin@example.com'): \App\Models\User
+{
+    return SimpleModeTestHelper::createAdminUser($email);
+}
+
+/**
+ * Login as a specific user
+ *
+ * Usage: loginAsUser($user)
+ */
+function loginAsUser(\App\Models\User $user): void
+{
+    test()->actingAs($user);
+}
+
+/**
+ * Login as admin (creates and authenticates as admin user)
+ *
+ * Usage: loginAsAdmin()
+ */
+function loginAsAdmin(): \App\Models\User
+{
+    $admin = SimpleModeTestHelper::createAdminUser();
+    test()->actingAs($admin);
+
+    return $admin;
+}
+
+/**
+ * Get the path to test resources
+ *
+ * Usage: testPath('stubs')
+ */
 function testPath(string $path = ''): string
 {
-    $testDir = __DIR__;
+    $basePath = __DIR__;
 
-    if ($path) {
-        return $testDir.DIRECTORY_SEPARATOR.ltrim($path, DIRECTORY_SEPARATOR);
-    }
-
-    return $testDir;
+    return $path ? $basePath.'/'.ltrim($path, '/') : $basePath;
 }

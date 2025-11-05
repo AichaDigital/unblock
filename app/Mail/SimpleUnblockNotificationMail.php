@@ -33,7 +33,8 @@ class SimpleUnblockNotificationMail extends Mailable
         public readonly bool $isAdminCopy,
         public readonly ?string $reason = null,
         public readonly ?string $hostFqdn = null,
-        public readonly ?array $analysisData = null
+        public readonly ?array $analysisData = null,
+        public readonly bool $wasBlocked = true // New: indicates if IP was actually blocked
     ) {
         // Set locale for email rendering (anonymous users use APP_LOCALE)
         app()->setLocale(config('app.locale'));
@@ -62,15 +63,24 @@ class SimpleUnblockNotificationMail extends Mailable
      */
     public function content(): Content
     {
-        $view = $this->isSuccess
-            ? 'emails.simple-unblock-success'
-            : 'emails.simple-unblock-admin-alert';
+        // Determine which view to use
+        $view = match (true) {
+            // Admin alert (failure/suspicious) - NO report
+            ! $this->isSuccess => 'emails.simple-unblock-admin-alert',
+
+            // IP was NOT blocked (both user and admin copy use same template)
+            $this->isSuccess && ! $this->wasBlocked => 'emails.simple-unblock-not-blocked',
+
+            // IP WAS blocked and unblocked (both user and admin copy use same template)
+            default => 'emails.simple-unblock-success',
+        };
 
         return new Content(
             view: $view,
             with: [
                 'email' => $this->email,
                 'domain' => $this->domain,
+                'ip' => $this->report?->ip ?? $this->analysisData['ip'] ?? 'Unknown',
                 'report' => $this->report,
                 'isAdminCopy' => $this->isAdminCopy,
                 'reason' => $this->reason,
@@ -78,6 +88,7 @@ class SimpleUnblockNotificationMail extends Mailable
                 'analysisData' => $this->analysisData,
                 'companyName' => config('company.name'),
                 'supportEmail' => config('company.support.email'),
+                'supportTicketUrl' => config('unblock.simple_mode.support_ticket_url'),
             ],
         );
     }

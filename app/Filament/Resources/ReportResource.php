@@ -117,7 +117,13 @@ class ReportResource extends Resource
 
                 TextColumn::make('user.name')
                     ->label(__('firewall.reports.user'))
-                    ->searchable(['users.first_name', 'users.last_name'])
+                    ->searchable(query: function ($query, $search) {
+                        return $query->whereHas('user', function ($q) use ($search) {
+                            $q->where('first_name', 'like', "%{$search}%")
+                                ->orWhere('last_name', 'like', "%{$search}%")
+                                ->orWhere('email', 'like', "%{$search}%");
+                        });
+                    })
                     ->sortable()
                     ->placeholder(__('firewall.reports.unassigned')),
 

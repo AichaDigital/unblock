@@ -74,6 +74,7 @@ return [
     'simple_mode' => [
         'enabled' => env('UNBLOCK_SIMPLE_MODE', false),
         'whitelist_ttl' => env('UNBLOCK_SIMPLE_WHITELIST_TTL', 3600), // 1 hour for simple mode
+        'cooldown_seconds' => env('UNBLOCK_SIMPLE_COOLDOWN_SECONDS', 60), // Cooldown between requests
 
         // Multi-vector rate limiting (defense against botnets)
         'throttle_per_minute' => env('UNBLOCK_SIMPLE_THROTTLE_PER_MINUTE', 3),
@@ -90,6 +91,9 @@ return [
         'otp_enabled' => env('UNBLOCK_SIMPLE_OTP_ENABLED', true),
         'otp_expires_minutes' => env('UNBLOCK_SIMPLE_OTP_EXPIRES', 5),
         'otp_length' => env('UNBLOCK_SIMPLE_OTP_LENGTH', 6),
+
+        // Support ticket configuration
+        'support_ticket_url' => env('SUPPORT_TICKET_URL', ''),
     ],
 
     // Accounts Synchronization (Phase 2 - Simple Mode Refactor)

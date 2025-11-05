@@ -28,10 +28,15 @@ return [
     'submit_button' => 'Verify and Unblock',
     'processing' => 'Processing...',
     'process_button' => 'Process Unblock',
+    'button_disabled' => 'Wait to send another request',
 
     'processing_message' => 'Your request is being processed. You will receive an email with the results shortly.',
     'success_message' => 'Request processed! You will receive an email with system details and possible unblock information.',
+    'request_submitted' => 'Request submitted successfully! You will receive an email with the analysis results in a few minutes. Check your inbox.',
     'error_message' => 'An error occurred. Please try again later.',
+    'cooldown_active' => 'Please wait :seconds seconds before submitting another request.',
+    'cooldown_message' => 'You can send another request in',
+    'seconds' => 'seconds',
 
     'rate_limit_exceeded' => 'You have exceeded the request limit. Please wait :seconds seconds.',
 
@@ -62,6 +67,26 @@ return [
         'admin_info_report_id' => 'Report ID',
 
         'greeting' => 'Hello,',
+
+        // Not blocked email
+        'not_blocked' => [
+            'title' => 'Your IP Analysis Result',
+            'result_title' => '✓ Good News',
+            'result_message' => 'Your IP address :ip is NOT blocked on the :domain firewall',
+            'analysis_title' => 'What we checked:',
+            'check_1' => 'We reviewed the server firewall logs',
+            'check_2' => 'We verified active blocking rules',
+            'check_3' => 'We checked recent access history',
+            'possible_causes_title' => 'If you still have access problems, it may be due to:',
+            'cause_1' => 'DNS issues (changes can take up to 24-48 hours)',
+            'cause_2' => 'Issues with your local connection or ISP',
+            'cause_3' => 'Configuration errors in your application or service',
+            'cause_4' => 'Additional restrictions at the application level (not firewall)',
+            'need_help' => 'Still need help?',
+            'support_message' => 'If the problem persists, our support team can help you investigate further.',
+            'open_ticket' => 'Open Support Ticket',
+        ],
+
         'success_message' => 'Your IP address <strong>:ip</strong> for domain <strong>:domain</strong> has been successfully analyzed and unblocked.',
 
         'analysis_results_title' => 'Analysis Results',
@@ -83,6 +108,9 @@ return [
 
         'next_steps_title' => 'What\'s Next?',
         'next_steps_message' => 'Your IP should now have access to the server. If you continue experiencing issues, please contact our support team.',
+        'need_more_help' => 'Need more help?',
+        'support_available' => 'Our support team is available to help you with any additional issues.',
+        'contact_support' => 'Contact Support',
 
         'admin_notes_title' => 'Admin Notes',
         'admin_note_anonymous' => 'This was an anonymous simple unblock request',
