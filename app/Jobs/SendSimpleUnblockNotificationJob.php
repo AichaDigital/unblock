@@ -67,15 +67,16 @@ class SendSimpleUnblockNotificationJob implements ShouldQueue
                 return;
             }
 
-            // Determine success based on the report's content
-            $isSuccess = $report->was_unblocked;
-            $wasBlocked = $report->analysis['was_blocked'] ?? true; // Check if IP was actually blocked
+            // Determine if the analysis was successful (we have a report with data)
+            // isSuccess = true means we completed the analysis (regardless of block status)
+            $wasBlocked = $report->analysis['was_blocked'] ?? false;
+            $isSuccess = true; // We have a report, so analysis completed successfully
 
             Log::info('Sending simple unblock notification to user and admin', [
                 'report_id' => $report->id,
                 'email' => $this->email,
                 'domain' => $this->domain,
-                'is_success' => $isSuccess,
+                'analysis_completed' => true,
                 'was_blocked' => $wasBlocked,
             ]);
 
