@@ -39,12 +39,15 @@ class CheckSessionTimeout
                     ])
                     ->log('Session expired due to inactivity');
 
-                // Logout user and redirect to login
+                // Logout user and redirect to appropriate login based on user type
                 Auth::logout();
                 $request->session()->invalidate();
                 $request->session()->regenerateToken();
 
-                return redirect()->route('login')->with('message', __('messages.session_expired'));
+                // CRITICAL: Admins should return to admin login, regular users to normal login
+                $redirectRoute = $user->is_admin ? 'filament.admin.auth.login' : 'login';
+
+                return redirect()->route($redirectRoute)->with('message', __('messages.session_expired'));
             }
 
             // Update last activity timestamp

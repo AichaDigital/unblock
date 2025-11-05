@@ -87,6 +87,23 @@ class OtpLogin extends Component
             );
             session()->forget('message');
         }
+
+        // CRITICAL: Reset form state completely (avoid zombie state)
+        $this->resetFormState();
+    }
+
+    /**
+     * Reset form state completely to prevent zombie states
+     */
+    private function resetFormState(): void
+    {
+        $this->otpSent = false;
+        $this->email = '';
+        $this->oneTimePassword = '';
+        $this->user = null;
+        $this->sendingOtp = false;
+        $this->authenticating = false;
+        $this->canResend = false;
     }
 
     private function getClientIp(): string
@@ -201,6 +218,7 @@ class OtpLogin extends Component
 
                 if ($this->isSimpleMode()) {
                     // Simple mode: Authenticate temporary user and redirect to simple unblock form
+                    // In simple mode, even admins can use this for quick IP unblock
                     Auth::login($this->user);
                     session()->put('last_activity', now()->timestamp);
                     session()->put('otp_request_email', $this->email);
@@ -213,10 +231,25 @@ class OtpLogin extends Component
                     // Redirect to simple unblock form
                     $this->redirectRoute('simple.unblock');
                 } else {
-                    // Normal mode: Authenticate user and redirect to dashboard
-                    // Set initial session activity timestamp
+                    // Normal mode: Authenticate user
+                    Auth::login($this->user);
                     session()->put('last_activity', now()->timestamp);
 
+                    // CRITICAL: Admins in normal mode must use admin panel, not user dashboard
+                    if ($this->user->is_admin) {
+                        $this->info(
+                            'Redirigiendo al panel de administración',
+                            'Acceso autorizado'
+                        );
+                        $this->audit($ip, 'otp_login', 'Admin redirected to admin panel');
+
+                        // Redirect to admin panel (they'll need to complete admin OTP there)
+                        $this->redirect(route('filament.admin.pages.dashboard'));
+
+                        return;
+                    }
+
+                    // Regular user: redirect to user dashboard
                     $this->success(
                         'Acceso autorizado',
                         'Bienvenido al sistema'
