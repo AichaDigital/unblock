@@ -18,6 +18,8 @@
         </include>
         <exclude>
             <directory suffix=".php">./app/Filament</directory>
+            <directory suffix=".php">./app/Livewire</directory>
+            <directory suffix=".php">./app/Notifications</directory>
         </exclude>
     </source>
     <php>
