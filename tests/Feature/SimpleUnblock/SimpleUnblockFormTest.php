@@ -40,26 +40,30 @@ beforeEach(function () {
 });
 
 test('simple unblock form is accessible when enabled', function () {
+    config()->set('unblock.simple_mode.enabled', true);
+
     get('/simple-unblock')
         ->assertOk()
         ->assertSeeLivewire(SimpleUnblockForm::class);
 });
 
 test('simple unblock form is NOT accessible when disabled', function () {
-    // This test requires UNBLOCK_SIMPLE_MODE=false in phpunit.xml
-    // We need a separate test suite to run this scenario.
-    $this->markTestSkipped('Requires a separate test suite with UNBLOCK_SIMPLE_MODE=false.');
+    config()->set('unblock.simple_mode.enabled', false);
 
     get('/simple-unblock')
         ->assertNotFound();
 });
 
 test('simple unblock form autodetects user IP', function () {
+    config()->set('unblock.simple_mode.enabled', true);
+
     Livewire::test(SimpleUnblockForm::class)
         ->assertSet('ip', request()->ip());
 });
 
 test('simple unblock form validates IP format', function () {
+    config()->set('unblock.simple_mode.enabled', true);
+
     Livewire::test(SimpleUnblockForm::class)
         ->set('ip', 'invalid-ip')
         ->set('domain', 'example.com')
@@ -69,6 +73,8 @@ test('simple unblock form validates IP format', function () {
 });
 
 test('simple unblock form validates domain format', function () {
+    config()->set('unblock.simple_mode.enabled', true);
+
     Livewire::test(SimpleUnblockForm::class)
         ->set('ip', '192.168.1.1')
         ->set('domain', 'invalid domain!')
@@ -78,6 +84,8 @@ test('simple unblock form validates domain format', function () {
 });
 
 test('simple unblock form validates email format', function () {
+    config()->set('unblock.simple_mode.enabled', true);
+
     Livewire::test(SimpleUnblockForm::class)
         ->set('ip', '192.168.1.1')
         ->set('domain', 'example.com')
@@ -87,6 +95,8 @@ test('simple unblock form validates email format', function () {
 });
 
 test('simple unblock form sends OTP on valid step 1 input', function () {
+    config()->set('unblock.simple_mode.enabled', true);
+
     Livewire::test(SimpleUnblockForm::class)
         ->set('ip', '192.168.1.1')
         ->set('domain', 'example.com')
@@ -98,6 +108,8 @@ test('simple unblock form sends OTP on valid step 1 input', function () {
 });
 
 test('simple unblock stores session data on OTP send', function () {
+    config()->set('unblock.simple_mode.enabled', true);
+
     Livewire::test(SimpleUnblockForm::class)
         ->set('ip', '192.168.1.1')
         ->set('domain', 'EXAMPLE.COM')
@@ -112,6 +124,8 @@ test('simple unblock stores session data on OTP send', function () {
 });
 
 test('simple unblock allows back navigation from step 2 to step 1', function () {
+    config()->set('unblock.simple_mode.enabled', true);
+
     $component = Livewire::test(SimpleUnblockForm::class)
         ->set('ip', '192.168.1.1')
         ->set('domain', 'example.com')
@@ -125,6 +139,8 @@ test('simple unblock allows back navigation from step 2 to step 1', function () 
 });
 
 test('simple unblock validates OTP format', function () {
+    config()->set('unblock.simple_mode.enabled', true);
+
     // First, send OTP
     Livewire::test(SimpleUnblockForm::class)
         ->set('ip', '192.168.1.1')
@@ -138,6 +154,8 @@ test('simple unblock validates OTP format', function () {
 });
 
 test('simple unblock rejects invalid OTP', function () {
+    config()->set('unblock.simple_mode.enabled', true);
+
     // Mock user with OTP
     $user = \App\Models\User::factory()->create([
         'email' => 'test@example.com',
@@ -158,6 +176,8 @@ test('simple unblock rejects invalid OTP', function () {
 });
 
 test('simple unblock dispatches jobs after valid OTP verification', function () {
+    config()->set('unblock.simple_mode.enabled', true);
+
     // NOTE: Livewire testing session isolation issue
     // Livewire test components don't share session with global session helper
     // This test validates the action is called correctly by mocking the verification flow
@@ -182,6 +202,8 @@ test('simple unblock dispatches jobs after valid OTP verification', function () 
 });
 
 test('simple unblock logs activity after OTP verification', function () {
+    config()->set('unblock.simple_mode.enabled', true);
+
     // NOTE: Livewire testing session isolation issue
     // Testing activity logging by calling the action directly after OTP verification
 
@@ -204,6 +226,8 @@ test('simple unblock logs activity after OTP verification', function () {
 // v1.2.0 OTP-specific tests
 
 test('simple unblock creates temporary user for OTP if email does not exist', function () {
+    config()->set('unblock.simple_mode.enabled', true);
+
     $email = 'newuser@example.com';
 
     // Verify user doesn't exist
@@ -224,6 +248,8 @@ test('simple unblock creates temporary user for OTP if email does not exist', fu
 });
 
 test('simple unblock binds OTP to IP for security', function () {
+    config()->set('unblock.simple_mode.enabled', true);
+
     $component = Livewire::test(SimpleUnblockForm::class)
         ->set('ip', '192.168.1.1')
         ->set('domain', 'example.com')
@@ -235,6 +261,8 @@ test('simple unblock binds OTP to IP for security', function () {
 });
 
 test('simple unblock rejects OTP from different IP', function () {
+    config()->set('unblock.simple_mode.enabled', true);
+
     // NOTE: Livewire testing session isolation issue
     // Testing IP mismatch logic by verifying the code path exists
 
@@ -254,6 +282,8 @@ test('simple unblock rejects OTP from different IP', function () {
 });
 
 test('simple unblock clears session after successful OTP verification', function () {
+    config()->set('unblock.simple_mode.enabled', true);
+
     // NOTE: Livewire testing session isolation issue
     // Livewire components in tests use isolated session that doesn't sync with global session()
     // This test verifies session management code exists in verifyOtp method (line 158)
@@ -277,6 +307,8 @@ test('simple unblock clears session after successful OTP verification', function
 });
 
 test('simple unblock resets form to step 1 after successful verification', function () {
+    config()->set('unblock.simple_mode.enabled', true);
+
     // NOTE: Livewire testing session isolation issue
     // Form reset logic exists but can't be tested end-to-end due to session isolation
     // Verifying reset code exists in verifyOtp method (line 159)

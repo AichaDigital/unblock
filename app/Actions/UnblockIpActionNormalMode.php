@@ -65,26 +65,36 @@ class UnblockIpActionNormalMode
             ]);
 
             // 1. Standard CSF unblock (remove from deny lists)
+            Log::info('Executing CSF unblock command', ['ip' => $ip, 'host' => $host->fqdn]);
             $this->firewallService->checkProblems($host, $keyPath, 'unblock', $ip);
 
             // 2. Add to CSF temporary whitelist (normal mode TTL)
+            Log::info('Adding IP to CSF temporary whitelist', ['ip' => $ip, 'host' => $host->fqdn, 'ttl' => $ttl]);
             $this->firewallService->checkProblems($host, $keyPath, 'whitelist', $ip);
 
             // 3. For DirectAdmin servers, also handle BFM
             if ($host->panel === PanelType::DIRECTADMIN) {
                 try {
+                    Log::info('DirectAdmin detected, processing BFM operations', ['ip' => $ip, 'host' => $host->fqdn]);
+
                     // a) Check if IP is in BFM blacklist
+                    Log::debug('Checking if IP is in BFM blacklist', ['ip' => $ip]);
                     $bfmCheck = $this->firewallService->checkProblems($host, $keyPath, 'da_bfm_check', $ip);
 
                     // b) If found in blacklist, remove it
                     if (! empty(trim($bfmCheck))) {
+                        Log::info('IP found in BFM blacklist, removing', ['ip' => $ip]);
                         $this->firewallService->checkProblems($host, $keyPath, 'da_bfm_remove', $ip);
+                    } else {
+                        Log::debug('IP not in BFM blacklist', ['ip' => $ip]);
                     }
 
                     // c) Add to BFM whitelist (always, even if not in blacklist)
+                    Log::info('Adding IP to BFM whitelist', ['ip' => $ip]);
                     $this->firewallService->checkProblems($host, $keyPath, 'da_bfm_whitelist_add', $ip);
 
                     // d) Register in database for scheduled cleanup
+                    Log::debug('Registering BFM whitelist entry in database', ['ip' => $ip, 'ttl' => $ttl]);
                     \App\Models\BfmWhitelistEntry::create([
                         'host_id' => $host->id,
                         'ip_address' => $ip,
@@ -92,6 +102,7 @@ class UnblockIpActionNormalMode
                         'expires_at' => now()->addSeconds($ttl),
                         'notes' => 'Auto-added by UnblockIpActionNormalMode',
                     ]);
+                    Log::info('BFM operations completed successfully', ['ip' => $ip]);
 
                 } catch (Throwable $bfmException) {
                     // Log BFM error but don't fail the whole operation

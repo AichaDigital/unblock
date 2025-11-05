@@ -16,6 +16,11 @@
         <include>
             <directory suffix=".php">./app</directory>
         </include>
+        <exclude>
+            <directory suffix=".php">./app/Filament</directory>
+            <directory suffix=".php">./app/Livewire</directory>
+            <directory suffix=".php">./app/Notifications</directory>
+        </exclude>
     </source>
     <php>
         <env name="APP_ENV" value="testing"/>
@@ -30,6 +35,6 @@
         <env name="SESSION_DRIVER" value="array"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
         <env name="LOG_LEVEL" value="error"/>
-        <env name="UNBLOCK_SIMPLE_MODE" value="true"/>
+        <!-- UNBLOCK_SIMPLE_MODE removed: Each test MUST configure its own scenario explicitly using config()->set() -->
     </php>
 </phpunit>

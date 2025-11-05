@@ -18,12 +18,10 @@ Volt::route('dashboard', 'unified-dashboard')
 Route::get('/error/{code}', ErrorController::class)->name('error.show');
 Route::get('/report/{id}', ReportController::class)->name('report.show');
 
-// Simple Unblock Mode (conditional - only if enabled)
-if (config('unblock.simple_mode.enabled', false)) {
-    Route::get('/simple-unblock', \App\Livewire\SimpleUnblockForm::class)
-        ->middleware(['throttle.simple.unblock'])
-        ->name('simple.unblock');
-}
+// Simple Unblock Mode (always register route, middleware will handle access control)
+Route::get('/simple-unblock', \App\Livewire\SimpleUnblockForm::class)
+    ->middleware(['simple.mode.enabled', 'throttle.simple.unblock'])
+    ->name('simple.unblock');
 
 // Admin OTP Verification
 Route::get('/admin/otp/verify', \App\Livewire\AdminOtpVerification::class)
