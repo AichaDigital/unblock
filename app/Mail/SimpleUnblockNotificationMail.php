@@ -65,13 +65,13 @@ class SimpleUnblockNotificationMail extends Mailable
     {
         // Determine which view to use
         $view = match (true) {
-            // Admin alert (failure/suspicious)
+            // Admin alert (failure/suspicious) - NO report
             ! $this->isSuccess => 'emails.simple-unblock-admin-alert',
 
-            // IP was NOT blocked (user email)
-            $this->isSuccess && ! $this->wasBlocked && ! $this->isAdminCopy => 'emails.simple-unblock-not-blocked',
+            // IP was NOT blocked (both user and admin copy use same template)
+            $this->isSuccess && ! $this->wasBlocked => 'emails.simple-unblock-not-blocked',
 
-            // IP WAS blocked and unblocked (user email or admin copy)
+            // IP WAS blocked and unblocked (both user and admin copy use same template)
             default => 'emails.simple-unblock-success',
         };
 
