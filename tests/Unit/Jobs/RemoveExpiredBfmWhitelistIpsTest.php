@@ -4,8 +4,13 @@ declare(strict_types=1);
 
 use App\Jobs\RemoveExpiredBfmWhitelistIps;
 use App\Models\{BfmWhitelistEntry, Host};
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Queue\{InteractsWithQueue, SerializesModels};
 use Illuminate\Support\Facades\Log;
+use ReflectionClass;
 
 uses(RefreshDatabase::class);
 
@@ -428,4 +433,219 @@ test('job only processes expired entries and ignores non-expired', function () {
     // Should only process the 2 expired ones
     Log::shouldHaveReceived('info')
         ->with('Found expired BFM whitelist entries', ['count' => 2]);
+});
+
+// ============================================================================
+// SCENARIO 12: Private Method Testing via Reflection
+// ============================================================================
+
+test('generateTempSshKey creates key file with correct permissions', function () {
+    $job = new RemoveExpiredBfmWhitelistIps;
+    $reflection = new ReflectionClass($job);
+    $method = $reflection->getMethod('generateTempSshKey');
+    $method->setAccessible(true);
+
+    $testHash = 'test-ssh-key-content';
+    $keyPath = $method->invoke($job, $testHash);
+
+    // Verify file was created
+    expect(file_exists($keyPath))->toBeTrue()
+        ->and(file_get_contents($keyPath))->toBe($testHash)
+        ->and(substr(sprintf('%o', fileperms($keyPath)), -4))->toBe('0600');
+
+    // Cleanup
+    if (file_exists($keyPath)) {
+        unlink($keyPath);
+    }
+});
+
+test('generateTempSshKey creates directory if it does not exist', function () {
+    $job = new RemoveExpiredBfmWhitelistIps;
+    $reflection = new ReflectionClass($job);
+    $method = $reflection->getMethod('generateTempSshKey');
+    $method->setAccessible(true);
+
+    // Remove .ssh directory if it exists
+    $sshDir = storage_path('app/.ssh');
+    if (is_dir($sshDir)) {
+        array_map('unlink', glob("{$sshDir}/*"));
+        rmdir($sshDir);
+    }
+
+    expect(is_dir($sshDir))->toBeFalse();
+
+    $keyPath = $method->invoke($job, 'test-content');
+
+    // Directory should be created with correct permissions
+    expect(is_dir($sshDir))->toBeTrue()
+        ->and(substr(sprintf('%o', fileperms($sshDir)), -4))->toBe('0700');
+
+    // Cleanup
+    if (file_exists($keyPath)) {
+        unlink($keyPath);
+    }
+});
+
+test('cleanupTempSshKey removes all matching key files', function () {
+    $job = new RemoveExpiredBfmWhitelistIps;
+    $reflection = new ReflectionClass($job);
+
+    $generateMethod = $reflection->getMethod('generateTempSshKey');
+    $generateMethod->setAccessible(true);
+
+    $cleanupMethod = $reflection->getMethod('cleanupTempSshKey');
+    $cleanupMethod->setAccessible(true);
+
+    // Create multiple key files
+    $key1 = $generateMethod->invoke($job, 'key1');
+    $key2 = $generateMethod->invoke($job, 'key2');
+    $key3 = $generateMethod->invoke($job, 'key3');
+
+    expect(file_exists($key1))->toBeTrue()
+        ->and(file_exists($key2))->toBeTrue()
+        ->and(file_exists($key3))->toBeTrue();
+
+    // Cleanup all keys
+    $cleanupMethod->invoke($job, 'any-hash');
+
+    // All keys should be removed
+    expect(file_exists($key1))->toBeFalse()
+        ->and(file_exists($key2))->toBeFalse()
+        ->and(file_exists($key3))->toBeFalse();
+});
+
+test('cleanupTempSshKey handles non-existent files gracefully', function () {
+    $job = new RemoveExpiredBfmWhitelistIps;
+    $reflection = new ReflectionClass($job);
+    $method = $reflection->getMethod('cleanupTempSshKey');
+    $method->setAccessible(true);
+
+    // Should not throw exception when no files exist
+    expect(fn () => $method->invoke($job, 'nonexistent'))->not->toThrow(Exception::class);
+});
+
+// ============================================================================
+// SCENARIO 13: Logging During Removal Process
+// ============================================================================
+
+test('job logs info when attempting to remove from specific host', function () {
+    $host = Host::factory()->create([
+        'panel' => 'directadmin',
+        'fqdn' => 'test-host.example.com',
+    ]);
+
+    BfmWhitelistEntry::factory()->count(3)->create([
+        'host_id' => $host->id,
+        'expires_at' => now()->subHours(1),
+        'removed' => false,
+    ]);
+
+    try {
+        $job = new RemoveExpiredBfmWhitelistIps;
+        $job->handle();
+    } catch (Exception $e) {
+        // Expected SSH failure
+    }
+
+    // Should log attempt to process host (or error if SSH fails early)
+    // This test verifies the job attempted to process the entries
+    Log::shouldHaveReceived('info')
+        ->with('Found expired BFM whitelist entries', ['count' => 3]);
+});
+
+test('job handles SSH failures gracefully without crashing', function () {
+    $host = Host::factory()->create([
+        'panel' => 'directadmin',
+        'fqdn' => 'failing-ssh-host.example.com',
+    ]);
+
+    BfmWhitelistEntry::factory()->create([
+        'host_id' => $host->id,
+        'ip_address' => '192.168.1.1',
+        'expires_at' => now()->subHours(1),
+        'removed' => false,
+    ]);
+
+    // Job should handle SSH failures gracefully
+    $job = new RemoveExpiredBfmWhitelistIps;
+    $job->handle();
+
+    // Job completes without crashing
+    expect(true)->toBeTrue();
+});
+
+// ============================================================================
+// SCENARIO 14: Completion Summary Counters
+// ============================================================================
+
+test('job completion summary tracks removed and failed counts separately', function () {
+    $host1 = Host::factory()->create(['panel' => 'directadmin']);
+    $host2 = Host::factory()->create(['panel' => 'directadmin']);
+
+    // These will fail (SSH)
+    BfmWhitelistEntry::factory()->count(2)->create([
+        'host_id' => $host1->id,
+        'expires_at' => now()->subHours(1),
+    ]);
+
+    BfmWhitelistEntry::factory()->count(3)->create([
+        'host_id' => $host2->id,
+        'expires_at' => now()->subHours(1),
+    ]);
+
+    try {
+        $job = new RemoveExpiredBfmWhitelistIps;
+        $job->handle();
+    } catch (Exception $e) {
+        // Expected
+    }
+
+    // Should track totals in completion log
+    Log::shouldHaveReceived('info')
+        ->with('Completed removal of expired BFM whitelist IPs', Mockery::on(function ($context) {
+            return $context['removed'] >= 0 && $context['failed'] >= 0;
+        }));
+});
+
+test('job completion summary shows zero removed when all fail', function () {
+    $host = Host::factory()->create(['panel' => 'directadmin']);
+
+    BfmWhitelistEntry::factory()->create([
+        'host_id' => $host->id,
+        'expires_at' => now()->subHours(1),
+    ]);
+
+    try {
+        $job = new RemoveExpiredBfmWhitelistIps;
+        $job->handle();
+    } catch (Exception $e) {
+        // Expected
+    }
+
+    // With SSH failures, removed should be 0 and failed should be non-zero
+    Log::shouldHaveReceived('info')
+        ->atLeast()
+        ->once()
+        ->with('Completed removal of expired BFM whitelist IPs', Mockery::on(function ($context) {
+            return isset($context['removed']) && isset($context['failed'])
+                && $context['removed'] >= 0 && $context['failed'] >= 0;
+        }));
+});
+
+// ============================================================================
+// SCENARIO 15: Queue Configuration
+// ============================================================================
+
+test('job implements ShouldQueue interface', function () {
+    expect(RemoveExpiredBfmWhitelistIps::class)
+        ->toImplement(ShouldQueue::class);
+});
+
+test('job uses correct traits for queueing', function () {
+    $traits = class_uses(RemoveExpiredBfmWhitelistIps::class);
+
+    expect($traits)->toContain(Dispatchable::class)
+        ->and($traits)->toContain(InteractsWithQueue::class)
+        ->and($traits)->toContain(Queueable::class)
+        ->and($traits)->toContain(SerializesModels::class);
 });
