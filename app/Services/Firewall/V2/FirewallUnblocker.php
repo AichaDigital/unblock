@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Firewall\V2;
 
+use App\Enums\PanelType;
 use App\Exceptions\{CommandExecutionException, CsfServiceException};
 use App\Models\Host;
 use App\Services\{FirewallService, SshConnectionManager};
@@ -80,7 +81,7 @@ class FirewallUnblocker
      */
     public function removeFromBfmBlacklist(string $ipAddress, Host $host): array
     {
-        if ($host->panel !== 'directadmin') {
+        if ($host->panel !== PanelType::DIRECTADMIN) {
             return ['skipped' => true, 'reason' => 'Host is not DirectAdmin'];
         }
 
@@ -144,7 +145,7 @@ class FirewallUnblocker
         $results['csf'] = $this->unblockFromCsf($ipAddress, $host);
 
         // 2. Remove from BFM (DirectAdmin only)
-        if ($host->panel === 'directadmin') {
+        if ($host->panel === PanelType::DIRECTADMIN) {
             $results['bfm'] = $this->removeFromBfmBlacklist($ipAddress, $host);
         }
 

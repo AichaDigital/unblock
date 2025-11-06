@@ -23,7 +23,7 @@ test('action validates domain successfully when domain exists and account is act
 
     Log::spy();
 
-    $action = new ValidateDomainInDatabaseAction();
+    $action = new ValidateDomainInDatabaseAction;
     $result = $action->handle('example.com', $host->id);
 
     expect($result->exists)->toBeTrue()
@@ -37,7 +37,7 @@ test('action fails validation when domain does not exist', function () {
 
     Log::spy();
 
-    $action = new ValidateDomainInDatabaseAction();
+    $action = new ValidateDomainInDatabaseAction;
     $result = $action->handle('nonexistent.com', $host->id);
 
     expect($result->exists)->toBeFalse()
@@ -61,7 +61,7 @@ test('action fails validation when domain exists but belongs to different host',
 
     Log::spy();
 
-    $action = new ValidateDomainInDatabaseAction();
+    $action = new ValidateDomainInDatabaseAction;
     $result = $action->handle('example.com', $host2->id);
 
     expect($result->exists)->toBeFalse()
@@ -82,7 +82,7 @@ test('action fails validation when account is suspended', function () {
 
     Log::spy();
 
-    $action = new ValidateDomainInDatabaseAction();
+    $action = new ValidateDomainInDatabaseAction;
     $result = $action->handle('suspended.com', $host->id);
 
     expect($result->exists)->toBeFalse()
@@ -106,7 +106,7 @@ test('action fails validation when account is deleted', function () {
 
     Log::spy();
 
-    $action = new ValidateDomainInDatabaseAction();
+    $action = new ValidateDomainInDatabaseAction;
     $result = $action->handle('deleted.com', $host->id);
 
     expect($result->exists)->toBeFalse()
@@ -121,7 +121,7 @@ test('action logs info when validation starts', function () {
 
     Log::spy();
 
-    $action = new ValidateDomainInDatabaseAction();
+    $action = new ValidateDomainInDatabaseAction;
     $action->handle('example.com', $host->id);
 
     Log::shouldHaveReceived('info')->with('Validating domain in database', Mockery::on(function ($context) {
@@ -142,7 +142,7 @@ test('action logs info when validation passes', function () {
 
     Log::spy();
 
-    $action = new ValidateDomainInDatabaseAction();
+    $action = new ValidateDomainInDatabaseAction;
     $action->handle('example.com', $host->id);
 
     Log::shouldHaveReceived('info')->with('Domain validation passed', Mockery::on(function ($context) use ($domain, $account, $host) {
@@ -165,7 +165,7 @@ test('action handles case-insensitive domain search', function () {
 
     Log::spy();
 
-    $action = new ValidateDomainInDatabaseAction();
+    $action = new ValidateDomainInDatabaseAction;
     $resultUpper = $action->handle('EXAMPLE.COM', $host->id);
     $resultMixed = $action->handle('ExAmPlE.CoM', $host->id);
 
@@ -185,7 +185,7 @@ test('action handles subdomains correctly', function () {
 
     Log::spy();
 
-    $action = new ValidateDomainInDatabaseAction();
+    $action = new ValidateDomainInDatabaseAction;
     $result = $action->handle('subdomain.example.com', $host->id);
 
     expect($result->exists)->toBeTrue();
@@ -208,7 +208,7 @@ test('action handles multiple domains on same host', function () {
 
     Log::spy();
 
-    $action = new ValidateDomainInDatabaseAction();
+    $action = new ValidateDomainInDatabaseAction;
     $result1 = $action->handle('domain1.com', $host->id);
     $result2 = $action->handle('domain2.com', $host->id);
 
@@ -239,7 +239,7 @@ test('action handles addon domains correctly', function () {
 
     Log::spy();
 
-    $action = new ValidateDomainInDatabaseAction();
+    $action = new ValidateDomainInDatabaseAction;
     $primaryResult = $action->handle('primary.com', $host->id);
     $addonResult = $action->handle('addon.com', $host->id);
 
@@ -262,7 +262,7 @@ test('action eager loads account relationship to avoid N+1 queries', function ()
     // Enable query logging
     \DB::enableQueryLog();
 
-    $action = new ValidateDomainInDatabaseAction();
+    $action = new ValidateDomainInDatabaseAction;
     $action->handle('example.com', $host->id);
 
     $queries = \DB::getQueryLog();
@@ -289,7 +289,7 @@ test('action fails when account is both suspended and deleted', function () {
 
     Log::spy();
 
-    $action = new ValidateDomainInDatabaseAction();
+    $action = new ValidateDomainInDatabaseAction;
     $result = $action->handle('both.com', $host->id);
 
     // Should fail on suspended check first (before deleted check)
@@ -302,9 +302,8 @@ test('action returns DomainValidationResult object', function () {
 
     Log::spy();
 
-    $action = new ValidateDomainInDatabaseAction();
+    $action = new ValidateDomainInDatabaseAction;
     $result = $action->handle('example.com', $host->id);
 
     expect($result)->toBeInstanceOf(\App\Actions\SimpleUnblock\DomainValidationResult::class);
 });
-

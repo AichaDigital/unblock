@@ -5,7 +5,7 @@ declare(strict_types=1);
 use App\Actions\SimpleUnblock\BuildDomainSearchCommandsAction;
 
 test('action builds apache command correctly', function () {
-    $action = new BuildDomainSearchCommandsAction();
+    $action = new BuildDomainSearchCommandsAction;
     $commands = $action->handle('192.168.1.1', 'example.com', 'directadmin');
 
     $apacheCommand = $commands[0];
@@ -18,7 +18,7 @@ test('action builds apache command correctly', function () {
 });
 
 test('action builds nginx command correctly', function () {
-    $action = new BuildDomainSearchCommandsAction();
+    $action = new BuildDomainSearchCommandsAction;
     $commands = $action->handle('192.168.1.1', 'example.com', 'directadmin');
 
     $nginxCommand = $commands[1];
@@ -31,7 +31,7 @@ test('action builds nginx command correctly', function () {
 });
 
 test('action builds exim command correctly', function () {
-    $action = new BuildDomainSearchCommandsAction();
+    $action = new BuildDomainSearchCommandsAction;
     $commands = $action->handle('192.168.1.1', 'example.com', 'directadmin');
 
     $eximCommand = $commands[2];
@@ -44,7 +44,7 @@ test('action builds exim command correctly', function () {
 });
 
 test('action includes cpanel domlogs command for cpanel servers', function () {
-    $action = new BuildDomainSearchCommandsAction();
+    $action = new BuildDomainSearchCommandsAction;
     $commands = $action->handle('192.168.1.1', 'example.com', 'cpanel');
 
     expect($commands)->toHaveCount(4);
@@ -58,7 +58,7 @@ test('action includes cpanel domlogs command for cpanel servers', function () {
 });
 
 test('action does not include cpanel domlogs for non-cpanel servers', function () {
-    $action = new BuildDomainSearchCommandsAction();
+    $action = new BuildDomainSearchCommandsAction;
     $commandsDirectAdmin = $action->handle('192.168.1.1', 'example.com', 'directadmin');
     $commandsNone = $action->handle('192.168.1.1', 'example.com', 'none');
 
@@ -67,7 +67,7 @@ test('action does not include cpanel domlogs for non-cpanel servers', function (
 });
 
 test('action properly escapes IP address with special characters', function () {
-    $action = new BuildDomainSearchCommandsAction();
+    $action = new BuildDomainSearchCommandsAction;
     $commands = $action->handle('192.168.1.1; rm -rf /', 'example.com', 'directadmin');
 
     foreach ($commands as $command) {
@@ -78,19 +78,19 @@ test('action properly escapes IP address with special characters', function () {
 });
 
 test('action properly escapes domain with special characters', function () {
-    $action = new BuildDomainSearchCommandsAction();
+    $action = new BuildDomainSearchCommandsAction;
     $commands = $action->handle('192.168.1.1', "example.com'; DROP TABLE users--", 'directadmin');
 
     foreach ($commands as $command) {
         // escapeshellarg should wrap the domain and escape any single quotes
         // The exact escaping format may vary, but it should contain the original string escaped
         expect($command)->toContain("'example.com")
-            ->and($command)->toContain("DROP TABLE users--");
+            ->and($command)->toContain('DROP TABLE users--');
     }
 });
 
 test('action returns array with all standard commands', function () {
-    $action = new BuildDomainSearchCommandsAction();
+    $action = new BuildDomainSearchCommandsAction;
     $commands = $action->handle('192.168.1.1', 'example.com', 'directadmin');
 
     expect($commands)->toBeArray()
@@ -104,7 +104,7 @@ test('action returns array with all standard commands', function () {
 });
 
 test('action handles IPv6 addresses correctly', function () {
-    $action = new BuildDomainSearchCommandsAction();
+    $action = new BuildDomainSearchCommandsAction;
     $commands = $action->handle('2001:0db8:85a3:0000:0000:8a2e:0370:7334', 'example.com', 'directadmin');
 
     expect($commands)->toBeArray()
@@ -116,7 +116,7 @@ test('action handles IPv6 addresses correctly', function () {
 });
 
 test('action handles domains with subdomains correctly', function () {
-    $action = new BuildDomainSearchCommandsAction();
+    $action = new BuildDomainSearchCommandsAction;
     $commands = $action->handle('192.168.1.1', 'subdomain.example.com', 'cpanel');
 
     expect($commands)->toHaveCount(4);
@@ -127,7 +127,7 @@ test('action handles domains with subdomains correctly', function () {
 });
 
 test('action handles case sensitivity correctly', function () {
-    $action = new BuildDomainSearchCommandsAction();
+    $action = new BuildDomainSearchCommandsAction;
     $commands = $action->handle('192.168.1.1', 'EXAMPLE.COM', 'directadmin');
 
     // Verify grep uses case-insensitive search (-i flag) for domain
@@ -137,7 +137,7 @@ test('action handles case sensitivity correctly', function () {
 });
 
 test('action limits results with head command', function () {
-    $action = new BuildDomainSearchCommandsAction();
+    $action = new BuildDomainSearchCommandsAction;
     $commands = $action->handle('192.168.1.1', 'example.com', 'cpanel');
 
     // All commands should limit output to prevent overwhelming results
@@ -147,7 +147,7 @@ test('action limits results with head command', function () {
 });
 
 test('action suppresses errors with stderr redirection', function () {
-    $action = new BuildDomainSearchCommandsAction();
+    $action = new BuildDomainSearchCommandsAction;
     $commands = $action->handle('192.168.1.1', 'example.com', 'directadmin');
 
     // All commands should redirect stderr to /dev/null
@@ -157,7 +157,7 @@ test('action suppresses errors with stderr redirection', function () {
 });
 
 test('action builds commands for empty domain', function () {
-    $action = new BuildDomainSearchCommandsAction();
+    $action = new BuildDomainSearchCommandsAction;
     $commands = $action->handle('192.168.1.1', '', 'directadmin');
 
     expect($commands)->toBeArray()
@@ -170,7 +170,7 @@ test('action builds commands for empty domain', function () {
 });
 
 test('action builds different commands for different panel types', function () {
-    $action = new BuildDomainSearchCommandsAction();
+    $action = new BuildDomainSearchCommandsAction;
 
     $cpanelCommands = $action->handle('192.168.1.1', 'example.com', 'cpanel');
     $directAdminCommands = $action->handle('192.168.1.1', 'example.com', 'directadmin');
@@ -179,4 +179,3 @@ test('action builds different commands for different panel types', function () {
         ->and($directAdminCommands)->toHaveCount(3)
         ->and($cpanelCommands)->not->toEqual($directAdminCommands);
 });
-

@@ -2,14 +2,11 @@
 
 declare(strict_types=1);
 
-use App\Actions\SimpleUnblock\BuildDomainSearchCommandsAction;
-use App\Actions\SimpleUnblock\CheckDomainInServerLogsAction;
-use App\Actions\SimpleUnblock\DomainLogsSearchResult;
+use App\Actions\SimpleUnblock\{BuildDomainSearchCommandsAction, CheckDomainInServerLogsAction, DomainLogsSearchResult};
 use App\Enums\PanelType;
 use App\Exceptions\ConnectionFailedException;
 use App\Models\Host;
-use App\Services\SshConnectionManager;
-use App\Services\SshSession;
+use App\Services\{SshConnectionManager, SshSession};
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Log;
 
@@ -28,7 +25,7 @@ test('action finds domain in logs when result is not empty', function () {
     $sshManager = Mockery::mock(SshConnectionManager::class);
     $sshManager->allows('createSession')->andReturn($session);
 
-    $buildCommands = new BuildDomainSearchCommandsAction();
+    $buildCommands = new BuildDomainSearchCommandsAction;
 
     Log::spy();
 
@@ -53,7 +50,7 @@ test('action returns not found when result is empty', function () {
     $sshManager = Mockery::mock(SshConnectionManager::class);
     $sshManager->allows('createSession')->andReturn($session);
 
-    $buildCommands = new BuildDomainSearchCommandsAction();
+    $buildCommands = new BuildDomainSearchCommandsAction;
 
     Log::spy();
 
@@ -74,7 +71,7 @@ test('action returns not found when result is whitespace only', function () {
     $sshManager = Mockery::mock(SshConnectionManager::class);
     $sshManager->allows('createSession')->andReturn($session);
 
-    $buildCommands = new BuildDomainSearchCommandsAction();
+    $buildCommands = new BuildDomainSearchCommandsAction;
 
     Log::spy();
 
@@ -94,7 +91,7 @@ test('action handles connection failure gracefully', function () {
     $sshManager = Mockery::mock(SshConnectionManager::class);
     $sshManager->allows('createSession')->andReturn($session);
 
-    $buildCommands = new BuildDomainSearchCommandsAction();
+    $buildCommands = new BuildDomainSearchCommandsAction;
 
     Log::spy();
 
@@ -116,13 +113,14 @@ test('action cleans up session even when exception occurs', function () {
     $session->allows('execute')->andThrow(new Exception('Unexpected error'));
     $session->allows('cleanup')->andReturnUsing(function () use (&$cleanupCalled) {
         $cleanupCalled = true;
+
         return true;
     });
 
     $sshManager = Mockery::mock(SshConnectionManager::class);
     $sshManager->allows('createSession')->andReturn($session);
 
-    $buildCommands = new BuildDomainSearchCommandsAction();
+    $buildCommands = new BuildDomainSearchCommandsAction;
 
     Log::spy();
 
@@ -149,7 +147,7 @@ test('action extracts search paths from commands', function () {
     $sshManager = Mockery::mock(SshConnectionManager::class);
     $sshManager->allows('createSession')->andReturn($session);
 
-    $buildCommands = new BuildDomainSearchCommandsAction();
+    $buildCommands = new BuildDomainSearchCommandsAction;
 
     Log::spy();
 
@@ -174,6 +172,7 @@ test('action combines commands with OR operator', function () {
     $session = Mockery::mock(SshSession::class);
     $session->allows('execute')->andReturnUsing(function ($command) use (&$executedCommand) {
         $executedCommand = $command;
+
         return '';
     });
     $session->allows('cleanup')->andReturn(true);
@@ -181,7 +180,7 @@ test('action combines commands with OR operator', function () {
     $sshManager = Mockery::mock(SshConnectionManager::class);
     $sshManager->allows('createSession')->andReturn($session);
 
-    $buildCommands = new BuildDomainSearchCommandsAction();
+    $buildCommands = new BuildDomainSearchCommandsAction;
 
     Log::spy();
 
@@ -207,7 +206,7 @@ test('action logs debug information at start', function () {
     $sshManager = Mockery::mock(SshConnectionManager::class);
     $sshManager->allows('createSession')->andReturn($session);
 
-    $buildCommands = new BuildDomainSearchCommandsAction();
+    $buildCommands = new BuildDomainSearchCommandsAction;
 
     Log::spy();
 
@@ -231,7 +230,7 @@ test('action logs info with result preview when found', function () {
     $sshManager = Mockery::mock(SshConnectionManager::class);
     $sshManager->allows('createSession')->andReturn($session);
 
-    $buildCommands = new BuildDomainSearchCommandsAction();
+    $buildCommands = new BuildDomainSearchCommandsAction;
 
     Log::spy();
 
@@ -255,7 +254,7 @@ test('action returns DomainLogsSearchResult object', function () {
     $sshManager = Mockery::mock(SshConnectionManager::class);
     $sshManager->allows('createSession')->andReturn($session);
 
-    $buildCommands = new BuildDomainSearchCommandsAction();
+    $buildCommands = new BuildDomainSearchCommandsAction;
 
     Log::spy();
 
@@ -264,4 +263,3 @@ test('action returns DomainLogsSearchResult object', function () {
 
     expect($result)->toBeInstanceOf(DomainLogsSearchResult::class);
 });
-
