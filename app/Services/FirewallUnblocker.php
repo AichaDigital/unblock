@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Enums\PanelType;
 use App\Exceptions\{CommandExecutionException, CsfServiceException};
 use App\Models\Host;
 use App\Services\Firewall\FirewallAnalysisResult;
@@ -68,13 +69,13 @@ class FirewallUnblocker
             }
 
             // 2. If IP is in BFM blacklist (DirectAdmin only) -> remove from BFM
-            if ($hasBfmBlocks && $host->panel === 'directadmin') {
+            if ($hasBfmBlocks && $host->panel === PanelType::DIRECTADMIN) {
                 Log::info('Firewall Unblocker: BFM blocks detected - performing BFM removal', [
                     'ip' => $ipAddress,
                     'host' => $host->fqdn,
                 ]);
                 $results['bfm'] = $this->performBfmOperations($session, $ipAddress);
-            } elseif ($host->panel === 'directadmin') {
+            } elseif ($host->panel === PanelType::DIRECTADMIN) {
                 Log::info('Firewall Unblocker: No BFM blocks detected - skipping BFM operations', [
                     'ip' => $ipAddress,
                     'host' => $host->fqdn,

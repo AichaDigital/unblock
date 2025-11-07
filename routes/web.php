@@ -1,7 +1,7 @@
 <?php
 
-use App\Http\Controllers\{ErrorController, ReportController};
-use Illuminate\Support\Facades\{Route};
+use App\Http\Controllers\ReportController;
+use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
 // Ruta principal '/' - Sistema OTP Login usando componente Livewire
@@ -15,7 +15,6 @@ Volt::route('dashboard', 'unified-dashboard')
     ->name('dashboard');
 
 // Rutas de utilidad
-Route::get('/error/{code}', ErrorController::class)->name('error.show');
 Route::get('/report/{id}', ReportController::class)->name('report.show');
 
 // Simple Unblock Mode (always register route, middleware will handle access control)
