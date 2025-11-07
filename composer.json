@@ -68,7 +68,7 @@
             "npm run build || echo 'npm not available, skipping frontend build'",
             "@php artisan filament:optimize-clear",
             "@php artisan filament:optimize",
-            "@php artisan queue:restart"
+            "@php artisan queue:restart || true"
         ],
         "post-root-package-install": [
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
