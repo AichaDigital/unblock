@@ -13,6 +13,7 @@ version: 2
 # Paths to ignore - MINIMAL exclusions only
 paths-ignore:
   - tests/stubs/**/*  # Only stub files, not actual tests
+  - lang/vendor/**/*  # Translation files from vendor packages (false positives)
 
 # Paths to always scan (override ignore rules)
 paths-scan:
