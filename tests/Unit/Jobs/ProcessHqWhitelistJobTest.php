@@ -253,10 +253,12 @@ test('job applies whitelist and sends email when IP blocked', function () {
     $job->handle($firewallService);
 
     // Should queue email (HqWhitelistMail implements ShouldQueue)
-    Mail::assertQueued(HqWhitelistMail::class, function ($mail) {
+    Mail::assertQueued(HqWhitelistMail::class, function ($mail) use ($hqHost) {
         return $mail->user->email === 'admin@example.com'
             && $mail->ip === '10.0.0.50'
-            && $mail->ttlSeconds === 3600;
+            && $mail->ttlSeconds === 3600
+            && $mail->hqHost->id === $hqHost->id
+            && ! empty($mail->modsecLogs);
     });
 
     Log::shouldHaveReceived('info')

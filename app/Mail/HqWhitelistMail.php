@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Mail;
 
-use App\Models\User;
+use App\Models\{Host, User};
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -19,6 +19,8 @@ class HqWhitelistMail extends Mailable implements ShouldQueue
         public readonly User $user,
         public readonly string $ip,
         public readonly int $ttlSeconds,
+        public readonly Host $hqHost,
+        public readonly string $modsecLogs,
     ) {}
 
     public function envelope(): Envelope
@@ -38,6 +40,10 @@ class HqWhitelistMail extends Mailable implements ShouldQueue
                 'ttlSeconds' => $this->ttlSeconds,
                 'ttlHours' => round($this->ttlSeconds / 3600, 2),
                 'companyName' => config('company.name'),
+                'hqHostFqdn' => $this->hqHost->fqdn,
+                'hqHostPanel' => $this->hqHost->panel ?? 'N/A',
+                'modsecLogs' => $this->modsecLogs,
+                'timestamp' => now()->format('Y-m-d H:i:s T'),
             ],
         );
     }
