@@ -49,6 +49,10 @@ unblock.sqlite
 database/database.sqlite
 supervisor-laravel-worker.conf
 
+# Package manager lockfiles (usando pnpm como principal)
+package-lock.json
+yarn.lock
+
 # Internal development docs (keep out of repo)
 /docs/internals/
 /docs/archive/

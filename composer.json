@@ -64,8 +64,6 @@
         "post-update-cmd": [
             "@php artisan vendor:publish --tag=laravel-assets --ansi --force",
             "@php artisan vendor:publish --tag=livewire:assets --ansi --force",
-            "npm ci || echo 'npm not available, skipping frontend build'",
-            "npm run build || echo 'npm not available, skipping frontend build'",
             "@php artisan filament:optimize-clear",
             "@php artisan filament:optimize",
             "@php artisan queue:restart || true"
@@ -146,6 +144,18 @@
             "@syntax-check",
             "@pint",
             "@test-local"
+        ],
+        "frontend:build": [
+            "pnpm install",
+            "pnpm run build"
+        ],
+        "deploy:prepare": [
+            "@php artisan vendor:publish --tag=laravel-assets --ansi --force",
+            "@php artisan vendor:publish --tag=livewire:assets --ansi --force",
+            "pnpm install",
+            "pnpm run build",
+            "@php artisan filament:optimize-clear",
+            "@php artisan filament:optimize"
         ]
     },
     "extra": {
