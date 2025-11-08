@@ -34,5 +34,8 @@ return [
     ],
     'firewall' => [
         'develop_check_completed' => 'Modo desarrollo: verificación de firewall completada',
+        'ip_unblocked' => 'La IP ha sido desbloqueada exitosamente',
+        'ip_not_blocked' => 'La IP no estaba bloqueada',
+        'unblock_failed' => 'No se pudo desbloquear la IP',
     ],
 ];

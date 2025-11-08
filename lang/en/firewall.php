@@ -267,7 +267,6 @@ return [
             'csf' => [
                 'title' => 'ConfigServer Firewall (CSF)',
                 'description' => 'Main server firewall system',
-                'wiki_link' => 'https://docs.configserver.com/csf/',
             ],
             'csf_deny' => [
                 'title' => 'CSF Deny List',
@@ -284,7 +283,6 @@ return [
             'mod_security' => [
                 'title' => 'ModSecurity - Web Application Firewall',
                 'description' => 'Web application firewall that detects and blocks attacks',
-                'wiki_link' => 'https://modsecurity.org/about.html',
             ],
             'exim' => [
                 'title' => 'Exim Logs (SMTP)',

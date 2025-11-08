@@ -9,15 +9,19 @@
         <script>
             // Execute immediately to avoid flash
             (function() {
-                const theme = localStorage.getItem('theme') || 'auto';
-                let actualTheme;
-                if (theme === 'auto') {
-                    actualTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'winter';
+                const theme = localStorage.getItem('theme');
+
+                if (theme && theme !== 'auto') {
+                    // Usuario tiene preferencia manual guardada
+                    document.documentElement.setAttribute('data-theme', theme);
+                    document.documentElement.className = theme === 'dark' ? 'dark' : 'light';
                 } else {
-                    actualTheme = theme;
+                    // Auto-detect system preference (DaisyUI --prefersdark will handle this)
+                    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                    const actualTheme = prefersDark ? 'dark' : 'winter';
+                    document.documentElement.setAttribute('data-theme', actualTheme);
+                    document.documentElement.className = prefersDark ? 'dark' : 'light';
                 }
-                document.documentElement.setAttribute('data-theme', actualTheme);
-                document.documentElement.className = actualTheme === 'dark' ? 'dark' : 'light';
             })();
         </script>
 
