@@ -134,6 +134,58 @@ command="/path/to/restricted-csf-wrapper.sh",no-port-forwarding,no-X11-forwardin
 
 See [docs/ssh-keys-setup.md](docs/ssh-keys-setup.md) for detailed instructions and wrapper script.
 
+### HQ Host Monitoring (Headquarters)
+
+**Automatic IP whitelisting for your main hosting platform.**
+
+If you have a central server (HQ) where clients access cPanel, WHMCS, billing portal, or support tickets, you can enable automatic monitoring. When users request IP unblocks, the system checks your HQ host in parallel for ModSecurity blocks.
+
+**The Problem:**
+Many hosting clients get blocked by ModSecurity when trying to submit support tickets about being blocked. This creates a frustrating loop: "I'm blocked" → tries to open ticket → gets blocked again → can't report the issue.
+
+**The Solution:**
+When any user requests an IP unblock (for any server), the system automatically:
+1. Checks your HQ host's ModSecurity logs
+2. If the IP is blocked there, temporarily whitelists it
+3. Sends you an email notification with details
+4. Client can now access support and create proper tickets
+
+**Configuration:**
+
+```env
+# Find your HQ host ID in the 'hosts' table
+HQ_HOST_ID=1
+
+# Or use FQDN as fallback
+HQ_HOST_FQDN=hq.yourcompany.com
+
+# Whitelist duration (default: 7200 = 2 hours)
+HQ_WHITELIST_TTL=7200
+```
+
+**Email Notification:**
+You'll receive an email like:
+
+```
+Subject: ModSecurity Detection HQ - IP temporarily whitelisted
+
+Hi Admin,
+
+ModSecurity activity detected from IP 79.116.177.99 on the central platform (HQ).
+
+We have temporarily added the IP to the whitelist for 2 hours to reduce friction while we review.
+
+We will review the rule to add it as strictly as possible if necessary.
+
+Regards, Your Company - Support Team
+```
+
+**Important Notes:**
+- Only checks **ModSecurity** logs on HQ (not CSF/BFM)
+- Runs in parallel (doesn't slow down regular unblock operations)
+- Silent if IP is not blocked on HQ
+- Requires SSH access configured for your HQ host
+
 ### WHMCS Integration (Optional)
 
 To sync users and hostings from WHMCS:

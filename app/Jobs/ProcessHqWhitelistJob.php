@@ -46,9 +46,9 @@ class ProcessHqWhitelistJob implements ShouldQueue
             $keyPath = $firewallService->generateSshKey($hqHost->hash);
 
             // SPECIAL CASE: Only check ModSecurity on HQ
-            $isBlocked = $this->checkModSecurityOnHq($firewallService, $hqHost, $keyPath, $this->ip);
+            $modsecLogs = $this->checkModSecurityOnHq($firewallService, $hqHost, $keyPath, $this->ip);
 
-            if (! $isBlocked) {
+            if (! $modsecLogs) {
                 Log::info('IP not blocked on HQ host. No whitelist or email will be sent', [
                     'ip' => $this->ip,
                     'fqdn' => $hqHost->fqdn,
@@ -61,7 +61,7 @@ class ProcessHqWhitelistJob implements ShouldQueue
             $firewallService->checkProblems($hqHost, $keyPath, 'whitelist_hq', $this->ip);
 
             // Notify admin only if it was blocked on HQ and include modsec logs
-            $this->notifyAdmin($hqHost);
+            $this->notifyAdmin($hqHost, $modsecLogs);
 
             Log::info('HQ whitelist applied and user notified', [
                 'ip' => $this->ip,
@@ -105,14 +105,14 @@ class ProcessHqWhitelistJob implements ShouldQueue
         return $host;
     }
 
-    private function checkModSecurityOnHq(FirewallService $firewallService, Host $host, string $keyPath, string $ip): bool
+    private function checkModSecurityOnHq(FirewallService $firewallService, Host $host, string $keyPath, string $ip): bool|string
     {
         $modsec = $firewallService->checkProblems($host, $keyPath, 'mod_security_da', $ip);
 
-        return ! empty($modsec);
+        return $modsec ?: false;
     }
 
-    private function notifyAdmin(Host $hqHost): void
+    private function notifyAdmin(Host $hqHost, string $modsecLogs): void
     {
         $adminEmail = config('unblock.admin_email');
         if (! $adminEmail) {
@@ -126,7 +126,12 @@ class ProcessHqWhitelistJob implements ShouldQueue
 
         $ttl = (int) (config('unblock.hq.ttl') ?? 7200);
 
-        // Build a minimal message with contextual info; email template will handle i18n
-        Mail::to($adminEmail)->send(new HqWhitelistMail($adminUser, $this->ip, $ttl));
+        Mail::to($adminEmail)->send(new HqWhitelistMail(
+            user: $adminUser,
+            ip: $this->ip,
+            ttlSeconds: $ttl,
+            hqHost: $hqHost,
+            modsecLogs: $modsecLogs
+        ));
     }
 }

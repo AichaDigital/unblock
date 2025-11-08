@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use App\Mail\HqWhitelistMail;
-use App\Models\User;
+use App\Models\{Host, User};
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -17,30 +17,40 @@ test('mailable can be constructed with required parameters', function () {
         'first_name' => 'John',
         'last_name' => 'Doe',
     ]);
+    $hqHost = Host::factory()->create();
 
     $mailable = new HqWhitelistMail(
         user: $user,
         ip: '192.168.1.100',
-        ttlSeconds: 3600
+        ttlSeconds: 3600,
+        hqHost: $hqHost,
+        modsecLogs: 'test logs'
     );
 
     expect($mailable->user)->toBe($user)
         ->and($mailable->ip)->toBe('192.168.1.100')
-        ->and($mailable->ttlSeconds)->toBe(3600);
+        ->and($mailable->ttlSeconds)->toBe(3600)
+        ->and($mailable->hqHost)->toBe($hqHost)
+        ->and($mailable->modsecLogs)->toBe('test logs');
 });
 
 test('mailable properties are readonly', function () {
     $user = User::factory()->create();
-    $mailable = new HqWhitelistMail($user, '10.0.0.1', 7200);
+    $hqHost = Host::factory()->create();
+    $mailable = new HqWhitelistMail($user, '10.0.0.1', 7200, $hqHost, 'logs');
 
     $reflection = new ReflectionClass($mailable);
     $userProperty = $reflection->getProperty('user');
     $ipProperty = $reflection->getProperty('ip');
     $ttlProperty = $reflection->getProperty('ttlSeconds');
+    $hostProperty = $reflection->getProperty('hqHost');
+    $logsProperty = $reflection->getProperty('modsecLogs');
 
     expect($userProperty->isReadOnly())->toBeTrue()
         ->and($ipProperty->isReadOnly())->toBeTrue()
-        ->and($ttlProperty->isReadOnly())->toBeTrue();
+        ->and($ttlProperty->isReadOnly())->toBeTrue()
+        ->and($hostProperty->isReadOnly())->toBeTrue()
+        ->and($logsProperty->isReadOnly())->toBeTrue();
 });
 
 // ============================================================================
@@ -49,7 +59,7 @@ test('mailable properties are readonly', function () {
 
 test('envelope returns correct subject from translation', function () {
     $user = User::factory()->create();
-    $mailable = new HqWhitelistMail($user, '192.168.1.1', 3600);
+    $mailable = new HqWhitelistMail($user, '192.168.1.1', 3600, Host::factory()->create(), 'ModSec logs');
 
     $envelope = $mailable->envelope();
 
@@ -59,7 +69,7 @@ test('envelope returns correct subject from translation', function () {
 
 test('envelope subject uses translation key', function () {
     $user = User::factory()->create();
-    $mailable = new HqWhitelistMail($user, '10.0.0.1', 7200);
+    $mailable = new HqWhitelistMail($user, '10.0.0.1', 7200, Host::factory()->create(), 'ModSec logs');
 
     $envelope = $mailable->envelope();
 
@@ -75,7 +85,7 @@ test('envelope subject uses translation key', function () {
 
 test('content returns correct view', function () {
     $user = User::factory()->create();
-    $mailable = new HqWhitelistMail($user, '192.168.1.1', 3600);
+    $mailable = new HqWhitelistMail($user, '192.168.1.1', 3600, Host::factory()->create(), 'ModSec logs');
 
     $content = $mailable->content();
 
@@ -84,7 +94,7 @@ test('content returns correct view', function () {
 
 test('content includes IP address in data', function () {
     $user = User::factory()->create();
-    $mailable = new HqWhitelistMail($user, '203.0.113.42', 3600);
+    $mailable = new HqWhitelistMail($user, '203.0.113.42', 3600, Host::factory()->create(), 'ModSec logs');
 
     $content = $mailable->content();
 
@@ -97,7 +107,7 @@ test('content includes user name in data', function () {
         'first_name' => 'Jane',
         'last_name' => 'Smith',
     ]);
-    $mailable = new HqWhitelistMail($user, '192.168.1.1', 3600);
+    $mailable = new HqWhitelistMail($user, '192.168.1.1', 3600, Host::factory()->create(), 'ModSec logs');
 
     $content = $mailable->content();
 
@@ -107,7 +117,7 @@ test('content includes user name in data', function () {
 
 test('content includes TTL in seconds', function () {
     $user = User::factory()->create();
-    $mailable = new HqWhitelistMail($user, '10.0.0.1', 7200);
+    $mailable = new HqWhitelistMail($user, '10.0.0.1', 7200, Host::factory()->create(), 'ModSec logs');
 
     $content = $mailable->content();
 
@@ -117,7 +127,7 @@ test('content includes TTL in seconds', function () {
 
 test('content converts TTL to hours', function () {
     $user = User::factory()->create();
-    $mailable = new HqWhitelistMail($user, '10.0.0.1', 7200); // 2 hours
+    $mailable = new HqWhitelistMail($user, '10.0.0.1', 7200, Host::factory()->create(), 'ModSec logs'); // 2 hours
 
     $content = $mailable->content();
 
@@ -127,7 +137,7 @@ test('content converts TTL to hours', function () {
 
 test('content calculates TTL hours with decimals', function () {
     $user = User::factory()->create();
-    $mailable = new HqWhitelistMail($user, '10.0.0.1', 5400); // 1.5 hours
+    $mailable = new HqWhitelistMail($user, '10.0.0.1', 5400, Host::factory()->create(), 'ModSec logs'); // 1.5 hours
 
     $content = $mailable->content();
 
@@ -136,7 +146,7 @@ test('content calculates TTL hours with decimals', function () {
 
 test('content rounds TTL hours to 2 decimals', function () {
     $user = User::factory()->create();
-    $mailable = new HqWhitelistMail($user, '10.0.0.1', 5555); // ~1.543 hours
+    $mailable = new HqWhitelistMail($user, '10.0.0.1', 5555, Host::factory()->create(), 'ModSec logs'); // ~1.543 hours
 
     $content = $mailable->content();
 
@@ -147,7 +157,7 @@ test('content includes company name from config', function () {
     config()->set('company.name', 'Test Company Inc');
 
     $user = User::factory()->create();
-    $mailable = new HqWhitelistMail($user, '10.0.0.1', 3600);
+    $mailable = new HqWhitelistMail($user, '10.0.0.1', 3600, Host::factory()->create(), 'ModSec logs');
 
     $content = $mailable->content();
 
@@ -157,7 +167,8 @@ test('content includes company name from config', function () {
 
 test('content includes all required data keys', function () {
     $user = User::factory()->create();
-    $mailable = new HqWhitelistMail($user, '192.168.1.1', 3600);
+    $hqHost = Host::factory()->create(['fqdn' => 'hq.example.com']);
+    $mailable = new HqWhitelistMail($user, '192.168.1.1', 3600, $hqHost, 'logs');
 
     $content = $mailable->content();
 
@@ -167,6 +178,10 @@ test('content includes all required data keys', function () {
         'ttlSeconds',
         'ttlHours',
         'companyName',
+        'hqHostFqdn',
+        'hqHostPanel',
+        'modsecLogs',
+        'timestamp',
     ]);
 });
 
@@ -176,7 +191,7 @@ test('content includes all required data keys', function () {
 
 test('attachments returns empty array', function () {
     $user = User::factory()->create();
-    $mailable = new HqWhitelistMail($user, '192.168.1.1', 3600);
+    $mailable = new HqWhitelistMail($user, '192.168.1.1', 3600, Host::factory()->create(), 'ModSec logs');
 
     $attachments = $mailable->attachments();
 
@@ -190,7 +205,7 @@ test('attachments returns empty array', function () {
 
 test('mailable implements ShouldQueue', function () {
     $user = User::factory()->create();
-    $mailable = new HqWhitelistMail($user, '192.168.1.1', 3600);
+    $mailable = new HqWhitelistMail($user, '192.168.1.1', 3600, Host::factory()->create(), 'ModSec logs');
 
     expect($mailable)->toBeInstanceOf(\Illuminate\Contracts\Queue\ShouldQueue::class);
 });
@@ -215,7 +230,7 @@ test('mailable uses SerializesModels trait', function () {
 
 test('handles very short TTL', function () {
     $user = User::factory()->create();
-    $mailable = new HqWhitelistMail($user, '10.0.0.1', 60); // 1 minute
+    $mailable = new HqWhitelistMail($user, '10.0.0.1', 60, Host::factory()->create(), 'ModSec logs'); // 1 minute
 
     $content = $mailable->content();
 
@@ -225,7 +240,7 @@ test('handles very short TTL', function () {
 
 test('handles very long TTL', function () {
     $user = User::factory()->create();
-    $mailable = new HqWhitelistMail($user, '10.0.0.1', 86400); // 24 hours
+    $mailable = new HqWhitelistMail($user, '10.0.0.1', 86400, Host::factory()->create(), 'ModSec logs'); // 24 hours
 
     $content = $mailable->content();
 
@@ -235,9 +250,10 @@ test('handles very long TTL', function () {
 
 test('handles default TTL from config', function () {
     $user = User::factory()->create();
+    $hqHost = Host::factory()->create();
     $defaultTtl = config('unblock.hq.ttl', 7200);
 
-    $mailable = new HqWhitelistMail($user, '10.0.0.1', $defaultTtl);
+    $mailable = new HqWhitelistMail($user, '10.0.0.1', $defaultTtl, $hqHost, 'logs');
 
     $content = $mailable->content();
 
@@ -250,7 +266,7 @@ test('handles default TTL from config', function () {
 
 test('handles IPv6 addresses', function () {
     $user = User::factory()->create();
-    $mailable = new HqWhitelistMail($user, '2001:0db8:85a3::8a2e:0370:7334', 3600);
+    $mailable = new HqWhitelistMail($user, '2001:0db8:85a3::8a2e:0370:7334', 3600, Host::factory()->create(), 'ModSec logs');
 
     $content = $mailable->content();
 
@@ -259,7 +275,7 @@ test('handles IPv6 addresses', function () {
 
 test('handles compressed IPv6 addresses', function () {
     $user = User::factory()->create();
-    $mailable = new HqWhitelistMail($user, '2001:db8::1', 3600);
+    $mailable = new HqWhitelistMail($user, '2001:db8::1', 3600, Host::factory()->create(), 'ModSec logs');
 
     $content = $mailable->content();
 
@@ -275,7 +291,7 @@ test('handles user with empty name', function () {
         'first_name' => '',
         'last_name' => '',
     ]);
-    $mailable = new HqWhitelistMail($user, '192.168.1.1', 3600);
+    $mailable = new HqWhitelistMail($user, '192.168.1.1', 3600, Host::factory()->create(), 'ModSec logs');
 
     $content = $mailable->content();
 
@@ -288,7 +304,7 @@ test('handles user with special characters in name', function () {
         'first_name' => 'Jöhn',
         'last_name' => 'Dœ-Smith',
     ]);
-    $mailable = new HqWhitelistMail($user, '192.168.1.1', 3600);
+    $mailable = new HqWhitelistMail($user, '192.168.1.1', 3600, Host::factory()->create(), 'ModSec logs');
 
     $content = $mailable->content();
 
@@ -302,7 +318,7 @@ test('handles user with very long name', function () {
         'first_name' => $longFirstName,
         'last_name' => $longLastName,
     ]);
-    $mailable = new HqWhitelistMail($user, '192.168.1.1', 3600);
+    $mailable = new HqWhitelistMail($user, '192.168.1.1', 3600, Host::factory()->create(), 'ModSec logs');
 
     $content = $mailable->content();
 
