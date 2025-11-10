@@ -2,7 +2,7 @@
 
 use App\Models\User;
 
-test('admin is redirected to admin panel from unified dashboard', function () {
+test('admin can access unified dashboard in normal mode', function () {
     config()->set('unblock.simple_mode.enabled', false);
 
     // Crear un usuario admin
@@ -11,13 +11,14 @@ test('admin is redirected to admin panel from unified dashboard', function () {
     // Set last_activity to prevent session timeout redirect
     session()->put('last_activity', now()->timestamp);
 
-    // Actuar como el admin - debe ser redirigido al panel de administración
+    // Actuar como el admin - debe poder acceder al dashboard
     $response = $this
         ->actingAs($admin)
         ->get(route('dashboard'));
 
-    // Verificar que es redirigido al panel de administración de Filament
-    $response->assertRedirect(route('filament.admin.pages.dashboard'));
+    // Verificar que puede acceder al dashboard
+    $response->assertOk()
+        ->assertSeeLivewire('unified-dashboard');
 });
 
 test('regular user can access unified dashboard', function () {

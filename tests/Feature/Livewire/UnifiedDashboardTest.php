@@ -3,7 +3,7 @@
 use App\Models\{Host, Hosting, User};
 use Livewire\Volt\Volt;
 
-test('admin is redirected to admin panel when accessing unified dashboard', function () {
+test('admin can access unified dashboard without redirect', function () {
     config()->set('unblock.simple_mode.enabled', false);
 
     // Create admin and hosts
@@ -14,12 +14,13 @@ test('admin is redirected to admin panel when accessing unified dashboard', func
     // Set last_activity to prevent session timeout redirect
     session()->put('last_activity', now()->timestamp);
 
-    // Mount component as admin - should redirect to admin panel
+    // Mount component as admin - should be able to access dashboard
     $response = $this->actingAs($admin)
         ->get(route('dashboard'));
 
-    // Verify admin is redirected to Filament admin panel
-    $response->assertRedirect(route('filament.admin.pages.dashboard'));
+    // Verify admin can access the dashboard
+    $response->assertOk()
+        ->assertSeeLivewire('unified-dashboard');
 });
 
 test('unified dashboard component mounts correctly for regular user', function () {
