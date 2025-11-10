@@ -58,6 +58,9 @@ test('job resolves HQ host by ID when configured', function () {
         ->with(Mockery::any(), Mockery::any(), 'mod_security_da', Mockery::any())
         ->andReturn('IP blocked in ModSec'); // IP is blocked
     $firewallService->allows('checkProblems')
+        ->with(Mockery::any(), Mockery::any(), 'unblock', Mockery::any())
+        ->andReturn('unblocked');
+    $firewallService->allows('checkProblems')
         ->with(Mockery::any(), Mockery::any(), 'whitelist_hq', Mockery::any())
         ->andReturn('whitelisted');
 
@@ -88,6 +91,9 @@ test('job resolves HQ host by FQDN when ID not configured', function () {
     $firewallService->allows('checkProblems')
         ->with(Mockery::any(), Mockery::any(), 'mod_security_da', Mockery::any())
         ->andReturn('blocked');
+    $firewallService->allows('checkProblems')
+        ->with(Mockery::any(), Mockery::any(), 'unblock', Mockery::any())
+        ->andReturn('unblocked');
     $firewallService->allows('checkProblems')
         ->with(Mockery::any(), Mockery::any(), 'whitelist_hq', Mockery::any())
         ->andReturn('whitelisted');
@@ -123,6 +129,9 @@ test('job prefers host ID over FQDN when both are configured', function () {
     $firewallService->allows('checkProblems')
         ->with(Mockery::any(), Mockery::any(), 'mod_security_da', Mockery::any())
         ->andReturn('blocked');
+    $firewallService->allows('checkProblems')
+        ->with(Mockery::any(), Mockery::any(), 'unblock', Mockery::any())
+        ->andReturn('unblocked');
     $firewallService->allows('checkProblems')
         ->with(Mockery::any(), Mockery::any(), 'whitelist_hq', Mockery::any())
         ->andReturn('whitelisted');
@@ -245,6 +254,10 @@ test('job applies whitelist and sends email when IP blocked', function () {
         ->once()
         ->andReturn('ModSecurity: IP blocked'); // ← Blocked
     $firewallService->expects('checkProblems')
+        ->with(Mockery::type(Host::class), '/tmp/test_key_blocked', 'unblock', '10.0.0.50')
+        ->once()
+        ->andReturn('IP unblocked from deny lists');
+    $firewallService->expects('checkProblems')
         ->with(Mockery::type(Host::class), '/tmp/test_key_blocked', 'whitelist_hq', '10.0.0.50')
         ->once()
         ->andReturn('IP whitelisted successfully');
@@ -287,6 +300,9 @@ test('job does not send email when admin_email not configured', function () {
         ->with(Mockery::any(), Mockery::any(), 'mod_security_da', Mockery::any())
         ->andReturn('blocked');
     $firewallService->allows('checkProblems')
+        ->with(Mockery::any(), Mockery::any(), 'unblock', Mockery::any())
+        ->andReturn('unblocked');
+    $firewallService->allows('checkProblems')
         ->with(Mockery::any(), Mockery::any(), 'whitelist_hq', Mockery::any())
         ->andReturn('whitelisted');
 
@@ -309,6 +325,9 @@ test('job uses existing admin user for email', function () {
     $firewallService->allows('checkProblems')
         ->with(Mockery::any(), Mockery::any(), 'mod_security_da', Mockery::any())
         ->andReturn('blocked');
+    $firewallService->allows('checkProblems')
+        ->with(Mockery::any(), Mockery::any(), 'unblock', Mockery::any())
+        ->andReturn('unblocked');
     $firewallService->allows('checkProblems')
         ->with(Mockery::any(), Mockery::any(), 'whitelist_hq', Mockery::any())
         ->andReturn('ok');
@@ -333,6 +352,9 @@ test('job creates temporary admin user when no admin exists', function () {
     $firewallService->allows('checkProblems')
         ->with(Mockery::any(), Mockery::any(), 'mod_security_da', Mockery::any())
         ->andReturn('blocked');
+    $firewallService->allows('checkProblems')
+        ->with(Mockery::any(), Mockery::any(), 'unblock', Mockery::any())
+        ->andReturn('unblocked');
     $firewallService->allows('checkProblems')
         ->with(Mockery::any(), Mockery::any(), 'whitelist_hq', Mockery::any())
         ->andReturn('ok');
@@ -441,6 +463,9 @@ test('job uses default TTL when not configured', function () {
         ->with(Mockery::any(), Mockery::any(), 'mod_security_da', Mockery::any())
         ->andReturn('blocked');
     $firewallService->allows('checkProblems')
+        ->with(Mockery::any(), Mockery::any(), 'unblock', Mockery::any())
+        ->andReturn('unblocked');
+    $firewallService->allows('checkProblems')
         ->with(Mockery::any(), Mockery::any(), 'whitelist_hq', Mockery::any())
         ->andReturn('ok');
 
@@ -464,6 +489,9 @@ test('job uses custom TTL when configured', function () {
     $firewallService->allows('checkProblems')
         ->with(Mockery::any(), Mockery::any(), 'mod_security_da', Mockery::any())
         ->andReturn('blocked');
+    $firewallService->allows('checkProblems')
+        ->with(Mockery::any(), Mockery::any(), 'unblock', Mockery::any())
+        ->andReturn('unblocked');
     $firewallService->allows('checkProblems')
         ->with(Mockery::any(), Mockery::any(), 'whitelist_hq', Mockery::any())
         ->andReturn('ok');

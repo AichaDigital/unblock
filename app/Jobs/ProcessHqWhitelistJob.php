@@ -57,7 +57,20 @@ class ProcessHqWhitelistJob implements ShouldQueue
                 return;
             }
 
-            // Whitelist temporarily (default 7200s as per config)
+            // CRITICAL FIX: Unblock IP first (remove from deny lists) before whitelisting
+            // This ensures both permanent (csf -dr) and temporary (csf -tr) blocks are removed
+            Log::info('HQ whitelist: Unblocking IP before whitelisting', [
+                'ip' => $this->ip,
+                'fqdn' => $hqHost->fqdn,
+            ]);
+            $firewallService->checkProblems($hqHost, $keyPath, 'unblock', $this->ip);
+
+            // Then whitelist temporarily (default 7200s as per config)
+            Log::info('HQ whitelist: Adding IP to temporary whitelist', [
+                'ip' => $this->ip,
+                'fqdn' => $hqHost->fqdn,
+                'ttl' => config('unblock.hq.ttl', 7200),
+            ]);
             $firewallService->checkProblems($hqHost, $keyPath, 'whitelist_hq', $this->ip);
 
             // Notify admin only if it was blocked on HQ and include modsec logs
