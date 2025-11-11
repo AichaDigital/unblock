@@ -231,25 +231,10 @@ class OtpLogin extends Component
                     // Redirect to simple unblock form
                     $this->redirectRoute('simple.unblock');
                 } else {
-                    // Normal mode: Authenticate user
+                    // Normal mode: Authenticate user and redirect to dashboard
                     Auth::login($this->user);
                     session()->put('last_activity', now()->timestamp);
 
-                    // CRITICAL: Admins in normal mode must use admin panel, not user dashboard
-                    if ($this->user->is_admin) {
-                        $this->info(
-                            'Redirigiendo al panel de administración',
-                            'Acceso autorizado'
-                        );
-                        $this->audit($ip, 'otp_login', 'Admin redirected to admin panel');
-
-                        // Redirect to admin panel (they'll need to complete admin OTP there)
-                        $this->redirect(route('filament.admin.pages.dashboard'));
-
-                        return;
-                    }
-
-                    // Regular user: redirect to user dashboard
                     $this->success(
                         'Acceso autorizado',
                         'Bienvenido al sistema'
