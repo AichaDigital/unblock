@@ -131,8 +131,11 @@ class FirewallService
             'da_bfm_check' => "cat /usr/local/directadmin/data/admin/ip_blacklist | grep -E '^{ip}(\\s|\$)' || true",
             'da_bfm_remove' => "sed -i '/^{ip}(\\s|\$)/d' /usr/local/directadmin/data/admin/ip_blacklist",
             'da_bfm_whitelist_add' => "echo '{ip}' >> /usr/local/directadmin/data/admin/ip_whitelist",
-            // Unblock: ONLY remove from deny lists (NO whitelist)
-            'unblock' => "csf -dr {$ip} && csf -tr {$ip}",
+            // Unblock commands: separate for permanent and temporary deny lists
+            'unblock_permanent' => 'csf -dr {ip}',
+            'unblock_temporary' => 'csf -tr {ip}',
+            // Legacy unblock command (kept for backward compatibility, but should not be used)
+            'unblock' => 'csf -dr {ip} || true; csf -tr {ip} || true',
             // Whitelist commands with different TTLs
             'whitelist' => "csf -ta {$ip} ".config('unblock.whitelist_ttl', 86400),
             'whitelist_simple' => "csf -ta {$ip} ".config('unblock.simple_mode.whitelist_ttl', 3600),
@@ -163,8 +166,11 @@ class FirewallService
             'da_bfm_check' => "cat /usr/local/directadmin/data/admin/ip_blacklist | grep -E '^{$ip_escaped}(\\s|\$)' || true",
             'da_bfm_remove' => "sed -i '/^{$ip_escaped}(\\s|\$)/d' /usr/local/directadmin/data/admin/ip_blacklist",
             'da_bfm_whitelist_add' => "echo '{$ip}' >> /usr/local/directadmin/data/admin/ip_whitelist",
-            // Unblock: ONLY remove from deny lists (NO whitelist)
-            'unblock' => "csf -dr {$ip} && csf -tr {$ip}",
+            // Unblock commands: separate for permanent and temporary deny lists
+            'unblock_permanent' => "csf -dr {$ip}",
+            'unblock_temporary' => "csf -tr {$ip}",
+            // Legacy unblock command (kept for backward compatibility, but should not be used)
+            'unblock' => "csf -dr {$ip} || true; csf -tr {$ip} || true",
             // Whitelist commands with different TTLs from config
             'whitelist' => "csf -ta {$ip} ".config('unblock.whitelist_ttl', 86400),
             'whitelist_simple' => "csf -ta {$ip} ".config('unblock.simple_mode.whitelist_ttl', 3600),

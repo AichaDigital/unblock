@@ -186,21 +186,29 @@ test('OPML rule: CSF blocks only - performs CSF unblock and whitelist', function
     $this->session->allows('cleanup');
     $this->session->allows('getHost')->andReturn($host);
 
-    $this->session->expects('execute')
-        ->with('csf -dr 192.168.1.1')
-        ->once()
-        ->andReturn('IP 192.168.1.1 removed');
+    // Mock execute to check denies first, then execute unblock commands
+    $this->session->allows('execute')->andReturnUsing(function ($command) {
+        if (str_contains($command, 'csf.deny')) {
+            return '192.168.1.1'; // IP found in permanent deny
+        }
+        if (str_contains($command, 'csf.tempip')) {
+            return ''; // Not in temporary deny
+        }
+        if (str_contains($command, 'csf -dr')) {
+            return 'IP 192.168.1.1 removed';
+        }
+        if (str_contains($command, 'csf -ta')) {
+            return 'IP 192.168.1.1 whitelisted for 24 hours';
+        }
 
-    $this->session->expects('execute')
-        ->with('csf -ta 192.168.1.1 86400')
-        ->once()
-        ->andReturn('IP 192.168.1.1 whitelisted for 24 hours');
+        return '';
+    });
 
     $result = $this->unblocker->unblockIp('192.168.1.1', $host, $analysisResult);
 
     expect($result)->toHaveKey('csf')
         ->and($result)->not->toHaveKey('bfm')
-        ->and($result['csf'])->toHaveKey('unblock')
+        ->and($result['csf'])->toHaveKey('unblock_permanent')
         ->and($result['csf'])->toHaveKey('whitelist');
 
     Log::shouldHaveReceived('info')
@@ -668,15 +676,22 @@ test('performCsfOperations logs success', function () {
     $host = Host::factory()->create(['panel' => 'cpanel', 'fqdn' => 'test.example.com']);
     $this->sshManager->allows('createSession')->andReturn($this->session);
     $this->session->allows('cleanup');
-    $this->session->allows('execute')->andReturn('success');
     $this->session->allows('getHost')->andReturn($host);
+
+    // Mock execute to return empty for deny checks (IP not blocked) and success for whitelist
+    $this->session->allows('execute')->andReturnUsing(function ($command) {
+        if (str_contains($command, 'csf.deny') || str_contains($command, 'csf.tempip')) {
+            return ''; // Not in deny lists
+        }
+
+        return 'success'; // Whitelist command
+    });
 
     $this->unblocker->unblockIp('192.168.1.1', $host, $analysisResult);
 
     Log::shouldHaveReceived('info')
         ->with('CSF operations completed successfully', Mockery::on(function ($context) {
             return isset($context['operations']) &&
-                   in_array('unblock', $context['operations']) &&
                    in_array('temporal_whitelist_24h', $context['operations']);
         }));
 });

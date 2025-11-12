@@ -5,7 +5,7 @@
     "keywords": ["laravel", "framework"],
     "license": "MIT",
     "require": {
-        "php": "^8.2",
+        "php": "^8.4",
         "danharrin/livewire-rate-limiting": "^2.0",
         "filament/filament": "^4.0",
         "geoip2/geoip2": "^3.2",

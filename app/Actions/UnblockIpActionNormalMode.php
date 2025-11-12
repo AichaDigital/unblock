@@ -64,15 +64,33 @@ class UnblockIpActionNormalMode
                 'ttl' => $ttl,
             ]);
 
-            // 1. Standard CSF unblock (remove from deny lists)
-            Log::info('Executing CSF unblock command', ['ip' => $ip, 'host' => $host->fqdn]);
-            $this->firewallService->checkProblems($host, $keyPath, 'unblock', $ip);
+            // 1. Check if IP is in permanent deny list (csf.deny)
+            Log::debug('Checking if IP is in permanent deny list', ['ip' => $ip]);
+            $denyCheck = $this->firewallService->checkProblems($host, $keyPath, 'csf_deny_check', $ip);
+            if (! empty(trim($denyCheck))) {
+                // IP is in permanent deny list - remove it
+                Log::info('IP found in permanent deny list, removing', ['ip' => $ip, 'host' => $host->fqdn]);
+                $this->firewallService->checkProblems($host, $keyPath, 'unblock_permanent', $ip);
+            } else {
+                Log::debug('IP not in permanent deny list', ['ip' => $ip]);
+            }
 
-            // 2. Add to CSF temporary whitelist (normal mode TTL)
+            // 2. Check if IP is in temporary deny list (csf.tempip)
+            Log::debug('Checking if IP is in temporary deny list', ['ip' => $ip]);
+            $tempDenyCheck = $this->firewallService->checkProblems($host, $keyPath, 'csf_tempip_check', $ip);
+            if (! empty(trim($tempDenyCheck))) {
+                // IP is in temporary deny list - remove it
+                Log::info('IP found in temporary deny list, removing', ['ip' => $ip, 'host' => $host->fqdn]);
+                $this->firewallService->checkProblems($host, $keyPath, 'unblock_temporary', $ip);
+            } else {
+                Log::debug('IP not in temporary deny list', ['ip' => $ip]);
+            }
+
+            // 3. Add to CSF temporary whitelist (always, after removing denies)
             Log::info('Adding IP to CSF temporary whitelist', ['ip' => $ip, 'host' => $host->fqdn, 'ttl' => $ttl]);
             $this->firewallService->checkProblems($host, $keyPath, 'whitelist', $ip);
 
-            // 3. For DirectAdmin servers, also handle BFM
+            // 4. For DirectAdmin servers, also handle BFM
             if ($host->panel === PanelType::DIRECTADMIN) {
                 try {
                     Log::info('DirectAdmin detected, processing BFM operations', ['ip' => $ip, 'host' => $host->fqdn]);
