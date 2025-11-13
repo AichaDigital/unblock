@@ -45,13 +45,26 @@ class UnblockIpAction
             $host = Host::findOrFail($hostId);
             $ttl = config('unblock.simple_mode.whitelist_ttl', 3600);
 
-            // 1. Standard CSF unblock (remove from deny lists)
-            $this->firewallService->checkProblems($host, $keyName, 'unblock', $ip);
+            // 1. Check if IP is in permanent deny list (csf.deny)
+            $denyCheck = $this->firewallService->checkProblems($host, $keyName, 'csf_deny_check', $ip);
+            if (! empty(trim($denyCheck))) {
+                // IP is in permanent deny list - remove it
+                $this->firewallService->checkProblems($host, $keyName, 'unblock_permanent', $ip);
+                Log::info('Removed IP from permanent deny list', ['ip' => $ip, 'host' => $host->fqdn]);
+            }
 
-            // 2. Add to CSF temporary whitelist
+            // 2. Check if IP is in temporary deny list (csf.tempip)
+            $tempDenyCheck = $this->firewallService->checkProblems($host, $keyName, 'csf_tempip_check', $ip);
+            if (! empty(trim($tempDenyCheck))) {
+                // IP is in temporary deny list - remove it
+                $this->firewallService->checkProblems($host, $keyName, 'unblock_temporary', $ip);
+                Log::info('Removed IP from temporary deny list', ['ip' => $ip, 'host' => $host->fqdn]);
+            }
+
+            // 3. Add to CSF temporary whitelist (always, after removing denies)
             $this->firewallService->checkProblems($host, $keyName, 'whitelist_simple', $ip);
 
-            // 3. For DirectAdmin servers, also handle BFM
+            // 4. For DirectAdmin servers, also handle BFM
             if ($host->panel === PanelType::DIRECTADMIN) {
                 try {
                     // a) Check if IP is in BFM blacklist

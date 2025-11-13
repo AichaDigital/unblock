@@ -9,14 +9,15 @@ use App\Exceptions\{
     FirewallException
 };
 use App\Models\Host;
-use App\Services\FirewallService;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use Tests\FirewallTestConstants as TC;
+use Tests\Helpers\FirewallServiceStub;
 
 uses(MockeryPHPUnitIntegration::class);
 
 beforeEach(function () {
-    $this->firewallService = Mockery::mock(FirewallService::class);
+    // Use stub by default - only use mocks for error cases
+    $this->firewallService = FirewallServiceStub::ipNotBlocked();
     $this->action = new UnblockIpAction($this->firewallService);
 });
 
@@ -43,29 +44,11 @@ test('unblocks ip successfully', function () {
         'panel' => 'cpanel',
     ]);
 
-    // Expect unblock command
-    $this->firewallService
-        ->expects('checkProblems')
-        ->once()
-        ->with(
-            \Mockery::on(fn ($arg) => $arg instanceof Host && $arg->id === $host->id),
-            TC::TEST_SSH_KEY,
-            'unblock',
-            TC::TEST_IP
-        )
-        ->andReturn('success');
+    // ✅ Using stub instead of mocks - cleaner and uses real FirewallService logic
+    $this->firewallService = FirewallServiceStub::ipNotBlocked()
+        ->setCommandResponse('whitelist_simple', 'success');
 
-    // Expect whitelist_simple command
-    $this->firewallService
-        ->expects('checkProblems')
-        ->once()
-        ->with(
-            \Mockery::on(fn ($arg) => $arg instanceof Host && $arg->id === $host->id),
-            TC::TEST_SSH_KEY,
-            'whitelist_simple',
-            TC::TEST_IP
-        )
-        ->andReturn('success');
+    $this->action = new UnblockIpAction($this->firewallService);
 
     // Act
     $result = $this->action->handle(TC::TEST_IP, $host->id, TC::TEST_SSH_KEY);
@@ -87,21 +70,16 @@ test('handles connection failure', function () {
         'admin' => TC::TEST_ADMIN_USER,
     ]);
 
-    $this->firewallService
-        ->expects('checkProblems')
-        ->once()
-        ->with(
-            \Mockery::on(fn ($arg) => $arg instanceof Host && $arg->id === $host->id),
-            TC::TEST_SSH_KEY,
-            'unblock',
-            TC::TEST_IP
-        )
-        ->andThrow(new ConnectionFailedException(
+    // ✅ Using stub with exception helper for error testing
+    $this->firewallService = FirewallServiceStub::ipNotBlocked()
+        ->withExceptionFor('csf_deny_check', new ConnectionFailedException(
             'Connection failed',
             $host->fqdn,
             3,
             TC::TEST_IP
         ));
+
+    $this->action = new UnblockIpAction($this->firewallService);
 
     // Act
     $result = $this->action->handle(TC::TEST_IP, $host->id, TC::TEST_SSH_KEY);
@@ -124,21 +102,16 @@ test('handles command execution failure', function () {
         'admin' => TC::TEST_ADMIN_USER,
     ]);
 
-    $this->firewallService
-        ->expects('checkProblems')
-        ->once()
-        ->with(
-            \Mockery::on(fn ($arg) => $arg instanceof Host && $arg->id === $host->id),
-            TC::TEST_SSH_KEY,
-            'unblock',
-            TC::TEST_IP
-        )
-        ->andThrow(new CommandExecutionException(
+    // ✅ Using stub with exception helper
+    $this->firewallService = FirewallServiceStub::ipNotBlocked()
+        ->withExceptionFor('csf_deny_check', new CommandExecutionException(
             'csf -dr '.TC::TEST_IP,
             'output',
             'error output',
             'Command failed'
         ));
+
+    $this->action = new UnblockIpAction($this->firewallService);
 
     // Act
     $result = $this->action->handle(TC::TEST_IP, $host->id, TC::TEST_SSH_KEY);
@@ -161,20 +134,15 @@ test('handles firewall exception', function () {
         'admin' => TC::TEST_ADMIN_USER,
     ]);
 
-    $this->firewallService
-        ->expects('checkProblems')
-        ->once()
-        ->with(
-            \Mockery::on(fn ($arg) => $arg instanceof Host && $arg->id === $host->id),
-            TC::TEST_SSH_KEY,
-            'unblock',
-            TC::TEST_IP
-        )
-        ->andThrow(new FirewallException(
+    // ✅ Using stub with exception helper
+    $this->firewallService = FirewallServiceStub::ipNotBlocked()
+        ->withExceptionFor('csf_deny_check', new FirewallException(
             'Firewall error',
             $host->fqdn,
             TC::TEST_IP
         ));
+
+    $this->action = new UnblockIpAction($this->firewallService);
 
     // Act
     $result = $this->action->handle(TC::TEST_IP, $host->id, TC::TEST_SSH_KEY);

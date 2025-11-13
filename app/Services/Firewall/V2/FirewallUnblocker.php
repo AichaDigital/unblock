@@ -35,26 +35,49 @@ class FirewallUnblocker
         try {
             $results = [];
 
-            // 1. Desbloquear de CSF (csf -dr IP)
-            $unblockOutput = $this->firewallService->checkProblems($host, $session->getSshKeyPath(), 'unblock', $ipAddress);
-            $results['unblock'] = [
-                'command' => "csf -dr {$ipAddress}",
-                'output' => $unblockOutput,
-                'success' => true,
-            ];
+            // 1. Check if IP is in permanent deny list (csf.deny)
+            $denyCheck = $this->firewallService->checkProblems($host, $session->getSshKeyPath(), 'csf_deny_check', $ipAddress);
+            if (! empty(trim($denyCheck))) {
+                // IP is in permanent deny list - remove it
+                $unblockPermanentOutput = $this->firewallService->checkProblems($host, $session->getSshKeyPath(), 'unblock_permanent', $ipAddress);
+                $results['unblock_permanent'] = [
+                    'command' => "csf -dr {$ipAddress}",
+                    'output' => $unblockPermanentOutput,
+                    'success' => true,
+                ];
+                Log::info('Removed IP from permanent deny list', ['ip' => $ipAddress, 'host' => $host->fqdn]);
+            }
 
-            // 2. Agregar a whitelist por 24 horas (csf -a IP)
+            // 2. Check if IP is in temporary deny list (csf.tempip)
+            $tempDenyCheck = $this->firewallService->checkProblems($host, $session->getSshKeyPath(), 'csf_tempip_check', $ipAddress);
+            if (! empty(trim($tempDenyCheck))) {
+                // IP is in temporary deny list - remove it
+                $unblockTemporaryOutput = $this->firewallService->checkProblems($host, $session->getSshKeyPath(), 'unblock_temporary', $ipAddress);
+                $results['unblock_temporary'] = [
+                    'command' => "csf -tr {$ipAddress}",
+                    'output' => $unblockTemporaryOutput,
+                    'success' => true,
+                ];
+                Log::info('Removed IP from temporary deny list', ['ip' => $ipAddress, 'host' => $host->fqdn]);
+            }
+
+            // 3. Agregar a whitelist por 24 horas (csf -ta IP TTL) - siempre después de remover denies
             $whitelistOutput = $this->firewallService->checkProblems($host, $session->getSshKeyPath(), 'whitelist', $ipAddress);
             $results['whitelist'] = [
-                'command' => "csf -a {$ipAddress}",
+                'command' => "csf -ta {$ipAddress} ".config('unblock.whitelist_ttl', 86400),
                 'output' => $whitelistOutput,
                 'success' => true,
             ];
 
+            $operations = array_keys(array_filter($results, fn ($key) => $key !== 'whitelist', ARRAY_FILTER_USE_KEY));
+            if (! in_array('whitelist', $operations)) {
+                $operations[] = 'whitelist';
+            }
+
             Log::info('CSF unblock operations completed successfully', [
                 'ip' => $ipAddress,
                 'host' => $host->fqdn,
-                'operations' => ['unblock', 'whitelist'],
+                'operations' => $operations,
             ]);
 
             return $results;

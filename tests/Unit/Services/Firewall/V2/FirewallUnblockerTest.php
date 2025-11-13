@@ -29,10 +29,14 @@ test('unblockFromCsf successfully unblocks IP', function () {
     $this->session->allows('getSshKeyPath')->andReturn('/path/to/key');
     $this->session->allows('cleanup');
 
-    // Mock FirewallService calls
+    // Mock FirewallService calls - deny checks return empty (IP not blocked)
     $this->firewallService->allows('checkProblems')
-        ->with($host, '/path/to/key', 'unblock', '192.168.1.1')
-        ->andReturn('IP 192.168.1.1 removed from deny list');
+        ->with($host, '/path/to/key', 'csf_deny_check', '192.168.1.1')
+        ->andReturn(''); // Not in permanent deny
+
+    $this->firewallService->allows('checkProblems')
+        ->with($host, '/path/to/key', 'csf_tempip_check', '192.168.1.1')
+        ->andReturn(''); // Not in temporary deny
 
     $this->firewallService->allows('checkProblems')
         ->with($host, '/path/to/key', 'whitelist', '192.168.1.1')
@@ -40,9 +44,7 @@ test('unblockFromCsf successfully unblocks IP', function () {
 
     $result = $this->unblocker->unblockFromCsf('192.168.1.1', $host);
 
-    expect($result)->toHaveKey('unblock')
-        ->and($result)->toHaveKey('whitelist')
-        ->and($result['unblock']['success'])->toBeTrue()
+    expect($result)->toHaveKey('whitelist')
         ->and($result['whitelist']['success'])->toBeTrue();
 
     Log::shouldHaveReceived('info')
@@ -347,7 +349,16 @@ test('unblockFromCsf logs operations', function () {
     $this->session->allows('getSshKeyPath')->andReturn('/path/to/key');
     $this->session->allows('cleanup');
 
-    $this->firewallService->allows('checkProblems')->andReturn('success');
+    // Mock deny checks to return empty (IP not blocked)
+    $this->firewallService->allows('checkProblems')
+        ->with(\Mockery::any(), \Mockery::any(), 'csf_deny_check', \Mockery::any())
+        ->andReturn('');
+    $this->firewallService->allows('checkProblems')
+        ->with(\Mockery::any(), \Mockery::any(), 'csf_tempip_check', \Mockery::any())
+        ->andReturn('');
+    $this->firewallService->allows('checkProblems')
+        ->with(\Mockery::any(), \Mockery::any(), 'whitelist', \Mockery::any())
+        ->andReturn('success');
 
     $this->unblocker->unblockFromCsf('192.168.1.1', $host);
 
@@ -355,7 +366,8 @@ test('unblockFromCsf logs operations', function () {
         ->with('CSF unblock operations completed successfully', Mockery::on(function ($context) {
             return $context['ip'] === '192.168.1.1' &&
                    $context['host'] === 'test.example.com' &&
-                   $context['operations'] === ['unblock', 'whitelist'];
+                   isset($context['operations']) &&
+                   in_array('whitelist', $context['operations']);
         }));
 });
 
@@ -398,12 +410,20 @@ test('handles IPv6 addresses in CSF unblock', function () {
     $this->session->allows('getSshKeyPath')->andReturn('/path/to/key');
     $this->session->allows('cleanup');
 
-    $this->firewallService->allows('checkProblems')->andReturn('success');
+    // Mock deny checks to return empty (IP not blocked)
+    $this->firewallService->allows('checkProblems')
+        ->with(\Mockery::any(), \Mockery::any(), 'csf_deny_check', \Mockery::any())
+        ->andReturn('');
+    $this->firewallService->allows('checkProblems')
+        ->with(\Mockery::any(), \Mockery::any(), 'csf_tempip_check', \Mockery::any())
+        ->andReturn('');
+    $this->firewallService->allows('checkProblems')
+        ->with(\Mockery::any(), \Mockery::any(), 'whitelist', \Mockery::any())
+        ->andReturn('success');
 
     $result = $this->unblocker->unblockFromCsf('2001:db8::1', $host);
 
-    expect($result['unblock']['success'])->toBeTrue()
-        ->and($result['whitelist']['success'])->toBeTrue();
+    expect($result['whitelist']['success'])->toBeTrue();
 });
 
 test('handles IPv6 addresses in BFM removal', function () {

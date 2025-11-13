@@ -54,9 +54,14 @@ test('command successfully unblocks IP', function () {
 
     // Mock FirewallService
     $firewallService = Mockery::mock(FirewallService::class);
+    // Mock deny checks (both return empty - IP not blocked)
     $firewallService->allows('checkProblems')
-        ->with(Mockery::type(Host::class), 'default', 'unblock', '192.168.1.100')
-        ->andReturn('success');
+        ->with(Mockery::type(Host::class), 'default', 'csf_deny_check', '192.168.1.100')
+        ->andReturn(''); // Not in permanent deny
+
+    $firewallService->allows('checkProblems')
+        ->with(Mockery::type(Host::class), 'default', 'csf_tempip_check', '192.168.1.100')
+        ->andReturn(''); // Not in temporary deny
 
     $firewallService->allows('checkProblems')
         ->with(Mockery::type(Host::class), 'default', 'whitelist_simple', '192.168.1.100')

@@ -160,18 +160,51 @@ class FirewallUnblocker
     private function performCsfOperations(SshSession $session, string $ipAddress): array
     {
         $results = [];
+        $ipEscaped = escapeshellarg($ipAddress);
+        $operations = [];
 
         try {
-            // Unblock the IP
-            $unblockCommand = "csf -dr {$ipAddress}";
-            $unblockOutput = $session->execute($unblockCommand);
-            $results['unblock'] = [
-                'command' => $unblockCommand,
-                'output' => $unblockOutput,
-                'success' => true,
-            ];
+            // 1. Check if IP is in permanent deny list (csf.deny)
+            $denyCheckCommand = "cat /etc/csf/csf.deny | grep {$ipEscaped} || true";
+            $denyCheckOutput = $session->execute($denyCheckCommand);
 
-            // Add to temporal whitelist (24 hours)
+            if (! empty(trim($denyCheckOutput))) {
+                // IP is in permanent deny list - remove it
+                $unblockPermanentCommand = "csf -dr {$ipAddress}";
+                $unblockPermanentOutput = $session->execute($unblockPermanentCommand);
+                $results['unblock_permanent'] = [
+                    'command' => $unblockPermanentCommand,
+                    'output' => $unblockPermanentOutput,
+                    'success' => true,
+                ];
+                $operations[] = 'unblock_permanent';
+                Log::info('Removed IP from permanent deny list', [
+                    'ip' => $ipAddress,
+                    'host' => $session->getHost()->fqdn,
+                ]);
+            }
+
+            // 2. Check if IP is in temporary deny list (csf.tempip)
+            $tempDenyCheckCommand = "cat /var/lib/csf/csf.tempip | grep {$ipEscaped} || true";
+            $tempDenyCheckOutput = $session->execute($tempDenyCheckCommand);
+
+            if (! empty(trim($tempDenyCheckOutput))) {
+                // IP is in temporary deny list - remove it
+                $unblockTemporaryCommand = "csf -tr {$ipAddress}";
+                $unblockTemporaryOutput = $session->execute($unblockTemporaryCommand);
+                $results['unblock_temporary'] = [
+                    'command' => $unblockTemporaryCommand,
+                    'output' => $unblockTemporaryOutput,
+                    'success' => true,
+                ];
+                $operations[] = 'unblock_temporary';
+                Log::info('Removed IP from temporary deny list', [
+                    'ip' => $ipAddress,
+                    'host' => $session->getHost()->fqdn,
+                ]);
+            }
+
+            // 3. Add to temporal whitelist (24 hours) - always after removing denies
             $whitelistCommand = "csf -ta {$ipAddress} 86400";
             $whitelistOutput = $session->execute($whitelistCommand);
             $results['whitelist'] = [
@@ -179,11 +212,12 @@ class FirewallUnblocker
                 'output' => $whitelistOutput,
                 'success' => true,
             ];
+            $operations[] = 'temporal_whitelist_24h';
 
             Log::info('CSF operations completed successfully', [
                 'ip' => $ipAddress,
                 'host' => $session->getHost()->fqdn,
-                'operations' => ['unblock', 'temporal_whitelist_24h'],
+                'operations' => $operations,
             ]);
 
         } catch (Exception $e) {
