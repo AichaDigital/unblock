@@ -35,4 +35,18 @@ return [
     'firewall' => [
         'develop_check_completed' => 'Development mode: firewall check completed',
     ],
+    'accounts' => [
+        'suspended' => 'Suspended',
+        'active' => 'Active',
+        'suspend' => 'Suspend',
+        'unsuspend' => 'Unsuspend',
+        'suspend_account' => 'Suspend Account',
+        'unsuspend_account' => 'Unsuspend Account',
+        'suspend_confirmation' => 'Are you sure you want to suspend this account? This will prevent the account from operating.',
+        'unsuspend_confirmation' => 'Are you sure you want to unsuspend this account? This will allow the account to operate normally.',
+        'account_suspended' => 'Account suspended',
+        'account_unsuspended' => 'Account unsuspended',
+        'account_suspended_success' => 'The account :username has been suspended successfully.',
+        'account_unsuspended_success' => 'The account :username has been unsuspended successfully.',
+    ],
 ];

@@ -2,10 +2,10 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\AccountResource\Pages;
-use App\Filament\Resources\AccountResource\RelationManagers\DomainsRelationManager;
+use App\Filament\Resources\AccountResource\{Pages, RelationManagers\DomainsRelationManager};
 use App\Models\{Account, User};
 use BackedEnum;
+use Filament\Actions\Action;
 use Filament\{Actions, Forms, Infolists, Tables};
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -203,9 +203,11 @@ class AccountResource extends Resource
                     ->sortable()
                     ->placeholder('-')
                     ->toggleable(),
-                Tables\Columns\IconColumn::make('suspended_at')
-                    ->label(__('Suspended'))
-                    ->boolean()
+                Tables\Columns\TextColumn::make('suspended_at')
+                    ->label(__('Status'))
+                    ->badge()
+                    ->formatStateUsing(fn ($state) => $state ? __('messages.accounts.suspended') : __('messages.accounts.active'))
+                    ->color(fn ($state) => $state ? 'danger' : 'success')
                     ->sortable()
                     ->toggleable(),
                 Tables\Columns\IconColumn::make('deleted_at')
@@ -245,8 +247,34 @@ class AccountResource extends Resource
                     ->nullable(),
             ])
             ->recordActions([
+                Action::make('toggle_suspension')
+                    ->label(fn (Account $record) => $record->suspended_at ? __('messages.accounts.unsuspend') : __('messages.accounts.suspend'))
+                    ->icon(fn (Account $record) => $record->suspended_at ? 'heroicon-o-check-circle' : 'heroicon-o-x-circle')
+                    ->color(fn (Account $record) => $record->suspended_at ? 'success' : 'danger')
+                    ->requiresConfirmation()
+                    ->modalHeading(fn (Account $record) => $record->suspended_at ? __('messages.accounts.unsuspend_account') : __('messages.accounts.suspend_account'))
+                    ->modalDescription(fn (Account $record) => $record->suspended_at
+                        ? __('messages.accounts.unsuspend_confirmation')
+                        : __('messages.accounts.suspend_confirmation'))
+                    ->action(function (Account $record) {
+                        if ($record->suspended_at) {
+                            $record->update(['suspended_at' => null]);
+                            \Filament\Notifications\Notification::make()
+                                ->success()
+                                ->title(__('messages.accounts.account_unsuspended'))
+                                ->body(__('messages.accounts.account_unsuspended_success', ['username' => $record->username]))
+                                ->send();
+                        } else {
+                            $record->update(['suspended_at' => now()]);
+                            \Filament\Notifications\Notification::make()
+                                ->success()
+                                ->title(__('messages.accounts.account_suspended'))
+                                ->body(__('messages.accounts.account_suspended_success', ['username' => $record->username]))
+                                ->send();
+                        }
+                    }),
                 Actions\ViewAction::make(),
-                // No edit/delete - accounts are synced from servers
+                Actions\EditAction::make(),
             ])
             ->headerActions([
                 // No create - accounts are synced from servers
@@ -266,7 +294,7 @@ class AccountResource extends Resource
         return [
             'index' => Pages\ListAccounts::route('/'),
             'view' => Pages\ViewAccount::route('/{record}'),
-            // No create/edit pages - accounts are synced from servers
+            'edit' => Pages\EditAccount::route('/{record}/edit'),
         ];
     }
 }

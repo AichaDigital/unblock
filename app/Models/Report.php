@@ -9,6 +9,22 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * Report Model
+ *
+ * @property string $id
+ * @property int|null $user_id
+ * @property int $host_id
+ * @property string $ip
+ * @property array|null $logs
+ * @property array|null $analysis
+ * @property bool $was_unblocked
+ * @property \Carbon\Carbon|null $last_read
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon $updated_at
+ * @property-read User|null $user
+ * @property-read Host $host
+ */
 #[ObservedBy([ReportObserver::class])]
 class Report extends Model
 {

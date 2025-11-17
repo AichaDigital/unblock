@@ -4,9 +4,9 @@ namespace App\Filament\Resources\AccountResource\Pages;
 
 use App\Filament\Resources\AccountResource;
 use Filament\Actions;
-use Filament\Resources\Pages\ViewRecord;
+use Filament\Resources\Pages\EditRecord;
 
-class ViewAccount extends ViewRecord
+class EditAccount extends EditRecord
 {
     protected static string $resource = AccountResource::class;
 
@@ -39,7 +39,7 @@ class ViewAccount extends ViewRecord
                             ->send();
                     }
                 }),
-            Actions\EditAction::make(),
+            Actions\ViewAction::make(),
         ];
     }
 }
