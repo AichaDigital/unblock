@@ -30,7 +30,7 @@ class CreateFirewallReportAction
      * @param  array<string, mixed>  $analysisResults  Results from log analysis
      * @return array{
      *     success: bool,
-     *     report_id?: int,
+     *     report_id?: string,
      *     error?: string
      * }
      */
