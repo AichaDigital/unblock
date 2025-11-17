@@ -108,7 +108,7 @@ class SendReportNotificationJob implements ShouldQueue
     /**
      * Send notification to the user who requested the check
      *
-     * @param Report $report Report with user relationship loaded
+     * @param  Report  $report  Report with user relationship loaded
      */
     private function sendUserNotification(Report $report): void
     {
