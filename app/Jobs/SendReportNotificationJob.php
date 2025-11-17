@@ -49,12 +49,17 @@ class SendReportNotificationJob implements ShouldQueue
             Log::info('Starting notification process', [
                 'report_id' => $report->id,
                 'copy_user_id' => $this->copyUserId,
-                'requesting_user_email' => $report->user?->email,
+                'requesting_user_email' => $report->user->email ?? 'N/A',
             ]);
 
+            /** @var User|null $reportUser */
+            $reportUser = $report->user;
+
             // 1. Send email to the user who requested the check (ALWAYS)
-            $this->sendUserNotification($report);
-            $emailsSent[] = $report->user->email;
+            if ($reportUser && $reportUser->email) {
+                $this->sendUserNotification($report);
+                $emailsSent[] = $reportUser->email;
+            }
 
             // 2. Send copy to admin (ONLY if different from requesting user)
             $adminEmail = config('unblock.admin_email');
@@ -102,6 +107,8 @@ class SendReportNotificationJob implements ShouldQueue
 
     /**
      * Send notification to the user who requested the check
+     *
+     * @param Report $report Report with user relationship loaded
      */
     private function sendUserNotification(Report $report): void
     {
@@ -114,12 +121,15 @@ class SendReportNotificationJob implements ShouldQueue
             return;
         }
 
+        /** @var User $user */
+        $user = $report->user;
+
         // Determinar si hubo un desbloqueo basándose en el análisis
         $wasBlocked = $this->determineIfWasBlocked($report);
 
-        Mail::to($report->user->email)->send(
+        Mail::to($user->email)->send(
             new LogNotificationMail(
-                user: $report->user,
+                user: $user,
                 report: [
                     'logs' => $report->logs,
                     'analysis' => $report->analysis,

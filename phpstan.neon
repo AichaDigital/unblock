@@ -16,12 +16,6 @@ parameters:
         - node_modules/*
         - app/Console
         - app/Filament
-        - app/Http
-        - app/Traits
-        - app/Mail
-        - app/Notifications
-        - app/Providers
-        - app/Jobs/*
 
     # Basic strict rules that are supported
     checkMissingCallableSignature: true

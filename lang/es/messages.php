@@ -38,4 +38,18 @@ return [
         'ip_not_blocked' => 'La IP no estaba bloqueada',
         'unblock_failed' => 'No se pudo desbloquear la IP',
     ],
+    'accounts' => [
+        'suspended' => 'Suspendida',
+        'active' => 'Activa',
+        'suspend' => 'Suspender',
+        'unsuspend' => 'Reactivar',
+        'suspend_account' => 'Suspender Cuenta',
+        'unsuspend_account' => 'Reactivar Cuenta',
+        'suspend_confirmation' => '¿Estás seguro de que deseas suspender esta cuenta? Esto impedirá que la cuenta opere.',
+        'unsuspend_confirmation' => '¿Estás seguro de que deseas reactivar esta cuenta? Esto permitirá que la cuenta opere normalmente.',
+        'account_suspended' => 'Cuenta suspendida',
+        'account_unsuspended' => 'Cuenta reactivada',
+        'account_suspended_success' => 'La cuenta :username ha sido suspendida correctamente.',
+        'account_unsuspended_success' => 'La cuenta :username ha sido reactivada correctamente.',
+    ],
 ];
