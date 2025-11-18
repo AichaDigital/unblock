@@ -31,6 +31,14 @@
 - **Web Server**: Nginx or Apache
 - **Node.js**: 18+ (for asset compilation)
 - **SSH Access**: To managed servers running CSF/DirectAdmin
+- **DirectAdmin secure_php**: If you use DirectAdmin CustomBuild [`secure_php`](https://docs.directadmin.com/webservices/php/secure-php.html), make sure the `proc_open` function is **not** included in the `disable_functions` list for the PHP version that runs Unblock. Remote firewall operations rely on Spatie SSH / Symfony Process, which requires `proc_open` to be available.
+
+```
+cd /usr/local/directadmin/custombuild
+mkdir -p custom
+echo "exec,system,passthru,shell_exec,proc_close,dl,popen,show_source,posix_kill,posix_mkfifo,posix_getpwuid,posix_setpgid,posix_setsid,posix_setuid,posix_setgid,posix_seteuid,posix_setegid,posix_uname" > custom/php_disable_functions
+da build secure_php
+```
 
 ## 🚀 Quick Start
 
