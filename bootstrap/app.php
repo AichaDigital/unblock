@@ -1,7 +1,7 @@
 <?php
 
 use App\Actions\WhmcsSynchro;
-use App\Http\Middleware\{CheckSessionTimeout, CheckSimpleModeEnabled, SimpleModeAccess, ThrottleSimpleUnblock, VerifyIsAdminMiddleware};
+use App\Http\Middleware\{CheckSessionTimeout, CheckSimpleModeEnabled, SetUserLocale, SimpleModeAccess, ThrottleSimpleUnblock, VerifyIsAdminMiddleware};
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\{Exceptions, Middleware};
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
@@ -18,6 +18,11 @@ return Application::configure(basePath: dirname(__DIR__))
         WhmcsSynchro::class,
     ])
     ->withMiddleware(function (Middleware $middleware) {
+        // Register middleware globally for all web routes
+        $middleware->web(append: [
+            SetUserLocale::class,
+        ]);
+
         $middleware->alias([
             'admin' => VerifyIsAdminMiddleware::class,
             'session.timeout' => CheckSessionTimeout::class,
