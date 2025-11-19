@@ -112,6 +112,24 @@ Visit `http://localhost:8000` and log in with your admin credentials.
 
 ## 📖 Documentation
 
+### 📚 Complete Guides
+
+Unblock operates in **two distinct modes**. Choose the documentation that matches your use case:
+
+#### Operating Modes
+- **[Admin Mode Guide](docs/admin-mode-guide.md)** - Full authentication system with user management, perfect for hosting providers
+- **[Simple Mode Guide](docs/simple-mode-guide.md)** - Anonymous IP unblocking for streamlined public access
+
+#### Features & Setup
+- **[Logo Customization](docs/logo-customization.md)** - Upload company branding for all access forms
+- **[SSH Keys Setup](docs/ssh-keys-setup.md)** - Secure server access configuration
+- **[WHMCS Integration](docs/whmcs-integration.md)** - Automatic user and domain synchronization
+- **[Authorized Users](docs/authorized-users.md)** - Delegate access without sharing accounts
+
+#### Technical Documentation
+- **[Admin OTP Flow](docs/internals/admin-otp-flow.md)** - Two-factor authentication for admin panel
+- **[Configuration Reference](docs/configuration.md)** - Complete environment variable guide
+
 ### Adding Servers (Hosts)
 
 1. Go to Admin Panel → Hosts
@@ -297,7 +315,7 @@ php artisan test --parallel
 - **OTP Authentication**: Time-based OTP for client access
 - **Admin 2FA**: Email-based OTP two-factor authentication for admin panel (configurable)
 
-See [SECURITY.md](SECURITY.md) for security best practices and [docs/admin-otp-flow.md](docs/admin-otp-flow.md) for admin 2FA configuration.
+See [SECURITY.md](SECURITY.md) for security best practices and [docs/internals/admin-otp-flow.md](docs/internals/admin-otp-flow.md) for admin 2FA configuration.
 
 ## 🌍 Internationalization
 
