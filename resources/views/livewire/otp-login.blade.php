@@ -1,6 +1,9 @@
 <div>
     <!-- Logo y título profesionales -->
     <div class="mb-6 text-center">
+        <!-- Logo personalizado -->
+        <x-user-logo class="h-20 w-full mb-4 sm:h-24" />
+
         <h2 class="mt-4 text-xl font-bold leading-9 tracking-tight text-base-content sm:text-2xl">
             {{ $this->getTitle() }}
         </h2>
