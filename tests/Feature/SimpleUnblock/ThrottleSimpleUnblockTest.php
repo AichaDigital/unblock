@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Illuminate\Support\Facades\{Config, RateLimiter, Route};
+use Illuminate\Support\Facades\{Config, RateLimiter};
 
 use function Pest\Laravel\{assertDatabaseHas, get};
 
@@ -18,10 +18,7 @@ beforeEach(function () {
     RateLimiter::clear('simple_unblock:subnet:192.168.1.0/24'); // For subnet test
     RateLimiter::clear('simple_unblock:global');
 
-    // Register simple unblock route for testing
-    Route::get('/simple-unblock', \App\Livewire\SimpleUnblockForm::class)
-        ->middleware(['throttle.simple.unblock'])
-        ->name('simple.unblock');
+    // Route is already registered in routes/web.php
 });
 
 afterEach(function () {

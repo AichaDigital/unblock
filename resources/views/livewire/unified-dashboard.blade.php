@@ -456,7 +456,7 @@ class extends Component {
                 @if ($showForm)
                     <div>
                         <!-- Logo personalizado -->
-                        <x-user-logo class="h-16 w-full mb-4" />
+                        <x-app-logo class="h-16 w-full mb-4" />
 
                         <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-success/20">
                             <svg class="h-6 w-6 text-success" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">

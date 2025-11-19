@@ -3,7 +3,7 @@
         {{-- Header --}}
         <div class="text-center">
             <!-- Logo personalizado -->
-            <x-user-logo class="h-20 w-full mb-6 sm:h-24" />
+            <x-app-logo class="h-20 w-full mb-6 sm:h-24" />
 
             <h2 class="text-3xl font-bold text-base-content">
                 {{ __('admin_otp.title') }}

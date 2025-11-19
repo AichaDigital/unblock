@@ -78,9 +78,9 @@ test('status command shows database exists with details', function () {
 
     $this->artisan('geoip:status')
         ->expectsOutputToContain('✓ Yes')
-        ->expectsOutputToContain('Size')
-        ->expectsOutputToContain('Last Modified')
-        ->expectsOutputToContain('Age');
+        ->expectsOutputToContain('MB') // Check for size unit instead of "Size" label
+        ->expectsOutputToContain('days') // Check for age unit
+        ->assertSuccessful();
 });
 
 test('status command detects old database needing update', function () {

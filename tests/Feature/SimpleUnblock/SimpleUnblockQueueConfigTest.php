@@ -84,7 +84,11 @@ test('rate limiting respects explicit configuration', function () {
     Config::set('unblock.simple_mode.throttle_email_per_hour', 2);
     Config::set('queue.default', 'sync');
 
-    Queue::fake();
+    Bus::fake();
+
+    // Clear the rate limiter for this specific email
+    $emailHash = hash('sha256', 'test@example.com');
+    RateLimiter::clear("simple_unblock:email:{$emailHash}");
 
     // First 2 requests should succeed
     SimpleUnblockAction::run(
