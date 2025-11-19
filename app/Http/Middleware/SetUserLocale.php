@@ -21,16 +21,6 @@ use Symfony\Component\HttpFoundation\Response;
 class SetUserLocale
 {
     /**
-     * Available locales in the application
-     */
-    private const AVAILABLE_LOCALES = ['es', 'en'];
-
-    /**
-     * Default locale
-     */
-    private const DEFAULT_LOCALE = 'es';
-
-    /**
      * Handle an incoming request.
      */
     public function handle(Request $request, Closure $next): Response
@@ -51,22 +41,33 @@ class SetUserLocale
     {
         // 1. Authenticated user's preference (highest priority)
         if (Auth::check() && Auth::user()->preferred_locale) {
-            return Auth::user()->preferred_locale;
+            $userLocale = Auth::user()->preferred_locale;
+            
+            // Validate user's locale is in available list
+            if ($this->isValidLocale($userLocale)) {
+                return $userLocale;
+            }
         }
 
         // 2. Session locale (for temporary user selections)
         if ($request->session()->has('locale')) {
-            return $request->session()->get('locale');
+            $sessionLocale = $request->session()->get('locale');
+            
+            // Validate session locale is in available list
+            if ($this->isValidLocale($sessionLocale)) {
+                return $sessionLocale;
+            }
         }
 
         // 3. Browser's preferred language
-        $browserLocale = $request->getPreferredLanguage(self::AVAILABLE_LOCALES);
+        $availableLocales = config('app.available_locales', ['es', 'en']);
+        $browserLocale = $request->getPreferredLanguage($availableLocales);
         if ($browserLocale) {
             return $browserLocale;
         }
 
         // 4. Application default
-        return self::DEFAULT_LOCALE;
+        return config('app.locale', 'es');
     }
 
     /**
@@ -74,6 +75,8 @@ class SetUserLocale
      */
     private function isValidLocale(string $locale): bool
     {
-        return in_array($locale, self::AVAILABLE_LOCALES, true);
+        $availableLocales = config('app.available_locales', ['es', 'en']);
+
+        return in_array($locale, $availableLocales, true);
     }
 }

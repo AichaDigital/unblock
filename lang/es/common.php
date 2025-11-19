@@ -8,4 +8,5 @@ return [
     'support_team' => 'El equipo de soporte',
     'company_name' => config('company.name', 'su empresa'),
     'La IP estaba bloqueada en' => 'La IP estaba bloqueada en',
+    'language_changed' => 'Idioma cambiado correctamente',
 ];

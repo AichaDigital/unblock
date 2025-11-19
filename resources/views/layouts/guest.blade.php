@@ -36,8 +36,9 @@
     </head>
     <body class="relative min-h-screen overflow-hidden bg-base-200 font-sans antialiased">
 
-        <!-- Theme Switcher (fixed top-right) -->
-        <div class="fixed top-4 right-4 z-50">
+        <!-- Theme & Language Switchers (fixed top-right) -->
+        <div class="fixed top-4 right-4 z-50 flex items-center gap-2">
+            @livewire('language-switcher')
             <x-theme-switcher />
         </div>
 

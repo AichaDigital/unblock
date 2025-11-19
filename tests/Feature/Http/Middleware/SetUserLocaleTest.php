@@ -49,7 +49,7 @@ test('middleware defaults to spanish when no preferences are set', function () {
 test('middleware ignores invalid locales', function () {
     session(['locale' => 'invalid']);
 
-    get('/');
+    get('/', ['Accept-Language' => '']); // Clear browser preference
 
     // Should fallback to default (es)
     expect(App::getLocale())->toBe('es');
@@ -59,7 +59,7 @@ test('middleware respects only available locales', function () {
     $user = User::factory()->create(['preferred_locale' => 'fr']); // French not available
 
     actingAs($user)
-        ->get('/dashboard');
+        ->get('/dashboard', ['Accept-Language' => '']); // Clear browser preference
 
     // Should fallback to default (es) since 'fr' is not in AVAILABLE_LOCALES
     expect(App::getLocale())->toBe('es');
