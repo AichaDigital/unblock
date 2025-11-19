@@ -75,3 +75,7 @@ phpstan-report.txt
 storage/phpstan/
 build/logs/phpstan.neon
 build/logs/phpstan.log
+
+# cPanel specific files
+error_log
+public/.htaccess
