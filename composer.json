@@ -48,7 +48,10 @@
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
-        }
+        },
+        "files": [
+            "app/Helpers/settings.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
@@ -113,7 +116,7 @@
         ],
         "test-local": [
             "@php artisan config:clear --ansi",
-            "@php artisan test"
+            "@php artisan test --parallel"
         ],
         "check": [
             "@syntax-check",

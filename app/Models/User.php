@@ -28,7 +28,6 @@ class User extends Authenticatable implements FilamentUser
         'last_name',
         'company_name',
         'email',
-        'logo_path',
         'password',
         'password_whmcs',
         'is_admin',
@@ -152,7 +151,7 @@ class User extends Authenticatable implements FilamentUser
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['first_name', 'last_name', 'email', 'company_name', 'logo_path', 'is_admin', 'is_active', 'parent_user_id'])
+            ->logOnly(['first_name', 'last_name', 'email', 'company_name', 'is_admin', 'is_active', 'parent_user_id'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
             ->setDescriptionForEvent(fn (string $eventName) => match ($eventName) {
@@ -162,18 +161,6 @@ class User extends Authenticatable implements FilamentUser
                 'restored' => 'User restored',
                 default => "User {$eventName}"
             });
-    }
-
-    /**
-     * Get the user's logo URL or null if no logo is set
-     */
-    public function getLogoUrlAttribute(): ?string
-    {
-        if (! $this->logo_path) {
-            return null;
-        }
-
-        return asset('storage/'.$this->logo_path);
     }
 
     public function getFullNameAttribute(): string

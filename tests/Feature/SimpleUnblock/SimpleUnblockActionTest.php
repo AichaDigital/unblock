@@ -222,18 +222,25 @@ test('email rate limiting blocks excessive requests', function () {
 test('domain rate limiting blocks excessive requests', function () {
     config()->set('unblock.simple_mode.enabled', true);
     Config::set('unblock.simple_mode.throttle_domain_per_hour', 3);
+    Config::set('unblock.simple_mode.throttle_email_per_hour', 100); // Set high to not interfere
+
+    // Clear domain rate limiter
+    RateLimiter::clear('simple_unblock:domain:example.com');
 
     // First 3 requests should succeed
     for ($i = 0; $i < 3; $i++) {
+        // Clear email limits BEFORE making request
+        RateLimiter::clear('simple_unblock:email:'.hash('sha256', "user{$i}@example.com"));
+
         SimpleUnblockAction::run(
             ip: "192.168.1.{$i}",
             domain: 'example.com',
             email: "user{$i}@example.com"
         );
-
-        // Clear email limits to test domain limit only
-        RateLimiter::clear('simple_unblock:email:'.hash('sha256', "user{$i}@example.com"));
     }
+
+    // Clear email limit for the final test user
+    RateLimiter::clear('simple_unblock:email:'.hash('sha256', 'user99@example.com'));
 
     // 4th request should throw exception
     expect(fn () => SimpleUnblockAction::run(
