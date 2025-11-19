@@ -118,4 +118,3 @@ test('language switcher works in simple unblock mode', function () {
     get(route('simple.unblock'))
         ->assertSeeLivewire('language-switcher');
 });
-

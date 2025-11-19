@@ -42,7 +42,7 @@ class SetUserLocale
         // 1. Authenticated user's preference (highest priority)
         if (Auth::check() && Auth::user()->preferred_locale) {
             $userLocale = Auth::user()->preferred_locale;
-            
+
             // Validate user's locale is in available list
             if ($this->isValidLocale($userLocale)) {
                 return $userLocale;
@@ -52,7 +52,7 @@ class SetUserLocale
         // 2. Session locale (for temporary user selections)
         if ($request->session()->has('locale')) {
             $sessionLocale = $request->session()->get('locale');
-            
+
             // Validate session locale is in available list
             if ($this->isValidLocale($sessionLocale)) {
                 return $sessionLocale;

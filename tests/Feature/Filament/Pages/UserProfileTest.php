@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use App\Models\User;
 
-use function Pest\Laravel\{actingAs, assertDatabaseHas, get};
+use function Pest\Laravel\{actingAs, assertDatabaseHas};
 
 beforeEach(function () {
     config()->set('app.locale', 'es');
@@ -80,4 +80,3 @@ test('only valid locales can be selected', function () {
         ->call('save')
         ->assertHasFormErrors(['preferred_locale']);
 });
-

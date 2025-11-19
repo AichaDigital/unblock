@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Filament\Pages;
 
-use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
@@ -19,6 +18,7 @@ use Illuminate\Support\Facades\Auth;
 class UserProfile extends Page implements HasForms
 {
     use InteractsWithForms;
+
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-user-circle';
 
     protected string $view = 'filament.pages.user-profile';
@@ -80,4 +80,3 @@ class UserProfile extends Page implements HasForms
         redirect()->to(static::getUrl());
     }
 }
-
