@@ -50,11 +50,18 @@ class LanguageSwitcher extends Component
 
         // Update for authenticated users
         if (Auth::check()) {
-            Auth::user()->update(['preferred_locale' => $locale]);
+            $user = Auth::user();
+            $user->update(['preferred_locale' => $locale]);
+
+            // Refresh user model to ensure changes are loaded in Auth facade
+            Auth::setUser($user->fresh());
         }
 
         // Store in session for all users
         session()->put('locale', $locale);
+
+        // Force session save
+        session()->save();
 
         // Set immediately for current request
         App::setLocale($locale);
@@ -69,8 +76,12 @@ class LanguageSwitcher extends Component
             'message' => __('common.language_changed'),
         ]);
 
-        // Refresh page to apply translations
-        $this->redirect(request()->header('Referer') ?? route('dashboard'), navigate: true);
+        // Force full page reload (not SPA navigation) to apply translations via middleware
+        // Use JavaScript redirect to ensure full page reload in all browsers
+        $redirectUrl = request()->header('Referer') ?? route('dashboard');
+
+        // Use JavaScript to force a full page reload
+        $this->js("window.location.href = '{$redirectUrl}';");
     }
 
     /**

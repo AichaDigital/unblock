@@ -31,7 +31,16 @@ class SetUserLocale
             App::setLocale($locale);
         }
 
-        return $next($request);
+        $response = $next($request);
+
+        // Add debug headers to help diagnose locale issues
+        if (config('app.debug')) {
+            $response->headers->set('X-Locale', $locale);
+            $response->headers->set('X-User-Locale', Auth::check() ? (Auth::user()->preferred_locale ?? 'null') : 'guest');
+            $response->headers->set('X-Session-Locale', $request->session()->get('locale', 'null'));
+        }
+
+        return $response;
     }
 
     /**
@@ -40,12 +49,16 @@ class SetUserLocale
     private function determineLocale(Request $request): string
     {
         // 1. Authenticated user's preference (highest priority)
-        if (Auth::check() && Auth::user()->preferred_locale) {
-            $userLocale = Auth::user()->preferred_locale;
+        if (Auth::check()) {
+            // Force refresh user model to get latest preferred_locale from database
+            $user = Auth::user()->fresh();
+            if ($user && $user->preferred_locale) {
+                $userLocale = $user->preferred_locale;
 
-            // Validate user's locale is in available list
-            if ($this->isValidLocale($userLocale)) {
-                return $userLocale;
+                // Validate user's locale is in available list
+                if ($this->isValidLocale($userLocale)) {
+                    return $userLocale;
+                }
             }
         }
 

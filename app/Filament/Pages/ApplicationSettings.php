@@ -22,13 +22,23 @@ class ApplicationSettings extends Page implements HasForms
 
     protected string $view = 'filament.pages.application-settings';
 
-    protected static ?string $title = 'Application Settings';
+    protected static ?string $title = null;
 
     protected static ?int $navigationSort = 999;
 
+    public static function getNavigationLabel(): string
+    {
+        return __('application_settings.navigation_label');
+    }
+
+    public function getTitle(): string|\Illuminate\Contracts\Support\Htmlable
+    {
+        return __('application_settings.title');
+    }
+
     public static function getNavigationGroup(): ?string
     {
-        return 'System';
+        return __('application_settings.navigation_group');
     }
 
     public ?array $data = [];
@@ -36,7 +46,8 @@ class ApplicationSettings extends Page implements HasForms
     public function mount(): void
     {
         $this->form->fill([
-            'company_logo' => setting('company_logo'),
+            'company_logo_light' => setting('company_logo_light'),
+            'company_logo_dark' => setting('company_logo_dark'),
             'company_name' => setting('company_name'),
             'support_email' => setting('support_email'),
             'support_url' => setting('support_url'),
@@ -50,15 +61,15 @@ class ApplicationSettings extends Page implements HasForms
     {
         return $schema
             ->schema([
-                Tabs::make('Settings')
+                Tabs::make(__('application_settings.tabs.settings'))
                     ->tabs([
-                        Tabs\Tab::make('Branding')
+                        Tabs\Tab::make(__('application_settings.tabs.branding'))
                             ->schema([
-                                Section::make('Company Branding')
-                                    ->description('Customize your company appearance in the application')
+                                Section::make(__('application_settings.sections.company_branding.title'))
+                                    ->description(__('application_settings.sections.company_branding.description'))
                                     ->schema([
-                                        FileUpload::make('company_logo')
-                                            ->label('Company Logo')
+                                        FileUpload::make('company_logo_light')
+                                            ->label(__('application_settings.fields.company_logo_light.label'))
                                             ->image()
                                             ->acceptedFileTypes(['image/png', 'image/jpeg', 'image/jpg', 'image/svg+xml', 'image/webp'])
                                             ->maxSize(2048) // 2MB
@@ -70,59 +81,75 @@ class ApplicationSettings extends Page implements HasForms
                                             ->imageResizeMode('contain')
                                             ->imageResizeTargetWidth('1000')
                                             ->imageResizeTargetHeight('1000')
-                                            ->helperText('Upload company logo (PNG, JPG, SVG, WEBP). Max 2MB. Recommended: transparent background.')
+                                            ->helperText(__('application_settings.fields.company_logo_light.helper'))
+                                            ->columnSpanFull(),
+
+                                        FileUpload::make('company_logo_dark')
+                                            ->label(__('application_settings.fields.company_logo_dark.label'))
+                                            ->image()
+                                            ->acceptedFileTypes(['image/png', 'image/jpeg', 'image/jpg', 'image/svg+xml', 'image/webp'])
+                                            ->maxSize(2048) // 2MB
+                                            ->directory('company')
+                                            ->disk('public')
+                                            ->visibility('public')
+                                            ->imageEditor()
+                                            ->imageEditorAspectRatios([null, '1:1', '16:9'])
+                                            ->imageResizeMode('contain')
+                                            ->imageResizeTargetWidth('1000')
+                                            ->imageResizeTargetHeight('1000')
+                                            ->helperText(__('application_settings.fields.company_logo_dark.helper'))
                                             ->columnSpanFull(),
 
                                         TextInput::make('company_name')
-                                            ->label('Company Name')
+                                            ->label(__('application_settings.fields.company_name.label'))
                                             ->required()
                                             ->maxLength(255)
-                                            ->helperText('Company name displayed in UI and emails')
+                                            ->helperText(__('application_settings.fields.company_name.helper'))
                                             ->columnSpanFull(),
                                     ]),
                             ]),
 
-                        Tabs\Tab::make('Contact')
+                        Tabs\Tab::make(__('application_settings.tabs.contact'))
                             ->schema([
-                                Section::make('Support Information')
-                                    ->description('Configure support contact details')
+                                Section::make(__('application_settings.sections.support_information.title'))
+                                    ->description(__('application_settings.sections.support_information.description'))
                                     ->schema([
                                         TextInput::make('support_email')
-                                            ->label('Support Email')
+                                            ->label(__('application_settings.fields.support_email.label'))
                                             ->email()
                                             ->required()
-                                            ->helperText('Email address for customer support')
+                                            ->helperText(__('application_settings.fields.support_email.helper'))
                                             ->columnSpanFull(),
 
                                         TextInput::make('support_url')
-                                            ->label('Support URL')
+                                            ->label(__('application_settings.fields.support_url.label'))
                                             ->url()
-                                            ->helperText('URL to your support/help desk system')
+                                            ->helperText(__('application_settings.fields.support_url.helper'))
                                             ->columnSpanFull(),
                                     ]),
                             ]),
 
-                        Tabs\Tab::make('Legal')
+                        Tabs\Tab::make(__('application_settings.tabs.legal'))
                             ->schema([
-                                Section::make('Legal Links')
-                                    ->description('Configure legal compliance URLs')
+                                Section::make(__('application_settings.sections.legal_links.title'))
+                                    ->description(__('application_settings.sections.legal_links.description'))
                                     ->schema([
                                         TextInput::make('privacy_policy_url')
-                                            ->label('Privacy Policy URL')
+                                            ->label(__('application_settings.fields.privacy_policy_url.label'))
                                             ->url()
-                                            ->helperText('Link to your privacy policy page')
+                                            ->helperText(__('application_settings.fields.privacy_policy_url.helper'))
                                             ->columnSpanFull(),
 
                                         TextInput::make('terms_url')
-                                            ->label('Terms of Service URL')
+                                            ->label(__('application_settings.fields.terms_url.label'))
                                             ->url()
-                                            ->helperText('Link to your terms of service page')
+                                            ->helperText(__('application_settings.fields.terms_url.helper'))
                                             ->columnSpanFull(),
 
                                         TextInput::make('data_protection_url')
-                                            ->label('Data Protection URL')
+                                            ->label(__('application_settings.fields.data_protection_url.label'))
                                             ->url()
-                                            ->helperText('Link to your data protection information')
+                                            ->helperText(__('application_settings.fields.data_protection_url.helper'))
                                             ->columnSpanFull(),
                                     ]),
                             ]),
@@ -136,7 +163,7 @@ class ApplicationSettings extends Page implements HasForms
     {
         return [
             Action::make('save')
-                ->label('Save Settings')
+                ->label(__('application_settings.actions.save'))
                 ->action('save'),
         ];
     }
@@ -147,11 +174,17 @@ class ApplicationSettings extends Page implements HasForms
 
         try {
             // Handle old logo deletion if changed
-            $oldLogo = setting('company_logo');
-            $newLogo = $data['company_logo'] ?? null;
+            $oldLogoLight = setting('company_logo_light');
+            $newLogoLight = $data['company_logo_light'] ?? null;
+            $oldLogoDark = setting('company_logo_dark');
+            $newLogoDark = $data['company_logo_dark'] ?? null;
 
-            if ($oldLogo && $oldLogo !== $newLogo && Storage::disk('public')->exists($oldLogo)) {
-                Storage::disk('public')->delete($oldLogo);
+            if ($oldLogoLight && $oldLogoLight !== $newLogoLight && Storage::disk('public')->exists($oldLogoLight)) {
+                Storage::disk('public')->delete($oldLogoLight);
+            }
+
+            if ($oldLogoDark && $oldLogoDark !== $newLogoDark && Storage::disk('public')->exists($oldLogoDark)) {
+                Storage::disk('public')->delete($oldLogoDark);
             }
 
             // Save all settings
@@ -161,15 +194,15 @@ class ApplicationSettings extends Page implements HasForms
 
             Notification::make()
                 ->success()
-                ->title('Settings saved')
-                ->body('Application settings have been updated successfully.')
+                ->title(__('application_settings.notifications.saved.title'))
+                ->body(__('application_settings.notifications.saved.body'))
                 ->send();
 
         } catch (\Exception $e) {
             Notification::make()
                 ->danger()
-                ->title('Error')
-                ->body('Failed to save settings: '.$e->getMessage())
+                ->title(__('application_settings.notifications.error.title'))
+                ->body(__('application_settings.notifications.error.body', ['message' => $e->getMessage()]))
                 ->send();
         }
     }

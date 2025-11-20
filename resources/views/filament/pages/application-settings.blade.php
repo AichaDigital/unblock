@@ -4,7 +4,7 @@
 
         <div class="mt-6">
             <x-filament::button type="submit" wire:loading.attr="disabled">
-                Save Settings
+                {{ __('application_settings.actions.save') }}
             </x-filament::button>
         </div>
     </form>
