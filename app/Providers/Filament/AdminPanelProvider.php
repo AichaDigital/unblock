@@ -2,7 +2,7 @@
 
 namespace App\Providers\Filament;
 
-use App\Http\Middleware\{CheckSessionTimeout, RequireAdminOtp, VerifyIsAdminMiddleware};
+use App\Http\Middleware\{CheckSessionTimeout, RequireAdminOtp, SetUserLocale, VerifyIsAdminMiddleware};
 use Filament\Http\Middleware\{Authenticate, DisableBladeIconComponents, DispatchServingFilamentEvent};
 use Filament\Pages\Dashboard;
 use Filament\{Panel, PanelProvider, Widgets};
@@ -45,6 +45,7 @@ class AdminPanelProvider extends PanelProvider
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
+                SetUserLocale::class,
                 CheckSessionTimeout::class,
             ])
             ->authMiddleware([

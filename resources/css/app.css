@@ -8,3 +8,31 @@
 
 /* Custom variant for dark theme support */
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
+/* Logo theme adjustment - separate logos for light and dark themes */
+.logo-light {
+    /* Logo for light theme - visible in light mode */
+    display: block;
+    transition: opacity 0.3s ease;
+}
+
+.logo-dark {
+    /* Logo for dark theme - visible in dark mode */
+    display: none;
+    transition: opacity 0.3s ease;
+}
+
+/* Show dark logo in dark mode, hide light logo */
+[data-theme="dark"] .logo-light,
+html[data-theme="dark"] .logo-light,
+.dark .logo-light,
+html.dark .logo-light {
+    display: none;
+}
+
+[data-theme="dark"] .logo-dark,
+html[data-theme="dark"] .logo-dark,
+.dark .logo-dark,
+html.dark .logo-dark {
+    display: block;
+}

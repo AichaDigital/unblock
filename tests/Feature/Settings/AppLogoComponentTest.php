@@ -15,7 +15,7 @@ beforeEach(function () {
 test('logo component displays logo when set', function () {
     $logo = UploadedFile::fake()->image('logo.png', 200, 200);
     $path = $logo->store('company', 'public');
-    setting(['company_logo' => $path]);
+    setting(['company_logo_light' => $path]);
 
     $response = get(route('login'));
 
@@ -24,7 +24,8 @@ test('logo component displays logo when set', function () {
 
 test('logo component displays company name when logo not set', function () {
     setting(['company_name' => 'Test Company']);
-    setting(['company_logo' => null]);
+    setting(['company_logo_light' => null]);
+    setting(['company_logo_dark' => null]);
 
     $response = get(route('login'));
 
@@ -33,7 +34,8 @@ test('logo component displays company name when logo not set', function () {
 
 test('logo component uses fallback to config when company name not set', function () {
     Setting::where('key', 'company_name')->delete();
-    Setting::where('key', 'company_logo')->delete();
+    Setting::where('key', 'company_logo_light')->delete();
+    Setting::where('key', 'company_logo_dark')->delete();
 
     $response = get(route('login'));
 
@@ -46,7 +48,7 @@ test('logo component uses fallback to config when company name not set', functio
 test('logo appears on login page', function () {
     $logo = UploadedFile::fake()->image('logo.png', 200, 200);
     $path = $logo->store('company', 'public');
-    setting(['company_logo' => $path]);
+    setting(['company_logo_light' => $path]);
 
     get(route('login'))
         ->assertSee(asset('storage/'.$path), false);
@@ -56,7 +58,7 @@ test('logo appears on dashboard', function () {
     $admin = createAdminUser('admin@test.com');
     $logo = UploadedFile::fake()->image('logo.png', 200, 200);
     $path = $logo->store('company', 'public');
-    setting(['company_logo' => $path]);
+    setting(['company_logo_light' => $path]);
 
     actingAs($admin)
         ->get(route('dashboard'))
@@ -68,7 +70,7 @@ test('logo appears on simple unblock form when simple mode enabled', function ()
 
     $logo = UploadedFile::fake()->image('logo.png', 200, 200);
     $path = $logo->store('company', 'public');
-    setting(['company_logo' => $path]);
+    setting(['company_logo_light' => $path]);
 
     get(route('simple.unblock'))
         ->assertSee(asset('storage/'.$path), false);
@@ -76,7 +78,7 @@ test('logo appears on simple unblock form when simple mode enabled', function ()
 
 test('logo component handles missing storage file gracefully', function () {
     // Set a logo path that doesn't exist
-    setting(['company_logo' => 'company/nonexistent.png']);
+    setting(['company_logo_light' => 'company/nonexistent.png']);
     setting(['company_name' => 'Fallback Company']);
 
     // Should still render without errors

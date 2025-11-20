@@ -23,13 +23,23 @@ class UserProfile extends Page implements HasForms
 
     protected string $view = 'filament.pages.user-profile';
 
-    protected static ?string $title = 'My Profile';
+    protected static ?string $title = null;
 
     protected static ?int $navigationSort = 1000;
 
+    public static function getNavigationLabel(): string
+    {
+        return __('user_profile.navigation_label');
+    }
+
+    public function getTitle(): string|\Illuminate\Contracts\Support\Htmlable
+    {
+        return __('user_profile.title');
+    }
+
     public static function getNavigationGroup(): ?string
     {
-        return 'Account';
+        return __('user_profile.navigation_group');
     }
 
     public ?array $data = [];
@@ -46,14 +56,14 @@ class UserProfile extends Page implements HasForms
         return $schema
             ->schema([
                 Select::make('preferred_locale')
-                    ->label('Language Preference')
+                    ->label(__('user_profile.fields.preferred_locale.label'))
                     ->options([
                         'es' => '🇪🇸 Español',
                         'en' => '🇬🇧 English',
                     ])
                     ->required()
                     ->native(false)
-                    ->helperText('Select your preferred language for the admin panel'),
+                    ->helperText(__('user_profile.fields.preferred_locale.helper')),
             ])
             ->statePath('data');
     }
@@ -61,22 +71,33 @@ class UserProfile extends Page implements HasForms
     public function save(): void
     {
         $data = $this->form->getState();
+        $newLocale = $data['preferred_locale'];
 
-        Auth::user()->update([
-            'preferred_locale' => $data['preferred_locale'],
+        // Update user preference in database
+        $user = Auth::user();
+        $user->update([
+            'preferred_locale' => $newLocale,
         ]);
 
+        // Refresh user model to ensure changes are loaded in Auth facade
+        Auth::setUser($user->fresh());
+
         // Update session immediately
-        session()->put('locale', $data['preferred_locale']);
-        app()->setLocale($data['preferred_locale']);
+        session()->put('locale', $newLocale);
+
+        // Set locale for current request
+        app()->setLocale($newLocale);
+
+        // Force session save
+        session()->save();
 
         Notification::make()
             ->success()
-            ->title('Language preference updated')
-            ->body('Your language preference has been saved successfully.')
+            ->title(__('user_profile.notifications.saved.title'))
+            ->body(__('user_profile.notifications.saved.body'))
             ->send();
 
-        // Refresh page to apply translations
-        redirect()->to(static::getUrl());
+        // Force full page reload (not SPA navigation) to apply translations via middleware
+        $this->redirect(static::getUrl(), navigate: false);
     }
 }
