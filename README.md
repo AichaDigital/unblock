@@ -365,7 +365,7 @@ Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for det
 ## 🙏 Acknowledgments
 
 - Built with [Laravel 12](https://laravel.com)
-- Admin panel by [FilamentPHP 3](https://filamentphp.com)
+- Admin panel by [FilamentPHP 4](https://filamentphp.com)
 - Icons by [Heroicons](https://heroicons.com)
 - Testing with [Pest PHP](https://pestphp.com)
 
