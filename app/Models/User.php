@@ -28,6 +28,7 @@ class User extends Authenticatable implements FilamentUser
         'last_name',
         'company_name',
         'email',
+        'preferred_locale',
         'password',
         'password_whmcs',
         'is_admin',
