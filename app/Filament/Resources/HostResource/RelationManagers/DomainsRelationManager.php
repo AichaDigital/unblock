@@ -23,7 +23,7 @@ class DomainsRelationManager extends RelationManager
                     ->required()
                     ->disabled(),
                 Forms\Components\Placeholder::make('info')
-                    ->content('Domains are synced from servers and cannot be manually edited.'),
+                    ->content(__('domains.Domains are synced from servers and cannot be manually edited.')),
             ]);
     }
 
@@ -33,13 +33,13 @@ class DomainsRelationManager extends RelationManager
             ->recordTitleAttribute('domain_name')
             ->columns([
                 Tables\Columns\TextColumn::make('domain_name')
-                    ->label('Domain')
+                    ->label(__('domains.Domain'))
                     ->searchable()
                     ->sortable()
                     ->copyable()
                     ->toggleable(),
                 Tables\Columns\TextColumn::make('type')
-                    ->label('Type')
+                    ->label(__('domains.Type'))
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
                         'primary' => 'success',
@@ -50,29 +50,29 @@ class DomainsRelationManager extends RelationManager
                     ->sortable()
                     ->toggleable(),
                 Tables\Columns\TextColumn::make('account.username')
-                    ->label('Account')
+                    ->label(__('domains.Account'))
                     ->searchable()
                     ->sortable()
                     ->default('-')
                     ->toggleable(),
                 Tables\Columns\TextColumn::make('account.domain')
-                    ->label('Account Domain')
+                    ->label(__('domains.Account Domain'))
                     ->searchable()
                     ->sortable()
                     ->default('-')
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\IconColumn::make('account.suspended_at')
-                    ->label('Account Suspended')
+                    ->label(__('domains.Account Suspended'))
                     ->boolean()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\IconColumn::make('account.deleted_at')
-                    ->label('Account Deleted')
+                    ->label(__('domains.Account Deleted'))
                     ->boolean()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('created_at')
-                    ->label('Created')
+                    ->label(__('domains.Created'))
                     ->dateTime()
                     ->sortable()
                     ->since()
@@ -81,15 +81,15 @@ class DomainsRelationManager extends RelationManager
             ->filters([
                 Tables\Filters\SelectFilter::make('type')
                     ->options([
-                        'primary' => 'Primary',
-                        'addon' => 'Addon',
-                        'parked' => 'Parked',
+                        'primary' => __('domains.Primary'),
+                        'addon' => __('domains.Addon'),
+                        'parked' => __('domains.Parked'),
                     ]),
                 Tables\Filters\TernaryFilter::make('account.suspended_at')
-                    ->label('Account Suspended')
+                    ->label(__('domains.Account Suspended'))
                     ->nullable(),
                 Tables\Filters\TernaryFilter::make('account.deleted_at')
-                    ->label('Account Deleted')
+                    ->label(__('domains.Account Deleted'))
                     ->nullable(),
             ])
             ->headerActions([

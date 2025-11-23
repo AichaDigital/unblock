@@ -27,7 +27,7 @@ class HostResource extends Resource
     {
         return $schema
             ->components([
-                \Filament\Schemas\Components\Fieldset::make('Acceso')
+                \Filament\Schemas\Components\Fieldset::make(__('hosts.Access'))
                     ->schema([
                         TextInput::make('whmcs_server_id')
                             ->label('WHMCS Server ID')
@@ -40,7 +40,7 @@ class HostResource extends Resource
                             ->required()
                             ->unique(ignoreRecord: true),
                         Toggle::make('hosting_manual')
-                            ->label('Manual')
+                            ->label(__('hosts.Manual'))
                             ->default(false),
                         TextInput::make('ip')
                             ->label('IP')
@@ -54,7 +54,7 @@ class HostResource extends Resource
                             ->minValue(1)
                             ->maxValue(65535),
                         Select::make('panel')
-                            ->label('Panel de Control')
+                            ->label(__('hosts.Control Panel'))
                             ->options(PanelType::class)
                             ->default(PanelType::DIRECTADMIN->value)
                             ->required(),
@@ -107,41 +107,41 @@ class HostResource extends Resource
                     ->badge()
                     ->toggleable(),
                 TextColumn::make('hostings_count')
-                    ->label('Hostings')
+                    ->label(__('hosts.Hostings'))
                     ->counts('hostings')
                     ->badge()
                     ->color('info')
                     ->sortable()
                     ->toggleable(),
                 TextColumn::make('accounts_count')
-                    ->label('Accounts')
+                    ->label(__('hosts.Accounts'))
                     ->counts('accounts')
                     ->badge()
                     ->color('success')
                     ->sortable()
                     ->toggleable(),
                 TextColumn::make('domains_count')
-                    ->label('Domains')
+                    ->label(__('hosts.Domains'))
                     ->counts('domains')
                     ->badge()
                     ->color('primary')
                     ->sortable()
                     ->toggleable(),
                 IconColumn::make('is_active')
-                    ->label('Activo')
+                    ->label(__('hosts.Active'))
                     ->boolean()
                     ->toggleable(isToggledHiddenByDefault: true),
                 IconColumn::make('hosting_manual')
-                    ->label('Manual')
+                    ->label(__('hosts.Manual'))
                     ->boolean()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
-                    ->label('Creado')
+                    ->label(__('hosts.Created'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('deleted_at')
-                    ->label('Eliminado')
+                    ->label(__('hosts.Deleted'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -151,9 +151,9 @@ class HostResource extends Resource
                 SelectFilter::make('panel')
                     ->options(PanelType::class),
                 TernaryFilter::make('is_active')
-                    ->label('Activo'),
+                    ->label(__('hosts.Active')),
                 TernaryFilter::make('hosting_manual')
-                    ->label('Manual'),
+                    ->label(__('hosts.Manual')),
             ])
             ->recordActions([
                 \Filament\Actions\ViewAction::make(),

@@ -1,12 +1,14 @@
 <?php
 
 return [
+    'email_form_title' => 'Iniciar sesión con código de acceso único',
     'email_label' => 'Correo electrónico',
-    'email_placeholder' => 'tu@email.com',
-    'email_button' => 'Enviar código',
+    'send_login_code_button' => 'Enviar código de acceso único',
 
-    'one_time_password_label' => 'Código de verificación',
-    'one_time_password_placeholder' => '••••••',
-    'one_time_password_button' => 'Verificar',
+    'one_time_password_form_title' => 'Introduce tu código de acceso',
+    'password_label' => 'Código de acceso',
+    'submit_login_code_button' => 'Enviar código de acceso único',
+
+    'resend_code' => 'Reenviar código',
 ];
 

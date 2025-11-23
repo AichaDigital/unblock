@@ -1,6 +1,18 @@
 <?php
 
 return [
+    // General labels
+    'Access' => 'Acceso',
+    'Manual' => 'Manual',
+    'Control Panel' => 'Panel de Control',
+    'Hostings' => 'Hostings',
+    'Accounts' => 'Cuentas',
+    'Domains' => 'Dominios',
+    'Active' => 'Activo',
+    'Created' => 'Creado',
+    'Deleted' => 'Eliminado',
+    'Servers' => 'Servidores',
+
     'ssh_keys' => [
         'title' => 'Claves SSH',
         'private_key' => 'Clave Privada',
