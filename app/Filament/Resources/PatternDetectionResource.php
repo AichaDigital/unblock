@@ -21,74 +21,74 @@ class PatternDetectionResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return 'Analytics';
+        return __('pattern_detections.Analytics');
     }
 
     protected static ?int $navigationSort = 1;
 
     public static function getNavigationLabel(): string
     {
-        return __('Pattern Detections');
+        return __('pattern_detections.Pattern Detections');
     }
 
     public static function getModelLabel(): string
     {
-        return __('Pattern Detection');
+        return __('pattern_detections.Pattern Detection');
     }
 
     public static function getPluralModelLabel(): string
     {
-        return __('Pattern Detections');
+        return __('pattern_detections.Pattern Detections');
     }
 
     public static function schema(Schema $schema): Schema
     {
         return $schema
             ->components([
-                Section::make('Pattern Information')
+                Section::make(__('pattern_detections.Pattern Information'))
                     ->schema([
                         Grid::make(3)
                             ->schema([
                                 Select::make('pattern_type')
-                                    ->label('Pattern Type')
+                                    ->label(__('pattern_detections.Pattern Type'))
                                     ->options([
-                                        PatternDetection::TYPE_DISTRIBUTED_ATTACK => 'Distributed Attack',
-                                        PatternDetection::TYPE_SUBNET_SCAN => 'Subnet Scan',
-                                        PatternDetection::TYPE_ANOMALY => 'Traffic Anomaly',
-                                        PatternDetection::TYPE_OTHER => 'Other',
+                                        PatternDetection::TYPE_DISTRIBUTED_ATTACK => __('pattern_detections.Distributed Attack'),
+                                        PatternDetection::TYPE_SUBNET_SCAN => __('pattern_detections.Subnet Scan'),
+                                        PatternDetection::TYPE_ANOMALY => __('pattern_detections.Traffic Anomaly'),
+                                        PatternDetection::TYPE_OTHER => __('pattern_detections.Other'),
                                     ])
                                     ->required()
                                     ->disabled(),
                                 Select::make('severity')
-                                    ->label('Severity')
+                                    ->label(__('pattern_detections.Severity'))
                                     ->options([
-                                        PatternDetection::SEVERITY_LOW => 'Low',
-                                        PatternDetection::SEVERITY_MEDIUM => 'Medium',
-                                        PatternDetection::SEVERITY_HIGH => 'High',
-                                        PatternDetection::SEVERITY_CRITICAL => 'Critical',
+                                        PatternDetection::SEVERITY_LOW => __('pattern_detections.Low'),
+                                        PatternDetection::SEVERITY_MEDIUM => __('pattern_detections.Medium'),
+                                        PatternDetection::SEVERITY_HIGH => __('pattern_detections.High'),
+                                        PatternDetection::SEVERITY_CRITICAL => __('pattern_detections.Critical'),
                                     ])
                                     ->required()
                                     ->disabled(),
                                 TextInput::make('confidence')
-                                    ->label('Confidence')
+                                    ->label(__('pattern_detections.Confidence'))
                                     ->suffix('%')
                                     ->disabled(),
                             ]),
                     ]),
 
-                Section::make('Details')
+                Section::make(__('pattern_detections.Details'))
                     ->schema([
                         Textarea::make('description')
-                            ->label('Description')
+                            ->label(__('pattern_detections.Description'))
                             ->rows(3)
                             ->disabled(),
                         Grid::make(2)
                             ->schema([
                                 DateTimePicker::make('detected_at')
-                                    ->label('Detected At')
+                                    ->label(__('pattern_detections.Detected At'))
                                     ->disabled(),
                                 DateTimePicker::make('resolved_at')
-                                    ->label('Resolved At')
+                                    ->label(__('pattern_detections.Resolved At'))
                                     ->disabled(),
                             ]),
                     ]),
@@ -100,13 +100,13 @@ class PatternDetectionResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('pattern_type')
-                    ->label('Type')
+                    ->label(__('pattern_detections.Type'))
                     ->badge()
                     ->formatStateUsing(fn (string $state): string => match ($state) {
-                        PatternDetection::TYPE_DISTRIBUTED_ATTACK => 'Distributed Attack',
-                        PatternDetection::TYPE_SUBNET_SCAN => 'Subnet Scan',
-                        PatternDetection::TYPE_ANOMALY => 'Traffic Anomaly',
-                        PatternDetection::TYPE_OTHER => 'Other',
+                        PatternDetection::TYPE_DISTRIBUTED_ATTACK => __('pattern_detections.Distributed Attack'),
+                        PatternDetection::TYPE_SUBNET_SCAN => __('pattern_detections.Subnet Scan'),
+                        PatternDetection::TYPE_ANOMALY => __('pattern_detections.Traffic Anomaly'),
+                        PatternDetection::TYPE_OTHER => __('pattern_detections.Other'),
                         default => $state,
                     })
                     ->color(fn (string $state): string => match ($state) {
@@ -118,9 +118,15 @@ class PatternDetectionResource extends Resource
                     ->sortable(),
 
                 TextColumn::make('severity')
-                    ->label('Severity')
+                    ->label(__('pattern_detections.Severity'))
                     ->badge()
-                    ->formatStateUsing(fn (string $state): string => ucfirst($state))
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                        PatternDetection::SEVERITY_CRITICAL => __('pattern_detections.Critical'),
+                        PatternDetection::SEVERITY_HIGH => __('pattern_detections.High'),
+                        PatternDetection::SEVERITY_MEDIUM => __('pattern_detections.Medium'),
+                        PatternDetection::SEVERITY_LOW => __('pattern_detections.Low'),
+                        default => ucfirst($state),
+                    })
                     ->color(fn (string $state): string => match ($state) {
                         PatternDetection::SEVERITY_CRITICAL => 'danger',
                         PatternDetection::SEVERITY_HIGH => 'warning',
@@ -131,7 +137,7 @@ class PatternDetectionResource extends Resource
                     ->sortable(),
 
                 TextColumn::make('confidence')
-                    ->label('Confidence')
+                    ->label(__('pattern_detections.Confidence'))
                     ->badge()
                     ->formatStateUsing(fn ($state) => number_format($state, 1).'%')
                     ->color(fn (float $state): string => match (true) {
@@ -142,7 +148,7 @@ class PatternDetectionResource extends Resource
                     ->sortable(),
 
                 TextColumn::make('affected_count')
-                    ->label('Affected IPs/Emails')
+                    ->label(__('pattern_detections.Affected IPs/Emails'))
                     ->getStateUsing(function ($record) {
                         $data = $record->pattern_data;
                         $ips = count($data['affected_ips'] ?? []);
@@ -152,43 +158,43 @@ class PatternDetectionResource extends Resource
                     }),
 
                 TextColumn::make('detected_at')
-                    ->label('Detected')
+                    ->label(__('pattern_detections.Detected'))
                     ->dateTime()
                     ->sortable()
                     ->since(),
 
                 TextColumn::make('resolved_at')
-                    ->label('Status')
+                    ->label(__('pattern_detections.Status'))
                     ->badge()
-                    ->formatStateUsing(fn ($state) => $state ? 'Resolved' : 'Active')
+                    ->formatStateUsing(fn ($state) => $state ? __('pattern_detections.Resolved') : __('pattern_detections.Active'))
                     ->color(fn ($state) => $state ? 'success' : 'warning')
                     ->sortable(),
             ])
             ->filters([
                 SelectFilter::make('pattern_type')
-                    ->label('Pattern Type')
+                    ->label(__('pattern_detections.Pattern Type'))
                     ->options([
-                        PatternDetection::TYPE_DISTRIBUTED_ATTACK => 'Distributed Attack',
-                        PatternDetection::TYPE_SUBNET_SCAN => 'Subnet Scan',
-                        PatternDetection::TYPE_ANOMALY => 'Traffic Anomaly',
-                        PatternDetection::TYPE_OTHER => 'Other',
+                        PatternDetection::TYPE_DISTRIBUTED_ATTACK => __('pattern_detections.Distributed Attack'),
+                        PatternDetection::TYPE_SUBNET_SCAN => __('pattern_detections.Subnet Scan'),
+                        PatternDetection::TYPE_ANOMALY => __('pattern_detections.Traffic Anomaly'),
+                        PatternDetection::TYPE_OTHER => __('pattern_detections.Other'),
                     ]),
 
                 SelectFilter::make('severity')
-                    ->label('Severity')
+                    ->label(__('pattern_detections.Severity'))
                     ->options([
-                        PatternDetection::SEVERITY_CRITICAL => 'Critical',
-                        PatternDetection::SEVERITY_HIGH => 'High',
-                        PatternDetection::SEVERITY_MEDIUM => 'Medium',
-                        PatternDetection::SEVERITY_LOW => 'Low',
+                        PatternDetection::SEVERITY_CRITICAL => __('pattern_detections.Critical'),
+                        PatternDetection::SEVERITY_HIGH => __('pattern_detections.High'),
+                        PatternDetection::SEVERITY_MEDIUM => __('pattern_detections.Medium'),
+                        PatternDetection::SEVERITY_LOW => __('pattern_detections.Low'),
                     ])
                     ->multiple(),
 
                 TernaryFilter::make('resolved')
-                    ->label('Status')
+                    ->label(__('pattern_detections.Status'))
                     ->nullable()
-                    ->trueLabel('Resolved')
-                    ->falseLabel('Active')
+                    ->trueLabel(__('pattern_detections.Resolved'))
+                    ->falseLabel(__('pattern_detections.Active'))
                     ->queries(
                         true: fn (Builder $query) => $query->whereNotNull('resolved_at'),
                         false: fn (Builder $query) => $query->whereNull('resolved_at'),
@@ -196,7 +202,7 @@ class PatternDetectionResource extends Resource
             ])
             ->actions([
                 Action::make('resolve')
-                    ->label('Resolve')
+                    ->label(__('pattern_detections.Resolve'))
                     ->icon('heroicon-o-check-circle')
                     ->color('success')
                     ->visible(fn ($record) => ! $record->isResolved())
@@ -204,7 +210,7 @@ class PatternDetectionResource extends Resource
                     ->action(fn ($record) => $record->resolve()),
 
                 Action::make('unresolve')
-                    ->label('Reopen')
+                    ->label(__('pattern_detections.Reopen'))
                     ->icon('heroicon-o-arrow-path')
                     ->color('warning')
                     ->visible(fn ($record) => $record->isResolved())
