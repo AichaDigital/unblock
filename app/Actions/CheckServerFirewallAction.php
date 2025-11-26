@@ -8,7 +8,7 @@ use App\Exceptions\{
     FirewallException
 };
 use App\Models\Host;
-use App\Services\Firewall\{DirectAdminFirewallAnalyzer};
+use App\Services\Firewall\DirectAdminFirewallAnalyzer;
 use App\Services\FirewallService;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;

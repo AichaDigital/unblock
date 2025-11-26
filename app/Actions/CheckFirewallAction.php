@@ -12,9 +12,9 @@ use App\Services\{
     ReportGenerator,
     SshConnectionManager
 };
-use App\Services\Firewall\{FirewallAnalyzerFactory};
+use App\Services\Firewall\FirewallAnalyzerFactory;
 use Exception;
-use Illuminate\Support\Facades\{Log};
+use Illuminate\Support\Facades\Log;
 use InvalidArgumentException;
 use Lorisleiva\Actions\Concerns\AsAction;
 

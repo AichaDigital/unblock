@@ -6,7 +6,7 @@ namespace App\Actions\SimpleUnblock;
 
 use App\Models\Host;
 use App\Services\Firewall\FirewallAnalysisResult;
-use App\Services\{SshConnectionManager};
+use App\Services\SshConnectionManager;
 use Illuminate\Support\Facades\Log;
 use Lorisleiva\Actions\Concerns\AsAction;
 

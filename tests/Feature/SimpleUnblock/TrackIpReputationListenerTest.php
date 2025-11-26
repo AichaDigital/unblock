@@ -8,7 +8,7 @@ use App\Models\IpReputation;
 use App\Services\GeoIPService;
 use Illuminate\Support\Facades\Event;
 
-use function Pest\Laravel\{assertDatabaseHas};
+use function Pest\Laravel\assertDatabaseHas;
 
 beforeEach(function () {
     // Run migrations for reputation tables

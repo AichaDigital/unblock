@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Exceptions\{ConnectionFailedException};
+use App\Exceptions\ConnectionFailedException;
 use App\Models\Host;
 use Exception;
 use Illuminate\Support\Facades\{File, Log, Storage};

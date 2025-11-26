@@ -5,7 +5,7 @@ declare(strict_types=1);
 use App\Models\Host;
 use App\Services\Firewall\FirewallAnalysisResult;
 use App\Services\Firewall\V2\FirewallLogAnalyzer;
-use App\Services\{FirewallService};
+use App\Services\FirewallService;
 use App\Services\{SshConnectionManager, SshSession};
 use Mockery as m;
 
