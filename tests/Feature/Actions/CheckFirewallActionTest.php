@@ -4,7 +4,7 @@ use App\Actions\CheckFirewallAction;
 use App\Exceptions\FirewallException;
 use App\Jobs\ProcessFirewallCheckJob;
 use App\Models\{Host, User};
-use Illuminate\Support\Facades\{Queue};
+use Illuminate\Support\Facades\Queue;
 use Tests\FirewallTestConstants as TC;
 
 test('action exists and has required methods', function () {

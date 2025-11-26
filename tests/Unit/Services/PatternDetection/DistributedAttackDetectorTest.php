@@ -6,7 +6,7 @@ use App\Models\{EmailReputation, IpReputation, PatternDetection};
 use App\Services\PatternDetection\DistributedAttackDetector;
 use Illuminate\Support\Facades\DB;
 
-use function Pest\Laravel\{assertDatabaseCount};
+use function Pest\Laravel\assertDatabaseCount;
 
 beforeEach(function () {
     $this->artisan('migrate');
