@@ -7,7 +7,7 @@ use App\Listeners\SimpleUnblock\CreateAbuseIncidentListener;
 use App\Models\{AbuseIncident, EmailReputation, IpReputation};
 use Illuminate\Support\Facades\DB;
 
-use function Pest\Laravel\{assertDatabaseHas};
+use function Pest\Laravel\assertDatabaseHas;
 
 beforeEach(function () {
     // Run migrations for reputation tables

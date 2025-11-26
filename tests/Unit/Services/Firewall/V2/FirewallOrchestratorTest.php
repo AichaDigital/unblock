@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Exceptions\{ConnectionFailedException};
+use App\Exceptions\ConnectionFailedException;
 use App\Jobs\SendReportNotificationJob;
 use App\Mail\{AdminConnectionErrorMail, UserSystemErrorMail};
 use App\Models\{Host, Report, User};
