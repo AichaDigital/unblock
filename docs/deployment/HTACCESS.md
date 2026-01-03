@@ -1,31 +1,26 @@
-# .htaccess Configuration for cPanel
+# .htaccess Configuration for Apache
 
-## Why is .htaccess ignored?
+## IMPORTANT: File Not Included in Repository
 
-cPanel hosting environments have a tendency to automatically modify the `public/.htaccess` file for various configurations and optimizations. This causes constant git conflicts and unnecessary commits.
+The `public/.htaccess` file is **NOT tracked in git** and must be created manually on Apache servers.
 
-## Solution
+**Why?**
+- cPanel and other hosting environments modify this file automatically
+- Different servers may need different configurations
+- Prevents git conflicts and unnecessary commits
 
-The `public/.htaccess` file is now ignored in git. Instead, we provide:
+## Quick Setup for Apache
 
-1. **Reference file**: `public/.htaccess.example` - Contains the standard Laravel .htaccess configuration
-2. **This documentation**: Instructions on how to configure it on cPanel deployments
+### 1. Copy the Template
 
-## Setup on cPanel
+```bash
+cp public/.htaccess.example public/.htaccess
+chmod 644 public/.htaccess
+```
 
-### Initial Deployment
+### 2. Verify Laravel Routes Work
 
-1. Copy the example file to create your .htaccess:
-   ```bash
-   cp public/.htaccess.example public/.htaccess
-   ```
-
-2. Adjust permissions if needed:
-   ```bash
-   chmod 644 public/.htaccess
-   ```
-
-3. Verify the file is working by accessing your Laravel application
+Access your application. If you get 404 errors on routes, the .htaccess is missing or incorrect.
 
 ### When cPanel Modifies .htaccess
 
@@ -60,33 +55,67 @@ AddHandler application/x-httpd-php81 .php
 
 These are safe to keep and won't affect Laravel's functionality.
 
-## Nginx Deployments
+## What's in .htaccess.example?
 
-If you're deploying on Nginx (recommended for production):
+Standard Laravel rewrite rules for Apache:
 
-1. **You don't need .htaccess** - Nginx doesn't use it
-2. Use Nginx configuration instead
-3. Refer to `docs/deployment/nginx-config-example.conf` (if available)
+```apache
+<IfModule mod_rewrite.c>
+    <IfModule mod_negotiation.c>
+        Options -MultiViews -Indexes
+    </IfModule>
+
+    RewriteEngine On
+
+    # Handle Authorization Header
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+    # Redirect Trailing Slashes If Not A Folder...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} (.+)/$
+    RewriteRule ^ %1 [L,R=301]
+
+    # Send Requests To Front Controller...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.php [L]
+</IfModule>
+```
+
+## cPanel Auto-Modifications
+
+cPanel will automatically add PHP handler directives:
+
+```apache
+# php -- BEGIN cPanel-generated handler, do not edit
+<IfModule mime_module>
+  AddHandler application/x-httpd-ea-php84 .php .php8 .phtml
+</IfModule>
+# php -- END cPanel-generated handler, do not edit
+```
+
+This is normal and required. Do not remove these lines.
+
+## Using Nginx?
+
+Nginx **does not use .htaccess**. You need Nginx configuration instead. Contact your hosting provider or system administrator for proper Nginx configuration for Laravel.
 
 ## Troubleshooting
 
-### Laravel routes return 404
+**Problem: Routes return 404**
 
-Check that the .htaccess file exists and contains the correct rewrite rules from `.htaccess.example`.
+Solution: Create the .htaccess file from the template (see Quick Setup above)
 
-### cPanel keeps overwriting my changes
+**Problem: File keeps appearing as modified in git**
 
-This is expected behavior. Document your custom rules separately and re-apply them after cPanel updates, or consider using Nginx hosting instead.
+Solution: The file is already in `.gitignore`. If you see it in `git status`, you may need to:
 
-### Error logs appearing in project root
-
-The `error_log` file is also ignored in git. This is a cPanel-generated file for PHP errors. To manage error logging:
-
-1. **In development**: Check `error_log` for PHP errors
-2. **In production**: Configure proper logging via Laravel's logging system
-3. **Never commit** error_log files - They contain sensitive information
+```bash
+git rm --cached public/.htaccess
+```
 
 ---
 
-**Last updated**: 2025-11-19
-**Applies to**: cPanel hosting environments
+**Last updated**: 2026-01-03
+**Applies to**: Apache/cPanel hosting environments
