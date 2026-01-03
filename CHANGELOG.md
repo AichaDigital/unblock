@@ -88,6 +88,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.1] - 2026-01-03
+
+### Security - Laravel Boost Configuration
+
+- **Critical Security Fix**: Configure Laravel Boost to prevent credential exposure in production
+  - Automatic deactivation in production environments via `APP_ENV` check
+  - Browser Logs Watcher disabled by default to prevent performance degradation
+  - Published and configured `config/boost.php` with secure defaults
+  - Added environment variables: `BOOST_ENABLED` and `BOOST_BROWSER_LOGS_WATCHER`
+  - Reference: [Laravel Boost Security Documentation](https://wiki.castris.com/books/laravel/page/laravel-boost-problemas-de-rendimiento-y-seguridad)
+
+### Fixed
+
+- **Test Stability**: Fixed timing issue in `PatternDetectionTest`
+  - Added `Carbon::setTestNow()` to prevent flaky tests due to microsecond differences
+  - Tests now use fixed timestamps for reliable execution
+
+### Changed
+
+- **Testing Standards**: Updated global testing guidelines
+  - Documented mandatory use of `Carbon::setTestNow()` for time-dependent tests
+  - Added examples and exceptions to testing standards in CLAUDE.md
+
+### Security Notes
+
+- Laravel Boost can expose sensitive information (credentials, database structure, queries) in production if not properly configured
+- This release ensures automatic protection when `APP_ENV=production`
+- Development environments remain fully functional with Boost enabled by default
+
 ## [1.3.0] - 2025-10-23
 
 ### Added - Reputation System & Admin Dashboard

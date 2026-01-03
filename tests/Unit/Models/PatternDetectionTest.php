@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Models\{AbuseIncident, PatternDetection};
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 
 uses(RefreshDatabase::class);
 
@@ -356,12 +357,16 @@ test('recent scope filters patterns from last 24 hours', function () {
 });
 
 test('recent scope includes patterns detected exactly 24 hours ago', function () {
+    Carbon::setTestNow('2026-01-03 12:00:00');
+
     PatternDetection::factory()->create(['detected_at' => now()->subDay()]);
     PatternDetection::factory()->create(['detected_at' => now()->subHours(25)]);
 
     $recent = PatternDetection::recent()->get();
 
     expect($recent)->toHaveCount(1);
+
+    Carbon::setTestNow(); // Reset
 });
 
 // ============================================================================
