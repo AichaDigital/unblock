@@ -1,11 +1,8 @@
 .playwright-mcp/
 /.phpunit.cache
-.cursor/
-.claude/
 .idea/
 .ssh/
 storage/app/.ssh/
-CLAUDE.md
 /node_modules
 /public/build
 /public/hot
@@ -55,7 +52,6 @@ yarn.lock
 
 # Internal development docs (keep out of repo)
 /docs/internals/
-/docs/archive/
 
 # Infection mutation testing
 infection.json
@@ -79,3 +75,9 @@ build/logs/phpstan.log
 # cPanel specific files
 error_log
 public/.htaccess
+# MCP configs with secrets
+.claude/mcp.json
+.cursor/mcp.json
+*.mcp.json*
+.claude/mcp.json*
+.cursor/mcp.json*

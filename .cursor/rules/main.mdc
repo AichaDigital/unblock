@@ -1,0 +1,46 @@
+---
+description: Reglas principales para el proyecto de gestión de firewall
+globs:
+alwaysApply: true
+---
+# Reglas Principales - Unblock Firewall
+
+Este proyecto es un sistema de gestión de firewall para servicios de hosting con las siguientes características:
+- Gestión de usuarios (algunos con un único dominio, otros con múltiples)
+- Gestión de revendedores con múltiples dominios
+- Gestión de VPS administrados
+- Interfaz simplificada para usuarios con bajo nivel técnico
+
+## Estándares Generales
+
+Para este proyecto, debes seguir los siguientes estándares:
+
+1. **Patrón de Arquitectura**: Seguir la arquitectura Laravel estándar con Actions para lógica de negocio compleja.
+2. **Seguridad**: Priorizar la validación y sanitización de entradas, especialmente IPs y comandos.
+3. **Interfaces**: Mantener interfaces simples y claras, considerando usuarios con bajo nivel técnico.
+4. **Mensajes de Error**: Usar mensajes descriptivos y fáciles de entender.
+5. **Internacionalización**: Todo texto visible debe usar sistema de traducciones (```__()```) para soporte de español e inglés.
+6. **Código en inglés**: Todo el código debe escribirse en inglés, incluyendo nombres de clases, modelos, variables, métodos, traits, mensajes de error, comentarios y docblocks. Solo los textos visibles para el usuario final deben usar el sistema de traducciones.
+7. **Path de trabajo**: No trabajar fuera del path del proyecto, salvo indicación expresa.
+8. **Version de Laravel**: Laravel 12. Prestar atención a esto pues hay cambios significativos con la versión.
+9. **Flujo de Trabajo**: Seguir estrictamente el proceso de desarrollo definido en @workflow.mdc.
+10. **Trabajo con MCP servers**
+
+## Referencias a Otras Reglas
+
+Este archivo hace referencia a otras reglas específicas:
+
+@unblock-dual-mode-architecture.mdc ⚠️ **DOCUMENTO CRÍTICO - LEER OBLIGATORIAMENTE**
+@senior-engineer-task-execution-rule.mdc
+@debugging-workflow.mdc ⚠️ **CRÍTICO - Use Playwright Browser & Laravel Boost MCPs**
+@model-standards.mdc
+@firewall-action-standards.mdc
+@filament-resource-standards.mdc
+@frontend-standards.mdc ⚠️ **CRÍTICO - DaisyUI Semantic Colors & Email Inline Styles**
+@security-standards.mdc
+@performance-standards.mdc
+@database-standards.mdc
+@database-context.mdc
+@testing-standards.mdc
+@workflow.mdc
+@unblock-flow.mdc

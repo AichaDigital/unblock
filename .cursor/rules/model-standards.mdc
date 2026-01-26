@@ -1,0 +1,22 @@
+---
+description: Estándares de modelos Eloquent
+globs:
+  - app/Models/**/*.php
+alwaysApply: true
+---
+
+# Estándares de Modelos Laravel
+
+Cuando trabajes con modelos Eloquent:
+
+1. Define propiedades como `$fillable`, `$guarded`, y `$casts` como constantes o propiedades estáticas cuando sea posible
+2. Sigue las convenciones de Laravel para nombres de relaciones:
+   - Usa singular para BelongsTo y HasOne (ej: `user()`)
+   - Usa plural para HasMany, BelongsToMany, HasManyThrough (ej: `users()`)
+3. Incluye tipos de retorno en todos los métodos (especialmente relaciones)
+4. Usa traits para comportamientos reutilizables
+5. Define scopes para consultas comunes
+6. Documenta propiedades y métodos con PHPDoc
+7. Implementa métodos de acceso (getters) y mutadores (setters) siguiendo la convención:
+   - `getPropertyAttribute()` para accessors
+   - `setPropertyAttribute()` para mutadores
