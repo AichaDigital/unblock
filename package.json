@@ -8,7 +8,7 @@
     "devDependencies": {
         "@tailwindcss/vite": "^4.1.18",
         "axios": "^1.13.5",
-        "daisyui": "^5.5.14",
+        "daisyui": "^5.5.18",
         "laravel-vite-plugin": "^2.1.0",
         "tailwindcss": "^4.1.18",
         "vite": "^7.3.1"
