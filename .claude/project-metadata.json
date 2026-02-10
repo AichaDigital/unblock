@@ -1,0 +1,24 @@
+{
+  "project_name": "unblock",
+  "project_path": "/Users/abkrim/SitesLR12/unblock",
+  "project_type": "laravel",
+  "client_type": "claude",
+  "features": {
+    "livewire": true,
+    "inertia": false,
+    "api": false
+  },
+  "database": {
+    "connection": "sqlite",
+    "host": "",
+    "database": "",
+    "mcp_server_included": false
+  },
+  "optional_servers": {
+    "playwright_enabled": false,
+    "database_enabled": false
+  },
+  "laravel_version": "12",
+  "created_at": "2025-07-09T07:04:31+02:00",
+  "mcp_isolated": true
+}

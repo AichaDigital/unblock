@@ -1,0 +1,39 @@
+---
+description: Contexto de la base de datos para el proyecto
+globs:
+  - "**/*.php"
+  - "database/migrations/**/*.php"
+alwaysApply: false
+---
+
+# Contexto de Base de Datos
+
+Este proyecto utiliza SQLite como base de datos principal. La estructura completa se encuentra en los siguientes archivos:
+
+- `database/sql_prompts/unblock.sqlite.sql` - Estructura completa de la base de datos generada por el comando `develop:sqlite-structure`
+- `instructions/structure.txt` - Estructura de archivos del proyecto generada por `scripts/generate-structure.sh`
+
+## Estructura de la Base de Datos SQLite
+
+El esquema de la base de datos incluye tablas para usuarios, hosts, hostings, reportes y gestión de fallos de IP.
+
+@database/sql_prompts/unblock.sqlite.sql
+@instructions/structure.txt
+
+## Comandos Útiles
+
+Para actualizar la estructura de la base de datos:
+```bash
+php artisan develop:sqlite-structure
+```
+
+Para generar la estructura del proyecto:
+```bash
+scripts/generate-structure.sh
+```
+
+## Consideraciones Importantes
+
+1. Utiliza SQLite para desarrollo y pruebas.
+2. Sigue las restricciones y recomendaciones de SQLite mencionadas en la regla `database-standards.mdc`.
+3. Cuando añadas nuevas tablas, actualiza la estructura ejecutando los comandos mencionados anteriormente.

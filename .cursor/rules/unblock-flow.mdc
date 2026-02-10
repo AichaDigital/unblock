@@ -1,0 +1,322 @@
+---
+description: Flujo completo de operación de Unblock con dualidad de modos
+globs:
+alwaysApply: true
+---
+# Flujo de Operación - Unblock Firewall
+
+## ⚠️ DOCUMENTO RELACIONADO CON ARQUITECTURA DUAL
+
+**Este documento complementa: @unblock-dual-mode-architecture.mdc**
+
+---
+
+## 🔄 Flujo Completo: Admin Mode (Simple Mode = false)
+
+### 1. Acceso Inicial
+```
+Usuario → https://unblock.example.com/
+```
+
+### 2. Login OTP
+```
+Componente: OtpLogin (Livewire)
+Ruta: / (name: 'login')
+Middleware: ['guest', 'throttle:10,1']
+
+1. Usuario ingresa EMAIL
+2. Sistema:
+   - Valida formato de email
+   - Busca usuario en DB
+   - Genera OTP (6 dígitos)
+   - Envía email con OTP
+3. Usuario ingresa OTP
+4. Sistema verifica OTP
+5. Sistema detecta: isSimpleMode() = FALSE
+6. Redirección: route('dashboard')
+```
+
+### 3. Dashboard Admin
+```
+Ruta: /dashboard (name: 'dashboard')
+Middleware: ['auth', 'session.timeout', 'simple.mode']
+
+- Middleware 'simple.mode':
+  - Detecta si usuario es temporal (first_name='Simple', last_name='Unblock')
+  - Si es temporal → REDIRIGE a /simple-unblock
+  - Si es real → PERMITE acceso al dashboard
+
+Usuario ve:
+- Panel de gestión de hosts
+- Panel de gestión de dominios
+- Panel de gestión de usuarios
+- Panel Filament (si es admin)
+- Acceso a todas las funcionalidades
+```
+
+### 4. Operaciones Admin
+```
+Usuario administrador puede:
+- Gestionar hosts (CSF, DirectAdmin)
+- Gestionar dominios y accounts
+- Ver logs de firewall
+- Configurar reglas globales
+- Crear/editar usuarios
+- Ver reportes de desbloqueos
+```
+
+---
+
+## 🔄 Flujo Completo: Simple Mode (Simple Mode = true)
+
+### 1. Acceso Inicial
+```
+Usuario → https://unblock.example.com/
+```
+
+### 2. Login OTP Simplificado
+```
+Componente: OtpLogin (Livewire)
+Ruta: / (name: 'login')
+Middleware: ['guest', 'throttle:10,1']
+
+1. Usuario ingresa EMAIL
+2. Sistema:
+   - Valida formato de email
+   - CREA usuario temporal si no existe:
+     * first_name: 'Simple'
+     * last_name: 'Unblock'
+     * email: {email ingresado}
+     * is_admin: false
+   - Genera OTP (6 dígitos)
+   - Envía email con OTP + instrucciones
+3. Usuario ingresa OTP
+4. Sistema verifica OTP
+5. Sistema detecta: isSimpleMode() = TRUE
+6. Redirección: route('simple.unblock')
+```
+
+### 3. Formulario de Desbloqueo
+```
+Ruta: /simple-unblock (name: 'simple.unblock')
+Middleware: ['simple.mode.enabled', 'throttle.simple.unblock']
+
+- Middleware 'simple.mode.enabled':
+  - Verifica: config('unblock.simple_mode.enabled') === true
+  - Si FALSE → abort(404) [NO 403 para evitar information leakage]
+  - Si TRUE → permite acceso
+
+- Middleware 'throttle.simple.unblock':
+  - Rate limiting multi-vector:
+    * Global: 500/hora
+    * Por minuto: 3/minuto
+    * Por email: 5/hora
+    * Por dominio: 10/hora
+    * Por subnet: 20/hora
+  - Si excede límite → HTTP 429 (Too Many Requests)
+
+Usuario ve:
+- Campo IP (autodetectada)
+- Campo DOMAIN
+- Botón "Desbloquear"
+- Instrucciones simples
+```
+
+### 4. Proceso de Desbloqueo
+```
+Usuario completa formulario:
+- IP: {autodetectada o manual}
+- Domain: example.com
+
+Sistema ejecuta:
+1. Validación de inputs
+2. Verificación de rate limits (ThrottleSimpleUnblock)
+3. SimpleUnblockAction::run(ip, domain, email)
+
+   SimpleUnblockAction:
+   - Verifica: config('unblock.simple_mode.enabled') = true
+   - Si false → Log warning + return
+   - Si true → continúa
+
+   - Normaliza dominio (lowercase, sin www)
+   - Busca dominio en DB local
+   - Si NO existe → Log silencioso + notifica admin + return
+   - Si existe → continúa
+
+   - Obtiene account y host
+   - Despacha Job: ProcessSimpleUnblockJob
+
+4. ProcessSimpleUnblockJob (queue: 'simple-unblock')
+   - Valida IP en logs de firewall remotos
+   - Si IP está bloqueada en el host → desbloquea
+   - Agrega IP a whitelist temporal (TTL: 1 hora)
+   - Crea report en DB
+   - Log de operación
+
+5. Usuario ve mensaje:
+   - "Solicitud procesada"
+   - "Recibirás un email con el resultado"
+
+6. Sistema envía email:
+   - Si éxito: "Tu IP ha sido desbloqueada"
+   - Si no encontrada: "Tu IP no está bloqueada"
+   - Si error: Email silencioso al admin (usuario no ve error)
+```
+
+### 5. Restricciones de Acceso
+```
+Usuario temporal intenta acceder a:
+- /dashboard → Middleware 'simple.mode' → REDIRIGE a /simple-unblock
+- /admin/* → Middleware 'simple.mode' → abort(403)
+- Cualquier otra ruta → debe tener auth middleware que maneje correctamente
+```
+
+---
+
+## 🛡️ Protecciones y Seguridad
+
+### Admin Mode
+- Autenticación estándar con OTP
+- Sesiones largas (configurables vía SESSION_LIFETIME)
+- Sin rate limiting agresivo
+- Acceso completo a recursos
+
+### Simple Mode
+- Autenticación OTP temporal
+- Sesiones cortas (idealmente 1 hora)
+- Rate limiting multi-vector agresivo
+- Acceso SOLO a /simple-unblock
+- Whitelist temporal (1 hora)
+- Logs silenciosos (usuario no ve errores internos)
+- 404 en rutas deshabilitadas (no 403)
+
+---
+
+## 📧 Flujo de Emails
+
+### Admin Mode
+```
+1. OTP Login:
+   - Template: admin-otp-email
+   - Contenido: código OTP + instrucciones admin
+
+2. Reportes:
+   - Template: admin-report-email
+   - Contenido: detalles completos de operación
+```
+
+### Simple Mode
+```
+1. OTP Login:
+   - Template: simple-otp-email
+   - Contenido: código OTP + instrucciones simples autoservicio
+
+2. Resultado Desbloqueo:
+   - Template: simple-unblock-result-email
+   - Contenido:
+     * Éxito: "Tu IP {ip} ha sido desbloqueada en {domain}"
+     * No encontrada: "Tu IP no estaba bloqueada"
+     * Error: SOLO email al admin (usuario no recibe nada)
+
+3. Notificaciones Admin (silenciosas):
+   - Template: simple-unblock-admin-notification
+   - Contenido: intentos sospechosos, errores, dominios no encontrados
+```
+
+---
+
+## 🧪 Testing del Flujo Completo
+
+### Test Admin Mode
+```php
+test('complete admin flow works correctly', function () {
+    config()->set('unblock.simple_mode.enabled', false);
+
+    // 1. Login OTP
+    // 2. Verificación OTP
+    // 3. Redirección a dashboard
+    // 4. Acceso a recursos admin
+
+    expect($response)->toHaveRedirectedTo(route('dashboard'));
+});
+```
+
+### Test Simple Mode
+```php
+test('complete simple mode flow works correctly', function () {
+    config()->set('unblock.simple_mode.enabled', true);
+
+    // 1. Login OTP
+    // 2. Verificación OTP
+    // 3. Redirección a simple-unblock
+    // 4. Formulario de desbloqueo
+    // 5. Proceso de desbloqueo
+
+    expect($response)->toHaveRedirectedTo(route('simple.unblock'));
+});
+```
+
+### Test Protección de Acceso
+```php
+test('simple mode users cannot access admin areas', function () {
+    config()->set('unblock.simple_mode.enabled', true);
+
+    $temporaryUser = User::create([
+        'first_name' => 'Simple',
+        'last_name' => 'Unblock',
+        'email' => 'test@example.com',
+        'is_admin' => false,
+    ]);
+
+    actingAs($temporaryUser)
+        ->get(route('dashboard'))
+        ->assertRedirect(route('simple.unblock'));
+});
+```
+
+---
+
+## 🔍 Debugging por Modo
+
+### Admin Mode
+```bash
+# Ver logs de autenticación
+tail -f storage/logs/laravel.log | grep "admin_login"
+
+# Ver logs de operaciones admin
+tail -f storage/logs/laravel.log | grep "admin_operation"
+```
+
+### Simple Mode
+```bash
+# Ver logs de simple unblock
+tail -f storage/logs/laravel.log | grep "Simple unblock"
+
+# Ver logs de rate limiting
+tail -f storage/logs/laravel.log | grep "Rate limit"
+
+# Ver intentos silenciosos (reportados solo a admin)
+tail -f storage/logs/laravel.log | grep "silent_log"
+```
+
+---
+
+## ✅ Checklist de Verificación de Flujo
+
+Antes de dar por completada cualquier feature:
+
+- [ ] Flujo completo funciona en Admin Mode
+- [ ] Flujo completo funciona en Simple Mode
+- [ ] Redirecciones post-login correctas según modo
+- [ ] Protecciones de acceso funcionan (usuarios temporales no acceden a admin)
+- [ ] Emails correctos según modo
+- [ ] Rate limiting solo aplica en Simple Mode
+- [ ] Middleware correcto aplicado a todas las rutas
+- [ ] Tests para ambos modos
+- [ ] Logs apropiados (silenciosos en Simple Mode)
+- [ ] TTL de whitelist correcto según modo
+
+---
+
+**Última actualización**: 2025-11-05
+**Versión del documento**: 1.0.0
