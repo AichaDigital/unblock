@@ -1,0 +1,37 @@
+---
+description: Estándares para trabajar con SQLite en el proyecto
+globs:
+  - "database/**/*.php"
+  - "app/Console/Commands/Develop/*Sqlite*.php"
+  - "app/Models/**/*.php"
+alwaysApply: false
+---
+
+# Estándares para SQLite
+
+Al trabajar con SQLite en este proyecto, sigue estos estándares:
+
+1. **Migraciones**:
+   - Verifica siempre la compatibilidad con SQLite antes de usar características específicas de otros motores
+   - Evita el uso de `enum`, `json` y otras características no soportadas por SQLite
+   - Usa `integer` en lugar de tipos específicos como `unsignedBigInteger` cuando sea posible
+
+2. **Índices y Claves Foráneas**:
+   - Recuerda que SQLite solo soporta claves foráneas al crear tablas, no al alterarlas
+   - Usa `$table->foreignId('user_id')->constrained()` con `Schema::enableForeignKeyConstraints()` al principio de la migración
+
+3. **Transacciones**:
+   - SQLite bloquea toda la base de datos durante escrituras, utiliza transacciones para operaciones múltiples
+   - Minimiza el tiempo de transacciones para evitar bloqueos prolongados
+
+4. **Comandos Artisan**:
+   - Usa `develop:sqlite-structure` para exportar la estructura de la base de datos
+   - Para consultas de schema utiliza siempre `sqlite_master` en lugar de comandos específicos de otros motores
+
+5. **Operaciones en Masa**:
+   - SQLite tiene limitaciones con consultas complejas, considera dividir operaciones grandes
+   - Usa `chunk()` para procesar grandes cantidades de registros
+
+6. **Backup y Migración**:
+   - Respalda regularmente el archivo de base de datos
+   - Utiliza `vacuum` periódicamente para optimizar el rendimiento y tamaño
