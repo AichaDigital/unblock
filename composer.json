@@ -31,7 +31,7 @@
         "filament/upgrade": "^5.2",
         "infection/infection": "^0.32.0",
         "larastan/larastan": "^3.6",
-        "laravel/boost": "^1.1",
+        "laravel/boost": "^2.1",
         "laravel/breeze": "^2.2",
         "laravel/pint": "^1.13",
         "laravel/sail": "^1.26",
