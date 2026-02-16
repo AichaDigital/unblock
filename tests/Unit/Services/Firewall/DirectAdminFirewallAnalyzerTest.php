@@ -360,7 +360,7 @@ test('analyze handles string SSH key correctly for backward compatibility', func
         ->and($result->getLogs())->toHaveKey('csf');
 });
 
-test('analyze guarantees 7-key log structure even when services are disabled', function () {
+test('analyze guarantees 8-key log structure even when services are disabled', function () {
     $host = Host::factory()->create(['panel' => 'directadmin']);
     $firewallService = mock(FirewallService::class);
 
@@ -374,6 +374,7 @@ test('analyze guarantees 7-key log structure even when services are disabled', f
         'dovecot_directadmin' => false,
         'mod_security_da' => false,
         'da_bfm_check' => false,
+        'lfd_history' => false,
     ];
 
     $firewallService->shouldReceive('checkProblems')
@@ -384,7 +385,7 @@ test('analyze guarantees 7-key log structure even when services are disabled', f
 
     $result = $analyzer->analyze(TC::TEST_IP, 'test_key');
 
-    // Must have all 7 keys even if services are disabled
+    // Must have all 8 keys even if services are disabled
     expect($result->getLogs())
         ->toHaveKey('csf')
         ->toHaveKey('csf_deny')
@@ -392,7 +393,8 @@ test('analyze guarantees 7-key log structure even when services are disabled', f
         ->toHaveKey('da_bfm')
         ->toHaveKey('exim')
         ->toHaveKey('dovecot')
-        ->toHaveKey('mod_security');
+        ->toHaveKey('mod_security')
+        ->toHaveKey('lfd_history');
 });
 
 test('supports only returns true for directadmin panel type', function () {
@@ -497,6 +499,12 @@ No matches found for {$ipAddress} in ip6tables";
 
     $this->firewallService->shouldReceive('checkProblems')
         ->with($this->host, '/tmp/test_key', 'mod_security_da', $ipAddress)
+        ->once()
+        ->andReturn('');
+
+    // LFD history - no entries
+    $this->firewallService->shouldReceive('checkProblems')
+        ->with($this->host, '/tmp/test_key', 'lfd_history', $ipAddress)
         ->once()
         ->andReturn('');
 
