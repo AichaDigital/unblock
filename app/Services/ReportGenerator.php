@@ -30,10 +30,11 @@ class ReportGenerator
         User $user,
         Host $host,
         FirewallAnalysisResult $analysisResult,
-        ?array $unblockResults = null
+        ?array $unblockResults = null,
+        ?array $recentHistory = null
     ): Report {
         try {
-            $reportData = $this->formatReportData($analysisResult, $unblockResults);
+            $reportData = $this->formatReportData($analysisResult, $unblockResults, $recentHistory);
             $blockSources = $this->extractBlockSources($analysisResult->getLogs());
 
             $report = Report::create([
@@ -71,7 +72,7 @@ class ReportGenerator
     /**
      * Format analysis and logs data for storage
      */
-    private function formatReportData(FirewallAnalysisResult $analysisResult, ?array $unblockResults): array
+    private function formatReportData(FirewallAnalysisResult $analysisResult, ?array $unblockResults, ?array $recentHistory = null): array
     {
         // CORRECCION: Usar block_sources del analysis ya calculado por el analyzer
         $analysis = $analysisResult->getAnalysis();
@@ -92,6 +93,11 @@ class ReportGenerator
         if ($unblockResults) {
             $analysisData['unblock_performed'] = true;
             $analysisData['unblock_status'] = $unblockResults;
+        }
+
+        // Add recent block history for context (especially useful when IP is NOT blocked)
+        if ($recentHistory && $recentHistory['count'] > 0) {
+            $analysisData['recent_block_history'] = $recentHistory;
         }
 
         $logsData = $this->formatLogsData($analysisResult->getLogs());

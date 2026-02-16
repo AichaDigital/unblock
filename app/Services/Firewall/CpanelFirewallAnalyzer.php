@@ -6,6 +6,7 @@ namespace App\Services\Firewall;
 
 use App\Models\Host;
 use App\Services\FirewallService;
+use Illuminate\Support\Facades\Log;
 
 readonly class CpanelFirewallAnalyzer implements FirewallAnalyzerInterface
 {
@@ -22,6 +23,7 @@ readonly class CpanelFirewallAnalyzer implements FirewallAnalyzerInterface
             'csf' => true,
             'exim_cpanel' => true,
             'dovecot_cpanel' => true,
+            'lfd_history' => true,
         ];
     }
 
@@ -39,35 +41,79 @@ readonly class CpanelFirewallAnalyzer implements FirewallAnalyzerInterface
         // Primero verificamos si la IP está bloqueada en CSF
         if (($this->serviceChecks['csf'] ?? false) === true) {
             $csfOutput = $this->firewallService->checkProblems($this->host, $sshKeyName, 'csf', $ipAddress);
-            $logs['csf'] = $csfOutput;
-            $csfResult = $this->analyzeCsfOutput($csfOutput);
-            $results[] = $csfResult;
-            if ($csfResult->isBlocked()) {
-                $wasBlocked = true;
+            if (! $this->isSshError($csfOutput)) {
+                $logs['csf'] = $csfOutput;
+                $csfResult = $this->analyzeCsfOutput($csfOutput);
+                $results[] = $csfResult;
+                if ($csfResult->isBlocked()) {
+                    $wasBlocked = true;
+                }
+            } else {
+                $logs['csf'] = '';
+                $logs['ssh_errors'][] = $csfOutput;
             }
         }
 
-        // Solo si la IP está bloqueada, procedemos a buscar en los logs
-        if ($wasBlocked === true) {
-            // Verificar Exim
-            if (($this->serviceChecks['exim_cpanel'] ?? false) === true) {
-                $eximOutput = $this->firewallService->checkProblems($this->host, $sshKeyName, 'exim_cpanel', $ipAddress);
+        // ALWAYS check Exim and Dovecot for context (not just when blocked)
+        if (($this->serviceChecks['exim_cpanel'] ?? false) === true) {
+            $eximOutput = $this->firewallService->checkProblems($this->host, $sshKeyName, 'exim_cpanel', $ipAddress);
+            if (! $this->isSshError($eximOutput)) {
                 $logs['exim'] = $eximOutput;
                 $results[] = $this->analyzeEximOutput($eximOutput);
+            } else {
+                $logs['exim'] = '';
+                $logs['ssh_errors'][] = $eximOutput;
             }
-
-            // Verificar Dovecot
-            if (($this->serviceChecks['dovecot_cpanel'] ?? false) === true) {
-                $dovecotOutput = $this->firewallService->checkProblems($this->host, $sshKeyName, 'dovecot_cpanel', $ipAddress);
-                $logs['dovecot'] = $dovecotOutput;
-                $results[] = $this->analyzeDovecotOutput($dovecotOutput);
-            }
-
-            // REMOVED: Auto-unblock logic - this must be done by the caller based on complete validation
-            // The analyzer should ONLY analyze and report, NOT make unblock decisions
         }
 
-        return FirewallAnalysisResult::combine(...$results);
+        if (($this->serviceChecks['dovecot_cpanel'] ?? false) === true) {
+            $dovecotOutput = $this->firewallService->checkProblems($this->host, $sshKeyName, 'dovecot_cpanel', $ipAddress);
+            if (! $this->isSshError($dovecotOutput)) {
+                $logs['dovecot'] = $dovecotOutput;
+                $results[] = $this->analyzeDovecotOutput($dovecotOutput);
+            } else {
+                $logs['dovecot'] = '';
+                $logs['ssh_errors'][] = $dovecotOutput;
+            }
+        }
+
+        // Check LFD history (CONTEXT ONLY - never indicates blocking)
+        if ($this->serviceChecks['lfd_history'] ?? false) {
+            $lfdOutput = $this->firewallService->checkProblems($this->host, $sshKeyName, 'lfd_history', $ipAddress);
+            if (! $this->isSshError($lfdOutput)) {
+                $logs['lfd_history'] = $lfdOutput;
+            } else {
+                $logs['lfd_history'] = '';
+                $logs['ssh_errors'][] = $lfdOutput;
+            }
+            $results[] = new FirewallAnalysisResult(false, ['lfd_history' => $logs['lfd_history']]);
+        }
+
+        // Log resultado final para debug
+        Log::debug("cPanel firewall analysis completed for {$ipAddress}", [
+            'host' => $this->host->fqdn,
+            'was_blocked' => $wasBlocked,
+            'ssh_errors_count' => count($logs['ssh_errors'] ?? []),
+        ]);
+
+        // GARANTIZAR ESTRUCTURA JSON COMPLETA
+        $completeLogsStructure = [
+            'csf' => $logs['csf'] ?? '',
+            'exim' => $logs['exim'] ?? '',
+            'dovecot' => $logs['dovecot'] ?? '',
+            'lfd_history' => $logs['lfd_history'] ?? '',
+        ];
+
+        if (! empty($logs['ssh_errors'])) {
+            $completeLogsStructure['ssh_errors'] = $logs['ssh_errors'];
+        }
+
+        $finalResult = FirewallAnalysisResult::combine(...$results);
+
+        return new FirewallAnalysisResult(
+            $wasBlocked,
+            $completeLogsStructure
+        );
     }
 
     public function unblock(string $ip, string $sshKeyName): void
@@ -124,5 +170,13 @@ readonly class CpanelFirewallAnalyzer implements FirewallAnalyzerInterface
         // CRITICAL FIX: Dovecot logs show authentication failures, NOT firewall blocks
         // These are context logs only, not evidence of active blocking
         return new FirewallAnalysisResult(false, ['dovecot' => $output]);
+    }
+
+    /**
+     * Check if output is an SSH error sentinel
+     */
+    private function isSshError(string $output): bool
+    {
+        return str_starts_with($output, '[SSH_ERROR:');
     }
 }

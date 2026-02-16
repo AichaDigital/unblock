@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Jobs;
 
+use App\Actions\{CheckRecentBlockHistoryAction, UnblockIpActionNormalMode};
 use App\Actions\Firewall\ValidateUserAccessToHostAction;
 use App\Actions\SimpleUnblock\{AnalyzeFirewallForIpAction, ValidateIpFormatAction};
-use App\Actions\UnblockIpActionNormalMode;
 use App\Exceptions\FirewallException;
 use App\Models\{Host, User};
 use App\Services\{AuditService, ReportGenerator};
@@ -109,6 +109,9 @@ class ProcessFirewallCheckJob implements ShouldQueue
                 // 4. Analyze firewall status
                 $analysis = $analyzeFirewall->handle($this->ip, $host);
 
+                // 4b. Check recent block history for context
+                $recentHistory = app(CheckRecentBlockHistoryAction::class)->handle($this->ip, $host->id);
+
                 // 5. Execute unblock if IP is blocked
                 $unblockResults = null;
                 if ($analysis->isBlocked()) {
@@ -126,7 +129,8 @@ class ProcessFirewallCheckJob implements ShouldQueue
                     $user,
                     $host,
                     $analysis,
-                    $unblockResults
+                    $unblockResults,
+                    $recentHistory
                 );
 
                 // 7. Audit the operation

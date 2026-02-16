@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Jobs;
 
+use App\Actions\{CheckRecentBlockHistoryAction, UnblockIpAction};
 use App\Actions\SimpleUnblock\{
     AnalyzeFirewallForIpAction,
     CheckIpInServerLogsAction,
@@ -13,7 +14,6 @@ use App\Actions\SimpleUnblock\{
     ValidateDomainInDatabaseAction,
     ValidateIpFormatAction
 };
-use App\Actions\UnblockIpAction;
 use App\Models\Host;
 use App\Services\{AnonymousUserService, SshConnectionManager};
 use Exception;
@@ -136,6 +136,9 @@ class ProcessSimpleUnblockJob implements ShouldQueue
                 // 6. Analyze firewall status
                 $analysis = $analyzeFirewall->handle($this->ip, $host);
 
+                // 6b. Check recent block history for context
+                $recentHistory = app(CheckRecentBlockHistoryAction::class)->handle($this->ip, $host->id);
+
                 // 7. Check IP in server logs (CORRECTED: use key PATH)
                 $logsSearch = $checkLogs->handle($host, $keyPath, $this->ip, $this->domain);
 
@@ -170,7 +173,8 @@ class ProcessSimpleUnblockJob implements ShouldQueue
                 $host,
                 $analysis,
                 $unblockResults,
-                $decision
+                $decision,
+                $recentHistory
             );
 
             // 10. Send appropriate notifications

@@ -31,7 +31,8 @@ class CreateSimpleUnblockReportAction
         Host $host,
         FirewallAnalysisResult $analysis,
         ?array $unblockResults,
-        UnblockDecision $decision
+        UnblockDecision $decision,
+        ?array $recentHistory = null
     ): Report {
         Log::info('Creating simple unblock report', [
             'ip' => $ip,
@@ -58,6 +59,7 @@ class CreateSimpleUnblockReportAction
                 'decision_reason' => $decision->reason,
                 'analysis_timestamp' => now()->toISOString(),
                 'block_summary' => $csfSummary, // Human-readable block info
+                'recent_block_history' => ($recentHistory && $recentHistory['count'] > 0) ? $recentHistory : null,
             ],
             'logs' => $analysis->getLogs(),
         ]);

@@ -35,15 +35,13 @@ test('analyze detects IP blocked in CSF', function () {
         ->with($this->host, TC::TEST_SSH_KEY, 'csf', TC::TEST_BLOCKED_IP)
         ->andReturn($csfOutput);
 
-    // REMOVED: Analyzer no longer auto-unblocks, so we don't expect these calls
-    // Auto-unblock was a security issue - unblocking must be done by caller
-
-    // Configurar servicios
+    // Configurar servicios - disable all except CSF
     $analyzer = $this->analyzer->withServiceChecks([
         'csf' => true,
         'csf_specials' => false,
         'exim_cpanel' => false,
         'dovecot_cpanel' => false,
+        'lfd_history' => false,
     ]);
 
     // Analizar con string como session (compatibility mode)
@@ -61,10 +59,9 @@ test('analyze detects authentication failures in Exim logs', function () {
     $csfOutput = $csfStub['cpanel'];
     $eximOutput = $eximStub['exim'];
 
-    // Configurar mock - only CSF and Exim, no unblock/whitelist
+    // Configurar mock - CSF and Exim
     $this->firewallService
         ->shouldReceive('checkProblems')
-        ->times(2)  // CSF and Exim only (no auto-unblock anymore)
         ->withArgs(function ($host, $key, $service, $ip) {
             return $host === $this->host
                 && $key === 'test-key'
@@ -79,6 +76,7 @@ test('analyze detects authentication failures in Exim logs', function () {
         'csf_specials' => false,
         'exim_cpanel' => true,
         'dovecot_cpanel' => false,
+        'lfd_history' => false,
     ]);
 
     // Analizar con string como session (compatibility mode)
@@ -114,12 +112,13 @@ test('analyze DOES NOT trigger auto-unblock for blocked IPs', function () {
         ->shouldNotReceive('checkProblems')
         ->with($this->host, TC::TEST_SSH_KEY, 'whitelist', TC::TEST_BLOCKED_IP);
 
-    // Configurar servicios
+    // Configurar servicios - disable all except CSF
     $analyzer = $this->analyzer->withServiceChecks([
         'csf' => true,
         'csf_specials' => false,
         'exim_cpanel' => false,
         'dovecot_cpanel' => false,
+        'lfd_history' => false,
     ]);
 
     // Analizar - should detect block but NOT unblock
@@ -149,21 +148,28 @@ test('dovecot auth failed logs without csf blocks should not mark ip as blocked'
         ->once()
         ->andReturn($csfNoBlocksOutput);
 
-    // Dovecot should NOT be checked because CSF shows no blocks
-    // This verifies the "Solo si la IP está bloqueada, procedemos a buscar en los logs" logic
+    // Dovecot IS now checked ALWAYS (not just when blocked) for context
+    $this->firewallService
+        ->shouldReceive('checkProblems')
+        ->with($this->host, TC::TEST_SSH_KEY, 'dovecot_cpanel', $testIp)
+        ->once()
+        ->andReturn($dovecotAuthFailedOutput);
 
     // Configure services
     $analyzer = $this->analyzer->withServiceChecks([
         'csf' => true,
         'csf_specials' => false,
         'exim_cpanel' => false,
-        'dovecot_cpanel' => true, // Enable Dovecot check
+        'dovecot_cpanel' => true,
+        'lfd_history' => false,
     ]);
 
     // Analyze
     $result = $analyzer->analyze($testIp, TC::TEST_SSH_KEY);
 
     // IP should not be marked as blocked
-    // This prevents false "IP desbloqueada correctamente" reports
-    expect($result->isBlocked())->toBeFalse('ip with only dovecot auth failed logs should not be marked as blocked');
+    // Auth failed logs are context only, not evidence of active blocking
+    expect($result->isBlocked())->toBeFalse('ip with only dovecot auth failed logs should not be marked as blocked')
+        ->and($result->getLogs())->toHaveKey('dovecot')
+        ->and($result->getLogs()['dovecot'])->toContain('auth failed');
 });

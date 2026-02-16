@@ -61,10 +61,11 @@ class FirewallService
                     'host' => $host->fqdn,
                     'command' => $command,
                     'ip' => $ip,
+                    'exit_code' => $process->getExitCode(),
                     'error' => $process->getErrorOutput(),
                 ]);
 
-                return '';
+                return '[SSH_ERROR:'.$command.']';
             }
 
             $output = trim($process->getOutput());
@@ -126,8 +127,9 @@ class FirewallService
             'mod_security_da' => "cat /var/log/nginx/modsec_audit.log | grep '{ip}' || true",
             'exim_cpanel' => "cat /var/log/exim_mainlog | grep -Ea '{ip}' | grep 'authenticator failed' || true",
             'dovecot_cpanel' => "cat /var/log/maillog | grep -Ea '{ip}' | grep 'auth failed' || true",
-            'exim_directadmin' => "cat /var/log/exim/mainlog | grep -Ea '{ip}' | grep 'authenticator failed'",
-            'dovecot_directadmin' => "cat /var/log/mail.log | grep -Ea '{ip}' | grep 'auth failed'",
+            'exim_directadmin' => "cat /var/log/exim/mainlog | grep -Ea '{ip}' | grep 'authenticator failed' || true",
+            'dovecot_directadmin' => "cat /var/log/mail.log | grep -Ea '{ip}' | grep 'auth failed' || true",
+            'lfd_history' => "grep '{ip}' /var/log/lfd.log /var/log/lfd.log.1 2>/dev/null | tail -20 || true",
             'da_bfm_check' => "cat /usr/local/directadmin/data/admin/ip_blacklist | grep -E '^{ip}(\\s|\$)' || true",
             'da_bfm_remove' => "sed -i '/^{ip}(\\s|\$)/d' /usr/local/directadmin/data/admin/ip_blacklist",
             'da_bfm_whitelist_add' => "echo '{ip}' >> /usr/local/directadmin/data/admin/ip_whitelist",
@@ -160,8 +162,10 @@ class FirewallService
             'exim_cpanel' => "cat /var/log/exim_mainlog | grep -Ea {$ip_escaped} | grep 'authenticator failed' || true",
             'dovecot_cpanel' => "cat /var/log/maillog | grep -Ea {$ip_escaped} | grep 'auth failed' || true",
             // DirectAdmin log checks
-            'exim_directadmin' => "cat /var/log/exim/mainlog | grep -Ea {$ip_escaped} | grep 'authenticator failed'",
-            'dovecot_directadmin' => "cat /var/log/mail.log | grep -Ea {$ip_escaped} | grep 'auth failed'",
+            'exim_directadmin' => "cat /var/log/exim/mainlog | grep -Ea {$ip_escaped} | grep 'authenticator failed' || true",
+            'dovecot_directadmin' => "cat /var/log/mail.log | grep -Ea {$ip_escaped} | grep 'auth failed' || true",
+            // LFD history: recent block/unblock events
+            'lfd_history' => "grep {$ip_escaped} /var/log/lfd.log /var/log/lfd.log.1 2>/dev/null | tail -20 || true",
             // FIXED: Use exact IP matching to avoid false positives
             'da_bfm_check' => "cat /usr/local/directadmin/data/admin/ip_blacklist | grep -E '^{$ip_escaped}(\\s|\$)' || true",
             'da_bfm_remove' => "sed -i '/^{$ip_escaped}(\\s|\$)/d' /usr/local/directadmin/data/admin/ip_blacklist",
