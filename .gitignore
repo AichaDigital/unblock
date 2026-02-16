@@ -82,3 +82,4 @@ public/.htaccess
 *.mcp.json*
 .claude/mcp.json*
 .cursor/mcp.json*
+.worktrees/
