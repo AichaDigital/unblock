@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 use App\Models\Host;
 use App\Services\Firewall\{
-    DirectAdminFirewallAnalyzer,
-    FirewallAnalysisResult
+    DirectAdminFirewallAnalyzer
 };
-use App\Services\{FirewallService, SshSession};
+use App\Services\FirewallService;
 use Tests\FirewallTestConstants as TC;
 
 beforeEach(function () {
@@ -45,7 +44,7 @@ test('lfd_history is treated as context only and never marks IP as blocked', fun
 });
 
 test('lfd_history with empty output stores empty string in logs', function () {
-    $csfNoBlocks = "No matches found for 192.0.2.123 in iptables";
+    $csfNoBlocks = 'No matches found for 192.0.2.123 in iptables';
 
     $this->firewallService
         ->shouldReceive('checkProblems')
@@ -59,7 +58,7 @@ test('lfd_history with empty output stores empty string in logs', function () {
 });
 
 test('SSH error sentinel is detected and stored in ssh_errors', function () {
-    $csfNoBlocks = "No matches found for 192.0.2.123 in iptables";
+    $csfNoBlocks = 'No matches found for 192.0.2.123 in iptables';
 
     // Return SSH error for exim_directadmin check
     $this->firewallService
@@ -87,7 +86,7 @@ test('SSH error sentinel is detected and stored in ssh_errors', function () {
 });
 
 test('SSH error in lfd_history is captured in ssh_errors', function () {
-    $csfNoBlocks = "No matches found for 192.0.2.123 in iptables";
+    $csfNoBlocks = 'No matches found for 192.0.2.123 in iptables';
 
     $this->firewallService
         ->shouldReceive('checkProblems')
@@ -112,7 +111,7 @@ test('SSH error in lfd_history is captured in ssh_errors', function () {
 });
 
 test('multiple SSH errors are accumulated', function () {
-    $csfNoBlocks = "No matches found for 192.0.2.123 in iptables";
+    $csfNoBlocks = 'No matches found for 192.0.2.123 in iptables';
 
     $this->firewallService
         ->shouldReceive('checkProblems')
@@ -138,7 +137,7 @@ test('multiple SSH errors are accumulated', function () {
 });
 
 test('no ssh_errors key when all commands succeed', function () {
-    $csfNoBlocks = "No matches found for 192.0.2.123 in iptables";
+    $csfNoBlocks = 'No matches found for 192.0.2.123 in iptables';
 
     $this->firewallService
         ->shouldReceive('checkProblems')

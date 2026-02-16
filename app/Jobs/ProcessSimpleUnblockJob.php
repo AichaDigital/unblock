@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Jobs;
 
-use App\Actions\CheckRecentBlockHistoryAction;
+use App\Actions\{CheckRecentBlockHistoryAction, UnblockIpAction};
 use App\Actions\SimpleUnblock\{
     AnalyzeFirewallForIpAction,
     CheckIpInServerLogsAction,
@@ -14,7 +14,6 @@ use App\Actions\SimpleUnblock\{
     ValidateDomainInDatabaseAction,
     ValidateIpFormatAction
 };
-use App\Actions\UnblockIpAction;
 use App\Models\Host;
 use App\Services\{AnonymousUserService, SshConnectionManager};
 use Exception;

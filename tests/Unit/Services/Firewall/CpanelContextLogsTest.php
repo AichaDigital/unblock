@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use App\Models\Host;
-use App\Services\Firewall\{CpanelFirewallAnalyzer, FirewallAnalysisResult};
+use App\Services\Firewall\CpanelFirewallAnalyzer;
 use App\Services\FirewallService;
 use Mockery\MockInterface;
 use Tests\FirewallTestConstants as TC;

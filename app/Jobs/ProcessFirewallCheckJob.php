@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace App\Jobs;
 
-use App\Actions\CheckRecentBlockHistoryAction;
+use App\Actions\{CheckRecentBlockHistoryAction, UnblockIpActionNormalMode};
 use App\Actions\Firewall\ValidateUserAccessToHostAction;
 use App\Actions\SimpleUnblock\{AnalyzeFirewallForIpAction, ValidateIpFormatAction};
-use App\Actions\UnblockIpActionNormalMode;
 use App\Exceptions\FirewallException;
 use App\Models\{Host, User};
 use App\Services\{AuditService, ReportGenerator};
