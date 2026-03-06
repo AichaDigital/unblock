@@ -144,17 +144,21 @@ test('limits results to 10 most recent', function () {
 });
 
 test('returns dates in d/m/Y H:i format', function () {
+    $createdAt = now()->subDays(2)->startOfHour();
+
     Report::factory()->create([
         'ip' => '192.0.2.50',
         'host_id' => $this->host->id,
         'user_id' => $this->user->id,
         'analysis' => ['was_blocked' => true],
-        'created_at' => now()->parse('2026-02-15 14:30:00'),
+        'created_at' => $createdAt,
     ]);
 
     $result = $this->action->handle('192.0.2.50', $this->host->id);
 
-    expect($result['dates'][0])->toMatch('/^\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}$/');
+    expect($result['dates'][0])
+        ->toMatch('/^\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}$/')
+        ->toBe($createdAt->format('d/m/Y H:i'));
 });
 
 test('last_blocked_at returns ISO string of most recent block', function () {
