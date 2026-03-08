@@ -43,7 +43,7 @@ test('builds csf command correctly', function () {
 
     $result = $method->invoke($service, 'csf', TC::TEST_BLOCKED_IP);
 
-    expect($result)->toBe('csf -g '.TC::TEST_BLOCKED_IP);
+    expect($result)->toBe('csf -g '.escapeshellarg(TC::TEST_BLOCKED_IP));
 });
 
 test('builds da bfm check command correctly', function () {

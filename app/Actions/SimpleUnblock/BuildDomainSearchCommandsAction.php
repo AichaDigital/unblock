@@ -80,6 +80,6 @@ class BuildDomainSearchCommandsAction
      */
     private function buildCpanelDomlogsCommand(string $ipEscaped, string $domainEscaped): string
     {
-        return "find /usr/local/apache/domlogs -name '*{$domainEscaped}*' -mtime -7 -type f -exec grep {$ipEscaped} {} \\; 2>/dev/null | head -1";
+        return "find /usr/local/apache/domlogs -mtime -7 -type f -exec grep -l {$ipEscaped} {} \\; 2>/dev/null | xargs grep -il {$domainEscaped} 2>/dev/null | head -1";
     }
 }

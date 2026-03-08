@@ -47,28 +47,28 @@
                                                     <strong>{{ __('Cliente IP') }}:</strong>
                                                     @php
                                                         $clienteIp = $entry['cliente_ip'] ?? 'N/A';
-                                                        echo is_array($clienteIp) ? json_encode($clienteIp) : $clienteIp;
+                                                        echo is_array($clienteIp) ? e(json_encode($clienteIp)) : e($clienteIp);
                                                     @endphp
                                                 </p>
                                                 <p class="text-sm text-base-content">
                                                     <strong>URI:</strong>
                                                     @php
                                                         $uri = $entry['uri'] ?? 'N/A';
-                                                        echo is_array($uri) ? json_encode($uri) : $uri;
+                                                        echo is_array($uri) ? e(json_encode($uri)) : e($uri);
                                                     @endphp
                                                 </p>
                                                 <p class="text-sm text-base-content">
                                                     <strong>{{ __('Mensaje') }}:</strong>
                                                     @php
                                                         $message = $entry['message'] ?? 'N/A';
-                                                        echo is_array($message) ? json_encode($message) : $message;
+                                                        echo is_array($message) ? e(json_encode($message)) : e($message);
                                                     @endphp
                                                 </p>
                                                 <p class="text-sm text-base-content">
                                                     <strong>Rule ID:</strong>
                                                     @php
                                                         $ruleId = $entry['ruleId'] ?? 'N/A';
-                                                        echo is_array($ruleId) ? json_encode($ruleId) : $ruleId;
+                                                        echo is_array($ruleId) ? e(json_encode($ruleId)) : e($ruleId);
                                                     @endphp
                                                 </p>
                                             </div>
@@ -76,12 +76,12 @@
                                     @elseif (is_array($log))
                                         @foreach ($log as $item)
                                             <p class="font-mono text-sm mb-1 text-base-content break-all">
-                                                @php echo is_array($item) ? json_encode($item) : $item; @endphp
+                                                @php echo is_array($item) ? e(json_encode($item)) : e($item); @endphp
                                             </p>
                                         @endforeach
                                     @else
                                         <p class="font-mono text-sm text-base-content break-all">
-                                            @php echo is_array($log) ? json_encode($log) : $log; @endphp
+                                            @php echo is_array($log) ? e(json_encode($log)) : e($log); @endphp
                                         </p>
                                     @endif
                                 </div>

@@ -30,7 +30,15 @@ class Report extends Model
 {
     use HasFactory, HasUuids;
 
-    protected $guarded = ['created_at', 'updated_at'];
+    protected $fillable = [
+        'user_id',
+        'host_id',
+        'ip',
+        'logs',
+        'analysis',
+        'was_unblocked',
+        'last_read',
+    ];
 
     protected $casts = [
         'logs' => 'array',

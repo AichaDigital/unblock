@@ -85,9 +85,7 @@ class SimpleUnblockForm extends Component
 
         $user = Auth::user();
 
-        return $user->first_name === 'Simple' &&
-               $user->last_name === 'Unblock' &&
-               ! $user->is_admin;
+        return $user->is_simple_mode_user && ! $user->is_admin;
     }
 
     /**
@@ -150,6 +148,7 @@ class SimpleUnblockForm extends Component
                     'last_name' => 'Unblock',
                     'password' => bcrypt(Str::random(32)),
                     'is_admin' => false,
+                    'is_simple_mode_user' => true,
                 ]
             );
 

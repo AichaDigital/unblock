@@ -154,8 +154,8 @@ class FirewallService
         $ip_regex = preg_quote($ip, '/');
 
         $commands = [
-            'csf' => "csf -g {$ip}",
-            'csf_specials' => "csf -g {$ip}", // Legacy: same as csf, kept for backward compatibility
+            'csf' => "csf -g {$ip_escaped}",
+            'csf_specials' => "csf -g {$ip_escaped}", // Legacy: same as csf, kept for backward compatibility
             'csf_deny_check' => "cat /etc/csf/csf.deny | grep {$ip_escaped} || true",
             'csf_tempip_check' => "cat /var/lib/csf/csf.tempip | grep {$ip_escaped} || true",
             'mod_security_da' => "cat /var/log/nginx/modsec_audit.log | grep {$ip_escaped} || true",
@@ -172,14 +172,14 @@ class FirewallService
             'da_bfm_remove' => "sed -i '/^{$ip_regex}(\\s|\$)/d' /usr/local/directadmin/data/admin/ip_blacklist",
             'da_bfm_whitelist_add' => "echo {$ip_escaped} >> /usr/local/directadmin/data/admin/ip_whitelist",
             // Unblock commands: separate for permanent and temporary deny lists
-            'unblock_permanent' => "csf -dr {$ip}",
-            'unblock_temporary' => "csf -tr {$ip}",
+            'unblock_permanent' => "csf -dr {$ip_escaped}",
+            'unblock_temporary' => "csf -tr {$ip_escaped}",
             // Legacy unblock command (kept for backward compatibility, but should not be used)
-            'unblock' => "csf -dr {$ip} || true; csf -tr {$ip} || true",
+            'unblock' => "csf -dr {$ip_escaped} || true; csf -tr {$ip_escaped} || true",
             // Whitelist commands with different TTLs from config
-            'whitelist' => "csf -ta {$ip} ".config('unblock.whitelist_ttl', 86400),
-            'whitelist_simple' => "csf -ta {$ip} ".config('unblock.simple_mode.whitelist_ttl', 3600),
-            'whitelist_hq' => "csf -ta {$ip} ".config('unblock.hq.ttl', 7200),
+            'whitelist' => "csf -ta {$ip_escaped} ".config('unblock.whitelist_ttl', 86400),
+            'whitelist_simple' => "csf -ta {$ip_escaped} ".config('unblock.simple_mode.whitelist_ttl', 3600),
+            'whitelist_hq' => "csf -ta {$ip_escaped} ".config('unblock.hq.ttl', 7200),
         ];
 
         return $commands[$type] ?? null;

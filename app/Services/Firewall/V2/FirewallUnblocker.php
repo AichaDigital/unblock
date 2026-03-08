@@ -42,8 +42,9 @@ class FirewallUnblocker
             if (! empty(trim($denyCheck))) {
                 // IP is in permanent deny list - remove it
                 $unblockPermanentOutput = $this->firewallService->checkProblems($host, $session->getSshKeyPath(), 'unblock_permanent', $ipAddress);
+                $ipEscaped = escapeshellarg($ipAddress);
                 $results['unblock_permanent'] = [
-                    'command' => "csf -dr {$ipAddress}",
+                    'command' => "csf -dr {$ipEscaped}",
                     'output' => $unblockPermanentOutput,
                     'success' => true,
                 ];
@@ -54,9 +55,10 @@ class FirewallUnblocker
             $tempDenyCheck = $this->firewallService->checkProblems($host, $session->getSshKeyPath(), 'csf_tempip_check', $ipAddress);
             if (! empty(trim($tempDenyCheck))) {
                 // IP is in temporary deny list - remove it
+                $ipEscaped = escapeshellarg($ipAddress);
                 $unblockTemporaryOutput = $this->firewallService->checkProblems($host, $session->getSshKeyPath(), 'unblock_temporary', $ipAddress);
                 $results['unblock_temporary'] = [
-                    'command' => "csf -tr {$ipAddress}",
+                    'command' => "csf -tr {$ipEscaped}",
                     'output' => $unblockTemporaryOutput,
                     'success' => true,
                 ];
@@ -64,9 +66,10 @@ class FirewallUnblocker
             }
 
             // 3. Agregar a whitelist por 24 horas (csf -ta IP TTL) - siempre después de remover denies
+            $ipEscaped = escapeshellarg($ipAddress);
             $whitelistOutput = $this->firewallService->checkProblems($host, $session->getSshKeyPath(), 'whitelist', $ipAddress);
             $results['whitelist'] = [
-                'command' => "csf -ta {$ipAddress} ".config('unblock.whitelist_ttl', 86400),
+                'command' => "csf -ta {$ipEscaped} ".config('unblock.whitelist_ttl', 86400),
                 'output' => $whitelistOutput,
                 'success' => true,
             ];

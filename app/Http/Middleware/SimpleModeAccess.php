@@ -30,9 +30,7 @@ class SimpleModeAccess
         $user = Auth::user();
 
         // Check if this is a temporary user created in simple mode
-        $isSimpleModeUser = $user->first_name === 'Simple' &&
-                           $user->last_name === 'Unblock' &&
-                           ! $user->is_admin;
+        $isSimpleModeUser = $user->is_simple_mode_user && ! $user->is_admin;
 
         if ($isSimpleModeUser) {
             // Allow access to simple unblock form
