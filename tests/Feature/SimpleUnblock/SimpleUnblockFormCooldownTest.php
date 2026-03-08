@@ -32,6 +32,7 @@ beforeEach(function () {
         'email' => 'test@example.com',
         'password' => bcrypt('password'),
         'is_admin' => false,
+        'is_simple_mode_user' => true,
     ]);
 
     // Authenticate as simple mode user

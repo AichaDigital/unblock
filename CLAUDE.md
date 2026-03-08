@@ -247,6 +247,50 @@ Antes de cualquier refactorización, verificar:
 
 ---
 
+## 🚢 CI/CD
+
+### Pipeline
+
+- **CI** (`.github/workflows/ci.yml`): Se ejecuta en PRs a main. Lint + PHPStan + tests con coverage >= 80% + `composer audit`
+- **CD** (`.github/workflows/deploy.yml`): Se ejecuta en push a main (post-merge). Deploy secuencial con health check
+
+### Flujo de deploy
+
+```
+Merge a main → CI (quality gate) → Deploy amazzal → Health check → Deploy central → Health check
+```
+
+### Servidores de producción
+
+| | amazzal | central |
+|---|---|---|
+| **URL** | unblock.castris.com | desbloquear.xerintel.es |
+| **User** | `laravel` | `unblock` |
+| **Ruta** | `/home/laravel/domains/unblock.castris.com/unblock/` | `/home/unblock/unblock/` |
+| **Panel** | DirectAdmin | cPanel |
+| **Queue** | Redis + Supervisor | Redis + Supervisor |
+
+### Pasos de deploy (por servidor)
+
+1. `git pull origin main`
+2. `composer install --no-dev --optimize-autoloader`
+3. `npm ci && npm run build`
+4. `php artisan migrate --force`
+5. `php artisan config:cache && route:cache && view:cache && event:cache`
+6. `php artisan queue:restart`
+
+### Health check
+
+- URL: `/admin/login` (ruta Filament, **NO** `/login`)
+- Espera HTTP 200
+
+### Secrets (GitHub)
+
+- `DEPLOY_SSH_KEY` — Clave ed25519 para deploy
+- `AMAZZAL_HOST`, `AMAZZAL_PORT`, `CENTRAL_HOST`, `CENTRAL_PORT`
+
+---
+
 ## ⚡ REFERENCIAS RÁPIDAS
 
 ### Configuración
@@ -281,6 +325,6 @@ Antes de cualquier refactorización, verificar:
 
 ---
 
-*Última actualización: 2025-11-05*
-*Versión: 2.0.0*
+*Última actualización: 2026-03-06*
+*Versión: 2.1.0*
 *Mantenedor: Equipo de desarrollo Unblock*

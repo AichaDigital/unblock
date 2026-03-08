@@ -32,6 +32,7 @@ class User extends Authenticatable implements FilamentUser
         'password',
         'password_whmcs',
         'is_admin',
+        'is_simple_mode_user',
         'parent_user_id',
         'whmcs_client_id',
     ];
@@ -56,6 +57,7 @@ class User extends Authenticatable implements FilamentUser
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
         'is_admin' => 'boolean',
+        'is_simple_mode_user' => 'boolean',
         'whmcs_client_id' => 'integer',
     ];
 

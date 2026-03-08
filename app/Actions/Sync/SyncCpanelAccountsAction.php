@@ -34,7 +34,7 @@ class SyncCpanelAccountsAction
      *
      * @param  Host  $host  The cPanel server to sync from
      * @param  bool  $isInitial  Whether this is the first sync (doesn't mark deleted accounts)
-     * @return array Statistics: ['created' => int, 'updated' => int, 'suspended' => int, 'deleted' => int]
+     * @return array{created: int, updated: int, suspended: int, deleted: int}
      *
      * @throws Exception If SSH connection fails or command execution fails
      */
@@ -103,6 +103,8 @@ class SyncCpanelAccountsAction
 
     /**
      * Fetch accounts from cPanel server via SSH
+     *
+     * @return array<int, array<string, mixed>>
      */
     private function fetchRemoteAccounts(Host $host): array
     {
@@ -141,8 +143,10 @@ class SyncCpanelAccountsAction
 
     /**
      * Fetch all domains for a specific account using uapi
+     *
+     * @return array<int, string>
      */
-    private function fetchAccountDomains($session, string $username): array
+    private function fetchAccountDomains(\App\Services\SshSession $session, string $username): array
     {
         try {
             // Execute uapi DomainInfo list_domains for the specific user
@@ -207,6 +211,8 @@ class SyncCpanelAccountsAction
 
     /**
      * Mark accounts as deleted if they no longer exist on the server
+     *
+     * @param  array<int, array<string, mixed>>  $remoteAccounts
      */
     private function markDeletedAccounts(Host $host, array $remoteAccounts): int
     {
@@ -222,6 +228,9 @@ class SyncCpanelAccountsAction
 
     /**
      * Process accounts and create/update them in database
+     *
+     * @param  array<int, array<string, mixed>>  $accounts
+     * @return array{created: int, updated: int, suspended: int}
      */
     private function processAccounts(Host $host, array $accounts): array
     {
@@ -243,6 +252,9 @@ class SyncCpanelAccountsAction
 
     /**
      * Process a single account
+     *
+     * @param  array<string, mixed>  $accountData
+     * @return array{created: int, updated: int, suspended: int}
      */
     private function processAccount(Host $host, array $accountData): array
     {

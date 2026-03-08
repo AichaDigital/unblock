@@ -165,11 +165,7 @@ test('successful otp verification logs user in and redirects to simple unblock f
 });
 
 test('otp cannot be verified from a different ip than the one that requested it', function () {
-    // Send OTP from IP A
-    // Simulate proxy header and remote addr
-    $_SERVER['HTTP_X_FORWARDED_FOR'] = '203.0.113.10';
-    $_SERVER['REMOTE_ADDR'] = '203.0.113.10';
-
+    // Send OTP normally
     $component = Livewire::test(OtpLogin::class)
         ->set('email', $this->user->email)
         ->call('sendOtp')
@@ -178,16 +174,16 @@ test('otp cannot be verified from a different ip than the one that requested it'
     // Retrieve OTP value
     $otp = OneTimePassword::first();
 
-    // Now switch to IP B before verifying
-    $_SERVER['HTTP_X_FORWARDED_FOR'] = '198.51.100.20';
-    $_SERVER['REMOTE_ADDR'] = '198.51.100.20';
+    // Simulate that the OTP was requested from a different IP than the current one
+    // This tests the session-based IP mismatch check in verifyOtp()
+    session()->put('otp_request_ip', '203.0.113.10');
 
-    // Attempt to verify with correct code but different IP
+    // Attempt to verify with correct code but different IP (test env uses 127.0.0.1)
     $component
         ->set('oneTimePassword', $otp->password)
         ->call('verifyOtp');
 
-    // Should not authenticate
+    // Should not authenticate due to IP mismatch
     expect(Auth::check())->toBeFalse();
 });
 

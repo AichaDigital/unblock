@@ -23,6 +23,9 @@ class CreateSimpleUnblockReportAction
 
     /**
      * Create report for simple unblock operation
+     *
+     * @param  array<string, mixed>|null  $unblockResults
+     * @param  array<string, mixed>|null  $recentHistory
      */
     public function handle(
         string $ip,
@@ -75,6 +78,9 @@ class CreateSimpleUnblockReportAction
 
     /**
      * Parse CSF output from logs to extract human-readable summary
+     *
+     * @param  array<string, mixed>  $logs
+     * @return array<string, mixed>|null
      */
     private function parseCsfOutput(array $logs): ?array
     {

@@ -132,14 +132,13 @@ test('sync accounts command excludes deleted hosts', function () {
 });
 
 test('sync accounts command excludes non cpanel or directadmin hosts', function () {
+    // Host with unsupported panel type — should be excluded from sync
     Host::factory()->create([
-        'panel' => PanelType::CPANEL,
+        'panel' => PanelType::NONE,
         'deleted_at' => null,
     ]);
 
-    // Create a host with different panel (if exists)
-    // This test ensures only cpanel/directadmin hosts are synced
-
     $this->artisan('sync:accounts')
-        ->assertSuccessful();
+        ->expectsOutput('No hosts found to sync')
+        ->assertFailed();
 });

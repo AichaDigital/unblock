@@ -96,7 +96,7 @@ readonly class DirectAdminFirewallAnalyzer implements FirewallAnalyzerInterface
     public function analyze(string $ipAddress, mixed $session): FirewallAnalysisResult
     {
         // Extraer SSH key path del session (compatible con ambas implementaciones)
-        $sshKeyName = method_exists($session, 'getSshKeyPath')
+        $sshKeyName = (is_object($session) && method_exists($session, 'getSshKeyPath'))
             ? $session->getSshKeyPath()
             : (string) $session; // fallback para compatibilidad
 
