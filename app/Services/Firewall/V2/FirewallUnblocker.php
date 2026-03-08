@@ -27,6 +27,8 @@ class FirewallUnblocker
     /**
      * Unblock an IP address from CSF firewall
      * (Mantiene la lógica actual de CSF)
+     *
+     * @return array<string, array{command: string, output: string, success: bool}>
      */
     public function unblockFromCsf(string $ipAddress, Host $host): array
     {
@@ -101,6 +103,8 @@ class FirewallUnblocker
     /**
      * Remove IP from BFM blacklist (DirectAdmin only)
      * (Responsabilidad separada del desbloqueo CSF)
+     *
+     * @return array<string, mixed>
      */
     public function removeFromBfmBlacklist(string $ipAddress, Host $host): array
     {
@@ -159,6 +163,8 @@ class FirewallUnblocker
 
     /**
      * Perform complete unblock operation (CSF + BFM for DirectAdmin)
+     *
+     * @return array<string, array<string, mixed>>
      */
     public function performCompleteUnblock(string $ipAddress, Host $host): array
     {
@@ -190,6 +196,9 @@ class FirewallUnblocker
 
     /**
      * Get the status of unblock operations
+     *
+     * @param  array<string, array<string, mixed>>  $results
+     * @return array{overall_success: bool, csf_success: bool, bfm_success: bool, operations_performed: list<string>}
      */
     public function getUnblockStatus(array $results): array
     {

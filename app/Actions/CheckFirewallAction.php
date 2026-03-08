@@ -39,6 +39,8 @@ class CheckFirewallAction
 
     /**
      * Handle the firewall check process by dispatching a job.
+     *
+     * @return array<string, mixed>
      */
     public function handle(string $ip, int $userId, int $hostId, ?int $copyUserId = null, ?string $develop = null): array
     {

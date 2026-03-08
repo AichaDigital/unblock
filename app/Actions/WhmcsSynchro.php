@@ -54,8 +54,10 @@ class WhmcsSynchro
 
     protected bool $showOutput = false;
 
+    /** @var Collection<int, Host> */
     protected Collection $hosts;
 
+    /** @var array<string, mixed> */
     protected array $config;
 
     protected bool $debugMode = false;
@@ -64,7 +66,9 @@ class WhmcsSynchro
 
     public function __construct()
     {
-        $this->config = config('unblock.whmcs.sync', []);
+        /** @var array<string, mixed> $syncConfig */
+        $syncConfig = config('unblock.whmcs.sync', []);
+        $this->config = $syncConfig;
         $this->hosts = collect();
     }
 
@@ -88,8 +92,9 @@ class WhmcsSynchro
 
         // Set debug mode and specific user from command options
         if ($command) {
-            $this->debugMode = $command->option('debug') ?? false;
-            $this->specificUserEmail = $command->option('user');
+            $this->debugMode = (bool) ($command->option('debug') ?? false);
+            $userOption = $command->option('user');
+            $this->specificUserEmail = is_string($userOption) ? $userOption : null;
 
             if ($this->debugMode) {
                 $this->output($command, '🐛 DEBUG MODE ENABLED - Detailed output will be shown');
@@ -132,7 +137,7 @@ class WhmcsSynchro
      */
     protected function isEnabled(): bool
     {
-        return config('unblock.whmcs.enabled', false);
+        return (bool) config('unblock.whmcs.enabled', false);
     }
 
     /**
@@ -175,6 +180,9 @@ class WhmcsSynchro
         $this->processActiveWhmcsClients($command);
     }
 
+    /**
+     * @return array<int, mixed>
+     */
     protected function getActiveWhmcsClientIds(): array
     {
         $query = $this->getActiveWhmcsClientsQuery();
@@ -186,6 +194,9 @@ class WhmcsSynchro
         return $query->pluck('id')->toArray();
     }
 
+    /**
+     * @param  array<int, mixed>  $activeWhmcsIds
+     */
     protected function deactivateInactiveUsers(array $activeWhmcsIds): void
     {
         if ($this->specificUserEmail) {
@@ -233,6 +244,7 @@ class WhmcsSynchro
         $this->output($command, 'Processing '.$whmcsClients->count().' WHMCS clients');
 
         foreach ($whmcsClients as $whmcsClient) {
+            /** @var object{id: int, email: string, firstname: string, lastname: string, companyname: string, password: string} $whmcsClient */
             $this->debugOutput($command, "Processing WHMCS client ID: {$whmcsClient->id}, Email: {$whmcsClient->email}");
             $this->processClient($whmcsClient, $command);
         }
@@ -253,7 +265,7 @@ class WhmcsSynchro
      * 1. Find or create user
      * 2. Synchronizes their hosting services if enabled
      *
-     * @param  object  $whmcsClient  WHMCS client data
+     * @param  object{id: int, email: string, firstname: string, lastname: string, companyname: string, password: string}  $whmcsClient  WHMCS client data
      * @param  Command|null  $command  Command instance for CLI output
      */
     protected function processClient(object $whmcsClient, ?Command $command): void
@@ -309,6 +321,8 @@ class WhmcsSynchro
 
     /**
      * Create a new user from WHMCS client data
+     *
+     * @param  object{id: int, email: string, firstname: string, lastname: string, companyname: string, password: string}  $whmcsClient
      */
     public function createUser(object $whmcsClient): User
     {
@@ -325,6 +339,8 @@ class WhmcsSynchro
 
     /**
      * Find or create a user from WHMCS client data
+     *
+     * @param  object{id: int, email: string, firstname: string, lastname: string, companyname: string, password: string}  $whmcsClient
      */
     public function findOrCreateUser(object $whmcsClient, ?Command $command): ?User
     {
@@ -400,6 +416,7 @@ class WhmcsSynchro
         Log::info('Processing '.$whmcsHostings->count()." active hostings for user ID: {$userId}");
 
         foreach ($whmcsHostings as $whmcsHosting) {
+            /** @var object{domain: string, server: string, username: string} $whmcsHosting */
             try {
                 $this->debugOutput($command, "🔍 Processing hosting: {$whmcsHosting->domain} (Server: {$whmcsHosting->server})");
 

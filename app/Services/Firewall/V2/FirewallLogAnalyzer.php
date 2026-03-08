@@ -98,6 +98,9 @@ class FirewallLogAnalyzer
     /**
      * Perform deep CSF analysis (deny files, temp files)
      * (Separada del análisis primario para claridad)
+     *
+     * @param  array<string, mixed>  $logs
+     * @return array{results: list<FirewallAnalysisResult>, blocked: bool, logs: array<string, string>}
      */
     private function performDeepCsfAnalysis(string $ipAddress, Host $host, SshSession $session, array &$logs): array
     {
@@ -159,6 +162,8 @@ class FirewallLogAnalyzer
     /**
      * Analyze additional DirectAdmin services
      * (Separado por responsabilidad)
+     *
+     * @return array{results: list<FirewallAnalysisResult>, logs: array<string, string>}
      */
     private function analyzeAdditionalServices(string $ipAddress, Host $host, SshSession $session): array
     {

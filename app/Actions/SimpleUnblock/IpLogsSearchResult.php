@@ -11,6 +11,9 @@ namespace App\Actions\SimpleUnblock;
  */
 readonly class IpLogsSearchResult
 {
+    /**
+     * @param  array<string, string>  $logEntries
+     */
     public function __construct(
         public string $ip,
         public bool $foundInLogs,
