@@ -11,6 +11,10 @@ namespace App\Actions\SimpleUnblock;
  */
 readonly class DomainLogsSearchResult
 {
+    /**
+     * @param  array<int, string>  $matchingLogs
+     * @param  array<int, string>  $searchedPaths
+     */
     public function __construct(
         public bool $found,
         public array $matchingLogs = [],
@@ -19,6 +23,9 @@ readonly class DomainLogsSearchResult
 
     /**
      * Create found result
+     *
+     * @param  array<int, string>  $matchingLogs
+     * @param  array<int, string>  $searchedPaths
      */
     public static function found(array $matchingLogs, array $searchedPaths): self
     {
@@ -31,6 +38,8 @@ readonly class DomainLogsSearchResult
 
     /**
      * Create not found result
+     *
+     * @param  array<int, string>  $searchedPaths
      */
     public static function notFound(array $searchedPaths): self
     {

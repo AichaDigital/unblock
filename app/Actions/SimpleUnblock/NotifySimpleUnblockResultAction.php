@@ -24,6 +24,8 @@ class NotifySimpleUnblockResultAction
      *
      * CRITICAL: ALWAYS sends email to BOTH user and admin when there's a report.
      * The decision (blocked/not-blocked) is communicated in the email content.
+     *
+     * @param  array<string, mixed>|null  $analysisData
      */
     public function handle(
         UnblockDecision $decision,

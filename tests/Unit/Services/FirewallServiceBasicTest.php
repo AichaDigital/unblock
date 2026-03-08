@@ -43,7 +43,7 @@ test('builds csf command correctly', function () {
 
     $result = $method->invoke($service, 'csf', TC::TEST_BLOCKED_IP);
 
-    expect($result)->toBe('csf -g '.TC::TEST_BLOCKED_IP);
+    expect($result)->toBe('csf -g '.escapeshellarg(TC::TEST_BLOCKED_IP));
 });
 
 test('builds da bfm check command correctly', function () {
@@ -54,10 +54,10 @@ test('builds da bfm check command correctly', function () {
     $method->setAccessible(true);
 
     $result = $method->invoke($service, 'da_bfm_check', TC::TEST_BLOCKED_IP);
-    $escapedIp = escapeshellarg(TC::TEST_BLOCKED_IP);
+    $regexIp = preg_quote(TC::TEST_BLOCKED_IP, '/');
 
-    // Updated to match exact IP matching (preventing false positives like 10.192.168.1.100 matching 192.168.1.100)
-    expect($result)->toBe("cat /usr/local/directadmin/data/admin/ip_blacklist | grep -E '^{$escapedIp}(\\s|\$)' || true");
+    // Updated to match exact IP matching using preg_quote for regex context (not escapeshellarg)
+    expect($result)->toBe("cat /usr/local/directadmin/data/admin/ip_blacklist | grep -E '^{$regexIp}(\\s|\$)' || true");
 });
 
 test('returns null for invalid command', function () {

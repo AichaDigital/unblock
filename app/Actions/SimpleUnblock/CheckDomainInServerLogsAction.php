@@ -87,6 +87,9 @@ class CheckDomainInServerLogsAction
 
     /**
      * Extract log paths from commands for logging purposes
+     *
+     * @param  array<int, string>  $commands
+     * @return array<int, string>
      */
     private function extractSearchPaths(array $commands): array
     {
