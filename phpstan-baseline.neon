@@ -1,0 +1,2569 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Method App\\Actions\\CheckFirewallAction\:\:handle\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Actions/CheckFirewallAction.php
+
+		-
+			message: '#^Method App\\Actions\\CheckServerFirewallAction\:\:handle\(\) should return array\{is_blocked\: bool, logs\: array\<string, string\>, key_name\: string, error\?\: string\} but returns array\.$#'
+			identifier: return.type
+			count: 2
+			path: app/Actions/CheckServerFirewallAction.php
+
+		-
+			message: '#^Method App\\Actions\\CheckServerFirewallAction\:\:handleDirectAdminWithAnalyzer\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Actions/CheckServerFirewallAction.php
+
+		-
+			message: '#^Method App\\Actions\\CheckServerFirewallAction\:\:handleWithOriginalLogic\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Actions/CheckServerFirewallAction.php
+
+		-
+			message: '#^Method App\\Actions\\CheckServerFirewallAction\:\:mapLogsToOriginalFormat\(\) has parameter \$analyzerLogs with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Actions/CheckServerFirewallAction.php
+
+		-
+			message: '#^Method App\\Actions\\CheckServerFirewallAction\:\:mapLogsToOriginalFormat\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Actions/CheckServerFirewallAction.php
+
+		-
+			message: '#^Method App\\Actions\\SimpleUnblock\\CheckDomainInServerLogsAction\:\:extractSearchPaths\(\) has parameter \$commands with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Actions/SimpleUnblock/CheckDomainInServerLogsAction.php
+
+		-
+			message: '#^Method App\\Actions\\SimpleUnblock\\CheckDomainInServerLogsAction\:\:extractSearchPaths\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Actions/SimpleUnblock/CheckDomainInServerLogsAction.php
+
+		-
+			message: '#^Method App\\Actions\\SimpleUnblock\\CreateSimpleUnblockReportAction\:\:handle\(\) has parameter \$recentHistory with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Actions/SimpleUnblock/CreateSimpleUnblockReportAction.php
+
+		-
+			message: '#^Method App\\Actions\\SimpleUnblock\\CreateSimpleUnblockReportAction\:\:handle\(\) has parameter \$unblockResults with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Actions/SimpleUnblock/CreateSimpleUnblockReportAction.php
+
+		-
+			message: '#^Method App\\Actions\\SimpleUnblock\\CreateSimpleUnblockReportAction\:\:parseCsfOutput\(\) has parameter \$logs with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Actions/SimpleUnblock/CreateSimpleUnblockReportAction.php
+
+		-
+			message: '#^Method App\\Actions\\SimpleUnblock\\CreateSimpleUnblockReportAction\:\:parseCsfOutput\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Actions/SimpleUnblock/CreateSimpleUnblockReportAction.php
+
+		-
+			message: '#^Method App\\Actions\\SimpleUnblock\\DomainLogsSearchResult\:\:__construct\(\) has parameter \$matchingLogs with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Actions/SimpleUnblock/DomainLogsSearchResult.php
+
+		-
+			message: '#^Method App\\Actions\\SimpleUnblock\\DomainLogsSearchResult\:\:__construct\(\) has parameter \$searchedPaths with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Actions/SimpleUnblock/DomainLogsSearchResult.php
+
+		-
+			message: '#^Method App\\Actions\\SimpleUnblock\\DomainLogsSearchResult\:\:found\(\) has parameter \$matchingLogs with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Actions/SimpleUnblock/DomainLogsSearchResult.php
+
+		-
+			message: '#^Method App\\Actions\\SimpleUnblock\\DomainLogsSearchResult\:\:found\(\) has parameter \$searchedPaths with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Actions/SimpleUnblock/DomainLogsSearchResult.php
+
+		-
+			message: '#^Method App\\Actions\\SimpleUnblock\\DomainLogsSearchResult\:\:notFound\(\) has parameter \$searchedPaths with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Actions/SimpleUnblock/DomainLogsSearchResult.php
+
+		-
+			message: '#^Method App\\Actions\\SimpleUnblock\\IpLogsSearchResult\:\:__construct\(\) has parameter \$logEntries with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Actions/SimpleUnblock/IpLogsSearchResult.php
+
+		-
+			message: '#^Method App\\Actions\\SimpleUnblock\\NotifySimpleUnblockResultAction\:\:handle\(\) has parameter \$analysisData with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Actions/SimpleUnblock/NotifySimpleUnblockResultAction.php
+
+		-
+			message: '#^Method App\\Actions\\Sync\\SyncCpanelAccountsAction\:\:fetchAccountDomains\(\) has parameter \$session with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: app/Actions/Sync/SyncCpanelAccountsAction.php
+
+		-
+			message: '#^Method App\\Actions\\Sync\\SyncCpanelAccountsAction\:\:fetchAccountDomains\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Actions/Sync/SyncCpanelAccountsAction.php
+
+		-
+			message: '#^Method App\\Actions\\Sync\\SyncCpanelAccountsAction\:\:fetchRemoteAccounts\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Actions/Sync/SyncCpanelAccountsAction.php
+
+		-
+			message: '#^Method App\\Actions\\Sync\\SyncCpanelAccountsAction\:\:handle\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Actions/Sync/SyncCpanelAccountsAction.php
+
+		-
+			message: '#^Method App\\Actions\\Sync\\SyncCpanelAccountsAction\:\:markDeletedAccounts\(\) has parameter \$remoteAccounts with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Actions/Sync/SyncCpanelAccountsAction.php
+
+		-
+			message: '#^Method App\\Actions\\Sync\\SyncCpanelAccountsAction\:\:processAccount\(\) has parameter \$accountData with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Actions/Sync/SyncCpanelAccountsAction.php
+
+		-
+			message: '#^Method App\\Actions\\Sync\\SyncCpanelAccountsAction\:\:processAccount\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Actions/Sync/SyncCpanelAccountsAction.php
+
+		-
+			message: '#^Method App\\Actions\\Sync\\SyncCpanelAccountsAction\:\:processAccounts\(\) has parameter \$accounts with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Actions/Sync/SyncCpanelAccountsAction.php
+
+		-
+			message: '#^Method App\\Actions\\Sync\\SyncCpanelAccountsAction\:\:processAccounts\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Actions/Sync/SyncCpanelAccountsAction.php
+
+		-
+			message: '#^Method App\\Actions\\Sync\\SyncDirectAdminAccountsAction\:\:fetchAccountData\(\) has parameter \$session with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: app/Actions/Sync/SyncDirectAdminAccountsAction.php
+
+		-
+			message: '#^Method App\\Actions\\Sync\\SyncDirectAdminAccountsAction\:\:fetchAccountData\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Actions/Sync/SyncDirectAdminAccountsAction.php
+
+		-
+			message: '#^Method App\\Actions\\Sync\\SyncDirectAdminAccountsAction\:\:fetchRemoteAccounts\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Actions/Sync/SyncDirectAdminAccountsAction.php
+
+		-
+			message: '#^Method App\\Actions\\Sync\\SyncDirectAdminAccountsAction\:\:handle\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Actions/Sync/SyncDirectAdminAccountsAction.php
+
+		-
+			message: '#^Method App\\Actions\\Sync\\SyncDirectAdminAccountsAction\:\:markDeletedAccounts\(\) has parameter \$remoteAccounts with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Actions/Sync/SyncDirectAdminAccountsAction.php
+
+		-
+			message: '#^Method App\\Actions\\Sync\\SyncDirectAdminAccountsAction\:\:parseUserConf\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Actions/Sync/SyncDirectAdminAccountsAction.php
+
+		-
+			message: '#^Method App\\Actions\\Sync\\SyncDirectAdminAccountsAction\:\:processAccount\(\) has parameter \$accountData with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Actions/Sync/SyncDirectAdminAccountsAction.php
+
+		-
+			message: '#^Method App\\Actions\\Sync\\SyncDirectAdminAccountsAction\:\:processAccount\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Actions/Sync/SyncDirectAdminAccountsAction.php
+
+		-
+			message: '#^Method App\\Actions\\Sync\\SyncDirectAdminAccountsAction\:\:processAccounts\(\) has parameter \$accounts with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Actions/Sync/SyncDirectAdminAccountsAction.php
+
+		-
+			message: '#^Method App\\Actions\\Sync\\SyncDirectAdminAccountsAction\:\:processAccounts\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Actions/Sync/SyncDirectAdminAccountsAction.php
+
+		-
+			message: '#^Access to an undefined property object\:\:\$companyname\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Actions/WhmcsSynchro.php
+
+		-
+			message: '#^Access to an undefined property object\:\:\$email\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Actions/WhmcsSynchro.php
+
+		-
+			message: '#^Access to an undefined property object\:\:\$firstname\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Actions/WhmcsSynchro.php
+
+		-
+			message: '#^Access to an undefined property object\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 4
+			path: app/Actions/WhmcsSynchro.php
+
+		-
+			message: '#^Access to an undefined property object\:\:\$lastname\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Actions/WhmcsSynchro.php
+
+		-
+			message: '#^Access to an undefined property object\:\:\$password\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Actions/WhmcsSynchro.php
+
+		-
+			message: '#^Method App\\Actions\\WhmcsSynchro\:\:deactivateInactiveUsers\(\) has parameter \$activeWhmcsIds with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Actions/WhmcsSynchro.php
+
+		-
+			message: '#^Method App\\Actions\\WhmcsSynchro\:\:getActiveWhmcsClientIds\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Actions/WhmcsSynchro.php
+
+		-
+			message: '#^Property App\\Actions\\WhmcsSynchro\:\:\$config type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Actions/WhmcsSynchro.php
+
+		-
+			message: '#^Property App\\Actions\\WhmcsSynchro\:\:\$debugMode \(bool\) does not accept array\|bool\|float\|int\|string\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: app/Actions/WhmcsSynchro.php
+
+		-
+			message: '#^Property App\\Actions\\WhmcsSynchro\:\:\$hosts with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Actions/WhmcsSynchro.php
+
+		-
+			message: '#^Property App\\Actions\\WhmcsSynchro\:\:\$specificUserEmail \(string\|null\) does not accept array\|bool\|float\|int\|string\|null\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: app/Actions/WhmcsSynchro.php
+
+		-
+			message: '#^Method App\\Console\\Commands\\AddHostKeyCommand\:\:removeExistingHostKey\(\) has parameter \$fqdn with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: app/Console/Commands/AddHostKeyCommand.php
+
+		-
+			message: '#^Method App\\Console\\Commands\\AddHostKeyCommand\:\:removeExistingHostKey\(\) has parameter \$ip with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: app/Console/Commands/AddHostKeyCommand.php
+
+		-
+			message: '#^Method App\\Console\\Commands\\AddHostKeyCommand\:\:removeExistingHostKey\(\) has parameter \$knownHostsPath with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: app/Console/Commands/AddHostKeyCommand.php
+
+		-
+			message: '#^Offset ''public_key'' might not exist on array\{success\: true, message\: string, public_key\?\: string, error\?\: string\}\.$#'
+			identifier: offsetAccess.notFound
+			count: 1
+			path: app/Console/Commands/AddHostKeyCommand.php
+
+		-
+			message: '#^Parameter \#1 \$array of function array_filter expects array, list\<string\>\|false given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Console/Commands/AddHostKeyCommand.php
+
+		-
+			message: '#^Binary operation "\." between non\-falsy\-string and array\|string results in an error\.$#'
+			identifier: binaryOp.invalid
+			count: 1
+			path: app/Console/Commands/Develop/BackupSqliteCommand.php
+
+		-
+			message: '#^Part \$backupFile \(array\|string\) of encapsed string cannot be cast to string\.$#'
+			identifier: encapsedStringPart.nonString
+			count: 1
+			path: app/Console/Commands/Develop/BackupSqliteCommand.php
+
+		-
+			message: '#^Parameter \#1 \$haystack of function str_contains expects string, string\|false given\.$#'
+			identifier: argument.type
+			count: 3
+			path: app/Console/Commands/Develop/TestHostConnectionCommand.php
+
+		-
+			message: '#^Parameter \#1 \$haystack of function str_ends_with expects string, string\|false given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Console/Commands/Develop/TestHostConnectionCommand.php
+
+		-
+			message: '#^Parameter \#2 \$rows of function Laravel\\Prompts\\table expects array\<int, array\<int, string\>\>\|Illuminate\\Support\\Collection\<int, array\<int, string\>\>\|null, array\{array\{''FQDN'', string\}, array\{''Puerto'', int\}, array\{''Panel'', ''cpanel''\|''directadmin''\|''none''\}, array\{''Hash Length'', lowercase\-string&non\-falsy\-string\}\} given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Console/Commands/Develop/TestHostConnectionCommand.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>value" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 2
+			path: app/Console/Commands/Develop/TestHostConnectionCommand.php
+
+		-
+			message: '#^Call to function function_exists\(\) with ''exec''\|''popen''\|''shell_exec'' will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: app/Console/Commands/Develop/TestSpatieMultiplexerCommand.php
+
+		-
+			message: '#^Left side of && is always true\.$#'
+			identifier: booleanAnd.leftAlwaysTrue
+			count: 1
+			path: app/Console/Commands/Develop/TestSpatieMultiplexerCommand.php
+
+		-
+			message: '#^Method App\\Console\\Commands\\Develop\\TestSpatieMultiplexerCommand\:\:askForHost\(\) is unused\.$#'
+			identifier: method.unused
+			count: 1
+			path: app/Console/Commands/Develop/TestSpatieMultiplexerCommand.php
+
+		-
+			message: '#^Method App\\Console\\Commands\\Develop\\UpdateStructureSqlite\:\:getTableIndexes\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Console/Commands/Develop/UpdateStructureSqlite.php
+
+		-
+			message: '#^Method App\\Console\\Commands\\Develop\\UpdateStructureSqlite\:\:getTables\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Console/Commands/Develop/UpdateStructureSqlite.php
+
+		-
+			message: '#^Method App\\Console\\Commands\\Develop\\UpdateStructureSqlite\:\:getViews\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Console/Commands/Develop/UpdateStructureSqlite.php
+
+		-
+			message: '#^Cannot call method count\(\) on list\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Console/Commands/Develop/VerifyWrapperCommand.php
+
+		-
+			message: '#^Method App\\Console\\Commands\\Develop\\VerifyWrapperCommand\:\:getHostsToVerify\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Console/Commands/Develop/VerifyWrapperCommand.php
+
+		-
+			message: '#^Method App\\Console\\Commands\\Develop\\VerifyWrapperCommand\:\:getRequiredCommandsForHost\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Console/Commands/Develop/VerifyWrapperCommand.php
+
+		-
+			message: '#^Parameter \#1 \$timestamp of method Carbon\\Carbon\:\:setTimestamp\(\) expects float\|int\|string, int\<0, max\>\|false given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Console/Commands/GeoIP/StatusCommand.php
+
+		-
+			message: '#^Parameter \#2 \$timestamp of function date expects int\|null, int\<0, max\>\|false given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Console/Commands/GeoIP/StatusCommand.php
+
+		-
+			message: '#^Parameter \#1 \$timestamp of method Carbon\\Carbon\:\:setTimestamp\(\) expects float\|int\|string, int\<0, max\>\|false given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Console/Commands/GeoIP/UpdateDatabaseCommand.php
+
+		-
+			message: '#^Unreachable statement \- code above always terminates\.$#'
+			identifier: deadCode.unreachable
+			count: 1
+			path: app/Console/Commands/QueueMonitorCommand.php
+
+		-
+			message: '#^While loop condition is always true\.$#'
+			identifier: while.alwaysTrue
+			count: 1
+			path: app/Console/Commands/QueueMonitorCommand.php
+
+		-
+			message: '#^Method App\\Console\\Commands\\SyncAccountsCommand\:\:displaySummary\(\) has parameter \$totals with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Console/Commands/SyncAccountsCommand.php
+
+		-
+			message: '#^Method App\\Console\\Commands\\SyncAccountsCommand\:\:getHostsToSync\(\) return type with generic class Illuminate\\Database\\Eloquent\\Collection does not specify its types\: TKey, TModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Console/Commands/SyncAccountsCommand.php
+
+		-
+			message: '#^Method App\\Console\\Commands\\SyncAccountsCommand\:\:syncHost\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Console/Commands/SyncAccountsCommand.php
+
+		-
+			message: '#^Parameter \$callback of function Laravel\\Prompts\\progress expects \(Closure\(Illuminate\\Database\\Eloquent\\Model, Laravel\\Prompts\\Progress\<Illuminate\\Database\\Eloquent\\Collection\>\)\: \(array\|null\)\)\|null, Closure\(App\\Models\\Host\)\: \(array\|null\) given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Console/Commands/SyncAccountsCommand.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$fqdn\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Console/Commands/UserAuthorizeCommand.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$hosting\.$#'
+			identifier: property.notFound
+			count: 4
+			path: app/Console/Commands/UserAuthorizeCommand.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Console/Commands/UserAuthorizeCommand.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$ip\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Console/Commands/UserAuthorizeCommand.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$is_active\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Console/Commands/UserAuthorizeCommand.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$pivot\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Console/Commands/UserAuthorizeCommand.php
+
+		-
+			message: '#^Cannot access property \$email on App\\Models\\User\|null\.$#'
+			identifier: property.nonObject
+			count: 2
+			path: app/Console/Commands/UserAuthorizeCommand.php
+
+		-
+			message: '#^Cannot access property \$email on Illuminate\\Database\\Eloquent\\Model\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Console/Commands/UserAuthorizeCommand.php
+
+		-
+			message: '#^Cannot access property \$hostingPermissions on App\\Models\\User\|null\.$#'
+			identifier: property.nonObject
+			count: 3
+			path: app/Console/Commands/UserAuthorizeCommand.php
+
+		-
+			message: '#^Cannot access property \$hosts on App\\Models\\User\|null\.$#'
+			identifier: property.nonObject
+			count: 3
+			path: app/Console/Commands/UserAuthorizeCommand.php
+
+		-
+			message: '#^Cannot access property \$id on Illuminate\\Database\\Eloquent\\Model\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Console/Commands/UserAuthorizeCommand.php
+
+		-
+			message: '#^Cannot access property \$name on App\\Models\\User\|null\.$#'
+			identifier: property.nonObject
+			count: 4
+			path: app/Console/Commands/UserAuthorizeCommand.php
+
+		-
+			message: '#^Cannot access property \$name on Illuminate\\Database\\Eloquent\\Model\|null\.$#'
+			identifier: property.nonObject
+			count: 13
+			path: app/Console/Commands/UserAuthorizeCommand.php
+
+		-
+			message: '#^Cannot access property \$parentUser on App\\Models\\User\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Console/Commands/UserAuthorizeCommand.php
+
+		-
+			message: '#^Cannot access property \$parent_user_id on App\\Models\\User\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Console/Commands/UserAuthorizeCommand.php
+
+		-
+			message: '#^Cannot call method hostingPermissions\(\) on App\\Models\\User\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Console/Commands/UserAuthorizeCommand.php
+
+		-
+			message: '#^Cannot call method hostings\(\) on Illuminate\\Database\\Eloquent\\Model\|null\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: app/Console/Commands/UserAuthorizeCommand.php
+
+		-
+			message: '#^Cannot call method hosts\(\) on App\\Models\\User\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Console/Commands/UserAuthorizeCommand.php
+
+		-
+			message: '#^Cannot call method hosts\(\) on Illuminate\\Database\\Eloquent\\Model\|null\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: app/Console/Commands/UserAuthorizeCommand.php
+
+		-
+			message: '#^Cannot call method save\(\) on App\\Models\\User\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Console/Commands/UserAuthorizeCommand.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Console\\Commands\\UserAuthorizeCommand\:\:assignPermissionsToUser\(\) expects App\\Models\\User, App\\Models\\User\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Console/Commands/UserAuthorizeCommand.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Console\\Commands\\UserAuthorizeCommand\:\:revokeHostPermissions\(\) expects App\\Models\\User, App\\Models\\User\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Console/Commands/UserAuthorizeCommand.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Console\\Commands\\UserAuthorizeCommand\:\:revokeHostingPermissions\(\) expects App\\Models\\User, App\\Models\\User\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Console/Commands/UserAuthorizeCommand.php
+
+		-
+			message: '#^Right side of && is always true\.$#'
+			identifier: booleanAnd.rightAlwaysTrue
+			count: 1
+			path: app/Console/Commands/UserAuthorizeCommand.php
+
+		-
+			message: '#^Parameter \#1 \$string of function strlen expects string, string\|null given\.$#'
+			identifier: argument.type
+			count: 2
+			path: app/Console/Commands/UserCreateCommand.php
+
+		-
+			message: '#^Parameter \#1 \$value of static method Illuminate\\Support\\Facades\\Hash\:\:make\(\) expects string, string\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Console/Commands/UserCreateCommand.php
+
+		-
+			message: '#^Match expression does not handle remaining value\: string$#'
+			identifier: match.unhandled
+			count: 1
+			path: app/Enums/AuditAction.php
+
+		-
+			message: '#^Method App\\Enums\\PanelType\:\:getColor\(\) never returns array\<string\> so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: app/Enums/PanelType.php
+
+		-
+			message: '#^Method App\\Enums\\PanelType\:\:getColor\(\) never returns null so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: app/Enums/PanelType.php
+
+		-
+			message: '#^Method App\\Enums\\PanelType\:\:getIcon\(\) never returns null so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: app/Enums/PanelType.php
+
+		-
+			message: '#^Method App\\Enums\\PanelType\:\:getLabel\(\) never returns null so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: app/Enums/PanelType.php
+
+		-
+			message: '#^Method App\\Enums\\PanelType\:\:options\(\) should return array\<string, string\> but returns array\<string, string\|null\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Enums/PanelType.php
+
+		-
+			message: '#^Method App\\Exceptions\\CommandExecutionException\:\:__construct\(\) has parameter \$context with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Exceptions/CommandExecutionException.php
+
+		-
+			message: '#^PHPDoc tag @param for parameter \$message with type string\|null is not subtype of native type string\.$#'
+			identifier: parameter.phpDocType
+			count: 1
+			path: app/Exceptions/CommandExecutionException.php
+
+		-
+			message: '#^Method App\\Exceptions\\ConnectionFailedException\:\:__construct\(\) has parameter \$context with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Exceptions/ConnectionFailedException.php
+
+		-
+			message: '#^Method App\\Exceptions\\ConnectionFailedException\:\:render\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Exceptions/ConnectionFailedException.php
+
+		-
+			message: '#^Method App\\Exceptions\\CsfServiceException\:\:__construct\(\) has parameter \$context with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Exceptions/CsfServiceException.php
+
+		-
+			message: '#^Method App\\Exceptions\\CsfServiceException\:\:render\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Exceptions/CsfServiceException.php
+
+		-
+			message: '#^Property App\\Exceptions\\CsfServiceException\:\:\$context is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: app/Exceptions/CsfServiceException.php
+
+		-
+			message: '#^Property App\\Exceptions\\CsfServiceException\:\:\$mergedContext type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Exceptions/CsfServiceException.php
+
+		-
+			message: '#^Method App\\Exceptions\\FirewallException\:\:__construct\(\) has parameter \$context with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Exceptions/FirewallException.php
+
+		-
+			message: '#^Method App\\Exceptions\\FirewallException\:\:getContext\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Exceptions/FirewallException.php
+
+		-
+			message: '#^Method App\\Exceptions\\FirewallException\:\:getReportContext\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Exceptions/FirewallException.php
+
+		-
+			message: '#^Property App\\Exceptions\\FirewallException\:\:\$context type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Exceptions/FirewallException.php
+
+		-
+			message: '#^Method App\\Exceptions\\InvalidIpException\:\:render\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Exceptions/InvalidIpException.php
+
+		-
+			message: '#^Offset ''public_key'' might not exist on array\{success\: true, message\: string, public_key\?\: string, error\?\: string\}\.$#'
+			identifier: offsetAccess.notFound
+			count: 1
+			path: app/Filament/Actions/GenerateSshKeysAction.php
+
+		-
+			message: '#^Access to an undefined property App\\Filament\\Pages\\ApplicationSettings\:\:\$form\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Filament/Pages/ApplicationSettings.php
+
+		-
+			message: '#^Method App\\Filament\\Pages\\ApplicationSettings\:\:getFormActions\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Filament/Pages/ApplicationSettings.php
+
+		-
+			message: '#^Property App\\Filament\\Pages\\ApplicationSettings\:\:\$data type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Filament/Pages/ApplicationSettings.php
+
+		-
+			message: '#^Access to an undefined property App\\Filament\\Pages\\UserProfile\:\:\$form\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Filament/Pages/UserProfile.php
+
+		-
+			message: '#^Cannot call method fresh\(\) on App\\Models\\User\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Filament/Pages/UserProfile.php
+
+		-
+			message: '#^Cannot call method update\(\) on App\\Models\\User\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Filament/Pages/UserProfile.php
+
+		-
+			message: '#^Parameter \#1 \$user of static method Illuminate\\Support\\Facades\\Auth\:\:setUser\(\) expects Illuminate\\Contracts\\Auth\\Authenticatable, App\\Models\\User\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Filament/Pages/UserProfile.php
+
+		-
+			message: '#^Property App\\Filament\\Pages\\UserProfile\:\:\$data type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Filament/Pages/UserProfile.php
+
+		-
+			message: '#^Cannot call method isResolved\(\) on Illuminate\\Database\\Eloquent\\Model\|int\|string\|null\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: app/Filament/Resources/AbuseIncidentResource/Pages/ViewAbuseIncident.php
+
+		-
+			message: '#^Cannot call method resolve\(\) on Illuminate\\Database\\Eloquent\\Model\|int\|string\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Filament/Resources/AbuseIncidentResource/Pages/ViewAbuseIncident.php
+
+		-
+			message: '#^Cannot call method update\(\) on Illuminate\\Database\\Eloquent\\Model\|int\|string\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Filament/Resources/AbuseIncidentResource/Pages/ViewAbuseIncident.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:getFullNameAttribute\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: app/Filament/Resources/AccountResource.php
+
+		-
+			message: '#^Cannot access property \$suspended_at on Illuminate\\Database\\Eloquent\\Model\|int\|string\|null\.$#'
+			identifier: property.nonObject
+			count: 6
+			path: app/Filament/Resources/AccountResource/Pages/EditAccount.php
+
+		-
+			message: '#^Cannot access property \$username on Illuminate\\Database\\Eloquent\\Model\|int\|string\|null\.$#'
+			identifier: property.nonObject
+			count: 2
+			path: app/Filament/Resources/AccountResource/Pages/EditAccount.php
+
+		-
+			message: '#^Cannot call method update\(\) on Illuminate\\Database\\Eloquent\\Model\|int\|string\|null\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: app/Filament/Resources/AccountResource/Pages/EditAccount.php
+
+		-
+			message: '#^Cannot access property \$suspended_at on Illuminate\\Database\\Eloquent\\Model\|int\|string\|null\.$#'
+			identifier: property.nonObject
+			count: 6
+			path: app/Filament/Resources/AccountResource/Pages/ViewAccount.php
+
+		-
+			message: '#^Cannot access property \$username on Illuminate\\Database\\Eloquent\\Model\|int\|string\|null\.$#'
+			identifier: property.nonObject
+			count: 2
+			path: app/Filament/Resources/AccountResource/Pages/ViewAccount.php
+
+		-
+			message: '#^Cannot call method update\(\) on Illuminate\\Database\\Eloquent\\Model\|int\|string\|null\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: app/Filament/Resources/AccountResource/Pages/ViewAccount.php
+
+		-
+			message: '#^Called ''take'' on Laravel collection, but could have been retrieved as a query\.$#'
+			identifier: larastan.noUnnecessaryCollectionCall
+			count: 1
+			path: app/Filament/Resources/EmailReputationResource.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$hash\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Filament/Resources/HostResource/Pages/EditHost.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$hash_public\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Filament/Resources/HostResource/Pages/EditHost.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$hash\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Filament/Resources/HostResource/Pages/ViewHost.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$hash_public\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Filament/Resources/HostResource/Pages/ViewHost.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>email" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Filament/Resources/HostingResource.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 2
+			path: app/Filament/Resources/HostingResource.php
+
+		-
+			message: '#^Call to static method make\(\) on an unknown class Filament\\Forms\\Components\\Grid\.$#'
+			identifier: class.notFound
+			count: 2
+			path: app/Filament/Resources/PatternDetectionResource.php
+
+		-
+			message: '#^Call to static method make\(\) on an unknown class Filament\\Forms\\Components\\Section\.$#'
+			identifier: class.notFound
+			count: 2
+			path: app/Filament/Resources/PatternDetectionResource.php
+
+		-
+			message: '#^Cannot call method isResolved\(\) on Illuminate\\Database\\Eloquent\\Model\|int\|string\|null\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: app/Filament/Resources/PatternDetectionResource/Pages/ViewPatternDetection.php
+
+		-
+			message: '#^Cannot call method resolve\(\) on Illuminate\\Database\\Eloquent\\Model\|int\|string\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Filament/Resources/PatternDetectionResource/Pages/ViewPatternDetection.php
+
+		-
+			message: '#^Cannot call method update\(\) on Illuminate\\Database\\Eloquent\\Model\|int\|string\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Filament/Resources/PatternDetectionResource/Pages/ViewPatternDetection.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>fqdn" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Filament/Resources/ReportResource.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Filament/Resources/ReportResource.php
+
+		-
+			message: '#^Cannot access property \$name on App\\Models\\User\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Filament/Resources/UserResource.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:hosts\(\)\.$#'
+			identifier: method.notFound
+			count: 4
+			path: app/Filament/Resources/UserResource/RelationManagers/HostsRelationManager.php
+
+		-
+			message: '#^Method App\\Filament\\Widgets\\SimpleUnblockOverviewWidget\:\:getBlockedToday\(\) should return int but returns float\|int\|string\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Filament/Widgets/SimpleUnblockOverviewWidget.php
+
+		-
+			message: '#^Method App\\Filament\\Widgets\\SimpleUnblockOverviewWidget\:\:getOtpSuccessChart\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Filament/Widgets/SimpleUnblockOverviewWidget.php
+
+		-
+			message: '#^Method App\\Filament\\Widgets\\SimpleUnblockOverviewWidget\:\:getRequestsChart\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Filament/Widgets/SimpleUnblockOverviewWidget.php
+
+		-
+			message: '#^Method App\\Filament\\Widgets\\SimpleUnblockOverviewWidget\:\:getRequestsToday\(\) should return int but returns float\|int\|string\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Filament/Widgets/SimpleUnblockOverviewWidget.php
+
+		-
+			message: '#^Function setting\(\) has parameter \$key with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Helpers/settings.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\ReportController\:\:__invoke\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Http/Controllers/ReportController.php
+
+		-
+			message: '#^Cannot access property \$is_admin on App\\Models\\User\|null\.$#'
+			identifier: property.nonObject
+			count: 3
+			path: app/Http/Middleware/CheckSessionTimeout.php
+
+		-
+			message: '#^Method App\\Http\\Middleware\\CheckSessionTimeout\:\:handle\(\) has parameter \$next with no signature specified for Closure\.$#'
+			identifier: missingType.callable
+			count: 1
+			path: app/Http/Middleware/CheckSessionTimeout.php
+
+		-
+			message: '#^Parameter \#1 \$model of method Spatie\\Activitylog\\ActivityLogger\:\:performedOn\(\) expects Illuminate\\Database\\Eloquent\\Model, App\\Models\\User\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Middleware/CheckSessionTimeout.php
+
+		-
+			message: '#^Method App\\Http\\Middleware\\CheckSimpleModeEnabled\:\:handle\(\) has parameter \$next with no signature specified for Closure\.$#'
+			identifier: missingType.callable
+			count: 1
+			path: app/Http/Middleware/CheckSimpleModeEnabled.php
+
+		-
+			message: '#^Cannot access property \$email on App\\Models\\User\|null\.$#'
+			identifier: property.nonObject
+			count: 3
+			path: app/Http/Middleware/RequireAdminOtp.php
+
+		-
+			message: '#^Cannot access property \$id on App\\Models\\User\|null\.$#'
+			identifier: property.nonObject
+			count: 6
+			path: app/Http/Middleware/RequireAdminOtp.php
+
+		-
+			message: '#^Cannot access property \$is_admin on App\\Models\\User\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Http/Middleware/RequireAdminOtp.php
+
+		-
+			message: '#^Cannot call method sendOneTimePassword\(\) on App\\Models\\User\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Http/Middleware/RequireAdminOtp.php
+
+		-
+			message: '#^Method App\\Http\\Middleware\\RequireAdminOtp\:\:handle\(\) has parameter \$next with no signature specified for Closure\.$#'
+			identifier: missingType.callable
+			count: 1
+			path: app/Http/Middleware/RequireAdminOtp.php
+
+		-
+			message: '#^Cannot call method fresh\(\) on App\\Models\\User\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Http/Middleware/SetUserLocale.php
+
+		-
+			message: '#^Method App\\Http\\Middleware\\SetUserLocale\:\:handle\(\) has parameter \$next with no signature specified for Closure\.$#'
+			identifier: missingType.callable
+			count: 1
+			path: app/Http/Middleware/SetUserLocale.php
+
+		-
+			message: '#^Cannot access property \$first_name on App\\Models\\User\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Http/Middleware/SimpleModeAccess.php
+
+		-
+			message: '#^Cannot access property \$is_admin on App\\Models\\User\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Http/Middleware/SimpleModeAccess.php
+
+		-
+			message: '#^Cannot access property \$last_name on App\\Models\\User\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Http/Middleware/SimpleModeAccess.php
+
+		-
+			message: '#^Method App\\Http\\Middleware\\SimpleModeAccess\:\:handle\(\) has parameter \$next with no signature specified for Closure\.$#'
+			identifier: missingType.callable
+			count: 1
+			path: app/Http/Middleware/SimpleModeAccess.php
+
+		-
+			message: '#^Method App\\Http\\Middleware\\ThrottleSimpleUnblock\:\:checkRateLimit\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Middleware/ThrottleSimpleUnblock.php
+
+		-
+			message: '#^Method App\\Http\\Middleware\\ThrottleSimpleUnblock\:\:handle\(\) has parameter \$next with no signature specified for Closure\.$#'
+			identifier: missingType.callable
+			count: 1
+			path: app/Http/Middleware/ThrottleSimpleUnblock.php
+
+		-
+			message: '#^Method App\\Http\\Middleware\\ThrottleSimpleUnblock\:\:rateLimitResponse\(\) has parameter \$exceeded with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Middleware/ThrottleSimpleUnblock.php
+
+		-
+			message: '#^Parameter \#1 \$identifier of method App\\Http\\Middleware\\ThrottleSimpleUnblock\:\:rateLimitResponse\(\) expects string, string\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Middleware/ThrottleSimpleUnblock.php
+
+		-
+			message: '#^Parameter \#1 \$ip of method App\\Http\\Middleware\\ThrottleSimpleUnblock\:\:getSubnet\(\) expects string, string\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Middleware/ThrottleSimpleUnblock.php
+
+		-
+			message: '#^Cannot access property \$is_admin on App\\Models\\User\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Http/Middleware/VerifyIsAdminMiddleware.php
+
+		-
+			message: '#^Cannot call method trashed\(\) on App\\Models\\User\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Http/Middleware/VerifyIsAdminMiddleware.php
+
+		-
+			message: '#^Method App\\Http\\Middleware\\VerifyIsAdminMiddleware\:\:handle\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Http/Middleware/VerifyIsAdminMiddleware.php
+
+		-
+			message: '#^Method App\\Http\\Middleware\\VerifyIsAdminMiddleware\:\:handle\(\) has parameter \$next with no signature specified for Closure\.$#'
+			identifier: missingType.callable
+			count: 1
+			path: app/Http/Middleware/VerifyIsAdminMiddleware.php
+
+		-
+			message: '#^Method App\\Jobs\\ProcessHqWhitelistJob\:\:resolveHqHost\(\) should return App\\Models\\Host\|null but returns App\\Models\\Host\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\Host\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Jobs/ProcessHqWhitelistJob.php
+
+		-
+			message: '#^Parameter \#2 \$modsecLogs of method App\\Jobs\\ProcessHqWhitelistJob\:\:notifyAdmin\(\) expects string, string\|true given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Jobs/ProcessHqWhitelistJob.php
+
+		-
+			message: '#^Method App\\Jobs\\ProcessSimpleUnblockJob\:\:logAuditTrail\(\) has parameter \$decision with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: app/Jobs/ProcessSimpleUnblockJob.php
+
+		-
+			message: '#^Method App\\Jobs\\ProcessSimpleUnblockJob\:\:logAuditTrail\(\) has parameter \$host with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: app/Jobs/ProcessSimpleUnblockJob.php
+
+		-
+			message: '#^Method App\\Jobs\\ProcessSimpleUnblockJob\:\:logAuditTrail\(\) has parameter \$report with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: app/Jobs/ProcessSimpleUnblockJob.php
+
+		-
+			message: '#^Parameter \#1 \$string of function substr expects string, string\|false given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Jobs/ProcessSimpleUnblockJob.php
+
+		-
+			message: '#^Parameter \#5 \$reason of method App\\Actions\\SimpleUnblock\\NotifySimpleUnblockResultAction\:\:handleSuspiciousAttempt\(\) expects string, string\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Jobs/ProcessSimpleUnblockJob.php
+
+		-
+			message: '#^Argument of an invalid type list\<string\>\|false supplied for foreach, only iterables are supported\.$#'
+			identifier: foreach.nonIterable
+			count: 1
+			path: app/Jobs/RemoveExpiredBfmWhitelistIps.php
+
+		-
+			message: '#^Cannot access property \$host on App\\Models\\BfmWhitelistEntry\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Jobs/RemoveExpiredBfmWhitelistIps.php
+
+		-
+			message: '#^Method App\\Jobs\\RemoveExpiredBfmWhitelistIps\:\:removeEntriesFromHost\(\) has parameter \$entries with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: app/Jobs/RemoveExpiredBfmWhitelistIps.php
+
+		-
+			message: '#^Parameter \#2 \$string of function explode expects string, Symfony\\Component\\Process\\Process given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Jobs/RemoveExpiredBfmWhitelistIps.php
+
+		-
+			message: '#^Method App\\Jobs\\SendSimpleUnblockNotificationJob\:\:__construct\(\) has parameter \$analysisData with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Jobs/SendSimpleUnblockNotificationJob.php
+
+		-
+			message: '#^Cannot access property \$country_code on stdClass\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Listeners/SimpleUnblock/TrackIpReputationListener.php
+
+		-
+			message: '#^Call to an undefined method App\\Models\\User\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\User\>\:\:attemptLoginUsingOneTimePassword\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Livewire/AdminOtpVerification.php
+
+		-
+			message: '#^Call to an undefined method App\\Models\\User\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\User\>\:\:sendOneTimePassword\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Livewire/AdminOtpVerification.php
+
+		-
+			message: '#^Cannot call method fresh\(\) on App\\Models\\User\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Livewire/LanguageSwitcher.php
+
+		-
+			message: '#^Cannot call method update\(\) on App\\Models\\User\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Livewire/LanguageSwitcher.php
+
+		-
+			message: '#^Class App\\Livewire\\LanguageSwitcher has an uninitialized property \$currentLocale\. Give it default value or assign it in the constructor\.$#'
+			identifier: property.uninitialized
+			count: 1
+			path: app/Livewire/LanguageSwitcher.php
+
+		-
+			message: '#^Method App\\Livewire\\LanguageSwitcher\:\:render\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Livewire/LanguageSwitcher.php
+
+		-
+			message: '#^Parameter \#1 \$user of static method Illuminate\\Support\\Facades\\Auth\:\:setUser\(\) expects Illuminate\\Contracts\\Auth\\Authenticatable, App\\Models\\User\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Livewire/LanguageSwitcher.php
+
+		-
+			message: '#^Property App\\Livewire\\LanguageSwitcher\:\:\$availableLocales type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Livewire/LanguageSwitcher.php
+
+		-
+			message: '#^Cannot call method sendOneTimePassword\(\) on App\\Models\\User\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Livewire/OtpLogin.php
+
+		-
+			message: '#^Method App\\Livewire\\OtpLogin\:\:mount\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Livewire/OtpLogin.php
+
+		-
+			message: '#^Method App\\Livewire\\OtpLogin\:\:render\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Livewire/OtpLogin.php
+
+		-
+			message: '#^Method App\\Livewire\\OtpLogin\:\:send\(\) has parameter \$notification with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Livewire/OtpLogin.php
+
+		-
+			message: '#^Parameter \#1 \$notification of method App\\Livewire\\OtpLogin\:\:sendNotification\(\) expects array\{icon\: string, title\: string, description\: string\}, array given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Livewire/OtpLogin.php
+
+		-
+			message: '#^Parameter \#1 \$user of static method Illuminate\\Support\\Facades\\Auth\:\:login\(\) expects Illuminate\\Contracts\\Auth\\Authenticatable, App\\Models\\User\|null given\.$#'
+			identifier: argument.type
+			count: 2
+			path: app/Livewire/OtpLogin.php
+
+		-
+			message: '#^Cannot access property \$deleted_at on Illuminate\\Database\\Eloquent\\Model\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Livewire/SimpleUnblockForm.php
+
+		-
+			message: '#^Cannot access property \$first_name on App\\Models\\User\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Livewire/SimpleUnblockForm.php
+
+		-
+			message: '#^Cannot access property \$is_admin on App\\Models\\User\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Livewire/SimpleUnblockForm.php
+
+		-
+			message: '#^Cannot access property \$last_name on App\\Models\\User\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Livewire/SimpleUnblockForm.php
+
+		-
+			message: '#^Cannot access property \$suspended_at on Illuminate\\Database\\Eloquent\\Model\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Livewire/SimpleUnblockForm.php
+
+		-
+			message: '#^Method App\\Livewire\\SimpleUnblockForm\:\:validateDomainRule\(\) return type has no signature specified for Closure\.$#'
+			identifier: missingType.callable
+			count: 1
+			path: app/Livewire/SimpleUnblockForm.php
+
+		-
+			message: '#^Method App\\Mail\\AdminConnectionErrorMail\:\:attachments\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Mail/AdminConnectionErrorMail.php
+
+		-
+			message: '#^Method App\\Mail\\HqWhitelistMail\:\:attachments\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Mail/HqWhitelistMail.php
+
+		-
+			message: '#^Method App\\Mail\\LogNotificationMail\:\:__construct\(\) has parameter \$report with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Mail/LogNotificationMail.php
+
+		-
+			message: '#^Method App\\Mail\\LogNotificationMail\:\:attachments\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Mail/LogNotificationMail.php
+
+		-
+			message: '#^Left side of && is always true\.$#'
+			identifier: booleanAnd.leftAlwaysTrue
+			count: 1
+			path: app/Mail/SimpleUnblockNotificationMail.php
+
+		-
+			message: '#^Method App\\Mail\\SimpleUnblockNotificationMail\:\:__construct\(\) has parameter \$analysisData with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Mail/SimpleUnblockNotificationMail.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>ip" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Mail/SimpleUnblockNotificationMail.php
+
+		-
+			message: '#^Method App\\Mail\\UserSystemErrorMail\:\:attachments\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Mail/UserSystemErrorMail.php
+
+		-
+			message: '#^Class App\\Models\\AbuseIncident has PHPDoc tag @property for property \$metadata with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Models/AbuseIncident.php
+
+		-
+			message: '#^Class App\\Models\\AbuseIncident uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/AbuseIncident.php
+
+		-
+			message: '#^Method App\\Models\\AbuseIncident\:\:emailReputation\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Models/AbuseIncident.php
+
+		-
+			message: '#^Method App\\Models\\AbuseIncident\:\:ipReputation\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Models/AbuseIncident.php
+
+		-
+			message: '#^Method App\\Models\\AbuseIncident\:\:scopeBySeverity\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Models/AbuseIncident.php
+
+		-
+			message: '#^Method App\\Models\\AbuseIncident\:\:scopeBySeverity\(\) has parameter \$query with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: app/Models/AbuseIncident.php
+
+		-
+			message: '#^Method App\\Models\\AbuseIncident\:\:scopeCritical\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Models/AbuseIncident.php
+
+		-
+			message: '#^Method App\\Models\\AbuseIncident\:\:scopeCritical\(\) has parameter \$query with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: app/Models/AbuseIncident.php
+
+		-
+			message: '#^Method App\\Models\\AbuseIncident\:\:scopeHigh\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Models/AbuseIncident.php
+
+		-
+			message: '#^Method App\\Models\\AbuseIncident\:\:scopeHigh\(\) has parameter \$query with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: app/Models/AbuseIncident.php
+
+		-
+			message: '#^Method App\\Models\\AbuseIncident\:\:scopeResolved\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Models/AbuseIncident.php
+
+		-
+			message: '#^Method App\\Models\\AbuseIncident\:\:scopeResolved\(\) has parameter \$query with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: app/Models/AbuseIncident.php
+
+		-
+			message: '#^Method App\\Models\\AbuseIncident\:\:scopeUnresolved\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Models/AbuseIncident.php
+
+		-
+			message: '#^Method App\\Models\\AbuseIncident\:\:scopeUnresolved\(\) has parameter \$query with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: app/Models/AbuseIncident.php
+
+		-
+			message: '#^Class App\\Models\\Account uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Account.php
+
+		-
+			message: '#^Method App\\Models\\Account\:\:domains\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Account.php
+
+		-
+			message: '#^Method App\\Models\\Account\:\:host\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Account.php
+
+		-
+			message: '#^Method App\\Models\\Account\:\:scopeActive\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Models/Account.php
+
+		-
+			message: '#^Method App\\Models\\Account\:\:scopeActive\(\) has parameter \$query with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: app/Models/Account.php
+
+		-
+			message: '#^Method App\\Models\\Account\:\:scopeMarkedAsDeleted\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Models/Account.php
+
+		-
+			message: '#^Method App\\Models\\Account\:\:scopeMarkedAsDeleted\(\) has parameter \$query with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: app/Models/Account.php
+
+		-
+			message: '#^Method App\\Models\\Account\:\:scopeSuspended\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Models/Account.php
+
+		-
+			message: '#^Method App\\Models\\Account\:\:scopeSuspended\(\) has parameter \$query with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: app/Models/Account.php
+
+		-
+			message: '#^Method App\\Models\\Account\:\:user\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Account.php
+
+		-
+			message: '#^PHPDoc type array\<string\> of property App\\Models\\Account\:\:\$fillable is not covariant with PHPDoc type list\<string\> of overridden property Illuminate\\Database\\Eloquent\\Model\:\:\$fillable\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: app/Models/Account.php
+
+		-
+			message: '#^Class App\\Models\\BfmWhitelistEntry uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/BfmWhitelistEntry.php
+
+		-
+			message: '#^Method App\\Models\\BfmWhitelistEntry\:\:host\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/BfmWhitelistEntry.php
+
+		-
+			message: '#^Method App\\Models\\BfmWhitelistEntry\:\:scopeActive\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Models/BfmWhitelistEntry.php
+
+		-
+			message: '#^Method App\\Models\\BfmWhitelistEntry\:\:scopeActive\(\) has parameter \$query with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: app/Models/BfmWhitelistEntry.php
+
+		-
+			message: '#^Method App\\Models\\BfmWhitelistEntry\:\:scopeExpired\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Models/BfmWhitelistEntry.php
+
+		-
+			message: '#^Method App\\Models\\BfmWhitelistEntry\:\:scopeExpired\(\) has parameter \$query with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: app/Models/BfmWhitelistEntry.php
+
+		-
+			message: '#^Method App\\Models\\BfmWhitelistEntry\:\:scopeForHost\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Models/BfmWhitelistEntry.php
+
+		-
+			message: '#^Method App\\Models\\BfmWhitelistEntry\:\:scopeForHost\(\) has parameter \$query with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: app/Models/BfmWhitelistEntry.php
+
+		-
+			message: '#^Method App\\Models\\BfmWhitelistEntry\:\:scopeForIp\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Models/BfmWhitelistEntry.php
+
+		-
+			message: '#^Method App\\Models\\BfmWhitelistEntry\:\:scopeForIp\(\) has parameter \$query with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: app/Models/BfmWhitelistEntry.php
+
+		-
+			message: '#^Class App\\Models\\Domain uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Domain.php
+
+		-
+			message: '#^Method App\\Models\\Domain\:\:account\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Domain.php
+
+		-
+			message: '#^Method App\\Models\\Domain\:\:scopeAddon\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Models/Domain.php
+
+		-
+			message: '#^Method App\\Models\\Domain\:\:scopeAddon\(\) has parameter \$query with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: app/Models/Domain.php
+
+		-
+			message: '#^Method App\\Models\\Domain\:\:scopeAlias\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Models/Domain.php
+
+		-
+			message: '#^Method App\\Models\\Domain\:\:scopeAlias\(\) has parameter \$query with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: app/Models/Domain.php
+
+		-
+			message: '#^Method App\\Models\\Domain\:\:scopeForDomain\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Models/Domain.php
+
+		-
+			message: '#^Method App\\Models\\Domain\:\:scopeForDomain\(\) has parameter \$query with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: app/Models/Domain.php
+
+		-
+			message: '#^Method App\\Models\\Domain\:\:scopePrimary\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Models/Domain.php
+
+		-
+			message: '#^Method App\\Models\\Domain\:\:scopePrimary\(\) has parameter \$query with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: app/Models/Domain.php
+
+		-
+			message: '#^Method App\\Models\\Domain\:\:scopeSubdomain\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Models/Domain.php
+
+		-
+			message: '#^Method App\\Models\\Domain\:\:scopeSubdomain\(\) has parameter \$query with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: app/Models/Domain.php
+
+		-
+			message: '#^PHPDoc type array\<string\> of property App\\Models\\Domain\:\:\$fillable is not covariant with PHPDoc type list\<string\> of overridden property Illuminate\\Database\\Eloquent\\Model\:\:\$fillable\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: app/Models/Domain.php
+
+		-
+			message: '#^Method App\\Models\\EmailReputation\:\:abuseIncidents\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Models/EmailReputation.php
+
+		-
+			message: '#^Class App\\Models\\Host uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Host.php
+
+		-
+			message: '#^Method App\\Models\\Host\:\:accounts\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Host.php
+
+		-
+			message: '#^Method App\\Models\\Host\:\:domains\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasManyThrough does not specify its types\: TRelatedModel, TIntermediateModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Host.php
+
+		-
+			message: '#^Method App\\Models\\Host\:\:getHashAttribute\(\) has parameter \$value with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: app/Models/Host.php
+
+		-
+			message: '#^Method App\\Models\\Host\:\:getHashPublicAttribute\(\) has parameter \$value with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: app/Models/Host.php
+
+		-
+			message: '#^Method App\\Models\\Host\:\:hostings\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Host.php
+
+		-
+			message: '#^Method App\\Models\\Host\:\:setHashAttribute\(\) has parameter \$value with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: app/Models/Host.php
+
+		-
+			message: '#^Method App\\Models\\Host\:\:setHashPublicAttribute\(\) has parameter \$value with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: app/Models/Host.php
+
+		-
+			message: '#^Method App\\Models\\Host\:\:users\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Host.php
+
+		-
+			message: '#^Class App\\Models\\Hosting uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Hosting.php
+
+		-
+			message: '#^Method App\\Models\\Hosting\:\:authorizedUsers\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany does not specify its types\: TRelatedModel, TDeclaringModel, TPivotModel, TAccessor \(2\-4 required\)$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Hosting.php
+
+		-
+			message: '#^Method App\\Models\\Hosting\:\:host\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Hosting.php
+
+		-
+			message: '#^Method App\\Models\\Hosting\:\:hostingPermissions\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Hosting.php
+
+		-
+			message: '#^Method App\\Models\\Hosting\:\:user\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Hosting.php
+
+		-
+			message: '#^Method App\\Models\\IpReputation\:\:abuseIncidents\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Models/IpReputation.php
+
+		-
+			message: '#^Class App\\Models\\PatternDetection has PHPDoc tag @property for property \$pattern_data with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Models/PatternDetection.php
+
+		-
+			message: '#^Class App\\Models\\PatternDetection has PHPDoc tag @property for property \$related_incidents with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Models/PatternDetection.php
+
+		-
+			message: '#^Class App\\Models\\PatternDetection uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/PatternDetection.php
+
+		-
+			message: '#^Method App\\Models\\PatternDetection\:\:abuseIncidents\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Models/PatternDetection.php
+
+		-
+			message: '#^Method App\\Models\\PatternDetection\:\:scopeBySeverity\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Models/PatternDetection.php
+
+		-
+			message: '#^Method App\\Models\\PatternDetection\:\:scopeBySeverity\(\) has parameter \$query with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: app/Models/PatternDetection.php
+
+		-
+			message: '#^Method App\\Models\\PatternDetection\:\:scopeByType\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Models/PatternDetection.php
+
+		-
+			message: '#^Method App\\Models\\PatternDetection\:\:scopeByType\(\) has parameter \$query with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: app/Models/PatternDetection.php
+
+		-
+			message: '#^Method App\\Models\\PatternDetection\:\:scopeCritical\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Models/PatternDetection.php
+
+		-
+			message: '#^Method App\\Models\\PatternDetection\:\:scopeCritical\(\) has parameter \$query with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: app/Models/PatternDetection.php
+
+		-
+			message: '#^Method App\\Models\\PatternDetection\:\:scopeHigh\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Models/PatternDetection.php
+
+		-
+			message: '#^Method App\\Models\\PatternDetection\:\:scopeHigh\(\) has parameter \$query with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: app/Models/PatternDetection.php
+
+		-
+			message: '#^Method App\\Models\\PatternDetection\:\:scopeRecent\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Models/PatternDetection.php
+
+		-
+			message: '#^Method App\\Models\\PatternDetection\:\:scopeRecent\(\) has parameter \$query with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: app/Models/PatternDetection.php
+
+		-
+			message: '#^Method App\\Models\\PatternDetection\:\:scopeResolved\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Models/PatternDetection.php
+
+		-
+			message: '#^Method App\\Models\\PatternDetection\:\:scopeResolved\(\) has parameter \$query with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: app/Models/PatternDetection.php
+
+		-
+			message: '#^Method App\\Models\\PatternDetection\:\:scopeUnresolved\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Models/PatternDetection.php
+
+		-
+			message: '#^Method App\\Models\\PatternDetection\:\:scopeUnresolved\(\) has parameter \$query with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: app/Models/PatternDetection.php
+
+		-
+			message: '#^Class App\\Models\\Report has PHPDoc tag @property for property \$analysis with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Models/Report.php
+
+		-
+			message: '#^Class App\\Models\\Report has PHPDoc tag @property for property \$logs with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Models/Report.php
+
+		-
+			message: '#^Class App\\Models\\Report uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Report.php
+
+		-
+			message: '#^Method App\\Models\\Report\:\:host\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Report.php
+
+		-
+			message: '#^Method App\\Models\\Report\:\:user\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Report.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Relations\\HasMany\:\:onlyTrashed\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: app/Models/User.php
+
+		-
+			message: '#^Cannot call method hosts\(\) on Illuminate\\Database\\Eloquent\\Model\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Class App\\Models\\User uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Method App\\Models\\User\:\:authorizedHostings\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany does not specify its types\: TRelatedModel, TDeclaringModel, TPivotModel, TAccessor \(2\-4 required\)$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Method App\\Models\\User\:\:authorizedHosts\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany does not specify its types\: TRelatedModel, TDeclaringModel, TPivotModel, TAccessor \(2\-4 required\)$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Method App\\Models\\User\:\:authorizedUserHostingPermissions\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasManyThrough does not specify its types\: TRelatedModel, TIntermediateModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Method App\\Models\\User\:\:authorizedUsers\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Method App\\Models\\User\:\:hostingPermissions\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Method App\\Models\\User\:\:hostings\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Method App\\Models\\User\:\:hosts\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany does not specify its types\: TRelatedModel, TDeclaringModel, TPivotModel, TAccessor \(2\-4 required\)$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Method App\\Models\\User\:\:parentUser\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Method App\\Models\\User\:\:reports\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:each\(\) expects callable\(Illuminate\\Database\\Eloquent\\Model, int\)\: mixed, Closure\(App\\Models\\Hosting\)\: void given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:each\(\) expects callable\(Illuminate\\Database\\Eloquent\\Model, int\)\: mixed, Closure\(App\\Models\\User\)\: void given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Parameter \#1 \$string of function substr expects string, string\|false given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Class App\\Models\\UserHostingPermission uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/UserHostingPermission.php
+
+		-
+			message: '#^Method App\\Models\\UserHostingPermission\:\:hosting\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/UserHostingPermission.php
+
+		-
+			message: '#^Method App\\Models\\UserHostingPermission\:\:scopeActive\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Models/UserHostingPermission.php
+
+		-
+			message: '#^Method App\\Models\\UserHostingPermission\:\:scopeActive\(\) has parameter \$query with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: app/Models/UserHostingPermission.php
+
+		-
+			message: '#^Method App\\Models\\UserHostingPermission\:\:scopeForHosting\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Models/UserHostingPermission.php
+
+		-
+			message: '#^Method App\\Models\\UserHostingPermission\:\:scopeForHosting\(\) has parameter \$query with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: app/Models/UserHostingPermission.php
+
+		-
+			message: '#^Method App\\Models\\UserHostingPermission\:\:scopeForUser\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Models/UserHostingPermission.php
+
+		-
+			message: '#^Method App\\Models\\UserHostingPermission\:\:scopeForUser\(\) has parameter \$query with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: app/Models/UserHostingPermission.php
+
+		-
+			message: '#^Method App\\Models\\UserHostingPermission\:\:user\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/UserHostingPermission.php
+
+		-
+			message: '#^Method App\\Notifications\\Admin\\ErrorParsingNotification\:\:toArray\(\) has parameter \$notifiable with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: app/Notifications/Admin/ErrorParsingNotification.php
+
+		-
+			message: '#^Method App\\Notifications\\Admin\\ErrorParsingNotification\:\:toArray\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Notifications/Admin/ErrorParsingNotification.php
+
+		-
+			message: '#^Method App\\Notifications\\Admin\\ErrorParsingNotification\:\:toMail\(\) has parameter \$notifiable with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: app/Notifications/Admin/ErrorParsingNotification.php
+
+		-
+			message: '#^Method App\\Notifications\\Admin\\ErrorParsingNotification\:\:via\(\) has parameter \$notifiable with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: app/Notifications/Admin/ErrorParsingNotification.php
+
+		-
+			message: '#^Method App\\Notifications\\Admin\\ErrorParsingNotification\:\:via\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Notifications/Admin/ErrorParsingNotification.php
+
+		-
+			message: '#^Method App\\Services\\CsfOutputParser\:\:extractHumanReadableSummary\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/CsfOutputParser.php
+
+		-
+			message: '#^Method App\\Services\\CsfOutputParser\:\:parseDenyLine\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/CsfOutputParser.php
+
+		-
+			message: '#^Cannot call method getSshKeyPath\(\) on class\-string\|object\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Services/Firewall/CpanelFirewallAnalyzer.php
+
+		-
+			message: '#^Method App\\Services\\Firewall\\CpanelFirewallAnalyzer\:\:__construct\(\) has parameter \$serviceChecks with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/Firewall/CpanelFirewallAnalyzer.php
+
+		-
+			message: '#^Method App\\Services\\Firewall\\CpanelFirewallAnalyzer\:\:withServiceChecks\(\) has parameter \$services with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/Firewall/CpanelFirewallAnalyzer.php
+
+		-
+			message: '#^Property App\\Services\\Firewall\\CpanelFirewallAnalyzer\:\:\$serviceChecks type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/Firewall/CpanelFirewallAnalyzer.php
+
+		-
+			message: '#^Cannot call method getSshKeyPath\(\) on class\-string\|object\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Services/Firewall/DirectAdminFirewallAnalyzer.php
+
+		-
+			message: '#^Method App\\Services\\Firewall\\FirewallAnalysisResult\:\:__construct\(\) has parameter \$analysis with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/Firewall/FirewallAnalysisResult.php
+
+		-
+			message: '#^Method App\\Services\\Firewall\\FirewallAnalysisResult\:\:__construct\(\) has parameter \$logs with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/Firewall/FirewallAnalysisResult.php
+
+		-
+			message: '#^Method App\\Services\\Firewall\\FirewallAnalysisResult\:\:getAnalysis\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/Firewall/FirewallAnalysisResult.php
+
+		-
+			message: '#^Method App\\Services\\Firewall\\FirewallAnalysisResult\:\:getLogs\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/Firewall/FirewallAnalysisResult.php
+
+		-
+			message: '#^Method App\\Services\\Firewall\\V2\\FirewallLogAnalyzer\:\:analyzeAdditionalServices\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/Firewall/V2/FirewallLogAnalyzer.php
+
+		-
+			message: '#^Method App\\Services\\Firewall\\V2\\FirewallLogAnalyzer\:\:performDeepCsfAnalysis\(\) has parameter \$logs with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/Firewall/V2/FirewallLogAnalyzer.php
+
+		-
+			message: '#^Method App\\Services\\Firewall\\V2\\FirewallLogAnalyzer\:\:performDeepCsfAnalysis\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/Firewall/V2/FirewallLogAnalyzer.php
+
+		-
+			message: '#^Method App\\Services\\Firewall\\V2\\FirewallOrchestrator\:\:getHealthStatus\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/Firewall/V2/FirewallOrchestrator.php
+
+		-
+			message: '#^Method App\\Services\\Firewall\\V2\\FirewallOrchestrator\:\:performUnblock\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/Firewall/V2/FirewallOrchestrator.php
+
+		-
+			message: '#^Method App\\Services\\Firewall\\V2\\FirewallUnblocker\:\:getUnblockStatus\(\) has parameter \$results with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/Firewall/V2/FirewallUnblocker.php
+
+		-
+			message: '#^Method App\\Services\\Firewall\\V2\\FirewallUnblocker\:\:getUnblockStatus\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/Firewall/V2/FirewallUnblocker.php
+
+		-
+			message: '#^Method App\\Services\\Firewall\\V2\\FirewallUnblocker\:\:performCompleteUnblock\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/Firewall/V2/FirewallUnblocker.php
+
+		-
+			message: '#^Method App\\Services\\Firewall\\V2\\FirewallUnblocker\:\:removeFromBfmBlacklist\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/Firewall/V2/FirewallUnblocker.php
+
+		-
+			message: '#^Method App\\Services\\Firewall\\V2\\FirewallUnblocker\:\:unblockFromCsf\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/Firewall/V2/FirewallUnblocker.php
+
+		-
+			message: '#^Method App\\Services\\FirewallConnectionErrorService\:\:getDiagnosticInfo\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/FirewallConnectionErrorService.php
+
+		-
+			message: '#^Method App\\Services\\FirewallService\:\:addErrorIfStartsWithError\(\) is unused\.$#'
+			identifier: method.unused
+			count: 1
+			path: app/Services/FirewallService.php
+
+		-
+			message: '#^Method App\\Services\\FirewallService\:\:escapeIpForGrep\(\) is unused\.$#'
+			identifier: method.unused
+			count: 1
+			path: app/Services/FirewallService.php
+
+		-
+			message: '#^Method App\\Services\\FirewallService\:\:extractDataFromModSecurity\(\) is unused\.$#'
+			identifier: method.unused
+			count: 1
+			path: app/Services/FirewallService.php
+
+		-
+			message: '#^Method App\\Services\\FirewallService\:\:getAvailableCommands\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/FirewallService.php
+
+		-
+			message: '#^Method App\\Services\\FirewallService\:\:getData\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/FirewallService.php
+
+		-
+			message: '#^Method App\\Services\\FirewallService\:\:getErrors\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/FirewallService.php
+
+		-
+			message: '#^Property App\\Services\\FirewallService\:\:\$data type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/FirewallService.php
+
+		-
+			message: '#^Property App\\Services\\FirewallService\:\:\$modSecurityOutput is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: app/Services/FirewallService.php
+
+		-
+			message: '#^Unable to resolve the template type TKey in call to function collect$#'
+			identifier: argument.templateType
+			count: 1
+			path: app/Services/FirewallService.php
+
+		-
+			message: '#^Unable to resolve the template type TValue in call to function collect$#'
+			identifier: argument.templateType
+			count: 1
+			path: app/Services/FirewallService.php
+
+		-
+			message: '#^Method App\\Services\\FirewallUnblocker\:\:buildBfmRemovalCommand\(\) is unused\.$#'
+			identifier: method.unused
+			count: 1
+			path: app/Services/FirewallUnblocker.php
+
+		-
+			message: '#^Method App\\Services\\FirewallUnblocker\:\:getUnblockStatus\(\) has parameter \$results with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/FirewallUnblocker.php
+
+		-
+			message: '#^Method App\\Services\\FirewallUnblocker\:\:getUnblockStatus\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/FirewallUnblocker.php
+
+		-
+			message: '#^Method App\\Services\\FirewallUnblocker\:\:hasBfmBlocks\(\) has parameter \$logs with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/FirewallUnblocker.php
+
+		-
+			message: '#^Method App\\Services\\FirewallUnblocker\:\:hasCsfBlocks\(\) has parameter \$logs with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/FirewallUnblocker.php
+
+		-
+			message: '#^Method App\\Services\\FirewallUnblocker\:\:performBfmOperations\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/FirewallUnblocker.php
+
+		-
+			message: '#^Method App\\Services\\FirewallUnblocker\:\:performBfmRemoval\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/FirewallUnblocker.php
+
+		-
+			message: '#^Method App\\Services\\FirewallUnblocker\:\:performCsfOperations\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/FirewallUnblocker.php
+
+		-
+			message: '#^Method App\\Services\\FirewallUnblocker\:\:unblockIp\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/FirewallUnblocker.php
+
+		-
+			message: '#^Method App\\Services\\GeoIPService\:\:getDatabaseInfo\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/GeoIPService.php
+
+		-
+			message: '#^Method App\\Services\\GeoIPService\:\:lookup\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/GeoIPService.php
+
+		-
+			message: '#^Method App\\Services\\PatternDetection\\AnomalyDetector\:\:calculateBaseline\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/PatternDetection/AnomalyDetector.php
+
+		-
+			message: '#^Method App\\Services\\PatternDetection\\AnomalyDetector\:\:createAnomalyDetection\(\) has parameter \$baseline with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/PatternDetection/AnomalyDetector.php
+
+		-
+			message: '#^Method App\\Services\\PatternDetection\\AnomalyDetector\:\:createAnomalyDetection\(\) never returns null so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: app/Services/PatternDetection/AnomalyDetector.php
+
+		-
+			message: '#^Method App\\Services\\PatternDetection\\AnomalyDetector\:\:detectAll\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/PatternDetection/AnomalyDetector.php
+
+		-
+			message: '#^Method App\\Services\\PatternDetection\\AnomalyDetector\:\:getCurrentTraffic\(\) should return int but returns float\|int\|string\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Services/PatternDetection/AnomalyDetector.php
+
+		-
+			message: '#^Method App\\Services\\PatternDetection\\AnomalyDetector\:\:isAnomaly\(\) has parameter \$baseline with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/PatternDetection/AnomalyDetector.php
+
+		-
+			message: '#^Method App\\Services\\PatternDetection\\DistributedAttackDetector\:\:applyPenalties\(\) has parameter \$uniqueIps with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: app/Services/PatternDetection/DistributedAttackDetector.php
+
+		-
+			message: '#^Method App\\Services\\PatternDetection\\DistributedAttackDetector\:\:detectAll\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/PatternDetection/DistributedAttackDetector.php
+
+		-
+			message: '#^Method App\\Services\\PatternDetection\\SubnetScanDetector\:\:applyPenalties\(\) has parameter \$uniqueIps with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: app/Services/PatternDetection/SubnetScanDetector.php
+
+		-
+			message: '#^Method App\\Services\\PatternDetection\\SubnetScanDetector\:\:detectAll\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/PatternDetection/SubnetScanDetector.php
+
+		-
+			message: '#^Cannot call method format\(\) on DateTime\|false\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Services/ReportGenerator.php
+
+		-
+			message: '#^Method App\\Services\\ReportGenerator\:\:determineReportStatus\(\) has parameter \$unblockResults with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/ReportGenerator.php
+
+		-
+			message: '#^Method App\\Services\\ReportGenerator\:\:determineReportStatus\(\) is unused\.$#'
+			identifier: method.unused
+			count: 1
+			path: app/Services/ReportGenerator.php
+
+		-
+			message: '#^Method App\\Services\\ReportGenerator\:\:extractBfmDetails\(\) has parameter \$rawLogs with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/ReportGenerator.php
+
+		-
+			message: '#^Method App\\Services\\ReportGenerator\:\:extractBfmDetails\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/ReportGenerator.php
+
+		-
+			message: '#^Method App\\Services\\ReportGenerator\:\:extractBfmEntry\(\) never returns null so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: app/Services/ReportGenerator.php
+
+		-
+			message: '#^Method App\\Services\\ReportGenerator\:\:extractBlockSources\(\) has parameter \$logs with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/ReportGenerator.php
+
+		-
+			message: '#^Method App\\Services\\ReportGenerator\:\:extractBlockSources\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/ReportGenerator.php
+
+		-
+			message: '#^Method App\\Services\\ReportGenerator\:\:extractBlockingDetails\(\) has parameter \$logs with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/ReportGenerator.php
+
+		-
+			message: '#^Method App\\Services\\ReportGenerator\:\:extractBlockingDetails\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/ReportGenerator.php
+
+		-
+			message: '#^Method App\\Services\\ReportGenerator\:\:extractCsfDetails\(\) has parameter \$rawLogs with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/ReportGenerator.php
+
+		-
+			message: '#^Method App\\Services\\ReportGenerator\:\:extractCsfDetails\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/ReportGenerator.php
+
+		-
+			message: '#^Method App\\Services\\ReportGenerator\:\:extractCsfRules\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/ReportGenerator.php
+
+		-
+			message: '#^Method App\\Services\\ReportGenerator\:\:extractServiceDetails\(\) has parameter \$rawLogs with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/ReportGenerator.php
+
+		-
+			message: '#^Method App\\Services\\ReportGenerator\:\:extractServiceDetails\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/ReportGenerator.php
+
+		-
+			message: '#^Method App\\Services\\ReportGenerator\:\:formatLogsData\(\) has parameter \$rawLogs with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/ReportGenerator.php
+
+		-
+			message: '#^Method App\\Services\\ReportGenerator\:\:formatLogsData\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/ReportGenerator.php
+
+		-
+			message: '#^Method App\\Services\\ReportGenerator\:\:formatReportData\(\) has parameter \$recentHistory with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/ReportGenerator.php
+
+		-
+			message: '#^Method App\\Services\\ReportGenerator\:\:formatReportData\(\) has parameter \$unblockResults with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/ReportGenerator.php
+
+		-
+			message: '#^Method App\\Services\\ReportGenerator\:\:formatReportData\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/ReportGenerator.php
+
+		-
+			message: '#^Method App\\Services\\ReportGenerator\:\:generateReport\(\) has parameter \$recentHistory with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/ReportGenerator.php
+
+		-
+			message: '#^Method App\\Services\\ReportGenerator\:\:generateReport\(\) has parameter \$unblockResults with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/ReportGenerator.php
+
+		-
+			message: '#^Method App\\Services\\ReportGenerator\:\:identifyBlockPatterns\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/ReportGenerator.php
+
+		-
+			message: '#^Method App\\Services\\ReportGenerator\:\:parseServiceLogs\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/ReportGenerator.php
+
+		-
+			message: '#^Method App\\Services\\ReportGenerator\:\:processModSecurityJson\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/ReportGenerator.php
+
+		-
+			message: '#^Offset 1 on array\{list\<string\>, list\<non\-empty\-string\>, list\<non\-empty\-string\>\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/Services/ReportGenerator.php
+
+		-
+			message: '#^Offset 2 on array\{list\<string\>, list\<non\-empty\-string\>, list\<non\-empty\-string\>\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/Services/ReportGenerator.php
+
+		-
+			message: '#^Parameter \#3 \$subject of function str_replace expects array\<string\>\|string, string\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/ReportGenerator.php
+
+		-
+			message: '#^Trait App\\Traits\\CommandOutputParserTrait is used zero times and is not analysed\.$#'
+			identifier: trait.unused
+			count: 1
+			path: app/Traits/CommandOutputParserTrait.php

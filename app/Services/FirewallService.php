@@ -151,6 +151,7 @@ class FirewallService
     private function buildCommand(string $type, string $ip): ?string
     {
         $ip_escaped = escapeshellarg($ip);
+        $ip_regex = preg_quote($ip, '/');
 
         $commands = [
             'csf' => "csf -g {$ip}",
@@ -167,9 +168,9 @@ class FirewallService
             // LFD history: recent block/unblock events
             'lfd_history' => "grep {$ip_escaped} /var/log/lfd.log /var/log/lfd.log.1 2>/dev/null | tail -20 || true",
             // FIXED: Use exact IP matching to avoid false positives
-            'da_bfm_check' => "cat /usr/local/directadmin/data/admin/ip_blacklist | grep -E '^{$ip_escaped}(\\s|\$)' || true",
-            'da_bfm_remove' => "sed -i '/^{$ip_escaped}(\\s|\$)/d' /usr/local/directadmin/data/admin/ip_blacklist",
-            'da_bfm_whitelist_add' => "echo '{$ip}' >> /usr/local/directadmin/data/admin/ip_whitelist",
+            'da_bfm_check' => "cat /usr/local/directadmin/data/admin/ip_blacklist | grep -E '^{$ip_regex}(\\s|\$)' || true",
+            'da_bfm_remove' => "sed -i '/^{$ip_regex}(\\s|\$)/d' /usr/local/directadmin/data/admin/ip_blacklist",
+            'da_bfm_whitelist_add' => "echo {$ip_escaped} >> /usr/local/directadmin/data/admin/ip_whitelist",
             // Unblock commands: separate for permanent and temporary deny lists
             'unblock_permanent' => "csf -dr {$ip}",
             'unblock_temporary' => "csf -tr {$ip}",

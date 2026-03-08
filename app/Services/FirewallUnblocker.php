@@ -337,7 +337,7 @@ class FirewallUnblocker
             }
 
             // 4. Verify removal
-            $verifyCommand = "cat /usr/local/directadmin/data/admin/ip_blacklist | grep -w '".$ipAddress."' || echo 'IP not found in blacklist'";
+            $verifyCommand = 'cat /usr/local/directadmin/data/admin/ip_blacklist | grep -w '.escapeshellarg($ipAddress)." || echo 'IP not found in blacklist'";
             $verifyOutput = $session->execute($verifyCommand);
 
             $results['verification'] = [
