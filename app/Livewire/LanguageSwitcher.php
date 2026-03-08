@@ -78,10 +78,17 @@ class LanguageSwitcher extends Component
 
         // Force full page reload (not SPA navigation) to apply translations via middleware
         // Use JavaScript redirect to ensure full page reload in all browsers
-        $redirectUrl = request()->header('Referer') ?? route('dashboard');
+        // Validate Referer belongs to this application to prevent open redirect / JS injection
+        $referer = request()->header('Referer');
+        $appUrl = config('app.url');
+        $redirectUrl = ($referer && str_starts_with($referer, $appUrl))
+            ? $referer
+            : route('dashboard');
 
         // Use JavaScript to force a full page reload
-        $this->js("window.location.href = '{$redirectUrl}';");
+        // json_encode safely escapes the URL for embedding in JavaScript
+        $safeUrl = json_encode($redirectUrl, JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+        $this->js("window.location.href = {$safeUrl};");
     }
 
     /**

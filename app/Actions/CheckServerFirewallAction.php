@@ -39,12 +39,7 @@ class CheckServerFirewallAction
      *
      * @param  string  $ip  IP address to check
      * @param  int  $hostId  Host ID to check
-     * @return array{
-     *     is_blocked: bool,
-     *     logs: array<string, string>,
-     *     key_name: string,
-     *     error?: string
-     * }
+     * @return array{is_blocked: bool, logs: array<string, mixed>, key_name: string, error?: string}
      *
      * @throws FirewallException When panel is not supported
      */
@@ -105,6 +100,8 @@ class CheckServerFirewallAction
 
     /**
      * Handle DirectAdmin hosts using the robust analyzer
+     *
+     * @return array{is_blocked: bool, logs: array<string, mixed>, key_name: string}
      */
     private function handleDirectAdminWithAnalyzer(string $ip, Host $host, string $keyName): array
     {
@@ -174,6 +171,8 @@ class CheckServerFirewallAction
 
     /**
      * Handle with original logic for non-DirectAdmin or fallback cases
+     *
+     * @return array{is_blocked: bool, logs: array<string, mixed>, key_name: string}
      */
     private function handleWithOriginalLogic(string $ip, Host $host, string $keyName): array
     {
@@ -239,6 +238,9 @@ class CheckServerFirewallAction
 
     /**
      * Map analyzer logs to original format expected by the system
+     *
+     * @param  array<string, mixed>  $analyzerLogs
+     * @return array<string, mixed>
      */
     private function mapLogsToOriginalFormat(array $analyzerLogs): array
     {

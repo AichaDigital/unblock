@@ -142,6 +142,8 @@ class FirewallOrchestrator
     /**
      * Perform unblock operations
      * (Delegated responsibility)
+     *
+     * @return array<string, array<string, mixed>>
      */
     private function performUnblock(string $ipAddress, Host $host): array
     {
@@ -204,6 +206,8 @@ class FirewallOrchestrator
 
     /**
      * Get service health status for monitoring
+     *
+     * @return array{status: string, components: array<string, string>, timestamp: string}
      */
     public function getHealthStatus(): array
     {
@@ -215,7 +219,7 @@ class FirewallOrchestrator
                 'report_generator' => 'operational',
                 'audit_service' => 'operational',
             ],
-            'timestamp' => now()->toISOString(),
+            'timestamp' => (string) now()->toISOString(),
         ];
     }
 }

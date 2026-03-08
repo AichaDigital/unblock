@@ -22,7 +22,6 @@ jobs:
           username: laravel
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           port: ${{ secrets.AMAZZAL_PORT }}
-          script_stop: true
           script: |
             cd /home/laravel/domains/unblock.castris.com/unblock
 
@@ -55,7 +54,7 @@ jobs:
       - name: Health check amazzal
         run: |
           sleep 5
-          STATUS=$(curl -sf -o /dev/null -w '%{http_code}' https://unblock.castris.com/login || true)
+          STATUS=$(curl -sf -o /dev/null -w '%{http_code}' https://unblock.castris.com/admin/login || true)
           if [ "$STATUS" != "200" ]; then
             echo "Health check failed: HTTP $STATUS"
             exit 1
@@ -76,7 +75,6 @@ jobs:
           username: unblock
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           port: ${{ secrets.CENTRAL_PORT }}
-          script_stop: true
           script: |
             cd /home/unblock/unblock
 
@@ -107,7 +105,7 @@ jobs:
       - name: Health check central
         run: |
           sleep 5
-          STATUS=$(curl -sf -o /dev/null -w '%{http_code}' https://desbloquear.xerintel.es/login || true)
+          STATUS=$(curl -sf -o /dev/null -w '%{http_code}' https://desbloquear.xerintel.es/admin/login || true)
           if [ "$STATUS" != "200" ]; then
             echo "Health check failed: HTTP $STATUS"
             exit 1

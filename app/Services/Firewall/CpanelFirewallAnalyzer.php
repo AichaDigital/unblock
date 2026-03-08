@@ -12,8 +12,12 @@ readonly class CpanelFirewallAnalyzer implements FirewallAnalyzerInterface
 {
     private const PANEL_TYPE = 'cpanel';
 
+    /** @var array<string, bool> */
     private array $serviceChecks;
 
+    /**
+     * @param  array<string, bool>|null  $serviceChecks
+     */
     public function __construct(
         private FirewallService $firewallService,
         private Host $host,
@@ -30,7 +34,7 @@ readonly class CpanelFirewallAnalyzer implements FirewallAnalyzerInterface
     public function analyze(string $ipAddress, mixed $session): FirewallAnalysisResult
     {
         // Extraer SSH key path del session (compatible con ambas implementaciones)
-        $sshKeyName = method_exists($session, 'getSshKeyPath')
+        $sshKeyName = (is_object($session) && method_exists($session, 'getSshKeyPath'))
             ? $session->getSshKeyPath()
             : (string) $session; // fallback para compatibilidad
 
@@ -140,6 +144,9 @@ readonly class CpanelFirewallAnalyzer implements FirewallAnalyzerInterface
         return $panelType === self::PANEL_TYPE;
     }
 
+    /**
+     * @param  array<string, bool>  $services
+     */
     public function withServiceChecks(array $services): self
     {
         return new self($this->firewallService, $this->host, array_merge($this->serviceChecks, $services));

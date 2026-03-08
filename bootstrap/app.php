@@ -33,12 +33,7 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions) {
         $exceptions->render(function (ThrottleRequestsException $e) {
-            if (! empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-                $ipArray = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
-                $ip = trim($ipArray[0]);
-            } else {
-                $ip = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
-            }
+            $ip = request()->ip() ?? '0.0.0.0';
 
             $msg = $e->getMessage();
 

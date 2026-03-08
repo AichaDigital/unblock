@@ -8,8 +8,8 @@ final readonly class FirewallAnalysisResult
 {
     /**
      * @param  bool  $blocked  Indica si la IP está bloqueada
-     * @param  array  $logs  Registros de los análisis realizados
-     * @param  array  $analysis  Datos adicionales de análisis (fuentes de bloqueo, etc.)
+     * @param  array<string, mixed>  $logs  Registros de los análisis realizados
+     * @param  array<string, mixed>  $analysis  Datos adicionales de análisis (fuentes de bloqueo, etc.)
      */
     public function __construct(
         private bool $blocked,
@@ -22,11 +22,17 @@ final readonly class FirewallAnalysisResult
         return $this->blocked;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getLogs(): array
     {
         return $this->logs;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getAnalysis(): array
     {
         return $this->analysis;

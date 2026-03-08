@@ -37,7 +37,7 @@ test('DirectAdmin BFM check command is correct', function () {
     // El comando debe buscar la IP en el archivo blacklist
     expect($command)->toContain('/usr/local/directadmin/data/admin/ip_blacklist')
         ->and($command)->toContain('grep')
-        ->and($command)->toContain($ipAddress);
+        ->and($command)->toContain(preg_quote($ipAddress, '/'));
 });
 
 test('DirectAdmin BFM detection works with exact IP match', function () {
