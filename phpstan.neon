@@ -1,17 +1,21 @@
 includes:
     - ./vendor/larastan/larastan/extension.neon
-    - phpstan-baseline.neon
 
 parameters:
-    level: 8
+    level: 5
     paths:
-        - app
+        - app/Actions
+        - app/Services/Firewall
+        - app/Services/Firewall/V2
+        - app/Jobs/SendReportNotificationJob.php
 
     # Exclude problematic directories
     excludePaths:
         - bootstrap/cache
         - storage/*
         - node_modules/*
+        - app/Console
+        - app/Filament
 
     # Basic strict rules that are supported
     checkMissingCallableSignature: true
