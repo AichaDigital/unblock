@@ -34,6 +34,10 @@ class RequireAdminOtp
 
         $user = Auth::user();
 
+        if (! $user) {
+            return $next($request);
+        }
+
         // Skip if not admin (VerifyIsAdminMiddleware will handle this)
         if (! $user->is_admin) {
             return $next($request);

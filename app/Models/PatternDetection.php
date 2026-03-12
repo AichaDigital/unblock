@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Database\Factories\PatternDetectionFactory;
+use Illuminate\Database\Eloquent\{Builder, Model};
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Carbon;
+use Illuminate\Support\{Carbon, Collection};
 
 /**
  * Pattern Detection Model
@@ -29,8 +30,8 @@ use Illuminate\Support\Carbon;
  * @property Carbon $detected_at
  * @property Carbon|null $first_incident_at
  * @property Carbon|null $last_incident_at
- * @property array|null $pattern_data
- * @property array|null $related_incidents
+ * @property array<string, mixed>|null $pattern_data
+ * @property array<int, int>|null $related_incidents
  * @property Carbon|null $resolved_at
  * @property string|null $resolution_notes
  * @property Carbon|null $created_at
@@ -38,10 +39,12 @@ use Illuminate\Support\Carbon;
  */
 class PatternDetection extends Model
 {
+    /** @use HasFactory<PatternDetectionFactory> */
     use HasFactory;
 
     protected $table = 'pattern_detections';
 
+    /** @var list<string> */
     protected $fillable = [
         'pattern_type',
         'severity',
@@ -63,6 +66,7 @@ class PatternDetection extends Model
         'resolution_notes',
     ];
 
+    /** @var array<string, string> */
     protected $casts = [
         'confidence_score' => 'integer',
         'affected_ips_count' => 'integer',
@@ -103,7 +107,7 @@ class PatternDetection extends Model
     public const SEVERITY_CRITICAL = 'critical';
 
     /**
-     * Get related abuse incidents
+     * @return \Illuminate\Database\Eloquent\Collection<int, AbuseIncident>|Collection<int, never>
      */
     public function abuseIncidents()
     {
@@ -176,7 +180,8 @@ class PatternDetection extends Model
     }
 
     /**
-     * Scope to get only unresolved patterns
+     * @param  Builder<static>  $query
+     * @return Builder<static>
      */
     public function scopeUnresolved($query)
     {
@@ -184,7 +189,8 @@ class PatternDetection extends Model
     }
 
     /**
-     * Scope to get only resolved patterns
+     * @param  Builder<static>  $query
+     * @return Builder<static>
      */
     public function scopeResolved($query)
     {
@@ -192,7 +198,8 @@ class PatternDetection extends Model
     }
 
     /**
-     * Scope to filter by pattern type
+     * @param  Builder<static>  $query
+     * @return Builder<static>
      */
     public function scopeByType($query, string $type)
     {
@@ -200,7 +207,8 @@ class PatternDetection extends Model
     }
 
     /**
-     * Scope to filter by severity
+     * @param  Builder<static>  $query
+     * @return Builder<static>
      */
     public function scopeBySeverity($query, string $severity)
     {
@@ -208,7 +216,8 @@ class PatternDetection extends Model
     }
 
     /**
-     * Scope to get critical patterns
+     * @param  Builder<static>  $query
+     * @return Builder<static>
      */
     public function scopeCritical($query)
     {
@@ -216,7 +225,8 @@ class PatternDetection extends Model
     }
 
     /**
-     * Scope to get high severity patterns
+     * @param  Builder<static>  $query
+     * @return Builder<static>
      */
     public function scopeHigh($query)
     {
@@ -224,7 +234,8 @@ class PatternDetection extends Model
     }
 
     /**
-     * Scope for recent detections (last 24 hours)
+     * @param  Builder<static>  $query
+     * @return Builder<static>
      */
     public function scopeRecent($query)
     {

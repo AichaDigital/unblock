@@ -351,13 +351,13 @@ test('unblockFromCsf logs operations', function () {
 
     // Mock deny checks to return empty (IP not blocked)
     $this->firewallService->allows('checkProblems')
-        ->with(\Mockery::any(), \Mockery::any(), 'csf_deny_check', \Mockery::any())
+        ->with(Mockery::any(), Mockery::any(), 'csf_deny_check', Mockery::any())
         ->andReturn('');
     $this->firewallService->allows('checkProblems')
-        ->with(\Mockery::any(), \Mockery::any(), 'csf_tempip_check', \Mockery::any())
+        ->with(Mockery::any(), Mockery::any(), 'csf_tempip_check', Mockery::any())
         ->andReturn('');
     $this->firewallService->allows('checkProblems')
-        ->with(\Mockery::any(), \Mockery::any(), 'whitelist', \Mockery::any())
+        ->with(Mockery::any(), Mockery::any(), 'whitelist', Mockery::any())
         ->andReturn('success');
 
     $this->unblocker->unblockFromCsf('192.168.1.1', $host);
@@ -412,13 +412,13 @@ test('handles IPv6 addresses in CSF unblock', function () {
 
     // Mock deny checks to return empty (IP not blocked)
     $this->firewallService->allows('checkProblems')
-        ->with(\Mockery::any(), \Mockery::any(), 'csf_deny_check', \Mockery::any())
+        ->with(Mockery::any(), Mockery::any(), 'csf_deny_check', Mockery::any())
         ->andReturn('');
     $this->firewallService->allows('checkProblems')
-        ->with(\Mockery::any(), \Mockery::any(), 'csf_tempip_check', \Mockery::any())
+        ->with(Mockery::any(), Mockery::any(), 'csf_tempip_check', Mockery::any())
         ->andReturn('');
     $this->firewallService->allows('checkProblems')
-        ->with(\Mockery::any(), \Mockery::any(), 'whitelist', \Mockery::any())
+        ->with(Mockery::any(), Mockery::any(), 'whitelist', Mockery::any())
         ->andReturn('success');
 
     $result = $this->unblocker->unblockFromCsf('2001:db8::1', $host);

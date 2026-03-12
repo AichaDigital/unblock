@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use Database\Factories\HostingFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\{Model, SoftDeletes};
 use Illuminate\Database\Eloquent\Relations\{BelongsTo, BelongsToMany, HasMany};
 
 class Hosting extends Model
 {
+    /** @use HasFactory<HostingFactory> */
     use HasFactory, SoftDeletes;
 
     /**
@@ -33,7 +35,7 @@ class Hosting extends Model
     ];
 
     /**
-     * Get the user that owns the hosting.
+     * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
     {
@@ -41,7 +43,7 @@ class Hosting extends Model
     }
 
     /**
-     * Get the host that serves the hosting.
+     * @return BelongsTo<Host, $this>
      */
     public function host(): BelongsTo
     {
@@ -49,7 +51,7 @@ class Hosting extends Model
     }
 
     /**
-     * Get the hosting permissions for this hosting.
+     * @return HasMany<UserHostingPermission, $this>
      */
     public function hostingPermissions(): HasMany
     {
@@ -57,7 +59,7 @@ class Hosting extends Model
     }
 
     /**
-     * Get the users authorized to access this hosting.
+     * @return BelongsToMany<User, $this>
      */
     public function authorizedUsers(): BelongsToMany
     {

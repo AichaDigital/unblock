@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Actions;
 
 use App\Enums\PanelType;
-use App\Models\Host;
+use App\Models\{BfmWhitelistEntry, Host};
 use App\Services\FirewallService;
 use Illuminate\Support\Facades\Log;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -79,7 +79,7 @@ class UnblockIpAction
                     $this->firewallService->checkProblems($host, $keyName, 'da_bfm_whitelist_add', $ip);
 
                     // d) Register in database for scheduled cleanup
-                    \App\Models\BfmWhitelistEntry::create([
+                    BfmWhitelistEntry::create([
                         'host_id' => $host->id,
                         'ip_address' => $ip,
                         'added_at' => now(),

@@ -30,10 +30,10 @@ test('sync accounts command syncs all cpanel and directadmin hosts', function ()
     ]);
 
     // Mock actions via service container
-    $this->app->instance(SyncCpanelAccountsAction::class, $cpanelAction = \Mockery::mock(SyncCpanelAccountsAction::class));
+    $this->app->instance(SyncCpanelAccountsAction::class, $cpanelAction = Mockery::mock(SyncCpanelAccountsAction::class));
     $cpanelAction->shouldReceive('handle')
         ->once()
-        ->with(\Mockery::type(Host::class), false)
+        ->with(Mockery::type(Host::class), false)
         ->andReturn([
             'created' => 5,
             'updated' => 3,
@@ -41,10 +41,10 @@ test('sync accounts command syncs all cpanel and directadmin hosts', function ()
             'deleted' => 0,
         ]);
 
-    $this->app->instance(SyncDirectAdminAccountsAction::class, $daAction = \Mockery::mock(SyncDirectAdminAccountsAction::class));
+    $this->app->instance(SyncDirectAdminAccountsAction::class, $daAction = Mockery::mock(SyncDirectAdminAccountsAction::class));
     $daAction->shouldReceive('handle')
         ->once()
-        ->with(\Mockery::type(Host::class), false)
+        ->with(Mockery::type(Host::class), false)
         ->andReturn([
             'created' => 2,
             'updated' => 1,
@@ -65,10 +65,10 @@ test('sync accounts command syncs specific host when host option provided', func
         'hash' => 'test-key',
     ]);
 
-    $this->app->instance(SyncCpanelAccountsAction::class, $cpanelAction = \Mockery::mock(SyncCpanelAccountsAction::class));
+    $this->app->instance(SyncCpanelAccountsAction::class, $cpanelAction = Mockery::mock(SyncCpanelAccountsAction::class));
     $cpanelAction->shouldReceive('handle')
         ->once()
-        ->with(\Mockery::type(Host::class), false)
+        ->with(Mockery::type(Host::class), false)
         ->andReturn([
             'created' => 10,
             'updated' => 5,
@@ -88,10 +88,10 @@ test('sync accounts command runs in initial mode when initial option provided', 
         'hash' => 'test-key',
     ]);
 
-    $this->app->instance(SyncCpanelAccountsAction::class, $cpanelAction = \Mockery::mock(SyncCpanelAccountsAction::class));
+    $this->app->instance(SyncCpanelAccountsAction::class, $cpanelAction = Mockery::mock(SyncCpanelAccountsAction::class));
     $cpanelAction->shouldReceive('handle')
         ->once()
-        ->with(\Mockery::type(Host::class), true) // isInitial = true
+        ->with(Mockery::type(Host::class), true) // isInitial = true
         ->andReturn([
             'created' => 5,
             'updated' => 0,
@@ -113,7 +113,7 @@ test('sync accounts command handles sync failure gracefully', function () {
     $cpanelAction = $this->mock(SyncCpanelAccountsAction::class);
     $cpanelAction->shouldReceive('handle')
         ->once()
-        ->andThrow(new \Exception('SSH connection failed'));
+        ->andThrow(new Exception('SSH connection failed'));
 
     $this->artisan('sync:accounts', ['--host' => (string) $host->id])
         ->expectsOutputToContain('Failed to sync')

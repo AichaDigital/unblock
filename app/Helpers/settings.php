@@ -1,6 +1,8 @@
 <?php
 
 declare(strict_types=1);
+use App\Models\Setting;
+use Illuminate\Support\Facades\Cache;
 
 if (! function_exists('setting')) {
     /**
@@ -17,19 +19,19 @@ if (! function_exists('setting')) {
         if (is_array($key)) {
             // Set multiple settings
             foreach ($key as $k => $v) {
-                \App\Models\Setting::updateOrCreate(
+                Setting::updateOrCreate(
                     ['key' => $k],
                     ['value' => $v]
                 );
             }
-            \Illuminate\Support\Facades\Cache::forget('app_settings');
+            Cache::forget('app_settings');
 
             return null;
         }
 
         // Get setting with cache (10 minutes)
-        $settings = \Illuminate\Support\Facades\Cache::remember('app_settings', 600, function () {
-            return \App\Models\Setting::pluck('value', 'key')->toArray();
+        $settings = Cache::remember('app_settings', 600, function () {
+            return Setting::pluck('value', 'key')->toArray();
         });
 
         return $settings[$key] ?? $default;

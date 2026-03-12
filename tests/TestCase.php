@@ -2,7 +2,9 @@
 
 namespace Tests;
 
+use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
+use Spatie\LaravelRay\RayServiceProvider;
 
 abstract class TestCase extends BaseTestCase
 {
@@ -14,13 +16,13 @@ abstract class TestCase extends BaseTestCase
      *
      * @see https://myray.app/docs/php/laravel/installation
      *
-     * @param  \Illuminate\Foundation\Application  $app
+     * @param  Application  $app
      * @return array<int, string>
      */
     protected function getPackageProviders($app): array
     {
         return [
-            \Spatie\LaravelRay\RayServiceProvider::class,
+            RayServiceProvider::class,
         ];
     }
 }

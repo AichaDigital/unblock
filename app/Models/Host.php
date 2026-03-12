@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\PanelType;
+use Database\Factories\HostFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\{Model, SoftDeletes};
 use Illuminate\Database\Eloquent\Relations\{HasMany, HasManyThrough};
@@ -11,6 +12,7 @@ use Throwable;
 
 class Host extends Model
 {
+    /** @use HasFactory<HostFactory> */
     use HasFactory, SoftDeletes;
 
     /**
@@ -54,6 +56,7 @@ class Host extends Model
         'hash_public',
     ];
 
+    /** @param string|null $value */
     public function setHashAttribute($value): void
     {
         if (! is_null($value) && $value !== '') {
@@ -61,6 +64,7 @@ class Host extends Model
         }
     }
 
+    /** @param string|null $value */
     public function getHashAttribute($value): string
     {
         if (! $value) {
@@ -80,6 +84,7 @@ class Host extends Model
         }
     }
 
+    /** @param string|null $value */
     public function setHashPublicAttribute($value): void
     {
         if (! is_null($value) && $value !== '') {
@@ -87,6 +92,7 @@ class Host extends Model
         }
     }
 
+    /** @param string|null $value */
     public function getHashPublicAttribute($value): string
     {
         if (! $value) {
@@ -107,7 +113,7 @@ class Host extends Model
     }
 
     /**
-     * Get the hostings for the host.
+     * @return HasMany<Hosting, $this>
      */
     public function hostings(): HasMany
     {
@@ -115,7 +121,7 @@ class Host extends Model
     }
 
     /**
-     * Get the accounts for the host (Simple Mode - Phase 2).
+     * @return HasMany<Account, $this>
      */
     public function accounts(): HasMany
     {
@@ -123,8 +129,7 @@ class Host extends Model
     }
 
     /**
-     * Get all domains for the host through accounts (Simple Mode - Phase 3).
-     * This allows direct access to all domains in a host without loading accounts first.
+     * @return HasManyThrough<Domain, Account, $this>
      */
     public function domains(): HasManyThrough
     {
@@ -132,7 +137,7 @@ class Host extends Model
     }
 
     /**
-     * Get the users that have access to this host.
+     * @return HasMany<User, $this>
      */
     public function users(): HasMany
     {

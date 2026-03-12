@@ -9,6 +9,7 @@ use App\Enums\PanelType;
 use App\Models\Host;
 use Exception;
 use Illuminate\Console\Command;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Log;
 
 use function Laravel\Prompts\progress;
@@ -126,8 +127,10 @@ class SyncAccountsCommand extends Command
      * Get hosts to synchronize based on options
      *
      * Syncs ALL cPanel/DirectAdmin hosts (accounts exist on ALL servers)
+     *
+     * @return Collection<int, Host>
      */
-    private function getHostsToSync(?string $hostId): \Illuminate\Database\Eloquent\Collection
+    private function getHostsToSync(?string $hostId): Collection
     {
         $query = Host::query()
             ->whereIn('panel', ['cpanel', 'directadmin', 'da'])
@@ -141,7 +144,7 @@ class SyncAccountsCommand extends Command
     }
 
     /**
-     * Sync a single host
+     * @return array<string, int>
      */
     private function syncHost(
         Host $host,
@@ -166,7 +169,7 @@ class SyncAccountsCommand extends Command
     }
 
     /**
-     * Display summary of synchronization
+     * @param  array<string, int>  $totals
      */
     private function displaySummary(array $totals, int $hostsCount): void
     {

@@ -3,6 +3,8 @@
 declare(strict_types=1);
 
 use App\Models\EmailReputation;
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 test('email reputation calculates verification rate correctly', function () {
     $reputation = new EmailReputation([
@@ -78,11 +80,11 @@ test('email reputation casts dates correctly', function () {
         'last_seen_at' => now(),
     ]);
 
-    expect($reputation->last_seen_at)->toBeInstanceOf(\Carbon\Carbon::class);
+    expect($reputation->last_seen_at)->toBeInstanceOf(Carbon::class);
 });
 
 test('email reputation has abuse incidents relationship', function () {
     $reputation = new EmailReputation;
 
-    expect($reputation->abuseIncidents())->toBeInstanceOf(\Illuminate\Database\Eloquent\Relations\HasMany::class);
+    expect($reputation->abuseIncidents())->toBeInstanceOf(HasMany::class);
 });

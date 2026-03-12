@@ -6,7 +6,7 @@ namespace App\Actions;
 
 use App\Events\SimpleUnblock\SimpleUnblockRequestProcessed;
 use App\Jobs\{ProcessSimpleUnblockJob, SendSimpleUnblockNotificationJob};
-use App\Models\Domain;
+use App\Models\{Account, Domain, Host};
 use Exception;
 use Illuminate\Support\Facades\{Log, RateLimiter};
 use InvalidArgumentException;
@@ -60,7 +60,7 @@ class SimpleUnblockAction
         ]);
 
         // Find domain in local database with eager loading
-        /** @var \App\Models\Domain|null $domainRecord */
+        /** @var Domain|null $domainRecord */
         $domainRecord = Domain::with('account.host')
             ->where('domain_name', $normalizedDomain)
             ->first();
@@ -79,7 +79,7 @@ class SimpleUnblockAction
         }
 
         // Get account and host from relationships
-        /** @var \App\Models\Account $account */
+        /** @var Account $account */
         $account = $domainRecord->account;
 
         if (! $account) {
@@ -95,7 +95,7 @@ class SimpleUnblockAction
             return;
         }
 
-        /** @var \App\Models\Host $host */
+        /** @var Host $host */
         $host = $account->host;
 
         if (! $host) {

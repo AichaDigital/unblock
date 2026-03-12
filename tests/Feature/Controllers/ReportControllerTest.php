@@ -1,6 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Models\Report;
+use Illuminate\Support\Str;
+
+test('returns 404 for non-existent report', function () {
+    $fakeUuid = Str::uuid()->toString();
+
+    $this->get('/report/'.$fakeUuid)->assertNotFound();
+});
 
 test('if report is greater than expiration time abort forbidden', function () {
     $createReportAt = now()->subSeconds(config('unblock.report_expiration') + 1);

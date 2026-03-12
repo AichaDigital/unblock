@@ -17,6 +17,11 @@ class CheckSessionTimeout
     {
         if (Auth::check()) {
             $user = Auth::user();
+
+            if (! $user) {
+                return $next($request);
+            }
+
             $lastActivity = Session::get('last_activity', now()->timestamp);
 
             // Different timeout for admins vs regular users

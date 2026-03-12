@@ -3,6 +3,8 @@
 declare(strict_types=1);
 
 use App\Models\IpReputation;
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 test('ip reputation calculates success rate correctly', function () {
     $reputation = new IpReputation([
@@ -55,13 +57,13 @@ test('ip reputation casts geo coordinates correctly', function () {
 
     expect($reputation->latitude)->toBeFloat()
         ->and($reputation->longitude)->toBeFloat()
-        ->and($reputation->last_seen_at)->toBeInstanceOf(\Carbon\Carbon::class);
+        ->and($reputation->last_seen_at)->toBeInstanceOf(Carbon::class);
 });
 
 test('ip reputation has abuse incidents relationship', function () {
     $reputation = new IpReputation;
 
-    expect($reputation->abuseIncidents())->toBeInstanceOf(\Illuminate\Database\Eloquent\Relations\HasMany::class);
+    expect($reputation->abuseIncidents())->toBeInstanceOf(HasMany::class);
 });
 
 test('ip reputation stores geo location data', function () {

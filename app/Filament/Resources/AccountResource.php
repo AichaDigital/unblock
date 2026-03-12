@@ -7,7 +7,9 @@ use App\Models\{Account, User};
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\{Actions, Forms, Infolists, Tables};
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\{Grid, Section};
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
@@ -51,7 +53,7 @@ class AccountResource extends Resource
     {
         return $schema
             ->components([
-                \Filament\Schemas\Components\Grid::make(2)
+                Grid::make(2)
                     ->schema([
                         Forms\Components\Select::make('host_id')
                             ->label(__('accounts.Host'))
@@ -95,7 +97,7 @@ class AccountResource extends Resource
     {
         return $schema
             ->components([
-                \Filament\Schemas\Components\Section::make(__('accounts.Account Information'))
+                Section::make(__('accounts.Account Information'))
                     ->schema([
                         Infolists\Components\TextEntry::make('host.fqdn')
                             ->label(__('accounts.Host'))
@@ -116,7 +118,7 @@ class AccountResource extends Resource
                             ->label(__('accounts.Owner'))
                             ->placeholder('-'),
                     ])->columns(2),
-                \Filament\Schemas\Components\Section::make(__('accounts.Status'))
+                Section::make(__('accounts.Status'))
                     ->schema([
                         Infolists\Components\IconEntry::make('suspended_at')
                             ->label(__('accounts.Suspended'))
@@ -146,7 +148,7 @@ class AccountResource extends Resource
                             ->since()
                             ->placeholder('-'),
                     ])->columns(3),
-                \Filament\Schemas\Components\Section::make(__('accounts.Timestamps'))
+                Section::make(__('accounts.Timestamps'))
                     ->schema([
                         Infolists\Components\TextEntry::make('created_at')
                             ->label(__('accounts.Created At'))
@@ -259,14 +261,14 @@ class AccountResource extends Resource
                     ->action(function (Account $record) {
                         if ($record->suspended_at) {
                             $record->update(['suspended_at' => null]);
-                            \Filament\Notifications\Notification::make()
+                            Notification::make()
                                 ->success()
                                 ->title(__('messages.accounts.account_unsuspended'))
                                 ->body(__('messages.accounts.account_unsuspended_success', ['username' => $record->username]))
                                 ->send();
                         } else {
                             $record->update(['suspended_at' => now()]);
-                            \Filament\Notifications\Notification::make()
+                            Notification::make()
                                 ->success()
                                 ->title(__('messages.accounts.account_suspended'))
                                 ->body(__('messages.accounts.account_suspended_success', ['username' => $record->username]))

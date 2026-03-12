@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use App\Models\{AbuseIncident, PatternDetection};
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Carbon;
+use Illuminate\Support\{Carbon, Collection};
 
 uses(RefreshDatabase::class);
 
@@ -59,7 +59,7 @@ test('model casts attributes correctly', function () {
         ->and($pattern->time_window_minutes)->toBeInt()
         ->and($pattern->pattern_data)->toBeArray()
         ->and($pattern->related_incidents)->toBeArray()
-        ->and($pattern->detected_at)->toBeInstanceOf(\Illuminate\Support\Carbon::class);
+        ->and($pattern->detected_at)->toBeInstanceOf(Carbon::class);
 });
 
 test('pattern type constants are defined', function () {
@@ -239,7 +239,7 @@ test('abuseIncidents returns empty collection when no related incidents', functi
 
     $incidents = $pattern->abuseIncidents();
 
-    expect($incidents)->toBeInstanceOf(\Illuminate\Support\Collection::class)
+    expect($incidents)->toBeInstanceOf(Collection::class)
         ->and($incidents)->toBeEmpty();
 });
 

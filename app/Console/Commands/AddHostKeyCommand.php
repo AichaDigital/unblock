@@ -77,7 +77,7 @@ class AddHostKeyCommand extends Command
         $this->info("Host key added to known_hosts for {$host->fqdn}.");
     }
 
-    private function removeExistingHostKey($knownHostsPath, $ip, $fqdn): void
+    private function removeExistingHostKey(string $knownHostsPath, string $ip, string $fqdn): void
     {
         if (! file_exists($knownHostsPath)) {
             return;

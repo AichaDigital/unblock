@@ -1,7 +1,9 @@
 <?php
 
+use App\Livewire\OtpLogin;
 use App\Models\User;
 use Illuminate\Support\Facades\{Auth, Session};
+use Livewire\Livewire;
 
 beforeEach(function () {
     // Clean up before each test
@@ -108,7 +110,7 @@ test('session timeout middleware does not affect unauthenticated users', functio
 
 test('otp login component integrates with session timeout system', function () {
     // Verify that the OTP login component includes session activity setup
-    $reflectedClass = new \ReflectionClass(\App\Livewire\OtpLogin::class);
+    $reflectedClass = new ReflectionClass(OtpLogin::class);
     $methodContent = file_get_contents($reflectedClass->getFileName());
 
     // Check that session activity is set in successful login
@@ -119,7 +121,7 @@ test('otp login component integrates with session timeout system', function () {
     $otp = $this->user->oneTimePasswords()->latest()->first();
 
     // Verify the component can handle the OTP verification flow
-    $component = \Livewire\Livewire::test(\App\Livewire\OtpLogin::class)
+    $component = Livewire::test(OtpLogin::class)
         ->set('email', $this->user->email)
         ->call('sendOtp')
         ->assertSet('otpSent', true)

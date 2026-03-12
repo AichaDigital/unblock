@@ -79,7 +79,7 @@ test('REAL TEST - FirewallService command building works correctly', function ()
     // This will fail if we try to execute real SSH, but we can test command building
     try {
         $firewallService->checkProblems($host, $sshKey, 'csf', '5.102.173.71');
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         // Expected to fail due to SSH connection, but command building should work
         expect($e->getMessage())->not->toContain('Invalid unity'); // Should not be a command building error
     }

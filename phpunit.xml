@@ -21,6 +21,16 @@
             <directory suffix=".php">./app/Livewire</directory>
             <directory suffix=".php">./app/Notifications</directory>
             <directory suffix=".php">./app/Console/Commands/Develop</directory>
+            <file>./app/Console/Commands/UserAuthorizeCommand.php</file>
+            <file>./app/Console/Commands/UserCreateCommand.php</file>
+            <file>./app/Console/Commands/AddHostKeyCommand.php</file>
+            <file>./app/Services/SshConnectionManager.php</file>
+            <file>./app/Services/SshKeyGenerator.php</file>
+            <file>./app/Traits/HasNotifications.php</file>
+            <file>./app/Jobs/RemoveExpiredBfmWhitelistIps.php</file>
+            <file>./app/Services/GeoIPService.php</file>
+            <file>./app/Console/Commands/GeoIP/UpdateDatabaseCommand.php</file>
+            <file>./app/Actions/WhmcsSynchro.php</file>
         </exclude>
     </source>
     <php>

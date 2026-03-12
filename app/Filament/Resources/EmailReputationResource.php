@@ -10,6 +10,7 @@ use Filament\Actions\{Action, BulkActionGroup, EditAction, ViewAction};
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\{TextInput, Textarea};
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\{Grid, Section};
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\{Filter, SelectFilter};
@@ -49,9 +50,9 @@ class EmailReputationResource extends Resource
         return $schema
             ->columns(1)
             ->components([
-                \Filament\Schemas\Components\Section::make(__('firewall.email_reputation.email_information'))
+                Section::make(__('firewall.email_reputation.email_information'))
                     ->schema([
-                        \Filament\Schemas\Components\Grid::make(2)
+                        Grid::make(2)
                             ->schema([
                                 TextInput::make('email_hash')
                                     ->label(__('firewall.email_reputation.email_hash'))
@@ -64,9 +65,9 @@ class EmailReputationResource extends Resource
                             ]),
                     ]),
 
-                \Filament\Schemas\Components\Section::make(__('firewall.email_reputation.reputation_statistics'))
+                Section::make(__('firewall.email_reputation.reputation_statistics'))
                     ->schema([
-                        \Filament\Schemas\Components\Grid::make(3)
+                        Grid::make(3)
                             ->schema([
                                 TextInput::make('reputation_score')
                                     ->label(__('firewall.email_reputation.reputation_score'))
@@ -84,7 +85,7 @@ class EmailReputationResource extends Resource
                                     ->numeric()
                                     ->disabled(),
                             ]),
-                        \Filament\Schemas\Components\Grid::make(2)
+                        Grid::make(2)
                             ->schema([
                                 TextInput::make('failed_requests')
                                     ->label(__('firewall.email_reputation.failed_requests'))
@@ -96,7 +97,7 @@ class EmailReputationResource extends Resource
                             ]),
                     ]),
 
-                \Filament\Schemas\Components\Section::make(__('firewall.email_reputation.notes'))
+                Section::make(__('firewall.email_reputation.notes'))
                     ->schema([
                         Textarea::make('notes')
                             ->label(__('firewall.email_reputation.admin_notes'))

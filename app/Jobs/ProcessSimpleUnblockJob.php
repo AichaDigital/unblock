@@ -14,7 +14,7 @@ use App\Actions\SimpleUnblock\{
     ValidateDomainInDatabaseAction,
     ValidateIpFormatAction
 };
-use App\Models\Host;
+use App\Models\{Host, Report};
 use App\Services\{AnonymousUserService, SshConnectionManager};
 use Exception;
 use Illuminate\Bus\Queueable;
@@ -123,7 +123,7 @@ class ProcessSimpleUnblockJob implements ShouldQueue
                     $this->domain,
                     $this->email,
                     $host,
-                    $domainValidation->reason
+                    $domainValidation->reason ?? 'Unknown reason'
                 );
 
                 return; // ABORT
@@ -187,7 +187,7 @@ class ProcessSimpleUnblockJob implements ShouldQueue
                 [
                     'ip' => $this->ip,
                     'was_blocked' => $analysis->isBlocked(),
-                    'logs_preview' => substr(json_encode($analysis->getLogs()), 0, 500),
+                    'logs_preview' => substr((string) json_encode($analysis->getLogs()), 0, 500),
                 ]
             );
 
@@ -261,7 +261,7 @@ class ProcessSimpleUnblockJob implements ShouldQueue
         try {
             $host = Host::find($this->hostId);
             if ($host) {
-                \App\Models\Report::create([
+                Report::create([
                     'ip' => $this->ip,
                     'user_id' => AnonymousUserService::get()->id,
                     'host_id' => $this->hostId,

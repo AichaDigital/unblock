@@ -3,9 +3,10 @@
 declare(strict_types=1);
 
 use App\Actions\SimpleUnblockAction;
-use App\Jobs\ProcessSimpleUnblockJob;
+use App\Jobs\{ProcessSimpleUnblockJob, SendSimpleUnblockNotificationJob};
 use App\Models\{Account, Domain, Host};
 use Illuminate\Support\Facades\{Cache, Config, Queue, RateLimiter};
+use Spatie\Activitylog\Models\Activity;
 
 use function Pest\Laravel\assertDatabaseHas;
 
@@ -87,7 +88,7 @@ test('action validates domain format', function () {
         ip: '192.168.1.1',
         domain: 'invalid domain!',
         email: 'test@example.com'
-    ))->toThrow(\InvalidArgumentException::class);
+    ))->toThrow(InvalidArgumentException::class);
 });
 
 test('action dispatches job for specific host only (Phase 3)', function () {
@@ -145,7 +146,7 @@ test('action handles domain not found gracefully (Phase 3)', function () {
     Queue::assertNotPushed(ProcessSimpleUnblockJob::class);
 
     // Should dispatch admin notification job
-    Queue::assertPushed(\App\Jobs\SendSimpleUnblockNotificationJob::class);
+    Queue::assertPushed(SendSimpleUnblockNotificationJob::class);
 });
 
 // NOTE: Tests for null account/host cannot be automated with SQLite foreign key constraints
@@ -192,7 +193,7 @@ test('action rejects invalid domain formats', function () {
             ip: '192.168.1.1',
             domain: $invalidDomain,
             email: 'test@example.com'
-        ))->toThrow(\InvalidArgumentException::class);
+        ))->toThrow(InvalidArgumentException::class);
     }
 });
 
@@ -216,7 +217,7 @@ test('email rate limiting blocks excessive requests', function () {
         ip: '192.168.1.1',
         domain: 'example.com',
         email: 'test@example.com'
-    ))->toThrow(\RuntimeException::class);
+    ))->toThrow(RuntimeException::class);
 });
 
 test('domain rate limiting blocks excessive requests', function () {
@@ -247,7 +248,7 @@ test('domain rate limiting blocks excessive requests', function () {
         ip: '192.168.1.99',
         domain: 'example.com',
         email: 'user99@example.com'
-    ))->toThrow(\RuntimeException::class);
+    ))->toThrow(RuntimeException::class);
 });
 
 test('different emails have separate rate limits', function () {
@@ -278,7 +279,7 @@ test('activity log contains hashed email', function () {
         email: 'test@example.com'
     );
 
-    $log = \Spatie\Activitylog\Models\Activity::where('description', 'simple_unblock_request')
+    $log = Activity::where('description', 'simple_unblock_request')
         ->latest()
         ->first();
 
@@ -294,7 +295,7 @@ test('activity log contains email domain', function () {
         email: 'test@example.com'
     );
 
-    $log = \Spatie\Activitylog\Models\Activity::where('description', 'simple_unblock_request')
+    $log = Activity::where('description', 'simple_unblock_request')
         ->latest()
         ->first();
 
@@ -310,7 +311,7 @@ test('activity log does NOT contain plaintext email', function () {
         email: 'test@example.com'
     );
 
-    $log = \Spatie\Activitylog\Models\Activity::where('description', 'simple_unblock_request')
+    $log = Activity::where('description', 'simple_unblock_request')
         ->latest()
         ->first();
 
@@ -333,11 +334,11 @@ test('rate limit exception logs contain hashed email', function () {
             domain: 'example.com',
             email: 'test@example.com'
         );
-    } catch (\RuntimeException $e) {
+    } catch (RuntimeException $e) {
         // Expected
     }
 
-    $log = \Spatie\Activitylog\Models\Activity::where('description', 'simple_unblock_rate_limit_exceeded')
+    $log = Activity::where('description', 'simple_unblock_rate_limit_exceeded')
         ->where('properties->vector', 'Email')
         ->latest()
         ->first();

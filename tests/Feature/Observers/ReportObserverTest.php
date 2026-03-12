@@ -43,7 +43,7 @@ it('does not dispatch notification job when report is created (observer disabled
 
     // Assert - Verify debug log was written
     Log::shouldHaveReceived('debug')
-        ->with('Report created, notifications handled manually', \Mockery::type('array'))
+        ->with('Report created, notifications handled manually', Mockery::type('array'))
         ->once();
 });
 

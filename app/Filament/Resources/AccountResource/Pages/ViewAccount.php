@@ -4,6 +4,7 @@ namespace App\Filament\Resources\AccountResource\Pages;
 
 use App\Filament\Resources\AccountResource;
 use Filament\Actions;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
 
 class ViewAccount extends ViewRecord
@@ -25,14 +26,14 @@ class ViewAccount extends ViewRecord
                 ->action(function () {
                     if ($this->record->suspended_at) {
                         $this->record->update(['suspended_at' => null]);
-                        \Filament\Notifications\Notification::make()
+                        Notification::make()
                             ->success()
                             ->title(__('messages.accounts.account_unsuspended'))
                             ->body(__('messages.accounts.account_unsuspended_success', ['username' => $this->record->username]))
                             ->send();
                     } else {
                         $this->record->update(['suspended_at' => now()]);
-                        \Filament\Notifications\Notification::make()
+                        Notification::make()
                             ->success()
                             ->title(__('messages.accounts.account_suspended'))
                             ->body(__('messages.accounts.account_suspended_success', ['username' => $this->record->username]))

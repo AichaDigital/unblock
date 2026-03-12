@@ -42,7 +42,7 @@ describe('SyncDirectAdminAccountsAction', function () {
             $cpanelHost = Host::factory()->create(['panel' => 'cpanel']);
 
             expect(fn () => $this->action->handle($cpanelHost))
-                ->toThrow(\InvalidArgumentException::class, 'not a DirectAdmin server');
+                ->toThrow(InvalidArgumentException::class, 'not a DirectAdmin server');
         });
 
         it('accepts both directadmin and da panel types', function () {
@@ -451,10 +451,10 @@ describe('SyncDirectAdminAccountsAction', function () {
             $this->mockSession
                 ->shouldReceive('execute')
                 ->once()
-                ->andThrow(new \Exception('SSH connection failed'));
+                ->andThrow(new Exception('SSH connection failed'));
 
             expect(fn () => $this->action->handle($this->host))
-                ->toThrow(\Exception::class, 'SSH connection failed');
+                ->toThrow(Exception::class, 'SSH connection failed');
         });
 
         it('logs warning and continues when individual account fetch fails', function () {
@@ -469,7 +469,7 @@ describe('SyncDirectAdminAccountsAction', function () {
                 ->shouldReceive('execute')
                 ->with('cat /usr/local/directadmin/data/users/user1/user.conf 2>/dev/null || echo \'\'')
                 ->once()
-                ->andThrow(new \Exception('Permission denied'));
+                ->andThrow(new Exception('Permission denied'));
 
             // user2 succeeds
             $this->mockSession

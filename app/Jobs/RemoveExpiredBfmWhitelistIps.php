@@ -52,7 +52,7 @@ class RemoveExpiredBfmWhitelistIps implements ShouldQueue
         $entriesByHost = $expiredEntries->groupBy('host_id');
 
         foreach ($entriesByHost as $hostId => $entries) {
-            $host = $entries->first()->host;
+            $host = $entries->first()?->host;
 
             if (! $host || $host->panel !== 'directadmin') {
                 Log::warning('Skipping entries for non-DirectAdmin host', [
@@ -98,7 +98,7 @@ class RemoveExpiredBfmWhitelistIps implements ShouldQueue
         try {
             // Get current whitelist content
             $whitelistPath = '/usr/local/directadmin/data/admin/ip_whitelist';
-            $currentContent = $ssh->execute("cat {$whitelistPath} 2>/dev/null || echo ''");
+            $currentContent = $ssh->execute("cat {$whitelistPath} 2>/dev/null || echo ''")->getOutput();
 
             $lines = array_filter(array_map('trim', explode("\n", $currentContent)));
             $ipsToRemove = $entries->pluck('ip_address')->toArray();
@@ -156,7 +156,7 @@ class RemoveExpiredBfmWhitelistIps implements ShouldQueue
     private function cleanupTempSshKey(string $hash): void
     {
         $keyPattern = storage_path('app/.ssh/bfm_cleanup_*');
-        foreach (glob($keyPattern) as $keyFile) {
+        foreach (glob($keyPattern) ?: [] as $keyFile) {
             if (file_exists($keyFile)) {
                 unlink($keyFile);
             }

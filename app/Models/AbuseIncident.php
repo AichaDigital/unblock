@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Database\Factories\AbuseIncidentFactory;
+use Illuminate\Database\Eloquent\{Builder, Model};
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 
 /**
@@ -21,17 +23,19 @@ use Illuminate\Support\Carbon;
  * @property string|null $domain
  * @property string $severity
  * @property string $description
- * @property array|null $metadata
+ * @property array<string, mixed>|null $metadata
  * @property Carbon|null $resolved_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
 class AbuseIncident extends Model
 {
+    /** @use HasFactory<AbuseIncidentFactory> */
     use HasFactory;
 
     protected $table = 'abuse_incidents';
 
+    /** @var list<string> */
     protected $fillable = [
         'incident_type',
         'ip_address',
@@ -43,13 +47,14 @@ class AbuseIncident extends Model
         'resolved_at',
     ];
 
+    /** @var array<string, string> */
     protected $casts = [
         'metadata' => 'array',
         'resolved_at' => 'datetime',
     ];
 
     /**
-     * Get IP reputation record
+     * @return BelongsTo<IpReputation, $this>
      */
     public function ipReputation()
     {
@@ -57,7 +62,7 @@ class AbuseIncident extends Model
     }
 
     /**
-     * Get email reputation record
+     * @return BelongsTo<EmailReputation, $this>
      */
     public function emailReputation()
     {
@@ -113,7 +118,8 @@ class AbuseIncident extends Model
     }
 
     /**
-     * Scope to get only unresolved incidents
+     * @param  Builder<static>  $query
+     * @return Builder<static>
      */
     public function scopeUnresolved($query)
     {
@@ -121,7 +127,8 @@ class AbuseIncident extends Model
     }
 
     /**
-     * Scope to get only resolved incidents
+     * @param  Builder<static>  $query
+     * @return Builder<static>
      */
     public function scopeResolved($query)
     {
@@ -129,7 +136,8 @@ class AbuseIncident extends Model
     }
 
     /**
-     * Scope to filter by severity
+     * @param  Builder<static>  $query
+     * @return Builder<static>
      */
     public function scopeBySeverity($query, string $severity)
     {
@@ -137,7 +145,8 @@ class AbuseIncident extends Model
     }
 
     /**
-     * Scope to get critical incidents
+     * @param  Builder<static>  $query
+     * @return Builder<static>
      */
     public function scopeCritical($query)
     {
@@ -145,7 +154,8 @@ class AbuseIncident extends Model
     }
 
     /**
-     * Scope to get high severity incidents
+     * @param  Builder<static>  $query
+     * @return Builder<static>
      */
     public function scopeHigh($query)
     {

@@ -1,9 +1,11 @@
 <?php
 
-use App\Actions\SimpleUnblock\AnalyzeFirewallForIpAction;
+use App\Actions\Firewall\ValidateUserAccessToHostAction;
+use App\Actions\SimpleUnblock\{AnalyzeFirewallForIpAction, ValidateIpFormatAction};
 use App\Actions\UnblockIpActionNormalMode;
 use App\Jobs\{ProcessFirewallCheckJob, SendReportNotificationJob, SendSimpleUnblockNotificationJob};
 use App\Models\{Host, User};
+use App\Services\{AuditService, ReportGenerator};
 use App\Services\Firewall\FirewallAnalysisResult;
 use Illuminate\Support\Facades\Queue;
 use Mockery\MockInterface;
@@ -34,12 +36,12 @@ test('job orchestrates actions and dispatches correct notification for normal mo
         hostId: $host->id
     );
     $job->handle(
-        resolve(\App\Actions\SimpleUnblock\ValidateIpFormatAction::class),
-        resolve(\App\Actions\Firewall\ValidateUserAccessToHostAction::class),
+        resolve(ValidateIpFormatAction::class),
+        resolve(ValidateUserAccessToHostAction::class),
         resolve(AnalyzeFirewallForIpAction::class),
         resolve(UnblockIpActionNormalMode::class),
-        resolve(\App\Services\ReportGenerator::class),
-        resolve(\App\Services\AuditService::class)
+        resolve(ReportGenerator::class),
+        resolve(AuditService::class)
     );
 
     // 3. Assert

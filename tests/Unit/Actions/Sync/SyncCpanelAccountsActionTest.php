@@ -81,7 +81,7 @@ beforeEach(function () {
                     return ($this->createUapiResponse)('', []);
                 }
 
-                throw new \Exception("Unexpected SSH command: {$command}");
+                throw new Exception("Unexpected SSH command: {$command}");
             });
     };
 });
@@ -93,7 +93,7 @@ describe('SyncCpanelAccountsAction', function () {
             $daHost = Host::factory()->create(['panel' => 'directadmin']);
 
             expect(fn () => $this->action->handle($daHost))
-                ->toThrow(\InvalidArgumentException::class, 'not a cPanel server');
+                ->toThrow(InvalidArgumentException::class, 'not a cPanel server');
         });
     });
 
@@ -463,7 +463,7 @@ describe('SyncCpanelAccountsAction', function () {
                 ->andReturn('invalid json response');
 
             expect(fn () => $this->action->handle($this->host))
-                ->toThrow(\Exception::class, 'Failed to parse whmapi1 JSON response');
+                ->toThrow(Exception::class, 'Failed to parse whmapi1 JSON response');
         });
 
         it('throws exception when response structure is invalid', function () {
@@ -477,17 +477,17 @@ describe('SyncCpanelAccountsAction', function () {
                 ->andReturn($whmapi1Response);
 
             expect(fn () => $this->action->handle($this->host))
-                ->toThrow(\Exception::class, 'Invalid whmapi1 response structure');
+                ->toThrow(Exception::class, 'Invalid whmapi1 response structure');
         });
 
         it('propagates SSH connection exceptions', function () {
             $this->mockSession
                 ->shouldReceive('execute')
                 ->once()
-                ->andThrow(new \Exception('SSH connection failed'));
+                ->andThrow(new Exception('SSH connection failed'));
 
             expect(fn () => $this->action->handle($this->host))
-                ->toThrow(\Exception::class, 'SSH connection failed');
+                ->toThrow(Exception::class, 'SSH connection failed');
         });
     });
 

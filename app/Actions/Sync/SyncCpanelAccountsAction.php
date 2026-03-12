@@ -6,7 +6,7 @@ namespace App\Actions\Sync;
 
 use App\Enums\PanelType;
 use App\Models\{Account, Domain, Host};
-use App\Services\SshConnectionManager;
+use App\Services\{SshConnectionManager, SshSession};
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -146,7 +146,7 @@ class SyncCpanelAccountsAction
      *
      * @return array<int, string>
      */
-    private function fetchAccountDomains(\App\Services\SshSession $session, string $username): array
+    private function fetchAccountDomains(SshSession $session, string $username): array
     {
         try {
             // Execute uapi DomainInfo list_domains for the specific user

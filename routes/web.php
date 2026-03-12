@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ReportController;
+use App\Livewire\{AdminOtpVerification, SimpleUnblockForm};
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
@@ -18,11 +19,11 @@ Volt::route('dashboard', 'unified-dashboard')
 Route::get('/report/{id}', ReportController::class)->name('report.show');
 
 // Simple Unblock Mode (always register route, middleware will handle access control)
-Route::get('/simple-unblock', \App\Livewire\SimpleUnblockForm::class)
+Route::get('/simple-unblock', SimpleUnblockForm::class)
     ->middleware(['simple.mode.enabled', 'throttle.simple.unblock'])
     ->name('simple.unblock');
 
 // Admin OTP Verification
-Route::get('/admin/otp/verify', \App\Livewire\AdminOtpVerification::class)
+Route::get('/admin/otp/verify', AdminOtpVerification::class)
     ->middleware(['web', 'auth'])
     ->name('admin.otp.verify');

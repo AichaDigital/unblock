@@ -2,9 +2,12 @@
 
 declare(strict_types=1);
 
+use App\Console\Commands\UnblockIpCommand;
+use App\Exceptions\{CommandExecutionException, ConnectionFailedException, FirewallException};
 use App\Models\Host;
 use App\Services\FirewallService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Symfony\Component\Console\Exception\RuntimeException;
 use Tests\FirewallTestConstants as TC;
 
 uses(RefreshDatabase::class);
@@ -94,7 +97,7 @@ test('command handles unblock failure', function () {
     // Mock FirewallService to throw exception
     $firewallService = Mockery::mock(FirewallService::class);
     $firewallService->allows('checkProblems')
-        ->andThrow(new \App\Exceptions\ConnectionFailedException(
+        ->andThrow(new ConnectionFailedException(
             'Connection failed',
             TC::TEST_HOST_FQDN,
             TC::TEST_SSH_PORT
@@ -253,13 +256,13 @@ test('command works with DirectAdmin host', function () {
 // ============================================================================
 
 test('command has correct signature', function () {
-    $command = new \App\Console\Commands\UnblockIpCommand;
+    $command = new UnblockIpCommand;
 
     expect($command->getName())->toBe('unblock:ip');
 });
 
 test('command has correct description', function () {
-    $command = new \App\Console\Commands\UnblockIpCommand;
+    $command = new UnblockIpCommand;
 
     expect($command->getDescription())->toBe('Unblock an IP address from firewall and clear rate limiting records');
 });
@@ -268,7 +271,7 @@ test('command requires IP argument', function () {
     // Try to run without IP argument - should fail
     $this->artisan('unblock:ip')
         ->assertFailed();
-})->throws(\Symfony\Component\Console\Exception\RuntimeException::class);
+})->throws(RuntimeException::class);
 
 // ============================================================================
 // SCENARIO 9: Exception Handling
@@ -282,7 +285,7 @@ test('command handles generic exception', function () {
 
     $firewallService = Mockery::mock(FirewallService::class);
     $firewallService->allows('checkProblems')
-        ->andThrow(new \Exception('Unexpected error occurred'));
+        ->andThrow(new Exception('Unexpected error occurred'));
 
     app()->instance(FirewallService::class, $firewallService);
 
@@ -303,7 +306,7 @@ test('command handles firewall exception', function () {
 
     $firewallService = Mockery::mock(FirewallService::class);
     $firewallService->allows('checkProblems')
-        ->andThrow(new \App\Exceptions\FirewallException('Firewall operation failed'));
+        ->andThrow(new FirewallException('Firewall operation failed'));
 
     app()->instance(FirewallService::class, $firewallService);
 
@@ -347,7 +350,7 @@ test('command shows error details when available', function () {
     // Create a failure scenario by making FirewallService throw
     $firewallService = Mockery::mock(FirewallService::class);
     $firewallService->allows('checkProblems')
-        ->andThrow(new \App\Exceptions\CommandExecutionException(
+        ->andThrow(new CommandExecutionException(
             'Command execution failed',
             'csf -dr 192.168.1.1',
             'Permission denied'

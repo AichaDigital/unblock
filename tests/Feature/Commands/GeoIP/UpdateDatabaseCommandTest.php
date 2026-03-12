@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\{File, Http, Log};
 
 beforeEach(function () {
@@ -97,7 +98,7 @@ test('command forces update with --force flag', function () {
     // This prevents tar errors during mutation testing
     try {
         $this->artisan('geoip:update --force');
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         // Expected to fail when archive is invalid, but should still make HTTP request
     }
 
@@ -128,7 +129,7 @@ test('command builds correct download url with parameters', function () {
     // Expect failure due to invalid archive, but should still make request
     try {
         $this->artisan('geoip:update --force');
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         // Expected when archive is invalid
     }
 
@@ -187,7 +188,7 @@ test('command handles timeout with appropriate error message', function () {
 
     // Simulate timeout by faking exception
     Http::fake(function () {
-        throw new \Illuminate\Http\Client\ConnectionException('Operation timed out');
+        throw new ConnectionException('Operation timed out');
     });
 
     $this->artisan('geoip:update --force')

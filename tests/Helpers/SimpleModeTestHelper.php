@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Helpers;
 
+use App\Models\User;
+use PHPUnit\Framework\AssertionFailedError;
+
 /**
  * Simple Mode Test Helper
  *
@@ -61,9 +64,9 @@ class SimpleModeTestHelper
     /**
      * Create a temporary user (Simple Mode user)
      */
-    public static function createTemporaryUser(string $email = 'simple@example.com'): \App\Models\User
+    public static function createTemporaryUser(string $email = 'simple@example.com'): User
     {
-        return \App\Models\User::factory()->create([
+        return User::factory()->create([
             'first_name' => 'Simple',
             'last_name' => 'Unblock',
             'email' => $email,
@@ -75,9 +78,9 @@ class SimpleModeTestHelper
     /**
      * Create a real admin user (Admin Mode user)
      */
-    public static function createAdminUser(string $email = 'admin@example.com'): \App\Models\User
+    public static function createAdminUser(string $email = 'admin@example.com'): User
     {
-        return \App\Models\User::factory()->create([
+        return User::factory()->create([
             'first_name' => 'Test',
             'last_name' => 'Admin',
             'email' => $email,
@@ -88,12 +91,12 @@ class SimpleModeTestHelper
     /**
      * Assert that Simple Mode is enabled
      *
-     * @throws \PHPUnit\Framework\AssertionFailedError
+     * @throws AssertionFailedError
      */
     public static function assertSimpleModeEnabled(): void
     {
         if (! self::isSimpleModeEnabled()) {
-            throw new \PHPUnit\Framework\AssertionFailedError(
+            throw new AssertionFailedError(
                 'Failed asserting that Simple Mode is enabled. '.
                 'Did you forget to call SimpleModeTestHelper::enableSimpleMode()?'
             );
@@ -103,12 +106,12 @@ class SimpleModeTestHelper
     /**
      * Assert that Simple Mode is disabled (Admin Mode)
      *
-     * @throws \PHPUnit\Framework\AssertionFailedError
+     * @throws AssertionFailedError
      */
     public static function assertSimpleModeDisabled(): void
     {
         if (self::isSimpleModeEnabled()) {
-            throw new \PHPUnit\Framework\AssertionFailedError(
+            throw new AssertionFailedError(
                 'Failed asserting that Simple Mode is disabled (Admin Mode). '.
                 'Did you forget to call SimpleModeTestHelper::disableSimpleMode()?'
             );

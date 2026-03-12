@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
+use Database\Factories\DomainFactory;
+use Illuminate\Database\Eloquent\{Builder, Model};
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
@@ -16,17 +18,18 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $account_id
  * @property string $domain_name
  * @property string $type
- * @property \Carbon\Carbon $created_at
- * @property \Carbon\Carbon $updated_at
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
  */
 class Domain extends Model
 {
+    /** @use HasFactory<DomainFactory> */
     use HasFactory;
 
     /**
      * The attributes that are mass assignable.
      *
-     * @var array<string>
+     * @var list<string>
      */
     protected $fillable = [
         'account_id',
@@ -35,7 +38,7 @@ class Domain extends Model
     ];
 
     /**
-     * Get the account that owns the domain.
+     * @return BelongsTo<Account, $this>
      */
     public function account(): BelongsTo
     {
@@ -43,7 +46,8 @@ class Domain extends Model
     }
 
     /**
-     * Scope a query to search for a specific domain name.
+     * @param  Builder<static>  $query
+     * @return Builder<static>
      */
     public function scopeForDomain($query, string $domainName)
     {
@@ -51,7 +55,8 @@ class Domain extends Model
     }
 
     /**
-     * Scope a query to only include primary domains.
+     * @param  Builder<static>  $query
+     * @return Builder<static>
      */
     public function scopePrimary($query)
     {
@@ -59,7 +64,8 @@ class Domain extends Model
     }
 
     /**
-     * Scope a query to only include addon domains.
+     * @param  Builder<static>  $query
+     * @return Builder<static>
      */
     public function scopeAddon($query)
     {
@@ -67,7 +73,8 @@ class Domain extends Model
     }
 
     /**
-     * Scope a query to only include subdomains.
+     * @param  Builder<static>  $query
+     * @return Builder<static>
      */
     public function scopeSubdomain($query)
     {
@@ -75,7 +82,8 @@ class Domain extends Model
     }
 
     /**
-     * Scope a query to only include alias domains.
+     * @param  Builder<static>  $query
+     * @return Builder<static>
      */
     public function scopeAlias($query)
     {

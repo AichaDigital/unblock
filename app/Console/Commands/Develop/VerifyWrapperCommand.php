@@ -6,7 +6,7 @@ namespace App\Console\Commands\Develop;
 
 use App\Models\Host;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\{Log, Process};
 
 /**
  * Verify Wrapper Command
@@ -166,7 +166,7 @@ class VerifyWrapperCommand extends Command
     private function testCommand(Host $host, string $command, string $description): bool
     {
         try {
-            $process = \Illuminate\Support\Facades\Process::timeout(10)
+            $process = Process::timeout(10)
                 ->run("ssh -i {$this->getKeyPath($host)} -p {$host->port_ssh} -o StrictHostKeyChecking=no root@{$host->fqdn} \"{$command}\" 2>&1");
 
             $output = $process->output();

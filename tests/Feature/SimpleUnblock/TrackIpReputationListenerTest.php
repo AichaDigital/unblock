@@ -6,6 +6,7 @@ use App\Events\SimpleUnblock\SimpleUnblockRequestProcessed;
 use App\Listeners\SimpleUnblock\TrackIpReputationListener;
 use App\Models\IpReputation;
 use App\Services\GeoIPService;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Event;
 
 use function Pest\Laravel\assertDatabaseHas;
@@ -175,5 +176,5 @@ test('listener is queued for async processing', function () {
 
     // Verify listener implements ShouldQueue
     $listener = new TrackIpReputationListener($this->geoIpService);
-    expect($listener)->toBeInstanceOf(\Illuminate\Contracts\Queue\ShouldQueue::class);
+    expect($listener)->toBeInstanceOf(ShouldQueue::class);
 });

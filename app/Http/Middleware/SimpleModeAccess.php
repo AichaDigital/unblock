@@ -29,6 +29,10 @@ class SimpleModeAccess
 
         $user = Auth::user();
 
+        if (! $user) {
+            return redirect()->route('login');
+        }
+
         // Check if this is a temporary user created in simple mode
         $isSimpleModeUser = $user->is_simple_mode_user && ! $user->is_admin;
 

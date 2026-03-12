@@ -84,7 +84,7 @@ test('queue monitor command handles redis connection failure gracefully', functi
     // Mock Redis to throw exception when llen is called
     Redis::shouldReceive('connection')->andReturnSelf();
     Redis::shouldReceive('llen')
-        ->andThrow(new \Exception('Connection refused'));
+        ->andThrow(new Exception('Connection refused'));
 
     $this->artisan('develop:queue-monitor')
         ->expectsOutput('❌ Cannot connect to Redis: Connection refused')
