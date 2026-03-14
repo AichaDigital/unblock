@@ -7,9 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.0] - 2026-03-14
+
+### Added
+
+- `/health` endpoint for HA failover monitoring between production servers
+- CI/CD pipeline: sequential deploy to amazzal and central with health checks
+- Deploy targets for argos01/argos02 HA cluster
+
 ### Changed
 
-- Dependency bumps: axios 1.13.5, vite 7.3.1, laravel-vite-plugin 2.1.0, filament/upgrade, laravel/boost, debugbar, infection
+- Dependency bumps: axios 1.13.6, Tailwind CSS 4.2.1, @tailwindcss/vite 4.2.1, daisyui 5.5.19
+- Node.js upgraded from 18 to 22 in CI for Tailwind CSS 4.2 compatibility
+- PHPStan upgraded to level 8 with zero errors and no baseline
+- Dynamic Composer cache path in CI
+
+### Fixed
+
+- Open redirect, IP spoofing, and command escaping vulnerabilities
+- XSS, command injection, simple mode detection, and mass assignment issues
+- ModSecurity grep pattern in security analysis
+- `CreateAbuseIncidentListener` refactored to use Eloquent models
+
+### Security
+
+- Comprehensive security audit: patched XSS, command injection, open redirect, IP spoofing
+- PHPStan coverage expanded, test coverage boosted to 90%
+- CHANGELOG.md rewritten following Keep a Changelog format
 
 ## [1.4.0] - 2026-02-16
 
@@ -142,7 +166,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bilingual interface EN/ES
 - 257 tests, 94% coverage
 
-[Unreleased]: https://github.com/AichaDigital/unblock/compare/v1.4.0...HEAD
+[Unreleased]: https://github.com/AichaDigital/unblock/compare/v1.5.0...HEAD
+[1.5.0]: https://github.com/AichaDigital/unblock/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/AichaDigital/unblock/compare/v1.3.1...v1.4.0
 [1.3.1]: https://github.com/AichaDigital/unblock/compare/v1.3.0...v1.3.1
 [1.3.0]: https://github.com/AichaDigital/unblock/compare/v1.2.0...v1.3.0
