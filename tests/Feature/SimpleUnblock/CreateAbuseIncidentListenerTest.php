@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Events\SimpleUnblock\{SimpleUnblockHoneypotTriggered, SimpleUnblockIpMismatch, SimpleUnblockOtpFailed, SimpleUnblockRateLimitExceeded};
 use App\Listeners\SimpleUnblock\CreateAbuseIncidentListener;
 use App\Models\{AbuseIncident, EmailReputation, IpReputation};
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\DB;
 
 use function Pest\Laravel\assertDatabaseHas;
@@ -310,7 +311,7 @@ test('listener reputation score never goes below zero', function () {
 test('listener is queued for async processing', function () {
     // Verify listener implements ShouldQueue
     $listener = new CreateAbuseIncidentListener;
-    expect($listener)->toBeInstanceOf(\Illuminate\Contracts\Queue\ShouldQueue::class);
+    expect($listener)->toBeInstanceOf(ShouldQueue::class);
 });
 
 test('listener handles honeypot without email gracefully', function () {

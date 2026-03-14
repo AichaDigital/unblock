@@ -11,6 +11,7 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\{DateTimePicker, Select, TextInput, Textarea};
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\{Grid, Section};
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\{IconColumn, TextColumn};
 use Filament\Tables\Filters\{Filter, SelectFilter, TernaryFilter};
@@ -50,9 +51,9 @@ class AbuseIncidentResource extends Resource
         return $schema
             ->columns(1)
             ->components([
-                \Filament\Schemas\Components\Section::make(__('firewall.abuse_incidents.incident_information'))
+                Section::make(__('firewall.abuse_incidents.incident_information'))
                     ->schema([
-                        \Filament\Schemas\Components\Grid::make(3)
+                        Grid::make(3)
                             ->schema([
                                 Select::make('incident_type')
                                     ->label(__('firewall.abuse_incidents.incident_type'))
@@ -84,9 +85,9 @@ class AbuseIncidentResource extends Resource
                             ]),
                     ]),
 
-                \Filament\Schemas\Components\Section::make(__('firewall.abuse_incidents.target_information'))
+                Section::make(__('firewall.abuse_incidents.target_information'))
                     ->schema([
-                        \Filament\Schemas\Components\Grid::make(3)
+                        Grid::make(3)
                             ->schema([
                                 TextInput::make('ip_address')
                                     ->label(__('firewall.abuse_incidents.ip_address'))
@@ -101,7 +102,7 @@ class AbuseIncidentResource extends Resource
                             ]),
                     ]),
 
-                \Filament\Schemas\Components\Section::make(__('firewall.abuse_incidents.details'))
+                Section::make(__('firewall.abuse_incidents.details'))
                     ->schema([
                         Textarea::make('description')
                             ->label(__('firewall.abuse_incidents.description'))

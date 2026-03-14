@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
+use App\Filament\Pages\UserProfile;
 use App\Models\User;
+use Livewire\Livewire;
 
 use function Pest\Laravel\{actingAs, assertDatabaseHas};
 
@@ -16,7 +18,7 @@ test('admin can access user profile page', function () {
     $admin = User::factory()->create(['is_admin' => true, 'preferred_locale' => 'es']);
     actingAs($admin);
 
-    \Livewire\Livewire::test(\App\Filament\Pages\UserProfile::class)
+    Livewire::test(UserProfile::class)
         ->assertSuccessful();
 });
 
@@ -24,7 +26,7 @@ test('admin can change language preference from profile', function () {
     $admin = User::factory()->create(['is_admin' => true, 'preferred_locale' => 'es']);
     actingAs($admin);
 
-    \Livewire\Livewire::test(\App\Filament\Pages\UserProfile::class)
+    Livewire::test(UserProfile::class)
         ->fillForm(['preferred_locale' => 'en'])
         ->call('save')
         ->assertHasNoFormErrors();
@@ -42,7 +44,7 @@ test('language preference persists across sessions', function () {
     $admin = User::factory()->create(['is_admin' => true, 'preferred_locale' => 'en']);
     actingAs($admin);
 
-    \Livewire\Livewire::test(\App\Filament\Pages\UserProfile::class)
+    Livewire::test(UserProfile::class)
         ->assertFormSet(['preferred_locale' => 'en']);
 });
 
@@ -56,7 +58,7 @@ test('user profile displays current user information', function () {
     ]);
     actingAs($admin);
 
-    \Livewire\Livewire::test(\App\Filament\Pages\UserProfile::class)
+    Livewire::test(UserProfile::class)
         ->assertSeeHtml('John Doe')
         ->assertSeeHtml('john@example.com');
 });
@@ -65,7 +67,7 @@ test('language preference defaults to spanish if not set', function () {
     $admin = User::factory()->create(['is_admin' => true, 'preferred_locale' => null]);
     actingAs($admin);
 
-    \Livewire\Livewire::test(\App\Filament\Pages\UserProfile::class)
+    Livewire::test(UserProfile::class)
         ->assertFormSet(['preferred_locale' => 'es']);
 });
 
@@ -73,7 +75,7 @@ test('only valid locales can be selected', function () {
     $admin = User::factory()->create(['is_admin' => true, 'preferred_locale' => 'es']);
     actingAs($admin);
 
-    $component = \Livewire\Livewire::test(\App\Filament\Pages\UserProfile::class);
+    $component = Livewire::test(UserProfile::class);
 
     // Try to set invalid locale
     $component->fillForm(['preferred_locale' => 'fr'])

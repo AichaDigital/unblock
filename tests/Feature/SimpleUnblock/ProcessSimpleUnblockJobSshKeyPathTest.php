@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use App\Actions\SimpleUnblock\{AnalyzeFirewallForIpAction, CheckIpInServerLogsAction, CreateSimpleUnblockReportAction, EvaluateUnblockMatchAction, IpLogsSearchResult, NotifySimpleUnblockResultAction, ValidateDomainInDatabaseAction, ValidateIpFormatAction};
+use App\Actions\UnblockIpAction;
 use App\Jobs\ProcessSimpleUnblockJob;
 use App\Models\{Account, Domain, Host};
 
@@ -36,12 +38,12 @@ test('job uses SSH key PATH not CONTENT when checking logs', function () {
     );
 
     // Mock CheckIpInServerLogsAction to verify it receives a PATH, not content
-    $checkLogsMock = Mockery::mock(\App\Actions\SimpleUnblock\CheckIpInServerLogsAction::class);
+    $checkLogsMock = Mockery::mock(CheckIpInServerLogsAction::class);
 
     $checkLogsMock->shouldReceive('handle')
         ->once()
         ->with(
-            Mockery::type(\App\Models\Host::class),
+            Mockery::type(Host::class),
             Mockery::on(function ($keyPath) {
                 // Verify it's a PATH (starts with storage/app/.ssh/)
                 // NOT content (starts with -----BEGIN)
@@ -52,24 +54,24 @@ test('job uses SSH key PATH not CONTENT when checking logs', function () {
             $this->ip,
             'test.com'
         )
-        ->andReturn(new \App\Actions\SimpleUnblock\IpLogsSearchResult(
+        ->andReturn(new IpLogsSearchResult(
             ip: $this->ip,
             foundInLogs: false,
             logEntries: []
         ));
 
-    $this->app->instance(\App\Actions\SimpleUnblock\CheckIpInServerLogsAction::class, $checkLogsMock);
+    $this->app->instance(CheckIpInServerLogsAction::class, $checkLogsMock);
 
     // This will FAIL because currently it passes $host->hash (content)
     $job->handle(
-        app(\App\Actions\SimpleUnblock\ValidateIpFormatAction::class),
-        app(\App\Actions\SimpleUnblock\ValidateDomainInDatabaseAction::class),
-        app(\App\Actions\SimpleUnblock\AnalyzeFirewallForIpAction::class),
+        app(ValidateIpFormatAction::class),
+        app(ValidateDomainInDatabaseAction::class),
+        app(AnalyzeFirewallForIpAction::class),
         $checkLogsMock,
-        app(\App\Actions\SimpleUnblock\EvaluateUnblockMatchAction::class),
-        app(\App\Actions\UnblockIpAction::class),
-        app(\App\Actions\SimpleUnblock\CreateSimpleUnblockReportAction::class),
-        app(\App\Actions\SimpleUnblock\NotifySimpleUnblockResultAction::class)
+        app(EvaluateUnblockMatchAction::class),
+        app(UnblockIpAction::class),
+        app(CreateSimpleUnblockReportAction::class),
+        app(NotifySimpleUnblockResultAction::class)
     );
 })->skip('Will fail until SSH key path bug is fixed');
 
@@ -85,7 +87,7 @@ test('job uses SSH key PATH not CONTENT when unblocking', function () {
     );
 
     // Mock UnblockIpAction to verify it receives a PATH
-    $unblockMock = Mockery::mock(\App\Actions\UnblockIpAction::class);
+    $unblockMock = Mockery::mock(UnblockIpAction::class);
 
     $unblockMock->shouldReceive('handle')
         ->once()
@@ -104,18 +106,18 @@ test('job uses SSH key PATH not CONTENT when unblocking', function () {
             'message' => 'IP unblocked',
         ]);
 
-    $this->app->instance(\App\Actions\UnblockIpAction::class, $unblockMock);
+    $this->app->instance(UnblockIpAction::class, $unblockMock);
 
     // This will FAIL because currently it passes $host->hash (content)
     $job->handle(
-        app(\App\Actions\SimpleUnblock\ValidateIpFormatAction::class),
-        app(\App\Actions\SimpleUnblock\ValidateDomainInDatabaseAction::class),
-        app(\App\Actions\SimpleUnblock\AnalyzeFirewallForIpAction::class),
-        app(\App\Actions\SimpleUnblock\CheckIpInServerLogsAction::class),
-        app(\App\Actions\SimpleUnblock\EvaluateUnblockMatchAction::class),
+        app(ValidateIpFormatAction::class),
+        app(ValidateDomainInDatabaseAction::class),
+        app(AnalyzeFirewallForIpAction::class),
+        app(CheckIpInServerLogsAction::class),
+        app(EvaluateUnblockMatchAction::class),
         $unblockMock,
-        app(\App\Actions\SimpleUnblock\CreateSimpleUnblockReportAction::class),
-        app(\App\Actions\SimpleUnblock\NotifySimpleUnblockResultAction::class)
+        app(CreateSimpleUnblockReportAction::class),
+        app(NotifySimpleUnblockResultAction::class)
     );
 })->skip('Will fail until SSH key path bug is fixed');
 
@@ -133,16 +135,16 @@ test('job cleans up temporary SSH keys after execution', function () {
 
     try {
         $job->handle(
-            app(\App\Actions\SimpleUnblock\ValidateIpFormatAction::class),
-            app(\App\Actions\SimpleUnblock\ValidateDomainInDatabaseAction::class),
-            app(\App\Actions\SimpleUnblock\AnalyzeFirewallForIpAction::class),
-            app(\App\Actions\SimpleUnblock\CheckIpInServerLogsAction::class),
-            app(\App\Actions\SimpleUnblock\EvaluateUnblockMatchAction::class),
-            app(\App\Actions\UnblockIpAction::class),
-            app(\App\Actions\SimpleUnblock\CreateSimpleUnblockReportAction::class),
-            app(\App\Actions\SimpleUnblock\NotifySimpleUnblockResultAction::class)
+            app(ValidateIpFormatAction::class),
+            app(ValidateDomainInDatabaseAction::class),
+            app(AnalyzeFirewallForIpAction::class),
+            app(CheckIpInServerLogsAction::class),
+            app(EvaluateUnblockMatchAction::class),
+            app(UnblockIpAction::class),
+            app(CreateSimpleUnblockReportAction::class),
+            app(NotifySimpleUnblockResultAction::class)
         );
-    } catch (\Throwable $e) {
+    } catch (Throwable $e) {
         // Ignore errors, we just want to check cleanup
     }
 

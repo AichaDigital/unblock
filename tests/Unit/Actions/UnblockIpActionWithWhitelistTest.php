@@ -67,7 +67,7 @@ test('unblock action handles BFM failure gracefully without failing whole operat
     // ✅ Using helper method to create stub with exception for BFM check
     $firewallService = FirewallServiceStub::ipNotBlocked()
         ->setCommandResponse('whitelist_simple', 'Whitelist added')
-        ->withExceptionFor('da_bfm_check', new \Exception('BFM service unavailable'));
+        ->withExceptionFor('da_bfm_check', new Exception('BFM service unavailable'));
 
     $action = new UnblockIpAction($firewallService);
     $result = $action->handle('10.11.12.13', $this->hostDa->id, 'test-key-da');

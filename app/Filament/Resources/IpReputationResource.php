@@ -10,6 +10,7 @@ use Filament\Actions\{Action, BulkActionGroup, EditAction, ViewAction};
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\{TextInput, Textarea};
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\{Grid, Section};
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\{Filter, SelectFilter};
@@ -49,9 +50,9 @@ class IpReputationResource extends Resource
         return $schema
             ->columns(1)
             ->components([
-                \Filament\Schemas\Components\Section::make(__('firewall.ip_reputation.ip_information'))
+                Section::make(__('firewall.ip_reputation.ip_information'))
                     ->schema([
-                        \Filament\Schemas\Components\Grid::make(2)
+                        Grid::make(2)
                             ->schema([
                                 TextInput::make('ip')
                                     ->label(__('firewall.ip_reputation.ip_address'))
@@ -63,9 +64,9 @@ class IpReputationResource extends Resource
                             ]),
                     ]),
 
-                \Filament\Schemas\Components\Section::make(__('firewall.ip_reputation.reputation_statistics'))
+                Section::make(__('firewall.ip_reputation.reputation_statistics'))
                     ->schema([
-                        \Filament\Schemas\Components\Grid::make(3)
+                        Grid::make(3)
                             ->schema([
                                 TextInput::make('reputation_score')
                                     ->label(__('firewall.ip_reputation.reputation_score'))
@@ -83,7 +84,7 @@ class IpReputationResource extends Resource
                                     ->numeric()
                                     ->disabled(),
                             ]),
-                        \Filament\Schemas\Components\Grid::make(2)
+                        Grid::make(2)
                             ->schema([
                                 TextInput::make('blocked_count')
                                     ->label(__('firewall.ip_reputation.blocked_count'))
@@ -95,9 +96,9 @@ class IpReputationResource extends Resource
                             ]),
                     ]),
 
-                \Filament\Schemas\Components\Section::make('Geographic Information')
+                Section::make('Geographic Information')
                     ->schema([
-                        \Filament\Schemas\Components\Grid::make(3)
+                        Grid::make(3)
                             ->schema([
                                 TextInput::make('country_name')
                                     ->label('Country')
@@ -109,7 +110,7 @@ class IpReputationResource extends Resource
                                     ->label('Timezone')
                                     ->disabled(),
                             ]),
-                        \Filament\Schemas\Components\Grid::make(2)
+                        Grid::make(2)
                             ->schema([
                                 TextInput::make('latitude')
                                     ->label('Latitude')
@@ -122,7 +123,7 @@ class IpReputationResource extends Resource
                     ->collapsed()
                     ->visible(fn ($record) => $record && $record->country_code !== null),
 
-                \Filament\Schemas\Components\Section::make(__('firewall.ip_reputation.notes'))
+                Section::make(__('firewall.ip_reputation.notes'))
                     ->schema([
                         Textarea::make('notes')
                             ->label(__('firewall.ip_reputation.admin_notes'))

@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Carbon\Carbon;
+use Database\Factories\BfmWhitelistEntryFactory;
+use Illuminate\Database\Eloquent\{Builder, Model};
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
@@ -29,8 +30,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class BfmWhitelistEntry extends Model
 {
+    /** @use HasFactory<BfmWhitelistEntryFactory> */
     use HasFactory;
 
+    /** @var list<string> */
     protected $fillable = [
         'host_id',
         'ip_address',
@@ -41,10 +44,12 @@ class BfmWhitelistEntry extends Model
         'notes',
     ];
 
+    /** @var array<string, bool> */
     protected $attributes = [
         'removed' => false,
     ];
 
+    /** @var array<string, string> */
     protected $casts = [
         'added_at' => 'datetime',
         'expires_at' => 'datetime',
@@ -53,7 +58,7 @@ class BfmWhitelistEntry extends Model
     ];
 
     /**
-     * Get the host that owns this whitelist entry
+     * @return BelongsTo<Host, $this>
      */
     public function host(): BelongsTo
     {
@@ -88,7 +93,8 @@ class BfmWhitelistEntry extends Model
     }
 
     /**
-     * Scope to get only active entries
+     * @param  Builder<static>  $query
+     * @return Builder<static>
      */
     public function scopeActive($query)
     {
@@ -97,7 +103,8 @@ class BfmWhitelistEntry extends Model
     }
 
     /**
-     * Scope to get expired entries that haven't been removed yet
+     * @param  Builder<static>  $query
+     * @return Builder<static>
      */
     public function scopeExpired($query)
     {
@@ -106,7 +113,8 @@ class BfmWhitelistEntry extends Model
     }
 
     /**
-     * Scope to get entries for a specific host
+     * @param  Builder<static>  $query
+     * @return Builder<static>
      */
     public function scopeForHost($query, int $hostId)
     {
@@ -114,7 +122,8 @@ class BfmWhitelistEntry extends Model
     }
 
     /**
-     * Scope to get entries for a specific IP
+     * @param  Builder<static>  $query
+     * @return Builder<static>
      */
     public function scopeForIp($query, string $ipAddress)
     {

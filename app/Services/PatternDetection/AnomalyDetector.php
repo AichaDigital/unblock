@@ -121,7 +121,7 @@ class AnomalyDetector
      */
     private function getCurrentTraffic(): int
     {
-        return DB::table('ip_reputation')
+        return (int) DB::table('ip_reputation')
             ->where('last_seen_at', '>=', now()->subHour())
             ->sum('total_requests');
     }

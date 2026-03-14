@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use App\Observers\ReportObserver;
+use Carbon\Carbon;
+use Database\Factories\ReportFactory;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -16,20 +18,22 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int|null $user_id
  * @property int $host_id
  * @property string $ip
- * @property array|null $logs
- * @property array|null $analysis
+ * @property array<string, mixed>|null $logs
+ * @property array<string, mixed>|null $analysis
  * @property bool $was_unblocked
- * @property \Carbon\Carbon|null $last_read
- * @property \Carbon\Carbon $created_at
- * @property \Carbon\Carbon $updated_at
+ * @property Carbon|null $last_read
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
  * @property-read User|null $user
  * @property-read Host $host
  */
 #[ObservedBy([ReportObserver::class])]
 class Report extends Model
 {
+    /** @use HasFactory<ReportFactory> */
     use HasFactory, HasUuids;
 
+    /** @var list<string> */
     protected $fillable = [
         'user_id',
         'host_id',
@@ -40,6 +44,7 @@ class Report extends Model
         'last_read',
     ];
 
+    /** @var array<string, string> */
     protected $casts = [
         'logs' => 'array',
         'analysis' => 'array',
@@ -49,11 +54,13 @@ class Report extends Model
         'updated_at' => 'datetime',
     ];
 
+    /** @return BelongsTo<User, $this> */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /** @return BelongsTo<Host, $this> */
     public function host(): BelongsTo
     {
         return $this->belongsTo(Host::class);

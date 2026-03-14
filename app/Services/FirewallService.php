@@ -124,7 +124,7 @@ class FirewallService
             'csf_specials' => "csf -g {$ip}",
             'csf_deny_check' => "cat /etc/csf/csf.deny | grep '{ip}' || true",
             'csf_tempip_check' => "cat /var/lib/csf/csf.tempip | grep '{ip}' || true",
-            'mod_security_da' => "cat /var/log/nginx/modsec_audit.log | grep '{ip}' || true",
+            'mod_security_da' => "grep -a '{ip}' /var/log/nginx/modsec_audit.log || true",
             'exim_cpanel' => "cat /var/log/exim_mainlog | grep -Ea '{ip}' | grep 'authenticator failed' || true",
             'dovecot_cpanel' => "cat /var/log/maillog | grep -Ea '{ip}' | grep 'auth failed' || true",
             'exim_directadmin' => "cat /var/log/exim/mainlog | grep -Ea '{ip}' | grep 'authenticator failed' || true",
@@ -158,7 +158,7 @@ class FirewallService
             'csf_specials' => "csf -g {$ip_escaped}", // Legacy: same as csf, kept for backward compatibility
             'csf_deny_check' => "cat /etc/csf/csf.deny | grep {$ip_escaped} || true",
             'csf_tempip_check' => "cat /var/lib/csf/csf.tempip | grep {$ip_escaped} || true",
-            'mod_security_da' => "cat /var/log/nginx/modsec_audit.log | grep {$ip_escaped} || true",
+            'mod_security_da' => "grep -a {$ip_escaped} /var/log/nginx/modsec_audit.log || true",
             // cPanel log checks
             'exim_cpanel' => "cat /var/log/exim_mainlog | grep -Ea {$ip_escaped} | grep 'authenticator failed' || true",
             'dovecot_cpanel' => "cat /var/log/maillog | grep -Ea {$ip_escaped} | grep 'auth failed' || true",

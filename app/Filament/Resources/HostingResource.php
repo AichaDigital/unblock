@@ -4,9 +4,11 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\HostingResource\Pages\{CreateHosting, EditHosting, ListHostings, ViewHosting};
 use App\Models\{Host, Hosting, User};
+use Filament\Actions\{BulkActionGroup, DeleteAction, DeleteBulkAction, EditAction, ViewAction};
 use Filament\Forms\Components\{Select, TextInput, Toggle};
 use Filament\Infolists;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\{Grid, Section};
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\{IconColumn, TextColumn};
 use Filament\Tables\Filters\{SelectFilter, TernaryFilter, TrashedFilter};
@@ -25,7 +27,7 @@ class HostingResource extends Resource
     {
         return $schema
             ->components([
-                \Filament\Schemas\Components\Grid::make(2)
+                Grid::make(2)
                     ->schema([
                         Select::make('user_id')
                             ->label('Usuario')
@@ -63,7 +65,7 @@ class HostingResource extends Resource
     {
         return $schema
             ->components([
-                \Filament\Schemas\Components\Section::make(__('Hosting Information'))
+                Section::make(__('Hosting Information'))
                     ->schema([
                         Infolists\Components\TextEntry::make('user.first_name')
                             ->label(__('User'))
@@ -89,7 +91,7 @@ class HostingResource extends Resource
                             ->trueColor('success')
                             ->falseColor('gray'),
                     ])->columns(2),
-                \Filament\Schemas\Components\Section::make(__('Timestamps'))
+                Section::make(__('Timestamps'))
                     ->schema([
                         Infolists\Components\TextEntry::make('created_at')
                             ->label(__('Created At'))
@@ -174,13 +176,13 @@ class HostingResource extends Resource
                     ->label('Manual'),
             ])
             ->recordActions([
-                \Filament\Actions\ViewAction::make(),
-                \Filament\Actions\EditAction::make(),
-                \Filament\Actions\DeleteAction::make(),
+                ViewAction::make(),
+                EditAction::make(),
+                DeleteAction::make(),
             ])
             ->toolbarActions([
-                \Filament\Actions\BulkActionGroup::make([
-                    \Filament\Actions\DeleteBulkAction::make(),
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ])
             ->modifyQueryUsing(fn (Builder $query) => $query->withoutGlobalScopes([

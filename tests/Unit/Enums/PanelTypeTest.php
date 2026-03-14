@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Enums\PanelType;
+use Filament\Support\Contracts\{HasColor, HasIcon, HasLabel};
 
 test('PanelType has CPANEL case', function () {
     expect(PanelType::CPANEL->value)->toBe('cpanel')
@@ -88,13 +89,13 @@ test('PanelType from throws exception for invalid value', function () {
 })->throws(ValueError::class);
 
 test('PanelType implements HasLabel interface', function () {
-    expect(PanelType::CPANEL)->toBeInstanceOf(Filament\Support\Contracts\HasLabel::class);
+    expect(PanelType::CPANEL)->toBeInstanceOf(HasLabel::class);
 });
 
 test('PanelType implements HasColor interface', function () {
-    expect(PanelType::CPANEL)->toBeInstanceOf(Filament\Support\Contracts\HasColor::class);
+    expect(PanelType::CPANEL)->toBeInstanceOf(HasColor::class);
 });
 
 test('PanelType implements HasIcon interface', function () {
-    expect(PanelType::CPANEL)->toBeInstanceOf(Filament\Support\Contracts\HasIcon::class);
+    expect(PanelType::CPANEL)->toBeInstanceOf(HasIcon::class);
 });

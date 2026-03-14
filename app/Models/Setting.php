@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Cache;
 
 class Setting extends Model
 {
+    /** @var list<string> */
     protected $fillable = ['key', 'value'];
 
     /**

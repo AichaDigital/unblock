@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Events\SimpleUnblock\{SimpleUnblockOtpFailed, SimpleUnblockOtpSent, SimpleUnblockOtpVerified};
 use App\Listeners\SimpleUnblock\TrackEmailReputationListener;
 use App\Models\EmailReputation;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
 use function Pest\Laravel\assertDatabaseHas;
 
@@ -223,5 +224,5 @@ test('listener updates last_seen_at timestamp', function () {
 test('listener is queued for async processing', function () {
     // Verify listener implements ShouldQueue
     $listener = new TrackEmailReputationListener;
-    expect($listener)->toBeInstanceOf(\Illuminate\Contracts\Queue\ShouldQueue::class);
+    expect($listener)->toBeInstanceOf(ShouldQueue::class);
 });

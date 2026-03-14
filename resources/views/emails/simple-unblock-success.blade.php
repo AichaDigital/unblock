@@ -29,7 +29,7 @@
     <p style="font-size: 16px; line-height: 1.6; color: #555555; margin: 0 0 15px 0;">{{ __('simple_unblock.mail.greeting') }}</p>
 
     {{-- Success message: text-base (16px) --}}
-    <p style="font-size: 16px; line-height: 1.6; color: #555555; margin: 0 0 20px 0;">{!! __('simple_unblock.mail.success_message', ['ip' => $report->ip, 'domain' => $domain]) !!}</p>
+    <p style="font-size: 16px; line-height: 1.6; color: #555555; margin: 0 0 20px 0;">{!! __('simple_unblock.mail.success_message', ['ip' => e($report->ip), 'domain' => e($domain)]) !!}</p>
 
     {{-- Analysis results section --}}
     <div style="background-color: #d1fae5; border: 2px solid #10b981; border-radius: 8px; padding: 20px; margin: 20px 0;">

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Exceptions\ConnectionFailedException;
+use App\Exceptions\{ConnectionFailedException, FirewallException, InvalidIpException};
 use App\Jobs\SendReportNotificationJob;
 use App\Mail\{AdminConnectionErrorMail, UserSystemErrorMail};
 use App\Models\{Host, Report, User};
@@ -204,27 +204,27 @@ describe('FirewallOrchestrator V2', function () {
                 'invalid-ip',
                 $this->user->id,
                 $this->host->id
-            ))->toThrow(\App\Exceptions\InvalidIpException::class);
+            ))->toThrow(InvalidIpException::class);
 
             // Non-existent user
             expect(fn () => $this->orchestrator->executeFirewallCheck(
                 $this->ipAddress,
                 99999,
                 $this->host->id
-            ))->toThrow(\InvalidArgumentException::class);
+            ))->toThrow(InvalidArgumentException::class);
 
             // Non-existent host
             expect(fn () => $this->orchestrator->executeFirewallCheck(
                 $this->ipAddress,
                 $this->user->id,
                 99999
-            ))->toThrow(\InvalidArgumentException::class);
+            ))->toThrow(InvalidArgumentException::class);
         });
 
         it('handles exceptions and performs proper cleanup', function () {
             // Arrange: Mock analyzer to throw exception
             $this->logAnalyzer->shouldReceive('analyzeDirectAdmin')
-                ->andThrow(new \Exception('SSH connection failed'));
+                ->andThrow(new Exception('SSH connection failed'));
 
             // Arrange: Audit failure should be logged
             $this->auditService->shouldReceive('logFirewallCheckFailure')
@@ -236,7 +236,7 @@ describe('FirewallOrchestrator V2', function () {
                 $this->ipAddress,
                 $this->user->id,
                 $this->host->id
-            ))->toThrow(\App\Exceptions\FirewallException::class);
+            ))->toThrow(FirewallException::class);
         });
 
     });
@@ -277,7 +277,7 @@ describe('FirewallOrchestrator V2', function () {
         });
 
         it('provides proper diagnostic information for SSH troubleshooting', function () {
-            $sshKeyError = new \Exception('error in libcrypto');
+            $sshKeyError = new Exception('error in libcrypto');
             $diagnostics = $this->errorService->getDiagnosticInfo($sshKeyError);
 
             expect($diagnostics)->toBeArray()

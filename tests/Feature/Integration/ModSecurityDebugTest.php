@@ -24,7 +24,7 @@ test('verifies modsecurity json line by line processing', function () {
             expect($data['transaction'])->toHaveKey('client_ip');
 
             $validJsonCount++;
-        } catch (\JsonException $e) {
+        } catch (JsonException $e) {
             // Skip invalid JSON lines
         }
     }

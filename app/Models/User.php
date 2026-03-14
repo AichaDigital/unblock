@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -16,6 +17,7 @@ use Spatie\OneTimePasswords\Models\Concerns\HasOneTimePasswords;
 
 class User extends Authenticatable implements FilamentUser
 {
+    /** @use HasFactory<UserFactory> */
     use HasFactory, HasOneTimePasswords, LogsActivity, Notifiable, SoftDeletes;
 
     /**
@@ -76,9 +78,10 @@ class User extends Authenticatable implements FilamentUser
         static::deleted(function (User $user) {
             if (! $user->parent_user_id) {
                 // If it's a parent user, delete all their authorized users
-                $user->authorizedUsers()->each(function (User $authorizedUser) {
-                    // Delete the authorized user's hostings
-                    $authorizedUser->hostings()->each(function (Hosting $hosting) {
+                $user->authorizedUsers()->each(function ($authorizedUser) {
+                    /** @var User $authorizedUser */
+                    $authorizedUser->hostings()->each(function ($hosting) {
+                        /** @var Hosting $hosting */
                         $hosting->delete();  // Soft delete
                     });
                     $authorizedUser->delete();  // Soft delete
@@ -89,9 +92,10 @@ class User extends Authenticatable implements FilamentUser
         // When a parent user is restored, restore their authorized users
         static::restored(function (User $user) {
             if (! $user->parent_user_id) {
-                $user->authorizedUsers()->onlyTrashed()->each(function (User $authorizedUser) {
-                    // Restore the authorized user's hostings
-                    $authorizedUser->hostings()->onlyTrashed()->each(function (Hosting $hosting) {
+                User::onlyTrashed()->where('parent_user_id', $user->id)->each(function ($authorizedUser) {
+                    /** @var User $authorizedUser */
+                    Hosting::onlyTrashed()->where('user_id', $authorizedUser->id)->each(function ($hosting) {
+                        /** @var Hosting $hosting */
                         $hosting->restore();
                     });
                     $authorizedUser->restore();
@@ -138,7 +142,8 @@ class User extends Authenticatable implements FilamentUser
 
         // Check if email domain is in whitelist
         if (! empty($whitelistDomains)) {
-            $emailDomain = substr(strrchr($this->email, '@'), 1);
+            $atPos = strrchr($this->email, '@');
+            $emailDomain = $atPos !== false ? substr($atPos, 1) : '';
             if (in_array($emailDomain, $whitelistDomains)) {
                 return true;
             }
@@ -176,25 +181,25 @@ class User extends Authenticatable implements FilamentUser
         return $this->getFullNameAttribute();
     }
 
-    // Relationship with parent user (for delegated users)
+    /** @return BelongsTo<User, $this> */
     public function parentUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'parent_user_id');
     }
 
-    // Relationship with authorized users
+    /** @return HasMany<User, $this> */
     public function authorizedUsers(): HasMany
     {
         return $this->hasMany(User::class, 'parent_user_id');
     }
 
-    // Relationship with hostings
+    /** @return HasMany<Hosting, $this> */
     public function hostings(): HasMany
     {
         return $this->hasMany(Hosting::class);
     }
 
-    // Relationship with hosts through hostings
+    /** @return BelongsToMany<Host, $this> */
     public function hosts(): BelongsToMany
     {
         return $this->belongsToMany(Host::class, 'user_host_permissions')
@@ -202,7 +207,7 @@ class User extends Authenticatable implements FilamentUser
             ->withTimestamps();
     }
 
-    // Relationship with authorized active hosts (more specific for testing and business logic)
+    /** @return BelongsToMany<Host, $this> */
     public function authorizedHosts(): BelongsToMany
     {
         return $this->belongsToMany(Host::class, 'user_host_permissions')
@@ -211,18 +216,19 @@ class User extends Authenticatable implements FilamentUser
             ->wherePivot('is_active', true);
     }
 
+    /** @return HasMany<Report, $this> */
     public function reports(): HasMany
     {
         return $this->hasMany(Report::class);
     }
 
-    // New hybrid permission system relations
+    /** @return HasMany<UserHostingPermission, $this> */
     public function hostingPermissions(): HasMany
     {
         return $this->hasMany(UserHostingPermission::class);
     }
 
-    // Relation to show hosting permissions assigned to authorized users by this parent user
+    /** @return HasManyThrough<UserHostingPermission, User, $this> */
     public function authorizedUserHostingPermissions(): HasManyThrough
     {
         return $this->hasManyThrough(
@@ -235,6 +241,7 @@ class User extends Authenticatable implements FilamentUser
         );
     }
 
+    /** @return BelongsToMany<Hosting, $this> */
     public function authorizedHostings(): BelongsToMany
     {
         return $this->belongsToMany(Hosting::class, 'user_hosting_permissions')
@@ -275,7 +282,7 @@ class User extends Authenticatable implements FilamentUser
         }
 
         // Check parent's direct host permissions if user is authorized
-        if ($this->parent_user_id) {
+        if ($this->parent_user_id && $this->parentUser) {
             $parentHasDirectAccess = $this->parentUser->hosts()
                 ->where('host_id', $hostId)
                 ->wherePivot('is_active', true)

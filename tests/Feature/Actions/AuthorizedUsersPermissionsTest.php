@@ -2,6 +2,8 @@
 
 use App\Actions\CheckFirewallAction;
 use App\Models\{Host, Hosting, User, UserHostingPermission};
+use App\Services\{AuditService, FirewallUnblocker, ReportGenerator, SshConnectionManager, SshSession};
+use App\Services\Firewall\FirewallAnalysisResult;
 use App\Services\Firewall\{FirewallAnalyzerFactory, FirewallAnalyzerInterface};
 use Tests\FirewallTestConstants as TC;
 
@@ -189,14 +191,14 @@ test('CheckFirewallAction works with authorized user hosting access', function (
     ]);
 
     // V2: Mock all dependencies for CheckFirewallAction
-    $sshManager = Mockery::mock(\App\Services\SshConnectionManager::class);
-    $analyzerFactory = Mockery::mock(\App\Services\Firewall\FirewallAnalyzerFactory::class);
-    $unblocker = Mockery::mock(\App\Services\FirewallUnblocker::class);
-    $reportGenerator = Mockery::mock(\App\Services\ReportGenerator::class);
-    $auditService = Mockery::mock(\App\Services\AuditService::class);
+    $sshManager = Mockery::mock(SshConnectionManager::class);
+    $analyzerFactory = Mockery::mock(FirewallAnalyzerFactory::class);
+    $unblocker = Mockery::mock(FirewallUnblocker::class);
+    $reportGenerator = Mockery::mock(ReportGenerator::class);
+    $auditService = Mockery::mock(AuditService::class);
 
     // Configurar el mock de SshSession
-    $sshSession = Mockery::mock(\App\Services\SshSession::class);
+    $sshSession = Mockery::mock(SshSession::class);
     $sshSession->shouldReceive('cleanup')->zeroOrMoreTimes();
 
     // Configurar createSession para que devuelva el mock de SshSession
@@ -238,14 +240,14 @@ test('CheckFirewallAction works with authorized user host access', function () {
     $authorizedUser->hosts()->attach($host->id, ['is_active' => true]);
 
     // V2: Mock all dependencies for CheckFirewallAction
-    $sshManager = Mockery::mock(\App\Services\SshConnectionManager::class);
-    $analyzerFactory = Mockery::mock(\App\Services\Firewall\FirewallAnalyzerFactory::class);
-    $unblocker = Mockery::mock(\App\Services\FirewallUnblocker::class);
-    $reportGenerator = Mockery::mock(\App\Services\ReportGenerator::class);
-    $auditService = Mockery::mock(\App\Services\AuditService::class);
+    $sshManager = Mockery::mock(SshConnectionManager::class);
+    $analyzerFactory = Mockery::mock(FirewallAnalyzerFactory::class);
+    $unblocker = Mockery::mock(FirewallUnblocker::class);
+    $reportGenerator = Mockery::mock(ReportGenerator::class);
+    $auditService = Mockery::mock(AuditService::class);
 
     // Configurar el mock de SshSession
-    $sshSession = Mockery::mock(\App\Services\SshSession::class);
+    $sshSession = Mockery::mock(SshSession::class);
     $sshSession->shouldReceive('cleanup')->zeroOrMoreTimes();
 
     // Configurar createSession para que devuelva el mock de SshSession
@@ -286,14 +288,14 @@ test('CheckFirewallAction denies access for unauthorized user', function () {
     // No access assigned
 
     // V2: Mock all dependencies for CheckFirewallAction
-    $sshManager = Mockery::mock(\App\Services\SshConnectionManager::class);
-    $analyzerFactory = Mockery::mock(\App\Services\Firewall\FirewallAnalyzerFactory::class);
-    $unblocker = Mockery::mock(\App\Services\FirewallUnblocker::class);
-    $reportGenerator = Mockery::mock(\App\Services\ReportGenerator::class);
-    $auditService = Mockery::mock(\App\Services\AuditService::class);
+    $sshManager = Mockery::mock(SshConnectionManager::class);
+    $analyzerFactory = Mockery::mock(FirewallAnalyzerFactory::class);
+    $unblocker = Mockery::mock(FirewallUnblocker::class);
+    $reportGenerator = Mockery::mock(ReportGenerator::class);
+    $auditService = Mockery::mock(AuditService::class);
 
     // Configurar el mock de SshSession
-    $sshSession = Mockery::mock(\App\Services\SshSession::class);
+    $sshSession = Mockery::mock(SshSession::class);
     $sshSession->shouldReceive('cleanup')->zeroOrMoreTimes();
 
     // Configurar createSession para que devuelva el mock de SshSession
@@ -315,7 +317,7 @@ test('CheckFirewallAction denies access for unauthorized user', function () {
         userId: $authorizedUser->id,
         hostId: $host->id,
         develop: null // No develop mode - test real validation
-    ))->toThrow(\Exception::class); // Should throw exception for unauthorized access
+    ))->toThrow(Exception::class); // Should throw exception for unauthorized access
 });
 
 // Test de casos complejos
@@ -521,14 +523,14 @@ test('CheckFirewallAction correctly validates permissions among multiple resourc
     UserHostingPermission::create(['user_id' => $authorizedUser->id, 'hosting_id' => $hosting1->id, 'is_active' => true]);
 
     // V2: Mock all dependencies for CheckFirewallAction
-    $sshManager = Mockery::mock(\App\Services\SshConnectionManager::class);
-    $analyzerFactory = Mockery::mock(\App\Services\Firewall\FirewallAnalyzerFactory::class);
-    $unblocker = Mockery::mock(\App\Services\FirewallUnblocker::class);
-    $reportGenerator = Mockery::mock(\App\Services\ReportGenerator::class);
-    $auditService = Mockery::mock(\App\Services\AuditService::class);
+    $sshManager = Mockery::mock(SshConnectionManager::class);
+    $analyzerFactory = Mockery::mock(FirewallAnalyzerFactory::class);
+    $unblocker = Mockery::mock(FirewallUnblocker::class);
+    $reportGenerator = Mockery::mock(ReportGenerator::class);
+    $auditService = Mockery::mock(AuditService::class);
 
     // Configurar el mock de SshSession
-    $sshSession = Mockery::mock(\App\Services\SshSession::class);
+    $sshSession = Mockery::mock(SshSession::class);
     $sshSession->shouldReceive('cleanup')->zeroOrMoreTimes();
 
     // Configurar createSession para que devuelva el mock de SshSession
@@ -559,7 +561,7 @@ test('CheckFirewallAction correctly validates permissions among multiple resourc
         userId: $authorizedUser->id,
         hostId: $host2->id,
         develop: null // No develop mode - test real validation
-    ))->toThrow(\Exception::class); // Should throw exception for unauthorized access
+    ))->toThrow(Exception::class); // Should throw exception for unauthorized access
 });
 
 beforeEach(function () {
@@ -579,7 +581,7 @@ beforeEach(function () {
 
     $this->analyzer->shouldReceive('analyze')
         ->withAnyArgs()
-        ->andReturn(new \App\Services\Firewall\FirewallAnalysisResult(true, []));
+        ->andReturn(new FirewallAnalysisResult(true, []));
 
     // ... existing code ...
 

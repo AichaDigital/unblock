@@ -6,7 +6,7 @@ namespace App\Actions\Sync;
 
 use App\Enums\PanelType;
 use App\Models\{Account, Domain, Host};
-use App\Services\SshConnectionManager;
+use App\Services\{SshConnectionManager, SshSession};
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -143,7 +143,7 @@ class SyncDirectAdminAccountsAction
      *
      * @return array<string, mixed>|null
      */
-    private function fetchAccountData(\App\Services\SshSession $session, string $username): ?array
+    private function fetchAccountData(SshSession $session, string $username): ?array
     {
         try {
             $userPath = self::DA_USERS_PATH."/{$username}";

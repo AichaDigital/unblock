@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 
 /**
@@ -37,6 +38,7 @@ class IpReputation extends Model
 {
     protected $table = 'ip_reputation';
 
+    /** @var list<string> */
     protected $fillable = [
         'ip',
         'subnet',
@@ -56,6 +58,7 @@ class IpReputation extends Model
         'continent',
     ];
 
+    /** @var array<string, string> */
     protected $casts = [
         'reputation_score' => 'integer',
         'total_requests' => 'integer',
@@ -67,7 +70,7 @@ class IpReputation extends Model
     ];
 
     /**
-     * Get abuse incidents for this IP
+     * @return HasMany<AbuseIncident, $this>
      */
     public function abuseIncidents()
     {

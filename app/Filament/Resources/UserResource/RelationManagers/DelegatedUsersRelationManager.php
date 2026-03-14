@@ -5,6 +5,7 @@ namespace App\Filament\Resources\UserResource\RelationManagers;
 use Filament\Actions\{BulkActionGroup, CreateAction, DeleteAction, DeleteBulkAction, EditAction};
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Components\{Grid, Section};
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -19,9 +20,9 @@ class DelegatedUsersRelationManager extends RelationManager
     {
         return $schema
             ->components([
-                \Filament\Schemas\Components\Section::make('Información del Usuario Delegado')
+                Section::make('Información del Usuario Delegado')
                     ->schema([
-                        \Filament\Schemas\Components\Grid::make(3)
+                        Grid::make(3)
                             ->schema([
                                 TextInput::make('first_name')
                                     ->label('Nombre')

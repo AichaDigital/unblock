@@ -352,7 +352,9 @@ class ReportGenerator
     {
         preg_match('/(\d{14})/', $bfmData, $matches);
         if (isset($matches[1])) {
-            return DateTime::createFromFormat('YmdHis', $matches[1])->format('Y-m-d H:i:s');
+            $date = DateTime::createFromFormat('YmdHis', $matches[1]);
+
+            return $date ? $date->format('Y-m-d H:i:s') : null;
         }
 
         return null;
@@ -410,7 +412,7 @@ class ReportGenerator
     private function sanitizeLogContent(string $content): string
     {
         // Remove sensitive information and normalize line endings
-        $sanitized = preg_replace('/password[=:]\s*\S+/i', 'password=***', $content);
+        $sanitized = preg_replace('/password[=:]\s*\S+/i', 'password=***', $content) ?? $content;
 
         return str_replace(["\r\n", "\r"], "\n", $sanitized);
     }

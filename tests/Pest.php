@@ -2,11 +2,13 @@
 
 declare(strict_types=1);
 
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Helpers\SimpleModeTestHelper;
+use Tests\TestCase;
 
 uses(
-    Tests\TestCase::class,
+    TestCase::class,
     RefreshDatabase::class,
 )->in('Feature', 'Unit');
 
@@ -39,7 +41,7 @@ function disableSimpleMode(): void
  *
  * Usage: $user = $this->createTemporaryUser()
  */
-function createTemporaryUser(string $email = 'simple@example.com'): \App\Models\User
+function createTemporaryUser(string $email = 'simple@example.com'): User
 {
     return SimpleModeTestHelper::createTemporaryUser($email);
 }
@@ -49,7 +51,7 @@ function createTemporaryUser(string $email = 'simple@example.com'): \App\Models\
  *
  * Usage: $admin = $this->createAdminUser()
  */
-function createAdminUser(string $email = 'admin@example.com'): \App\Models\User
+function createAdminUser(string $email = 'admin@example.com'): User
 {
     return SimpleModeTestHelper::createAdminUser($email);
 }
@@ -59,7 +61,7 @@ function createAdminUser(string $email = 'admin@example.com'): \App\Models\User
  *
  * Usage: loginAsUser($user)
  */
-function loginAsUser(\App\Models\User $user): void
+function loginAsUser(User $user): void
 {
     test()->actingAs($user);
 }
@@ -69,7 +71,7 @@ function loginAsUser(\App\Models\User $user): void
  *
  * Usage: loginAsAdmin()
  */
-function loginAsAdmin(): \App\Models\User
+function loginAsAdmin(): User
 {
     $admin = SimpleModeTestHelper::createAdminUser();
     test()->actingAs($admin);

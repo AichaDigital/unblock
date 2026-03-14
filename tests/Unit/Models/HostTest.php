@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Enums\PanelType;
 use App\Models\Host;
+use Illuminate\Database\Eloquent\Relations\{HasMany, HasManyThrough};
 
 test('host encrypts hash attribute on set', function () {
     $plainHash = '-----BEGIN OPENSSH PRIVATE KEY-----
@@ -120,25 +121,25 @@ test('host hides sensitive attributes in serialization', function () {
 test('host has hostings relationship', function () {
     $host = Host::factory()->create();
 
-    expect($host->hostings())->toBeInstanceOf(\Illuminate\Database\Eloquent\Relations\HasMany::class);
+    expect($host->hostings())->toBeInstanceOf(HasMany::class);
 });
 
 test('host has users relationship', function () {
     $host = Host::factory()->create();
 
-    expect($host->users())->toBeInstanceOf(\Illuminate\Database\Eloquent\Relations\HasMany::class);
+    expect($host->users())->toBeInstanceOf(HasMany::class);
 });
 
 test('host has accounts relationship', function () {
     $host = Host::factory()->create();
 
-    expect($host->accounts())->toBeInstanceOf(\Illuminate\Database\Eloquent\Relations\HasMany::class);
+    expect($host->accounts())->toBeInstanceOf(HasMany::class);
 });
 
 test('host has domains through accounts relationship', function () {
     $host = Host::factory()->create();
 
-    expect($host->domains())->toBeInstanceOf(\Illuminate\Database\Eloquent\Relations\HasManyThrough::class);
+    expect($host->domains())->toBeInstanceOf(HasManyThrough::class);
 });
 
 test('host to safe log array excludes sensitive data', function () {

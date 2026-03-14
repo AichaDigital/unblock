@@ -1,0 +1,661 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Parameter \#1 \$timestamp of method Carbon\\Carbon\:\:setTimestamp\(\) expects float\|int\|string, int\<0, max\>\|false given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Console/Commands/GeoIP/StatusCommand.php
+
+		-
+			message: '#^Parameter \#2 \$timestamp of function date expects int\|null, int\<0, max\>\|false given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Console/Commands/GeoIP/StatusCommand.php
+
+		-
+			message: '#^Parameter \#1 \$timestamp of method Carbon\\Carbon\:\:setTimestamp\(\) expects float\|int\|string, int\<0, max\>\|false given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Console/Commands/GeoIP/UpdateDatabaseCommand.php
+
+		-
+			message: '#^Unreachable statement \- code above always terminates\.$#'
+			identifier: deadCode.unreachable
+			count: 1
+			path: app/Console/Commands/QueueMonitorCommand.php
+
+		-
+			message: '#^While loop condition is always true\.$#'
+			identifier: while.alwaysTrue
+			count: 1
+			path: app/Console/Commands/QueueMonitorCommand.php
+
+		-
+			message: '#^Match expression does not handle remaining value\: string$#'
+			identifier: match.unhandled
+			count: 1
+			path: app/Enums/AuditAction.php
+
+		-
+			message: '#^Method App\\Enums\\PanelType\:\:getColor\(\) never returns array\<string\> so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: app/Enums/PanelType.php
+
+		-
+			message: '#^Method App\\Enums\\PanelType\:\:getColor\(\) never returns null so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: app/Enums/PanelType.php
+
+		-
+			message: '#^Method App\\Enums\\PanelType\:\:getIcon\(\) never returns null so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: app/Enums/PanelType.php
+
+		-
+			message: '#^Method App\\Enums\\PanelType\:\:getLabel\(\) never returns null so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: app/Enums/PanelType.php
+
+		-
+			message: '#^Method App\\Enums\\PanelType\:\:options\(\) should return array\<string, string\> but returns array\<string, string\|null\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Enums/PanelType.php
+
+		-
+			message: '#^Method App\\Exceptions\\CommandExecutionException\:\:__construct\(\) has parameter \$context with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Exceptions/CommandExecutionException.php
+
+		-
+			message: '#^PHPDoc tag @param for parameter \$message with type string\|null is not subtype of native type string\.$#'
+			identifier: parameter.phpDocType
+			count: 1
+			path: app/Exceptions/CommandExecutionException.php
+
+		-
+			message: '#^Method App\\Exceptions\\ConnectionFailedException\:\:__construct\(\) has parameter \$context with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Exceptions/ConnectionFailedException.php
+
+		-
+			message: '#^Method App\\Exceptions\\ConnectionFailedException\:\:render\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Exceptions/ConnectionFailedException.php
+
+		-
+			message: '#^Method App\\Exceptions\\CsfServiceException\:\:__construct\(\) has parameter \$context with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Exceptions/CsfServiceException.php
+
+		-
+			message: '#^Method App\\Exceptions\\CsfServiceException\:\:render\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Exceptions/CsfServiceException.php
+
+		-
+			message: '#^Property App\\Exceptions\\CsfServiceException\:\:\$context is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: app/Exceptions/CsfServiceException.php
+
+		-
+			message: '#^Property App\\Exceptions\\CsfServiceException\:\:\$mergedContext type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Exceptions/CsfServiceException.php
+
+		-
+			message: '#^Method App\\Exceptions\\FirewallException\:\:__construct\(\) has parameter \$context with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Exceptions/FirewallException.php
+
+		-
+			message: '#^Method App\\Exceptions\\FirewallException\:\:getContext\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Exceptions/FirewallException.php
+
+		-
+			message: '#^Method App\\Exceptions\\FirewallException\:\:getReportContext\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Exceptions/FirewallException.php
+
+		-
+			message: '#^Property App\\Exceptions\\FirewallException\:\:\$context type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Exceptions/FirewallException.php
+
+		-
+			message: '#^Method App\\Exceptions\\InvalidIpException\:\:render\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Exceptions/InvalidIpException.php
+
+		-
+			message: '#^Function setting\(\) has parameter \$key with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Helpers/settings.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\ReportController\:\:__invoke\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Http/Controllers/ReportController.php
+
+		-
+			message: '#^Method App\\Http\\Middleware\\CheckSessionTimeout\:\:handle\(\) has parameter \$next with no signature specified for Closure\.$#'
+			identifier: missingType.callable
+			count: 1
+			path: app/Http/Middleware/CheckSessionTimeout.php
+
+		-
+			message: '#^Method App\\Http\\Middleware\\CheckSimpleModeEnabled\:\:handle\(\) has parameter \$next with no signature specified for Closure\.$#'
+			identifier: missingType.callable
+			count: 1
+			path: app/Http/Middleware/CheckSimpleModeEnabled.php
+
+		-
+			message: '#^Method App\\Http\\Middleware\\RequireAdminOtp\:\:handle\(\) has parameter \$next with no signature specified for Closure\.$#'
+			identifier: missingType.callable
+			count: 1
+			path: app/Http/Middleware/RequireAdminOtp.php
+
+		-
+			message: '#^Method App\\Http\\Middleware\\SetUserLocale\:\:handle\(\) has parameter \$next with no signature specified for Closure\.$#'
+			identifier: missingType.callable
+			count: 1
+			path: app/Http/Middleware/SetUserLocale.php
+
+		-
+			message: '#^Method App\\Http\\Middleware\\SimpleModeAccess\:\:handle\(\) has parameter \$next with no signature specified for Closure\.$#'
+			identifier: missingType.callable
+			count: 1
+			path: app/Http/Middleware/SimpleModeAccess.php
+
+		-
+			message: '#^Method App\\Http\\Middleware\\ThrottleSimpleUnblock\:\:checkRateLimit\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Middleware/ThrottleSimpleUnblock.php
+
+		-
+			message: '#^Method App\\Http\\Middleware\\ThrottleSimpleUnblock\:\:handle\(\) has parameter \$next with no signature specified for Closure\.$#'
+			identifier: missingType.callable
+			count: 1
+			path: app/Http/Middleware/ThrottleSimpleUnblock.php
+
+		-
+			message: '#^Method App\\Http\\Middleware\\ThrottleSimpleUnblock\:\:rateLimitResponse\(\) has parameter \$exceeded with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Middleware/ThrottleSimpleUnblock.php
+
+		-
+			message: '#^Method App\\Http\\Middleware\\VerifyIsAdminMiddleware\:\:handle\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Http/Middleware/VerifyIsAdminMiddleware.php
+
+		-
+			message: '#^Method App\\Http\\Middleware\\VerifyIsAdminMiddleware\:\:handle\(\) has parameter \$next with no signature specified for Closure\.$#'
+			identifier: missingType.callable
+			count: 1
+			path: app/Http/Middleware/VerifyIsAdminMiddleware.php
+
+		-
+			message: '#^Method App\\Jobs\\ProcessSimpleUnblockJob\:\:logAuditTrail\(\) has parameter \$decision with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: app/Jobs/ProcessSimpleUnblockJob.php
+
+		-
+			message: '#^Method App\\Jobs\\ProcessSimpleUnblockJob\:\:logAuditTrail\(\) has parameter \$host with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: app/Jobs/ProcessSimpleUnblockJob.php
+
+		-
+			message: '#^Method App\\Jobs\\ProcessSimpleUnblockJob\:\:logAuditTrail\(\) has parameter \$report with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: app/Jobs/ProcessSimpleUnblockJob.php
+
+		-
+			message: '#^Method App\\Jobs\\RemoveExpiredBfmWhitelistIps\:\:removeEntriesFromHost\(\) has parameter \$entries with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: app/Jobs/RemoveExpiredBfmWhitelistIps.php
+
+		-
+			message: '#^Method App\\Jobs\\SendSimpleUnblockNotificationJob\:\:__construct\(\) has parameter \$analysisData with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Jobs/SendSimpleUnblockNotificationJob.php
+
+		-
+			message: '#^Method App\\Mail\\AdminConnectionErrorMail\:\:attachments\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Mail/AdminConnectionErrorMail.php
+
+		-
+			message: '#^Method App\\Mail\\HqWhitelistMail\:\:attachments\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Mail/HqWhitelistMail.php
+
+		-
+			message: '#^Method App\\Mail\\LogNotificationMail\:\:__construct\(\) has parameter \$report with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Mail/LogNotificationMail.php
+
+		-
+			message: '#^Method App\\Mail\\LogNotificationMail\:\:attachments\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Mail/LogNotificationMail.php
+
+		-
+			message: '#^Left side of && is always true\.$#'
+			identifier: booleanAnd.leftAlwaysTrue
+			count: 1
+			path: app/Mail/SimpleUnblockNotificationMail.php
+
+		-
+			message: '#^Method App\\Mail\\SimpleUnblockNotificationMail\:\:__construct\(\) has parameter \$analysisData with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Mail/SimpleUnblockNotificationMail.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>ip" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Mail/SimpleUnblockNotificationMail.php
+
+		-
+			message: '#^Method App\\Mail\\UserSystemErrorMail\:\:attachments\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Mail/UserSystemErrorMail.php
+
+		-
+			message: '#^Method App\\Services\\CsfOutputParser\:\:extractHumanReadableSummary\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/CsfOutputParser.php
+
+		-
+			message: '#^Method App\\Services\\CsfOutputParser\:\:parseDenyLine\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/CsfOutputParser.php
+
+		-
+			message: '#^Method App\\Services\\FirewallConnectionErrorService\:\:getDiagnosticInfo\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/FirewallConnectionErrorService.php
+
+		-
+			message: '#^Method App\\Services\\FirewallService\:\:addErrorIfStartsWithError\(\) is unused\.$#'
+			identifier: method.unused
+			count: 1
+			path: app/Services/FirewallService.php
+
+		-
+			message: '#^Method App\\Services\\FirewallService\:\:escapeIpForGrep\(\) is unused\.$#'
+			identifier: method.unused
+			count: 1
+			path: app/Services/FirewallService.php
+
+		-
+			message: '#^Method App\\Services\\FirewallService\:\:extractDataFromModSecurity\(\) is unused\.$#'
+			identifier: method.unused
+			count: 1
+			path: app/Services/FirewallService.php
+
+		-
+			message: '#^Method App\\Services\\FirewallService\:\:getAvailableCommands\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/FirewallService.php
+
+		-
+			message: '#^Method App\\Services\\FirewallService\:\:getData\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/FirewallService.php
+
+		-
+			message: '#^Method App\\Services\\FirewallService\:\:getErrors\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/FirewallService.php
+
+		-
+			message: '#^Property App\\Services\\FirewallService\:\:\$data type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/FirewallService.php
+
+		-
+			message: '#^Property App\\Services\\FirewallService\:\:\$modSecurityOutput is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: app/Services/FirewallService.php
+
+		-
+			message: '#^Unable to resolve the template type TKey in call to function collect$#'
+			identifier: argument.templateType
+			count: 1
+			path: app/Services/FirewallService.php
+
+		-
+			message: '#^Unable to resolve the template type TValue in call to function collect$#'
+			identifier: argument.templateType
+			count: 1
+			path: app/Services/FirewallService.php
+
+		-
+			message: '#^Method App\\Services\\FirewallUnblocker\:\:buildBfmRemovalCommand\(\) is unused\.$#'
+			identifier: method.unused
+			count: 1
+			path: app/Services/FirewallUnblocker.php
+
+		-
+			message: '#^Method App\\Services\\FirewallUnblocker\:\:getUnblockStatus\(\) has parameter \$results with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/FirewallUnblocker.php
+
+		-
+			message: '#^Method App\\Services\\FirewallUnblocker\:\:getUnblockStatus\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/FirewallUnblocker.php
+
+		-
+			message: '#^Method App\\Services\\FirewallUnblocker\:\:hasBfmBlocks\(\) has parameter \$logs with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/FirewallUnblocker.php
+
+		-
+			message: '#^Method App\\Services\\FirewallUnblocker\:\:hasCsfBlocks\(\) has parameter \$logs with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/FirewallUnblocker.php
+
+		-
+			message: '#^Method App\\Services\\FirewallUnblocker\:\:performBfmOperations\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/FirewallUnblocker.php
+
+		-
+			message: '#^Method App\\Services\\FirewallUnblocker\:\:performBfmRemoval\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/FirewallUnblocker.php
+
+		-
+			message: '#^Method App\\Services\\FirewallUnblocker\:\:performCsfOperations\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/FirewallUnblocker.php
+
+		-
+			message: '#^Method App\\Services\\FirewallUnblocker\:\:unblockIp\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/FirewallUnblocker.php
+
+		-
+			message: '#^Method App\\Services\\GeoIPService\:\:getDatabaseInfo\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/GeoIPService.php
+
+		-
+			message: '#^Method App\\Services\\GeoIPService\:\:lookup\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/GeoIPService.php
+
+		-
+			message: '#^Method App\\Services\\PatternDetection\\AnomalyDetector\:\:calculateBaseline\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/PatternDetection/AnomalyDetector.php
+
+		-
+			message: '#^Method App\\Services\\PatternDetection\\AnomalyDetector\:\:createAnomalyDetection\(\) has parameter \$baseline with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/PatternDetection/AnomalyDetector.php
+
+		-
+			message: '#^Method App\\Services\\PatternDetection\\AnomalyDetector\:\:createAnomalyDetection\(\) never returns null so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: app/Services/PatternDetection/AnomalyDetector.php
+
+		-
+			message: '#^Method App\\Services\\PatternDetection\\AnomalyDetector\:\:detectAll\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/PatternDetection/AnomalyDetector.php
+
+		-
+			message: '#^Method App\\Services\\PatternDetection\\AnomalyDetector\:\:isAnomaly\(\) has parameter \$baseline with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/PatternDetection/AnomalyDetector.php
+
+		-
+			message: '#^Method App\\Services\\PatternDetection\\DistributedAttackDetector\:\:applyPenalties\(\) has parameter \$uniqueIps with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: app/Services/PatternDetection/DistributedAttackDetector.php
+
+		-
+			message: '#^Method App\\Services\\PatternDetection\\DistributedAttackDetector\:\:detectAll\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/PatternDetection/DistributedAttackDetector.php
+
+		-
+			message: '#^Method App\\Services\\PatternDetection\\SubnetScanDetector\:\:applyPenalties\(\) has parameter \$uniqueIps with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: app/Services/PatternDetection/SubnetScanDetector.php
+
+		-
+			message: '#^Method App\\Services\\PatternDetection\\SubnetScanDetector\:\:detectAll\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/PatternDetection/SubnetScanDetector.php
+
+		-
+			message: '#^Method App\\Services\\ReportGenerator\:\:determineReportStatus\(\) has parameter \$unblockResults with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/ReportGenerator.php
+
+		-
+			message: '#^Method App\\Services\\ReportGenerator\:\:determineReportStatus\(\) is unused\.$#'
+			identifier: method.unused
+			count: 1
+			path: app/Services/ReportGenerator.php
+
+		-
+			message: '#^Method App\\Services\\ReportGenerator\:\:extractBfmDetails\(\) has parameter \$rawLogs with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/ReportGenerator.php
+
+		-
+			message: '#^Method App\\Services\\ReportGenerator\:\:extractBfmDetails\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/ReportGenerator.php
+
+		-
+			message: '#^Method App\\Services\\ReportGenerator\:\:extractBfmEntry\(\) never returns null so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: app/Services/ReportGenerator.php
+
+		-
+			message: '#^Method App\\Services\\ReportGenerator\:\:extractBlockSources\(\) has parameter \$logs with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/ReportGenerator.php
+
+		-
+			message: '#^Method App\\Services\\ReportGenerator\:\:extractBlockSources\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/ReportGenerator.php
+
+		-
+			message: '#^Method App\\Services\\ReportGenerator\:\:extractBlockingDetails\(\) has parameter \$logs with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/ReportGenerator.php
+
+		-
+			message: '#^Method App\\Services\\ReportGenerator\:\:extractBlockingDetails\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/ReportGenerator.php
+
+		-
+			message: '#^Method App\\Services\\ReportGenerator\:\:extractCsfDetails\(\) has parameter \$rawLogs with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/ReportGenerator.php
+
+		-
+			message: '#^Method App\\Services\\ReportGenerator\:\:extractCsfDetails\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/ReportGenerator.php
+
+		-
+			message: '#^Method App\\Services\\ReportGenerator\:\:extractCsfRules\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/ReportGenerator.php
+
+		-
+			message: '#^Method App\\Services\\ReportGenerator\:\:extractServiceDetails\(\) has parameter \$rawLogs with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/ReportGenerator.php
+
+		-
+			message: '#^Method App\\Services\\ReportGenerator\:\:extractServiceDetails\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/ReportGenerator.php
+
+		-
+			message: '#^Method App\\Services\\ReportGenerator\:\:formatLogsData\(\) has parameter \$rawLogs with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/ReportGenerator.php
+
+		-
+			message: '#^Method App\\Services\\ReportGenerator\:\:formatLogsData\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/ReportGenerator.php
+
+		-
+			message: '#^Method App\\Services\\ReportGenerator\:\:formatReportData\(\) has parameter \$recentHistory with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/ReportGenerator.php
+
+		-
+			message: '#^Method App\\Services\\ReportGenerator\:\:formatReportData\(\) has parameter \$unblockResults with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/ReportGenerator.php
+
+		-
+			message: '#^Method App\\Services\\ReportGenerator\:\:formatReportData\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/ReportGenerator.php
+
+		-
+			message: '#^Method App\\Services\\ReportGenerator\:\:generateReport\(\) has parameter \$recentHistory with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/ReportGenerator.php
+
+		-
+			message: '#^Method App\\Services\\ReportGenerator\:\:generateReport\(\) has parameter \$unblockResults with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/ReportGenerator.php
+
+		-
+			message: '#^Method App\\Services\\ReportGenerator\:\:identifyBlockPatterns\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/ReportGenerator.php
+
+		-
+			message: '#^Method App\\Services\\ReportGenerator\:\:parseServiceLogs\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/ReportGenerator.php
+
+		-
+			message: '#^Method App\\Services\\ReportGenerator\:\:processModSecurityJson\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/ReportGenerator.php
+
+		-
+			message: '#^Offset 1 on array\{list\<string\>, list\<non\-empty\-string\>, list\<non\-empty\-string\>\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/Services/ReportGenerator.php
+
+		-
+			message: '#^Offset 2 on array\{list\<string\>, list\<non\-empty\-string\>, list\<non\-empty\-string\>\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/Services/ReportGenerator.php
+
+		-
+			message: '#^Trait App\\Traits\\CommandOutputParserTrait is used zero times and is not analysed\.$#'
+			identifier: trait.unused
+			count: 1
+			path: app/Traits/CommandOutputParserTrait.php
+
+		-
+			message: '#^Trait App\\Traits\\HasNotifications is used zero times and is not analysed\.$#'
+			identifier: trait.unused
+			count: 1
+			path: app/Traits/HasNotifications.php

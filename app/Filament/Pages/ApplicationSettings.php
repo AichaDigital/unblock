@@ -12,6 +12,7 @@ use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\{Section, Tabs};
 use Filament\Schemas\Schema;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Facades\Storage;
 
 class ApplicationSettings extends Page implements HasForms
@@ -31,7 +32,7 @@ class ApplicationSettings extends Page implements HasForms
         return __('application_settings.navigation_label');
     }
 
-    public function getTitle(): string|\Illuminate\Contracts\Support\Htmlable
+    public function getTitle(): string|Htmlable
     {
         return __('application_settings.title');
     }

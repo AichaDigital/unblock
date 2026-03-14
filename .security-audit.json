@@ -1,0 +1,6 @@
+{
+    "phpstan": { "enabled": true },
+    "coverage": { "enabled": true, "min": 90 },
+    "phpinsights": { "enabled": true },
+    "mlx": { "enabled": true }
+}

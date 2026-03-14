@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Actions;
 
 use App\Enums\PanelType;
-use App\Models\Host;
+use App\Models\{BfmWhitelistEntry, Host};
 use App\Services\Firewall\FirewallAnalysisResult;
 use App\Services\{FirewallService, SshConnectionManager};
 use Illuminate\Support\Facades\Log;
@@ -113,7 +113,7 @@ class UnblockIpActionNormalMode
 
                     // d) Register in database for scheduled cleanup
                     Log::debug('Registering BFM whitelist entry in database', ['ip' => $ip, 'ttl' => $ttl]);
-                    \App\Models\BfmWhitelistEntry::create([
+                    BfmWhitelistEntry::create([
                         'host_id' => $host->id,
                         'ip_address' => $ip,
                         'added_at' => now(),

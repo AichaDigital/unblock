@@ -80,7 +80,7 @@ describe('SshConnectionManager V2', function () {
 
             // Act & Assert: Should not throw when directory already exists
             expect(fn () => $this->manager->prepareMultiplexingPath())
-                ->not->toThrow(\Exception::class);
+                ->not->toThrow(Exception::class);
         });
     });
 
@@ -128,7 +128,7 @@ describe('SshConnectionManager V2', function () {
             $nonExistentPath = '/tmp/non_existent_key';
 
             expect(fn () => $this->manager->removeSshKey($nonExistentPath))
-                ->not->toThrow(\Exception::class);
+                ->not->toThrow(Exception::class);
         });
     });
 
@@ -179,14 +179,14 @@ describe('SshConnectionManager V2', function () {
             ];
 
             foreach ($criticalErrors as $errorMessage) {
-                $exception = new \Exception($errorMessage);
+                $exception = new Exception($errorMessage);
                 expect($this->errorService->isCriticalError($exception))
                     ->toBeTrue("Should identify '{$errorMessage}' as critical");
             }
         });
 
         it('provides diagnostic information for SSH errors', function () {
-            $exception = new \Exception('error in libcrypto');
+            $exception = new Exception('error in libcrypto');
             $diagnostics = $this->errorService->getDiagnosticInfo($exception);
 
             expect($diagnostics)->toHaveKey('error_type')
@@ -208,7 +208,7 @@ describe('SshConnectionManager V2', function () {
                 $this->user,
                 $testError,
                 $exception
-            ))->not->toThrow(\Exception::class);
+            ))->not->toThrow(Exception::class);
 
             // Verify dual notifications were sent
             Mail::assertSent(AdminConnectionErrorMail::class);

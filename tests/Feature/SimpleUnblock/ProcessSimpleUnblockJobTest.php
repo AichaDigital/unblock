@@ -2,9 +2,12 @@
 
 declare(strict_types=1);
 
+use App\Actions\SimpleUnblock\{AnalyzeFirewallForIpAction, CheckIpInServerLogsAction, CreateSimpleUnblockReportAction, IpLogsSearchResult};
+use App\Actions\UnblockIpAction;
 use App\Jobs\{ProcessSimpleUnblockJob, SendReportNotificationJob, SendSimpleUnblockNotificationJob};
 use App\Models\{Account, Domain, Host, Report};
 use App\Services\AnonymousUserService;
+use App\Services\Firewall\FirewallAnalysisResult;
 use Illuminate\Support\Facades\{Cache, Queue};
 use Mockery\MockInterface;
 
@@ -33,11 +36,11 @@ test('job dispatches correct simple mode notification', function () {
     Domain::factory()->create(['account_id' => $account->id, 'domain_name' => $this->domain]);
 
     // Mock dependencies to force the success path
-    $analysisResult = new \App\Services\Firewall\FirewallAnalysisResult(true, ['csf' => 'Blocked']);
-    $this->mock(\App\Actions\SimpleUnblock\AnalyzeFirewallForIpAction::class, fn (MockInterface $mock) => $mock->shouldReceive('handle')->andReturn($analysisResult));
-    $this->mock(\App\Actions\SimpleUnblock\CheckIpInServerLogsAction::class, fn (MockInterface $mock) => $mock->shouldReceive('handle')->andReturn(new \App\Actions\SimpleUnblock\IpLogsSearchResult($this->ip, true, [])));
-    $this->mock(\App\Actions\UnblockIpAction::class, fn (MockInterface $mock) => $mock->shouldReceive('handle'));
-    $this->mock(\App\Actions\SimpleUnblock\CreateSimpleUnblockReportAction::class, fn (MockInterface $mock) => $mock->shouldReceive('handle')->andReturn(Report::factory()->create()));
+    $analysisResult = new FirewallAnalysisResult(true, ['csf' => 'Blocked']);
+    $this->mock(AnalyzeFirewallForIpAction::class, fn (MockInterface $mock) => $mock->shouldReceive('handle')->andReturn($analysisResult));
+    $this->mock(CheckIpInServerLogsAction::class, fn (MockInterface $mock) => $mock->shouldReceive('handle')->andReturn(new IpLogsSearchResult($this->ip, true, [])));
+    $this->mock(UnblockIpAction::class, fn (MockInterface $mock) => $mock->shouldReceive('handle'));
+    $this->mock(CreateSimpleUnblockReportAction::class, fn (MockInterface $mock) => $mock->shouldReceive('handle')->andReturn(Report::factory()->create()));
 
     // Act
     $job = new ProcessSimpleUnblockJob($this->ip, $this->domain, $this->email, $this->host->id);

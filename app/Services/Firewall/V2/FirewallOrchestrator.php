@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Firewall\V2;
 
+use App\Enums\PanelType;
 use App\Exceptions\{FirewallException, InvalidIpException};
 use App\Jobs\SendReportNotificationJob;
 use App\Models\{Host, Report, User};
@@ -124,8 +125,8 @@ class FirewallOrchestrator
         ]);
 
         $analysisResult = match ($host->panel) {
-            \App\Enums\PanelType::DIRECTADMIN => $this->logAnalyzer->analyzeDirectAdmin($ipAddress, $host),
-            \App\Enums\PanelType::CPANEL => throw new FirewallException('cPanel analysis not yet implemented'),
+            PanelType::DIRECTADMIN => $this->logAnalyzer->analyzeDirectAdmin($ipAddress, $host),
+            PanelType::CPANEL => throw new FirewallException('cPanel analysis not yet implemented'),
             default => throw new FirewallException("Unsupported panel type: {$host->panel->value}")
         };
 
