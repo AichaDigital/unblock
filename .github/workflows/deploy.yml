@@ -75,10 +75,14 @@ jobs:
             git pull origin main
 
             echo ">>> Composer install"
-            composer install --no-dev --no-interaction --optimize-autoloader
+            composer install --no-dev --no-interaction --optimize-autoloader --no-scripts
+            frankenphp php-cli artisan package:discover --ansi
 
             echo ">>> Run migrations"
             frankenphp php-cli artisan migrate --force
+
+            echo ">>> Publish Filament assets"
+            frankenphp php-cli artisan filament:assets
 
             echo ">>> Clear and rebuild caches"
             frankenphp php-cli artisan config:cache
@@ -136,10 +140,14 @@ jobs:
             git pull origin main
 
             echo ">>> Composer install"
-            composer install --no-dev --no-interaction --optimize-autoloader
+            composer install --no-dev --no-interaction --optimize-autoloader --no-scripts
+            frankenphp php-cli artisan package:discover --ansi
 
             echo ">>> Run migrations"
             frankenphp php-cli artisan migrate --force
+
+            echo ">>> Publish Filament assets"
+            frankenphp php-cli artisan filament:assets
 
             echo ">>> Clear and rebuild caches"
             frankenphp php-cli artisan config:cache
