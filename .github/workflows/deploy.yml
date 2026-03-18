@@ -157,61 +157,8 @@ jobs:
 
             echo ">>> Deploy complete"
 
-  deploy-amazzal:
-    needs: quality
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    environment: production-amazzal
-
-    steps:
-      - name: Deploy to amazzal (unblock.castris.com legacy)
-        uses: appleboy/ssh-action@v1
-        with:
-          host: ${{ secrets.AMAZZAL_HOST }}
-          username: laravel
-          key: ${{ secrets.DEPLOY_SSH_KEY }}
-          port: ${{ secrets.AMAZZAL_PORT }}
-          script: |
-            cd /home/laravel/domains/unblock.castris.com/unblock
-
-            echo ">>> Git pull"
-            git pull origin main
-
-            echo ">>> Composer install"
-            composer install --no-dev --no-interaction --optimize-autoloader
-
-            echo ">>> Load nvm and build assets"
-            export NVM_DIR="$HOME/.nvm"
-            [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-            npm ci
-            npm run build
-
-            echo ">>> Run migrations"
-            php artisan migrate --force
-
-            echo ">>> Clear and rebuild caches"
-            php artisan config:cache
-            php artisan route:cache
-            php artisan view:cache
-            php artisan event:cache
-
-            echo ">>> Restart queue workers"
-            php artisan queue:restart
-
-            echo ">>> Deploy complete"
-
-      - name: Health check amazzal
-        run: |
-          sleep 5
-          STATUS=$(curl -sf -o /dev/null -w '%{http_code}' https://unblock.castris.com/admin/login || true)
-          if [ "$STATUS" != "200" ]; then
-            echo "Health check failed: HTTP $STATUS"
-            exit 1
-          fi
-          echo "Health check passed: HTTP $STATUS"
-
   deploy-central:
-    needs: deploy-amazzal
+    needs: quality
     runs-on: ubuntu-latest
     timeout-minutes: 10
     environment: production-central
