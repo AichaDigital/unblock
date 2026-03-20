@@ -36,9 +36,7 @@ yarn-error.log
 /.fleet
 /.vscode
 /.zed
-composer.lock
 remote_database/
-*.sh
 .DS_Store
 /var/phpstan
 /storage/phpstan%

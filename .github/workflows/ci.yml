@@ -33,6 +33,11 @@ jobs:
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: ${{ runner.os }}-composer-
 
+      - name: Validate lock files
+        run: |
+          composer validate --check-lock --no-interaction
+          echo "✓ composer.lock is in sync with composer.json"
+
       - name: Install dependencies
         run: composer install --no-progress --prefer-dist --optimize-autoloader
 

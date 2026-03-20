@@ -14,6 +14,10 @@ version: 2
 paths-ignore:
   - tests/stubs/**/*  # Only stub files, not actual tests
   - lang/vendor/**/*  # Translation files from vendor packages (false positives)
+  - .agents/skills/**/*  # AI agent skill docs with code examples (not real code)
+  - .claude/skills/**/*  # AI agent skill docs with code examples (not real code)
+  - .cursor/skills/**/*  # AI agent skill docs with code examples (not real code)
+  - .codex/**/*  # AI agent config (not real code)
 
 # Paths to always scan (override ignore rules)
 paths-scan:

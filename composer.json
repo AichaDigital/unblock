@@ -118,12 +118,14 @@
             "@php artisan test --parallel"
         ],
         "check": [
+            "@validate-lock",
             "@syntax-check",
             "@pint-test",
             "@phpstan",
             "@test"
         ],
         "check-full": [
+            "@validate-lock",
             "@syntax-check",
             "@pint-test",
             "@phpstan",
@@ -142,11 +144,15 @@
             "vendor/bin/infection --test-framework-options=\"--exclude-group=integration\""
         ],
         "security:audit": "composer audit --format=json",
+        "validate-lock": "composer validate --check-lock --no-interaction",
         "pre-commit": [
+            "@validate-lock",
             "@syntax-check",
             "@pint",
             "@test-local"
         ],
+        "hook:install": "cp scripts/pre-commit .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit && echo '✓ Pre-commit hook installed'",
+        "hook:uninstall": "rm -f .git/hooks/pre-commit && echo '✓ Pre-commit hook removed'",
         "frontend:build": [
             "pnpm install",
             "pnpm run build"

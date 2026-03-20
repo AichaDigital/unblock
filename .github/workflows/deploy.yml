@@ -74,6 +74,14 @@ jobs:
             echo ">>> Git pull"
             git pull origin main
 
+            echo ">>> Validate lock file"
+            composer validate --check-lock --no-interaction || {
+              echo "FATAL: composer.lock is out of sync with composer.json"
+              echo "The lock file was not updated in the last commit."
+              echo "Fix: run 'composer update' locally and commit composer.lock"
+              exit 1
+            }
+
             echo ">>> Composer install"
             composer install --no-dev --no-interaction --optimize-autoloader --no-scripts
             frankenphp php-cli artisan package:discover --ansi
@@ -138,6 +146,14 @@ jobs:
 
             echo ">>> Git pull"
             git pull origin main
+
+            echo ">>> Validate lock file"
+            composer validate --check-lock --no-interaction || {
+              echo "FATAL: composer.lock is out of sync with composer.json"
+              echo "The lock file was not updated in the last commit."
+              echo "Fix: run 'composer update' locally and commit composer.lock"
+              exit 1
+            }
 
             echo ">>> Composer install"
             composer install --no-dev --no-interaction --optimize-autoloader --no-scripts
