@@ -36,9 +36,7 @@ yarn-error.log
 /.fleet
 /.vscode
 /.zed
-composer.lock
 remote_database/
-*.sh
 .DS_Store
 /var/phpstan
 /storage/phpstan%
@@ -83,3 +81,9 @@ public/.htaccess
 .claude/mcp.json*
 .cursor/mcp.json*
 .worktrees/
+
+# AI agent local configs (skills, local settings)
+.agents/skills/
+.claude/skills/
+.cursor/skills/
+.codex/
