@@ -6,7 +6,11 @@ use App\Models\{Host, Hosting, User, UserHostingPermission};
 test('admin can access user edit page', function () {
     // Arrange - Create complete setup
     $admin = User::factory()->admin()->create();
-    $parentUser = User::factory()->create(['parent_user_id' => null]);
+    $parentUser = User::factory()->create([
+        'parent_user_id' => null,
+        'first_name' => 'TestParent',
+        'last_name' => 'UserAdmin',
+    ]);
     $authorizedUser = User::factory()->create(['parent_user_id' => $parentUser->id]);
 
     // Act - Access the edit page as admin
@@ -21,7 +25,7 @@ test('admin can access user edit page', function () {
 
     // Assert - Page should load successfully
     $response->assertStatus(200);
-    $response->assertSee($parentUser->name, false); // false = no escape, search for raw HTML
+    $response->assertSee('TestParent UserAdmin');
     $response->assertSee($parentUser->email);
 });
 
