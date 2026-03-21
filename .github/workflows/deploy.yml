@@ -82,6 +82,10 @@ jobs:
               exit 1
             }
 
+            echo ">>> Clear stale caches before install"
+            rm -f bootstrap/cache/{config,packages,services,events}.php
+            rm -f bootstrap/cache/routes-v*.php
+
             echo ">>> Composer install"
             composer install --no-dev --no-interaction --optimize-autoloader --no-scripts
             frankenphp php-cli artisan package:discover --ansi
@@ -92,7 +96,7 @@ jobs:
             echo ">>> Publish Filament assets"
             frankenphp php-cli artisan filament:assets
 
-            echo ">>> Clear and rebuild caches"
+            echo ">>> Rebuild caches"
             frankenphp php-cli artisan config:cache
             frankenphp php-cli artisan route:cache
             frankenphp php-cli artisan view:cache
@@ -155,6 +159,10 @@ jobs:
               exit 1
             }
 
+            echo ">>> Clear stale caches before install"
+            rm -f bootstrap/cache/{config,packages,services,events}.php
+            rm -f bootstrap/cache/routes-v*.php
+
             echo ">>> Composer install"
             composer install --no-dev --no-interaction --optimize-autoloader --no-scripts
             frankenphp php-cli artisan package:discover --ansi
@@ -165,7 +173,7 @@ jobs:
             echo ">>> Publish Filament assets"
             frankenphp php-cli artisan filament:assets
 
-            echo ">>> Clear and rebuild caches"
+            echo ">>> Rebuild caches"
             frankenphp php-cli artisan config:cache
             frankenphp php-cli artisan route:cache
             frankenphp php-cli artisan view:cache
