@@ -76,14 +76,12 @@ public/.htaccess
 # MCP configs with secrets
 .claude/mcp.json
 .claude/settings.local.json
-.cursor/mcp.json
 *.mcp.json*
 .claude/mcp.json*
-.cursor/mcp.json*
 .worktrees/
 
-# AI agent local configs (skills, local settings)
+# AI/Editor local configs
+.cursor/
 .agents/skills/
 .claude/skills/
-.cursor/skills/
 .codex/

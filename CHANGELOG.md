@@ -7,6 +7,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.0] - 2026-03-21
+
+### Changed
+
+- **Laravel 12 → 13.1.1** (Symfony v7 → v8, Filament v4.9, Tinker v3, laravel-actions v2.10)
+- CI PHP version bumped to 8.4
+- `VerifyCsrfToken` middleware replaced by `PreventRequestForgery` (Laravel 13 rename)
+- `serializable_classes => false` in cache config (Laravel 13 security default)
+- `serve: false` on SSH filesystem disk (Laravel 13 validates served disk URLs)
+- Removed unused `graham-campbell/throttle` dependency
+
+### Added
+
+- `composer validate --check-lock` in CI pipeline (blocks PRs with stale lock file)
+- Lock file validation in CD deploy scripts for argos01/argos02 (abort with clear error)
+- Pre-commit hook (`scripts/pre-commit`): lock sync + syntax + pint + phpstan + tests
+- Composer scripts: `validate-lock`, `hook:install`, `hook:uninstall`
+- `validate-lock` integrated into `check`, `check-full`, and `pre-commit` pipelines
+
+### Fixed
+
+- **Root cause of broken deploys**: `composer.lock` was in `.gitignore`, preventing lock file from being committed
+- `*.sh` removed from `.gitignore` (was excluding legitimate scripts)
+- Flaky test `UserResourceRelationManagersTest`: Faker apostrophe in names caused HTML escape mismatch
+
+### Removed
+
+- `.cursor/` directory removed from repository (editor-specific, not project code)
+- AI skill docs removed from repository (`.agents/skills/`, `.claude/skills/`, `.codex/`)
+
+### Security
+
+- league/commonmark 2.8.1 → 2.8.2 (CVE-2026-33347, embed domains bypass)
+- phpseclib/phpseclib 3.0.49 → 3.0.50 (CVE-2026-32935, AES-CBC padding oracle)
+
 ## [1.5.0] - 2026-03-14
 
 ### Added
@@ -166,7 +201,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bilingual interface EN/ES
 - 257 tests, 94% coverage
 
-[Unreleased]: https://github.com/AichaDigital/unblock/compare/v1.5.0...HEAD
+[Unreleased]: https://github.com/AichaDigital/unblock/compare/v1.6.0...HEAD
+[1.6.0]: https://github.com/AichaDigital/unblock/compare/v1.5.0...v1.6.0
 [1.5.0]: https://github.com/AichaDigital/unblock/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/AichaDigital/unblock/compare/v1.3.1...v1.4.0
 [1.3.1]: https://github.com/AichaDigital/unblock/compare/v1.3.0...v1.3.1
