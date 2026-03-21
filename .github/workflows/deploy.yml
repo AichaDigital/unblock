@@ -31,7 +31,7 @@ jobs:
           pnpm run build
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: vite-build
           path: public/build/
@@ -45,13 +45,13 @@ jobs:
 
     steps:
       - name: Download build artifacts
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@v4
         with:
           name: vite-build
           path: build-artifacts/
 
       - name: Upload assets to argos01
-        uses: appleboy/scp-action@v1.0.0
+        uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.ARGOS01_HOST }}
           username: franken
@@ -73,6 +73,14 @@ jobs:
 
             echo ">>> Git pull"
             git pull origin main
+
+            echo ">>> Validate lock file"
+            composer validate --check-lock --no-interaction || {
+              echo "FATAL: composer.lock is out of sync with composer.json"
+              echo "The lock file was not updated in the last commit."
+              echo "Fix: run 'composer update' locally and commit composer.lock"
+              exit 1
+            }
 
             echo ">>> Composer install"
             composer install --no-dev --no-interaction --optimize-autoloader --no-scripts
@@ -110,13 +118,13 @@ jobs:
 
     steps:
       - name: Download build artifacts
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@v4
         with:
           name: vite-build
           path: build-artifacts/
 
       - name: Upload assets to argos02
-        uses: appleboy/scp-action@v1.0.0
+        uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.ARGOS02_HOST }}
           username: franken
@@ -138,6 +146,14 @@ jobs:
 
             echo ">>> Git pull"
             git pull origin main
+
+            echo ">>> Validate lock file"
+            composer validate --check-lock --no-interaction || {
+              echo "FATAL: composer.lock is out of sync with composer.json"
+              echo "The lock file was not updated in the last commit."
+              echo "Fix: run 'composer update' locally and commit composer.lock"
+              exit 1
+            }
 
             echo ">>> Composer install"
             composer install --no-dev --no-interaction --optimize-autoloader --no-scripts
