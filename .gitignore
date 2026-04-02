@@ -73,11 +73,16 @@ build/logs/phpstan.log
 # cPanel specific files
 error_log
 public/.htaccess
-# MCP configs with secrets
+# Claude Code local state (never commit)
+.claude/projects/
+.claude/worktrees/
+.claude/plans/
 .claude/mcp.json
-.claude/settings.local.json
-*.mcp.json*
 .claude/mcp.json*
+.claude/settings.local.json
+.claude/project-metadata.json*
+.claude/memento_instructions.md
+*.mcp.json*
 .worktrees/
 
 # AI/Editor local configs
