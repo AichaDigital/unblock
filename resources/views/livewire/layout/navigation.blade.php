@@ -52,7 +52,7 @@ new class extends Component
                     </div>
                     <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
                         <li>
-                            <a href="{{ route('profile') }}" wire:navigate>
+                            <a href="{{ route('filament.admin.pages.user-profile') }}" wire:navigate>
                                 {{ __('Profile') }}
                             </a>
                         </li>
@@ -93,7 +93,7 @@ new class extends Component
             </div>
 
             <div class="mt-3 space-y-1">
-                <x-responsive-nav-link :href="route('profile')" wire:navigate>
+                <x-responsive-nav-link :href="route('filament.admin.pages.user-profile')" wire:navigate>
                     {{ __('Profile') }}
                 </x-responsive-nav-link>
 

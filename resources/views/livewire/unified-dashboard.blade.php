@@ -10,7 +10,7 @@ use App\Traits\HasNotifications;
 use Illuminate\Support\Facades\DB;
 
 new
-#[Layout('layouts.app')]
+#[Layout('components.layouts.app')]
 #[Title('dashboard')]
 class extends Component {
     use AuditLoginTrait, HasNotifications;
