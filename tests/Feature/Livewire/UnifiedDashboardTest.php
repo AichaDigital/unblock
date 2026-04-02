@@ -1,7 +1,7 @@
 <?php
 
 use App\Models\{Host, Hosting, User};
-use Livewire\Volt\Volt;
+use Livewire\Livewire;
 
 test('admin can access unified dashboard without redirect', function () {
     config()->set('unblock.simple_mode.enabled', false);
@@ -65,7 +65,7 @@ test('admin can search by domain', function () {
     $this->app->instance(\App\Actions\CheckFirewallAction::class, $mockAction);
 
     // Test domain search using V2 direct execution
-    $component = Volt::test('unified-dashboard')
+    $component = Livewire::test('unified-dashboard')
         ->set('selectedType', 'hosting')
         ->set('selectedId', $hosting->id)
         ->set('ipAddress', '192.168.1.1')
@@ -93,7 +93,7 @@ test('admin can search by server', function () {
     $this->app->instance(\App\Actions\CheckFirewallAction::class, $mockAction);
 
     // Test server search using V2 direct execution
-    $component = Volt::test('unified-dashboard')
+    $component = Livewire::test('unified-dashboard')
         ->set('selectedType', 'host')
         ->set('selectedId', $host->id)
         ->set('ipAddress', '192.168.1.1')
@@ -128,7 +128,7 @@ test('regular user can only access authorized domains', function () {
     $this->actingAs($user);
 
     // Mount component and verify a user only sees authorized domains
-    $component = Volt::test('unified-dashboard');
+    $component = Livewire::test('unified-dashboard');
 
     // Verify a user only sees 1 domain (the authorized one)
     expect(count($component->get('availableDomains')))->toBe(1);
@@ -147,7 +147,7 @@ test('regular user can only access authorized domains', function () {
     $this->app->instance(\App\Actions\CheckFirewallAction::class, $mockAction);
 
     // Test that user can access authorized domain
-    $component = Volt::test('unified-dashboard')
+    $component = Livewire::test('unified-dashboard')
         ->set('selectedType', 'hosting')
         ->set('selectedId', $authorizedHosting->id)
         ->set('ipAddress', '192.168.1.1')
@@ -158,7 +158,7 @@ test('regular user can only access authorized domains', function () {
 
     // Test that a user cannot manually set unauthorized domain ID (should fail validation)
     // This tests the validation layer protection against manually crafted requests
-    $component = Volt::test('unified-dashboard')
+    $component = Livewire::test('unified-dashboard')
         ->set('selectedType', 'hosting')
         ->set('selectedId', $unauthorizedHosting->id)
         ->set('ipAddress', '192.168.1.1')
@@ -178,13 +178,13 @@ test('dashboard shows validation error for missing selection', function () {
     $this->actingAs($admin);
 
     // Submit a form without selection
-    Volt::test('unified-dashboard')
+    Livewire::test('unified-dashboard')
         ->set('ipAddress', '192.168.1.1')
         ->call('submitForm')
         ->assertHasErrors(['selectedType']);
 
     // Submit form with type but no ID
-    Volt::test('unified-dashboard')
+    Livewire::test('unified-dashboard')
         ->set('selectedType', 'hosting')
         ->set('ipAddress', '192.168.1.1')
         ->call('submitForm')
@@ -200,7 +200,7 @@ test('dashboard shows validation error for missing ip', function () {
     $this->actingAs($admin);
 
     // Submit a form without IP (explicitly set to empty)
-    Volt::test('unified-dashboard')
+    Livewire::test('unified-dashboard')
         ->set('selectedType', 'host')
         ->set('selectedId', $host->id)
         ->set('ipAddress', '')
@@ -217,7 +217,7 @@ test('dashboard shows validation error for invalid ip', function () {
     $this->actingAs($admin);
 
     // Submit form with invalid IP
-    Volt::test('unified-dashboard')
+    Livewire::test('unified-dashboard')
         ->set('selectedType', 'host')
         ->set('selectedId', $host->id)
         ->set('ipAddress', 'invalid-ip')
@@ -242,7 +242,7 @@ test('dashboard processes valid form submission using V2 direct execution', func
     $this->app->instance(\App\Actions\CheckFirewallAction::class, $mockAction);
 
     // Submit valid form
-    $component = Volt::test('unified-dashboard')
+    $component = Livewire::test('unified-dashboard')
         ->set('selectedType', 'host')
         ->set('selectedId', $host->id)
         ->set('ipAddress', '192.168.1.1')
@@ -261,7 +261,7 @@ test('dashboard detects client ip correctly', function () {
     $this->actingAs($admin);
 
     // Verify that IP is detected (will be 127.0.0.1 in tests)
-    $component = Volt::test('unified-dashboard');
+    $component = Livewire::test('unified-dashboard');
 
     expect($component->get('detectedIp'))->not->toBeEmpty()
         ->and($component->get('ipAddress'))->toBe($component->get('detectedIp'));
@@ -277,7 +277,7 @@ test('dashboard selection methods work correctly', function () {
     $this->actingAs($admin);
 
     // Test hosting selection
-    $component = Volt::test('unified-dashboard')
+    $component = Livewire::test('unified-dashboard')
         ->call('selectHosting', $hosting->id)
         ->assertSet('selectedType', 'hosting')
         ->assertSet('selectedId', $hosting->id)
@@ -308,7 +308,7 @@ test('dashboard ip helper works for non-admin users', function () {
     $this->actingAs($user);
 
     // Test IP helper toggle
-    $component = Volt::test('unified-dashboard')
+    $component = Livewire::test('unified-dashboard')
         ->assertSet('showIpHelper', false)
         ->call('toggleIpHelper')
         ->assertSet('showIpHelper', true)
@@ -327,7 +327,7 @@ test('dashboard reload works correctly', function () {
     $this->actingAs($admin);
 
     // Test reload functionality
-    Volt::test('unified-dashboard')
+    Livewire::test('unified-dashboard')
         ->set('showForm', false)
         ->set('searchTerm', 'test')
         ->set('selectedType', 'host')
@@ -371,7 +371,7 @@ test('admin sees all domains and servers', function () {
     $this->actingAs($admin);
 
     // Mount component and verify admin sees all options
-    $component = Volt::test('unified-dashboard');
+    $component = Livewire::test('unified-dashboard');
 
     // Verify admin sees all hostings and hosts
     expect(count($component->get('availableDomains')))->toBe(5)
@@ -402,7 +402,7 @@ test('regular user sees only authorized domains and servers', function () {
     $this->actingAs($user);
 
     // Mount component and verify a user sees only authorized options
-    $component = Volt::test('unified-dashboard');
+    $component = Livewire::test('unified-dashboard');
 
     expect(count($component->get('availableDomains')))->toBe(1)
         ->and(count($component->get('availableServers')))->toBe(1);
@@ -436,7 +436,7 @@ test('admin can search copy users and select one', function () {
     $this->actingAs($admin);
 
     // Mount component
-    $component = Volt::test('unified-dashboard');
+    $component = Livewire::test('unified-dashboard');
 
     // Verify admin has the copy user properties
     expect($component->get('isAdmin'))->toBeTrue()
@@ -480,7 +480,7 @@ test('non-admin cannot access copy user functionality', function () {
     $this->actingAs($user);
 
     // Mount component
-    $component = Volt::test('unified-dashboard');
+    $component = Livewire::test('unified-dashboard');
 
     // Verify user is not admin and doesn't have copy user functionality
     expect($component->get('isAdmin'))->toBeFalse();
@@ -506,7 +506,7 @@ test('selected copy user data persists after selection', function () {
     $this->actingAs($admin);
 
     // Mount component
-    $component = Volt::test('unified-dashboard');
+    $component = Livewire::test('unified-dashboard');
 
     // Search for the user
     $component->set('copyUserSearch', 'carlos')
