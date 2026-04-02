@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Validation\Rule;
-use Livewire\Volt\Component;
+use Livewire\Component;
 use Livewire\Attributes\{Layout, Title};
 use App\Actions\CheckFirewallAction;
 use App\Models\{Host, Hosting, User};

@@ -1,6 +1,6 @@
 <?php
 
-use App\Providers\{AppServiceProvider, AuthServiceProvider, EventServiceProvider, RouteServiceProvider, VoltServiceProvider};
+use App\Providers\{AppServiceProvider, AuthServiceProvider, EventServiceProvider, RouteServiceProvider};
 use App\Providers\Filament\AdminPanelProvider;
 
 return [
@@ -9,5 +9,4 @@ return [
     EventServiceProvider::class,
     AdminPanelProvider::class,
     RouteServiceProvider::class,
-    VoltServiceProvider::class,
 ];

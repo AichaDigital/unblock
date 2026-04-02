@@ -3,7 +3,7 @@
 use App\Actions\CheckFirewallAction;
 use App\Models\{Host, Hosting, User, UserHostingPermission};
 use Illuminate\Support\Facades\Queue;
-use Livewire\Volt\Volt;
+use Livewire\Livewire;
 
 test('authorized user with parent_user_id can access dashboard', function () {
     // Arrange - Create parent user and authorized user
@@ -49,7 +49,7 @@ test('authorized user only sees specifically assigned hostings in dashboard', fu
 
     // Act - Mount dashboard as an authorized user
     $this->actingAs($authorizedUser);
-    $component = Volt::test('unified-dashboard');
+    $component = Livewire::test('unified-dashboard');
 
     // Assert - Should only see assigned hosting
     $availableDomains = $component->get('availableDomains');
@@ -79,7 +79,7 @@ test('authorized user only sees specifically assigned hosts in dashboard', funct
 
     // Act - Mount dashboard as an authorized user
     $this->actingAs($authorizedUser);
-    $component = Volt::test('unified-dashboard');
+    $component = Livewire::test('unified-dashboard');
 
     // Assert - Should only see an assigned host
     $availableServers = $component->get('availableServers');
@@ -121,7 +121,7 @@ test('authorized user can execute firewall analysis on assigned hosting', functi
     $this->actingAs($authorizedUser);
 
     // Create component and manually set the data to avoid heavy queries
-    $component = Volt::test('unified-dashboard');
+    $component = Livewire::test('unified-dashboard');
 
     // Manually override the heavy availableDomains to avoid slow queries
     $component->set('availableDomains', [
@@ -162,7 +162,7 @@ test('authorized user can execute firewall analysis on assigned host', function 
 
     // Act - Submit form through dashboard
     $this->actingAs($authorizedUser);
-    $component = Volt::test('unified-dashboard')
+    $component = Livewire::test('unified-dashboard')
         ->set('selectedType', 'host')
         ->set('selectedId', $host->id)
         ->set('ipAddress', '192.168.1.100')
@@ -188,7 +188,7 @@ test('authorized user cannot access non-assigned resources through dashboard', f
 
     // Act - Try to submit form with unauthorized hosting ID
     $this->actingAs($authorizedUser);
-    $component = Volt::test('unified-dashboard')
+    $component = Livewire::test('unified-dashboard')
         ->set('selectedType', 'hosting')
         ->set('selectedId', $hosting->id)
         ->set('ipAddress', '192.168.1.100')
@@ -230,7 +230,7 @@ test('authorized user with mixed permissions sees both hostings and hosts', func
 
     // Act - Mount dashboard
     $this->actingAs($authorizedUser);
-    $component = Volt::test('unified-dashboard');
+    $component = Livewire::test('unified-dashboard');
 
     // Assert - Should see both types of access
     $availableDomains = $component->get('availableDomains');
@@ -277,7 +277,7 @@ test('admin can manually create authorized user and assign permissions', functio
 
     // Verify authorized user can see the resource in dashboard
     $this->actingAs($authorizedUser);
-    $component = Volt::test('unified-dashboard');
+    $component = Livewire::test('unified-dashboard');
 
     $availableDomains = $component->get('availableDomains');
     expect(count($availableDomains))->toBe(1)
@@ -303,14 +303,14 @@ test('revoked permissions are immediately reflected in dashboard', function () {
 
     // Verify initial access
     $this->actingAs($authorizedUser);
-    $component = Volt::test('unified-dashboard');
+    $component = Livewire::test('unified-dashboard');
     expect(count($component->get('availableDomains')))->toBe(1);
 
     // Act - Revoke permission
     $permission->update(['is_active' => false]);
 
     // Assert - Dashboard should immediately reflect the change
-    $component = Volt::test('unified-dashboard');
+    $component = Livewire::test('unified-dashboard');
     expect(count($component->get('availableDomains')))->toBe(0);
 });
 
@@ -348,7 +348,7 @@ test('dashboard correctly filters resources among many available options', funct
 
     // Act - Mount dashboard as authorized user
     $this->actingAs($authorizedUser);
-    $component = Volt::test('unified-dashboard');
+    $component = Livewire::test('unified-dashboard');
 
     // Assert - Should see ONLY assigned resources
     $availableDomains = $component->get('availableDomains');
@@ -402,7 +402,7 @@ test('dashboard prevents unauthorized access attempts with multiple resources', 
     $this->actingAs($authorizedUser);
 
     // Act & Assert - Valid submission should work
-    $validComponent = Volt::test('unified-dashboard');
+    $validComponent = Livewire::test('unified-dashboard');
 
     // Configure availableDomains to include only the allowed hosting
     $validComponent->set('availableDomains', [
@@ -421,7 +421,7 @@ test('dashboard prevents unauthorized access attempts with multiple resources', 
     $validComponent->assertHasNoErrors();
 
     // Act & Assert - Invalid submissions should fail
-    $invalidComponent1 = Volt::test('unified-dashboard');
+    $invalidComponent1 = Livewire::test('unified-dashboard');
 
     // Configure empty availableDomains to simulate no access
     $invalidComponent1->set('availableDomains', []);
@@ -433,7 +433,7 @@ test('dashboard prevents unauthorized access attempts with multiple resources', 
 
     $invalidComponent1->assertSet('errorMessage', __('firewall.errors.process_error'));
 
-    $invalidComponent2 = Volt::test('unified-dashboard');
+    $invalidComponent2 = Livewire::test('unified-dashboard');
 
     // Configure empty availableDomains to simulate no access
     $invalidComponent2->set('availableDomains', []);
@@ -469,13 +469,13 @@ test('dashboard handles permission changes dynamically with multiple users', fun
 
     // Verify initial state for User1
     $this->actingAs($authorizedUser1);
-    $component1 = Volt::test('unified-dashboard');
+    $component1 = Livewire::test('unified-dashboard');
     expect(count($component1->get('availableDomains')))->toBe(1)
         ->and(collect($component1->get('availableDomains'))->pluck('id'))->toContain($hosting1->id);
 
     // Verify initial state for User2
     $this->actingAs($authorizedUser2);
-    $component2 = Volt::test('unified-dashboard');
+    $component2 = Livewire::test('unified-dashboard');
     expect(count($component2->get('availableDomains')))->toBe(1)
         ->and(collect($component2->get('availableDomains'))->pluck('id'))->toContain($hosting2->id);
 
@@ -485,7 +485,7 @@ test('dashboard handles permission changes dynamically with multiple users', fun
 
     // Assert - User1 should now see 2 hostings
     $this->actingAs($authorizedUser1);
-    $updatedComponent1 = Volt::test('unified-dashboard');
+    $updatedComponent1 = Livewire::test('unified-dashboard');
     expect(count($updatedComponent1->get('availableDomains')))->toBe(2);
     $user1Domains = collect($updatedComponent1->get('availableDomains'))->pluck('id');
     expect($user1Domains)->toContain($hosting1->id)
@@ -494,6 +494,6 @@ test('dashboard handles permission changes dynamically with multiple users', fun
 
     // Assert - User2 should now see 0 hostings
     $this->actingAs($authorizedUser2);
-    $updatedComponent2 = Volt::test('unified-dashboard');
+    $updatedComponent2 = Livewire::test('unified-dashboard');
     expect(count($updatedComponent2->get('availableDomains')))->toBe(0);
 });

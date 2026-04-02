@@ -3,15 +3,14 @@
 use App\Http\Controllers\ReportController;
 use App\Livewire\{AdminOtpVerification, SimpleUnblockForm};
 use Illuminate\Support\Facades\{DB, Route};
-use Livewire\Volt\Volt;
 
 // Ruta principal '/' - Sistema OTP Login usando componente Livewire
-Volt::route('/', 'otp-login')
+Route::livewire('/', 'otp-login')
     ->middleware(['guest', 'throttle:10,1'])
     ->name('login');
 
 // Rutas protegidas
-Volt::route('dashboard', 'unified-dashboard')
+Route::livewire('dashboard', 'unified-dashboard')
     ->middleware(['auth', 'session.timeout', 'simple.mode'])
     ->name('dashboard');
 
