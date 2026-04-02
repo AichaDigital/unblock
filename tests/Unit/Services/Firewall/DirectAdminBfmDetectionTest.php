@@ -28,7 +28,7 @@ test('DirectAdmin BFM check command is correct', function () {
     $ipAddress = '192.168.1.100';
 
     // Get the command that would be executed
-    $reflection = new \ReflectionClass($firewallService);
+    $reflection = new ReflectionClass($firewallService);
     $method = $reflection->getMethod('buildCommand');
     $method->setAccessible(true);
 
@@ -82,7 +82,7 @@ test('DirectAdmin BFM analyzer has da_bfm_check enabled by default', function ()
     );
 
     // Usar reflexión para acceder a la propiedad privada serviceChecks
-    $reflection = new \ReflectionClass($analyzer);
+    $reflection = new ReflectionClass($analyzer);
     $property = $reflection->getProperty('serviceChecks');
     $property->setAccessible(true);
 

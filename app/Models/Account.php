@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\{BelongsTo, HasMany};
@@ -21,11 +22,11 @@ use Illuminate\Database\Eloquent\Relations\{BelongsTo, HasMany};
  * @property string $username
  * @property string $domain
  * @property string|null $owner
- * @property \Carbon\Carbon|null $suspended_at
- * @property \Carbon\Carbon|null $deleted_at
- * @property \Carbon\Carbon|null $last_synced_at
- * @property \Carbon\Carbon $created_at
- * @property \Carbon\Carbon $updated_at
+ * @property Carbon|null $suspended_at
+ * @property Carbon|null $deleted_at
+ * @property Carbon|null $last_synced_at
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
  */
 class Account extends Model
 {

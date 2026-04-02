@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Observers\ReportObserver;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -19,9 +20,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property array|null $logs
  * @property array|null $analysis
  * @property bool $was_unblocked
- * @property \Carbon\Carbon|null $last_read
- * @property \Carbon\Carbon $created_at
- * @property \Carbon\Carbon $updated_at
+ * @property Carbon|null $last_read
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
  * @property-read User|null $user
  * @property-read Host $host
  */

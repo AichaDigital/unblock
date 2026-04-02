@@ -9,6 +9,7 @@ use App\Enums\PanelType;
 use App\Models\Host;
 use Exception;
 use Illuminate\Console\Command;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Log;
 
 use function Laravel\Prompts\progress;
@@ -127,7 +128,7 @@ class SyncAccountsCommand extends Command
      *
      * Syncs ALL cPanel/DirectAdmin hosts (accounts exist on ALL servers)
      */
-    private function getHostsToSync(?string $hostId): \Illuminate\Database\Eloquent\Collection
+    private function getHostsToSync(?string $hostId): Collection
     {
         $query = Host::query()
             ->whereIn('panel', ['cpanel', 'directadmin', 'da'])

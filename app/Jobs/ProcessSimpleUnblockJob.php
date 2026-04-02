@@ -14,7 +14,7 @@ use App\Actions\SimpleUnblock\{
     ValidateIpFormatAction
 };
 use App\Actions\UnblockIpAction;
-use App\Models\Host;
+use App\Models\{Host, Report};
 use App\Services\{AnonymousUserService, SshConnectionManager};
 use Exception;
 use Illuminate\Bus\Queueable;
@@ -257,7 +257,7 @@ class ProcessSimpleUnblockJob implements ShouldQueue
         try {
             $host = Host::find($this->hostId);
             if ($host) {
-                \App\Models\Report::create([
+                Report::create([
                     'ip' => $this->ip,
                     'user_id' => AnonymousUserService::get()->id,
                     'host_id' => $this->hostId,

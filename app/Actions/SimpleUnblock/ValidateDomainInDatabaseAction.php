@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions\SimpleUnblock;
 
-use App\Models\Domain;
+use App\Models\{Account, Domain};
 use Illuminate\Support\Facades\Log;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -49,7 +49,7 @@ class ValidateDomainInDatabaseAction
         }
 
         // Check if account is suspended
-        /** @var \App\Models\Account $account */
+        /** @var Account $account */
         $account = $domainRecord->account;
 
         if ($account->suspended_at) {

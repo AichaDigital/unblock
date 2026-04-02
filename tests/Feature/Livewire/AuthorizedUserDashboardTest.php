@@ -110,12 +110,12 @@ test('authorized user can execute firewall analysis on assigned hosting', functi
     ]);
 
     // Mock CheckFirewallAction to return a successful result
-    $mockAction = Mockery::mock(\App\Actions\CheckFirewallAction::class);
+    $mockAction = Mockery::mock(CheckFirewallAction::class);
     $mockAction->shouldReceive('handle')->andReturn([
         'success' => true,
         'message' => __('messages.firewall.check_started'),
     ]);
-    $this->app->instance(\App\Actions\CheckFirewallAction::class, $mockAction);
+    $this->app->instance(CheckFirewallAction::class, $mockAction);
 
     // Act - Submit form through dashboard (skip the heavy loading by acting as user first)
     $this->actingAs($authorizedUser);
@@ -153,12 +153,12 @@ test('authorized user can execute firewall analysis on assigned host', function 
     $authorizedUser->hosts()->attach($host->id, ['is_active' => true]);
 
     // Mock CheckFirewallAction to return a successful result
-    $mockAction = Mockery::mock(\App\Actions\CheckFirewallAction::class);
+    $mockAction = Mockery::mock(CheckFirewallAction::class);
     $mockAction->shouldReceive('handle')->andReturn([
         'success' => true,
         'message' => __('messages.firewall.check_started'),
     ]);
-    $this->app->instance(\App\Actions\CheckFirewallAction::class, $mockAction);
+    $this->app->instance(CheckFirewallAction::class, $mockAction);
 
     // Act - Submit form through dashboard
     $this->actingAs($authorizedUser);

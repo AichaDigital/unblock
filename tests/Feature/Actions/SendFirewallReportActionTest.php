@@ -2,7 +2,7 @@
 
 use App\Actions\SendFirewallReportAction;
 use App\Mail\LogNotificationMail;
-use App\Models\User;
+use App\Models\{Report, User};
 use Illuminate\Support\Facades\{Config, Log, Mail};
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use Tests\FirewallTestConstants as TC;
@@ -25,7 +25,7 @@ beforeEach(function () {
 test('sends report successfully', function () {
     // Arrange
     $user = User::factory()->admin()->create();
-    $error = new \Exception('Test error');
+    $error = new Exception('Test error');
 
     // Act
     $result = $this->action->handle(
@@ -52,7 +52,7 @@ test('sends report successfully', function () {
 
 test('handles missing admin user', function () {
     // Arrange
-    $error = new \Exception('Test error');
+    $error = new Exception('Test error');
 
     // Act
     $result = $this->action->handle(
@@ -79,11 +79,11 @@ test('handles missing admin user', function () {
 test('handles mail sending failure', function () {
     // Arrange
     $user = User::factory()->admin()->create();
-    $error = new \Exception('Test error');
+    $error = new Exception('Test error');
 
     // Mock mail to throw exception
     Mail::shouldReceive('to')
-        ->andThrow(new \Exception('Mail error'));
+        ->andThrow(new Exception('Mail error'));
 
     // Act
     $result = $this->action->handle(
@@ -101,13 +101,13 @@ test('handles mail sending failure', function () {
 
     // Verify error was logged
     Log::shouldHaveReceived('error')
-        ->with('Failed to send firewall report', \Mockery::any());
+        ->with('Failed to send firewall report', Mockery::any());
 });
 
 test('handles null host id', function () {
     // Arrange
     $user = User::factory()->admin()->create();
-    $error = new \Exception('Test error');
+    $error = new Exception('Test error');
 
     // Act
     $result = $this->action->handle(
@@ -142,7 +142,7 @@ test('email report includes modsecurity message and rule when present in logs (d
     $logs = [
         'MOD_SECURITY' => $modSecLog,
     ];
-    $report = \App\Models\Report::factory()->create([
+    $report = Report::factory()->create([
         'user_id' => $user->id,
         'logs' => $logs,
         'analysis' => ['was_blocked' => true],
@@ -187,7 +187,7 @@ test('email report includes modsecurity details from nginx json format', functio
         'MODSEC_AUDIT' => $modSecLog,
     ];
 
-    $report = \App\Models\Report::factory()->create([
+    $report = Report::factory()->create([
         'user_id' => $user->id,
         'logs' => $logs,
         'analysis' => ['was_blocked' => true],
@@ -253,7 +253,7 @@ CSF_OUTPUT;
         ],
     ];
 
-    $report = \App\Models\Report::factory()->create([
+    $report = Report::factory()->create([
         'user_id' => $user->id,
         'logs' => $logs,
         'analysis' => $analysis,
@@ -311,7 +311,7 @@ test('simplified modsecurity command returns raw json for local processing', fun
         'mod_security' => $modSecRawOutput, // Raw JSON lines from grep
     ];
 
-    $report = \App\Models\Report::factory()->create([
+    $report = Report::factory()->create([
         'user_id' => $user->id,
         'logs' => $logs,
         'analysis' => ['was_blocked' => true],
@@ -361,7 +361,7 @@ test('processes real modsecurity json from production server', function () {
         'mod_security' => $realModSecJson,
     ];
 
-    $report = \App\Models\Report::factory()->create([
+    $report = Report::factory()->create([
         'user_id' => $user->id,
         'logs' => $logs,
         'analysis' => ['was_blocked' => true],

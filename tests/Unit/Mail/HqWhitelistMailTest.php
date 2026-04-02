@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Mail\HqWhitelistMail;
 use App\Models\{Host, User};
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -207,7 +208,7 @@ test('mailable implements ShouldQueue', function () {
     $user = User::factory()->create();
     $mailable = new HqWhitelistMail($user, '192.168.1.1', 3600, Host::factory()->create(), 'ModSec logs');
 
-    expect($mailable)->toBeInstanceOf(\Illuminate\Contracts\Queue\ShouldQueue::class);
+    expect($mailable)->toBeInstanceOf(ShouldQueue::class);
 });
 
 test('mailable uses Queueable trait', function () {

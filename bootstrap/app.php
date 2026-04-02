@@ -2,6 +2,7 @@
 
 use App\Actions\WhmcsSynchro;
 use App\Http\Middleware\{CheckSessionTimeout, CheckSimpleModeEnabled, SetUserLocale, SimpleModeAccess, ThrottleSimpleUnblock, VerifyIsAdminMiddleware};
+use App\Services\AuditService;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\{Exceptions, Middleware};
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
@@ -43,7 +44,7 @@ return Application::configure(basePath: dirname(__DIR__))
             $msg = $e->getMessage();
 
             Log::channel('login_errors')->error("$ip $msg");
-            $auditService = new App\Services\AuditService;
+            $auditService = new AuditService;
             $auditService->audit(
                 ip: $ip,
                 action: 'too_many_requests',

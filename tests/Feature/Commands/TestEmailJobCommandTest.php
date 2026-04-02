@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Console\Commands\TestEmailJobCommand;
 use App\Models\{Host, Report, User};
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
@@ -319,13 +320,13 @@ test('command handles host with international domain', function () {
 // ============================================================================
 
 test('command has correct signature', function () {
-    $command = new \App\Console\Commands\TestEmailJobCommand;
+    $command = new TestEmailJobCommand;
 
     expect($command->getName())->toBe('develop:test-email-job');
 });
 
 test('command has correct description', function () {
-    $command = new \App\Console\Commands\TestEmailJobCommand;
+    $command = new TestEmailJobCommand;
 
     expect($command->getDescription())->toBe('Test email sending via jobs for development purposes');
 });

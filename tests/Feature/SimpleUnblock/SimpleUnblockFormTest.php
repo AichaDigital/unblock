@@ -2,8 +2,11 @@
 
 declare(strict_types=1);
 
+use App\Actions\SimpleUnblockAction;
+use App\Jobs\ProcessSimpleUnblockJob;
 use App\Livewire\SimpleUnblockForm;
 use App\Models\{Account, Domain, Host};
+use App\Models\User;
 use Illuminate\Support\Facades\{Queue, RateLimiter};
 use Livewire\Livewire;
 
@@ -157,7 +160,7 @@ test('simple unblock rejects invalid OTP', function () {
     config()->set('unblock.simple_mode.enabled', true);
 
     // Mock user with OTP
-    $user = \App\Models\User::factory()->create([
+    $user = User::factory()->create([
         'email' => 'test@example.com',
     ]);
 
@@ -187,18 +190,18 @@ test('simple unblock dispatches jobs after valid OTP verification', function () 
     $email = 'test@example.com';
 
     // Create user and prepare OTP
-    $user = \App\Models\User::factory()->create(['email' => $email]);
+    $user = User::factory()->create(['email' => $email]);
     $user->sendOneTimePassword();
 
     // Mock successful OTP verification by testing SimpleUnblockAction directly
-    \App\Actions\SimpleUnblockAction::run(
+    SimpleUnblockAction::run(
         ip: '192.168.1.1',
         domain: 'example.com',
         email: $email
     );
 
     // Phase 3: Only 1 job dispatched for specific host (not all hosts)
-    Queue::assertPushed(\App\Jobs\ProcessSimpleUnblockJob::class, 1);
+    Queue::assertPushed(ProcessSimpleUnblockJob::class, 1);
 });
 
 test('simple unblock logs activity after OTP verification', function () {
@@ -212,7 +215,7 @@ test('simple unblock logs activity after OTP verification', function () {
     $email = 'test@example.com';
 
     // Simulate successful OTP verification and action call
-    \App\Actions\SimpleUnblockAction::run(
+    SimpleUnblockAction::run(
         ip: '192.168.1.1',
         domain: 'example.com',
         email: $email
@@ -231,7 +234,7 @@ test('simple unblock creates temporary user for OTP if email does not exist', fu
     $email = 'newuser@example.com';
 
     // Verify user doesn't exist
-    expect(\App\Models\User::where('email', $email)->exists())->toBeFalse();
+    expect(User::where('email', $email)->exists())->toBeFalse();
 
     Livewire::test(SimpleUnblockForm::class)
         ->set('ip', '192.168.1.1')
@@ -278,7 +281,7 @@ test('simple unblock rejects OTP from different IP', function () {
 
     // Verify the IP binding is documented in code (line 127-129 of SimpleUnblockForm.php)
     // The actual IP mismatch check happens in production but Livewire test isolation prevents testing
-    expect(method_exists(\App\Livewire\SimpleUnblockForm::class, 'verifyOtp'))->toBeTrue();
+    expect(method_exists(SimpleUnblockForm::class, 'verifyOtp'))->toBeTrue();
 });
 
 test('simple unblock clears session after successful OTP verification', function () {
@@ -300,7 +303,7 @@ test('simple unblock clears session after successful OTP verification', function
         ->call('sendOtp');
 
     // Verify the session clearing code exists (line 158: session()->forget(...))
-    $reflection = new \ReflectionMethod(\App\Livewire\SimpleUnblockForm::class, 'verifyOtp');
+    $reflection = new ReflectionMethod(SimpleUnblockForm::class, 'verifyOtp');
     $source = file_get_contents($reflection->getFileName());
 
     expect($source)->toContain("session()->forget(['simple_unblock_otp_ip', 'simple_unblock_otp_data'])");
@@ -326,7 +329,7 @@ test('simple unblock resets form to step 1 after successful verification', funct
         ->assertSet('step', 2);
 
     // Verify the reset code exists in the component (line 159)
-    $reflection = new \ReflectionMethod(\App\Livewire\SimpleUnblockForm::class, 'verifyOtp');
+    $reflection = new ReflectionMethod(SimpleUnblockForm::class, 'verifyOtp');
     $source = file_get_contents($reflection->getFileName());
 
     expect($source)->toContain("\$this->reset(['domain', 'email', 'oneTimePassword', 'step'])");

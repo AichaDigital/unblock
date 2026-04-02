@@ -7,8 +7,10 @@ use App\Filament\Forms\Components\SshKeyGeneratorField;
 use App\Filament\Resources\HostResource\Pages\{CreateHost, EditHost, ListHosts};
 use App\Filament\Resources\HostResource\{Pages, RelationManagers};
 use App\Models\Host;
+use Filament\Actions\{BulkActionGroup, DeleteAction, DeleteBulkAction, EditAction, ForceDeleteAction, RestoreAction, ViewAction};
 use Filament\Forms\Components\{Select, TextInput, Textarea, Toggle};
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\{IconColumn, TextColumn};
 use Filament\Tables\Filters\{SelectFilter, TernaryFilter, TrashedFilter};
@@ -27,7 +29,7 @@ class HostResource extends Resource
     {
         return $schema
             ->components([
-                \Filament\Schemas\Components\Fieldset::make(__('hosts.Access'))
+                Fieldset::make(__('hosts.Access'))
                     ->schema([
                         TextInput::make('whmcs_server_id')
                             ->label('WHMCS Server ID')
@@ -62,7 +64,7 @@ class HostResource extends Resource
                             ->required(),
                     ])->columns(2),
 
-                \Filament\Schemas\Components\Fieldset::make(__('hosts.ssh_keys.title'))
+                Fieldset::make(__('hosts.ssh_keys.title'))
                     ->schema([
                         SshKeyGeneratorField::make('ssh_key_generator')
                             ->hiddenOn('edit')
@@ -156,15 +158,15 @@ class HostResource extends Resource
                     ->label(__('hosts.Manual')),
             ])
             ->recordActions([
-                \Filament\Actions\ViewAction::make(),
-                \Filament\Actions\EditAction::make(),
-                \Filament\Actions\DeleteAction::make(),
-                \Filament\Actions\RestoreAction::make(),
-                \Filament\Actions\ForceDeleteAction::make(),
+                ViewAction::make(),
+                EditAction::make(),
+                DeleteAction::make(),
+                RestoreAction::make(),
+                ForceDeleteAction::make(),
             ])
             ->toolbarActions([
-                \Filament\Actions\BulkActionGroup::make([
-                    \Filament\Actions\DeleteBulkAction::make(),
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ])
             ->modifyQueryUsing(fn (Builder $query) => $query->withoutGlobalScopes([

@@ -11,6 +11,7 @@ use App\Models\User;
 use Filament\Actions\{BulkActionGroup, DeleteAction, DeleteBulkAction, EditAction, ForceDeleteAction, ForceDeleteBulkAction, RestoreAction, RestoreBulkAction, ViewAction};
 use Filament\Forms\Components\{Select, TextInput, Toggle};
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\{Grid, Section};
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\{IconColumn, TextColumn};
 use Filament\Tables\Filters\{SelectFilter, TrashedFilter};
@@ -27,9 +28,9 @@ class UserResource extends Resource
     {
         return $schema
             ->components([
-                \Filament\Schemas\Components\Section::make('Información Personal')
+                Section::make('Información Personal')
                     ->schema([
-                        \Filament\Schemas\Components\Grid::make(4)
+                        Grid::make(4)
                             ->schema([
                                 TextInput::make('first_name')
                                     ->label('Nombre')
@@ -46,9 +47,9 @@ class UserResource extends Resource
                     ])
                     ->columns(1),
 
-                \Filament\Schemas\Components\Section::make('Acceso')
+                Section::make('Acceso')
                     ->schema([
-                        \Filament\Schemas\Components\Grid::make(2)
+                        Grid::make(2)
                             ->schema([
                                 TextInput::make('password')
                                     ->password()
@@ -61,9 +62,9 @@ class UserResource extends Resource
                             ]),
                     ]),
 
-                \Filament\Schemas\Components\Grid::make(2)
+                Grid::make(2)
                     ->schema([
-                        \Filament\Schemas\Components\Section::make('Permisos y Estado')
+                        Section::make('Permisos y Estado')
                             ->schema([
                                 Toggle::make('is_admin')
                                     ->label('Administrador'),
@@ -86,7 +87,7 @@ class UserResource extends Resource
                                             });
                                     }),
                             ]),
-                        \Filament\Schemas\Components\Section::make('Acceso')
+                        Section::make('Acceso')
                             ->schema([
                                 TextInput::make('whmcs_client_id')
                                     ->label('ID Cliente WHMCS')

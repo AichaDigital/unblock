@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Filament\Pages\ApplicationSettings;
 use App\Models\User;
 use Illuminate\Support\Facades\Storage;
 
@@ -14,7 +15,7 @@ beforeEach(function () {
 
 test('admin can access application settings page', function () {
     // Test URL generation works
-    $url = \App\Filament\Pages\ApplicationSettings::getUrl();
+    $url = ApplicationSettings::getUrl();
     expect($url)->toBeString();
 });
 
@@ -25,7 +26,7 @@ test('non-admin cannot access application settings page', function () {
     ]);
 
     actingAs($user)
-        ->get(\App\Filament\Pages\ApplicationSettings::getUrl())
+        ->get(ApplicationSettings::getUrl())
         ->assertForbidden();
 });
 

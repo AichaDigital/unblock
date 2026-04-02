@@ -202,7 +202,7 @@ EOD;
 
         // Test email determination
         $job = new SendReportNotificationJob($report->id);
-        $reflection = new \ReflectionClass($job);
+        $reflection = new ReflectionClass($job);
         $method = $reflection->getMethod('determineIfWasBlocked');
 
         $wasBlocked = $method->invoke($job, $report);

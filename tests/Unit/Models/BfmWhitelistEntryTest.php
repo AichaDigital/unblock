@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Models\{BfmWhitelistEntry, Host};
+use Carbon\Carbon;
 
 test('bfm whitelist entry belongs to host', function () {
     $host = Host::factory()->create();
@@ -84,7 +85,7 @@ test('bfm whitelist entry mark as removed updates status and timestamp', functio
 
     expect($entry->removed)->toBeTrue()
         ->and($entry->removed_at)->not->toBeNull()
-        ->and($entry->removed_at)->toBeInstanceOf(\Carbon\Carbon::class);
+        ->and($entry->removed_at)->toBeInstanceOf(Carbon::class);
 });
 
 test('bfm whitelist entry active scope returns only active entries', function () {
@@ -207,10 +208,10 @@ test('bfm whitelist entry casts dates correctly', function () {
         'expires_at' => $now->addHours(24),
     ]);
 
-    expect($entry->added_at)->toBeInstanceOf(\Carbon\Carbon::class)
-        ->and($entry->expires_at)->toBeInstanceOf(\Carbon\Carbon::class)
-        ->and($entry->created_at)->toBeInstanceOf(\Carbon\Carbon::class)
-        ->and($entry->updated_at)->toBeInstanceOf(\Carbon\Carbon::class);
+    expect($entry->added_at)->toBeInstanceOf(Carbon::class)
+        ->and($entry->expires_at)->toBeInstanceOf(Carbon::class)
+        ->and($entry->created_at)->toBeInstanceOf(Carbon::class)
+        ->and($entry->updated_at)->toBeInstanceOf(Carbon::class);
 });
 
 test('bfm whitelist entry can store notes', function () {

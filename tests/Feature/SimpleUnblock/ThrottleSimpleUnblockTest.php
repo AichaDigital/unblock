@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
+use App\Http\Middleware\ThrottleSimpleUnblock;
 use Illuminate\Support\Facades\{Config, RateLimiter};
+use Spatie\Activitylog\Models\Activity;
 
 use function Pest\Laravel\{assertDatabaseHas, get};
 
@@ -158,7 +160,7 @@ test('rate limit logs include vector information', function () {
     ]);
 
     // Check properties include vector
-    $log = \Spatie\Activitylog\Models\Activity::where('description', 'simple_unblock_rate_limit_exceeded')
+    $log = Activity::where('description', 'simple_unblock_rate_limit_exceeded')
         ->latest()
         ->first();
 
@@ -166,8 +168,8 @@ test('rate limit logs include vector information', function () {
 });
 
 test('IPv4 subnet calculation is correct', function () {
-    $middleware = new \App\Http\Middleware\ThrottleSimpleUnblock;
-    $reflection = new \ReflectionClass($middleware);
+    $middleware = new ThrottleSimpleUnblock;
+    $reflection = new ReflectionClass($middleware);
     $method = $reflection->getMethod('getSubnet');
     $method->setAccessible(true);
 
@@ -176,8 +178,8 @@ test('IPv4 subnet calculation is correct', function () {
 });
 
 test('IPv6 subnet calculation is correct', function () {
-    $middleware = new \App\Http\Middleware\ThrottleSimpleUnblock;
-    $reflection = new \ReflectionClass($middleware);
+    $middleware = new ThrottleSimpleUnblock;
+    $reflection = new ReflectionClass($middleware);
     $method = $reflection->getMethod('getSubnet');
     $method->setAccessible(true);
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions;
 
+use App\Enums\PanelType;
 use App\Exceptions\{
     FirewallException
 };
@@ -100,7 +101,7 @@ class CheckServerFirewallAction
      */
     private function isDirectAdminPanel(Host $host): bool
     {
-        return $host->panel === \App\Enums\PanelType::DIRECTADMIN;
+        return $host->panel === PanelType::DIRECTADMIN;
     }
 
     /**
@@ -188,9 +189,9 @@ class CheckServerFirewallAction
         // Check panel-specific services if panel is supported
         if ($host->panel !== null) {
             match ($host->panel) {
-                \App\Enums\PanelType::DIRECTADMIN => $this->checkDirectAdminServices($host, $keyName, $ip),
-                \App\Enums\PanelType::CPANEL => $this->checkCpanelServices($host, $keyName, $ip),
-                \App\Enums\PanelType::NONE => null, // No panel-specific checks
+                PanelType::DIRECTADMIN => $this->checkDirectAdminServices($host, $keyName, $ip),
+                PanelType::CPANEL => $this->checkCpanelServices($host, $keyName, $ip),
+                PanelType::NONE => null, // No panel-specific checks
             };
         }
 

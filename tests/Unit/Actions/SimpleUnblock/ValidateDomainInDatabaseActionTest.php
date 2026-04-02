@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Actions\SimpleUnblock\ValidateDomainInDatabaseAction;
+use App\Actions\SimpleUnblock\{DomainValidationResult, ValidateDomainInDatabaseAction};
 use App\Models\{Account, Domain, Host};
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Log;
@@ -260,19 +260,19 @@ test('action eager loads account relationship to avoid N+1 queries', function ()
     Log::spy();
 
     // Enable query logging
-    \DB::enableQueryLog();
+    DB::enableQueryLog();
 
     $action = new ValidateDomainInDatabaseAction;
     $action->handle('example.com', $host->id);
 
-    $queries = \DB::getQueryLog();
+    $queries = DB::getQueryLog();
 
     // Should be 1 or 2 queries (depending on how eager loading is implemented)
     // The important part is that it includes accounts relationship
     expect($queries)->not->toBeEmpty()
         ->and($queries[0]['query'])->toContain('accounts');
 
-    \DB::disableQueryLog();
+    DB::disableQueryLog();
 });
 
 test('action fails when account is both suspended and deleted', function () {
@@ -305,5 +305,5 @@ test('action returns DomainValidationResult object', function () {
     $action = new ValidateDomainInDatabaseAction;
     $result = $action->handle('example.com', $host->id);
 
-    expect($result)->toBeInstanceOf(\App\Actions\SimpleUnblock\DomainValidationResult::class);
+    expect($result)->toBeInstanceOf(DomainValidationResult::class);
 });

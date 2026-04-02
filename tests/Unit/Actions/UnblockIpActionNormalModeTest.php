@@ -114,7 +114,7 @@ test('action handles BFM failure gracefully', function () {
     // ✅ Using stub with exception helper
     $firewallService = FirewallServiceStub::ipNotBlocked()
         ->setCommandResponse('whitelist', 'success')
-        ->withExceptionFor('da_bfm_check', new \Exception('BFM check failed'));
+        ->withExceptionFor('da_bfm_check', new Exception('BFM check failed'));
 
     Log::spy();
 
@@ -197,7 +197,7 @@ test('action cleans up SSH key even when operation fails', function () {
 
     // ✅ Using stub with exception helper
     $firewallService = FirewallServiceStub::ipNotBlocked()
-        ->withExceptionFor('csf_deny_check', new \Exception('Firewall command failed'));
+        ->withExceptionFor('csf_deny_check', new Exception('Firewall command failed'));
 
     Log::spy();
 
@@ -215,7 +215,7 @@ test('action logs warning when SSH key cleanup fails', function () {
 
     $sshManager = Mockery::mock(SshConnectionManager::class);
     $sshManager->allows('generateSshKey')->andReturn('/tmp/key');
-    $sshManager->allows('removeSshKey')->andThrow(new \Exception('Failed to remove key'));
+    $sshManager->allows('removeSshKey')->andThrow(new Exception('Failed to remove key'));
 
     // ✅ Using stub
     $firewallService = FirewallServiceStub::ipNotBlocked()

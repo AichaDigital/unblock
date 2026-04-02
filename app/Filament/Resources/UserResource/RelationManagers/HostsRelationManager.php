@@ -7,6 +7,7 @@ use App\Models\Host;
 use Filament\Actions\{AttachAction, BulkActionGroup, DetachAction, DetachBulkAction, EditAction};
 use Filament\Forms\Components\{Select, Toggle};
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\{IconColumn, TextColumn};
 use Filament\Tables\Filters\{SelectFilter, TernaryFilter};
@@ -26,7 +27,7 @@ class HostsRelationManager extends RelationManager
     {
         return $schema
             ->components([
-                \Filament\Schemas\Components\Grid::make(2)
+                Grid::make(2)
                     ->schema([
                         Select::make('recordId')
                             ->label('Servidor')

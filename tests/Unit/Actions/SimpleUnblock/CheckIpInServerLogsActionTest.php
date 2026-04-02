@@ -22,7 +22,7 @@ test('searches for IP in server logs without filtering by domain', function () {
     $firewallService->shouldReceive('checkProblems')
         ->once()
         ->with(
-            \Mockery::type(Host::class),
+            Mockery::type(Host::class),
             'test-key',
             'exim_cpanel',
             '8.8.8.8'  // SOLO IP
@@ -33,7 +33,7 @@ test('searches for IP in server logs without filtering by domain', function () {
     $firewallService->shouldReceive('checkProblems')
         ->once()
         ->with(
-            \Mockery::type(Host::class),
+            Mockery::type(Host::class),
             'test-key',
             'dovecot_cpanel',
             '8.8.8.8'  // SOLO IP
@@ -54,11 +54,11 @@ test('returns not found when IP is not in any server logs', function () {
 
     // Empty responses (IP not found)
     $firewallService->shouldReceive('checkProblems')
-        ->with(\Mockery::type(Host::class), 'test-key', 'exim_cpanel', '1.1.1.1')
+        ->with(Mockery::type(Host::class), 'test-key', 'exim_cpanel', '1.1.1.1')
         ->andReturn('');
 
     $firewallService->shouldReceive('checkProblems')
-        ->with(\Mockery::type(Host::class), 'test-key', 'dovecot_cpanel', '1.1.1.1')
+        ->with(Mockery::type(Host::class), 'test-key', 'dovecot_cpanel', '1.1.1.1')
         ->andReturn('');
 
     $action = new CheckIpInServerLogsAction($firewallService);
@@ -80,12 +80,12 @@ test('works for DirectAdmin servers', function () {
     // DirectAdmin uses different log paths
     $firewallService->shouldReceive('checkProblems')
         ->once()
-        ->with(\Mockery::type(Host::class), 'test-key-da', 'exim_directadmin', '2.2.2.2')
+        ->with(Mockery::type(Host::class), 'test-key-da', 'exim_directadmin', '2.2.2.2')
         ->andReturn('Log entry with 2.2.2.2');
 
     $firewallService->shouldReceive('checkProblems')
         ->once()
-        ->with(\Mockery::type(Host::class), 'test-key-da', 'dovecot_directadmin', '2.2.2.2')
+        ->with(Mockery::type(Host::class), 'test-key-da', 'dovecot_directadmin', '2.2.2.2')
         ->andReturn('');
 
     $action = new CheckIpInServerLogsAction($firewallService);

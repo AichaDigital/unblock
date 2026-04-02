@@ -1,5 +1,6 @@
 <?php
 
+use App\Actions\CheckFirewallAction;
 use App\Models\{Host, Hosting, User};
 use Livewire\Livewire;
 
@@ -57,12 +58,12 @@ test('admin can search by domain', function () {
     $this->actingAs($admin);
 
     // Mock CheckFirewallAction to return a successful result
-    $mockAction = Mockery::mock(\App\Actions\CheckFirewallAction::class);
+    $mockAction = Mockery::mock(CheckFirewallAction::class);
     $mockAction->shouldReceive('handle')->andReturn([
         'success' => true,
         'message' => __('messages.firewall.check_started'),
     ]);
-    $this->app->instance(\App\Actions\CheckFirewallAction::class, $mockAction);
+    $this->app->instance(CheckFirewallAction::class, $mockAction);
 
     // Test domain search using V2 direct execution
     $component = Livewire::test('unified-dashboard')
@@ -85,12 +86,12 @@ test('admin can search by server', function () {
     $this->actingAs($admin);
 
     // Mock CheckFirewallAction to return a successful result
-    $mockAction = Mockery::mock(\App\Actions\CheckFirewallAction::class);
+    $mockAction = Mockery::mock(CheckFirewallAction::class);
     $mockAction->shouldReceive('handle')->andReturn([
         'success' => true,
         'message' => __('messages.firewall.check_started'),
     ]);
-    $this->app->instance(\App\Actions\CheckFirewallAction::class, $mockAction);
+    $this->app->instance(CheckFirewallAction::class, $mockAction);
 
     // Test server search using V2 direct execution
     $component = Livewire::test('unified-dashboard')
@@ -139,12 +140,12 @@ test('regular user can only access authorized domains', function () {
         ->and($domains->pluck('id'))->not->toContain($unauthorizedHosting->id);
 
     // Mock CheckFirewallAction for authorized access
-    $mockAction = Mockery::mock(\App\Actions\CheckFirewallAction::class);
+    $mockAction = Mockery::mock(CheckFirewallAction::class);
     $mockAction->shouldReceive('handle')->andReturn([
         'success' => true,
         'message' => __('messages.firewall.check_started'),
     ]);
-    $this->app->instance(\App\Actions\CheckFirewallAction::class, $mockAction);
+    $this->app->instance(CheckFirewallAction::class, $mockAction);
 
     // Test that user can access authorized domain
     $component = Livewire::test('unified-dashboard')
@@ -234,12 +235,12 @@ test('dashboard processes valid form submission using V2 direct execution', func
     $this->actingAs($admin);
 
     // Mock CheckFirewallAction to return a successful result
-    $mockAction = Mockery::mock(\App\Actions\CheckFirewallAction::class);
+    $mockAction = Mockery::mock(CheckFirewallAction::class);
     $mockAction->shouldReceive('handle')->andReturn([
         'success' => true,
         'message' => __('messages.firewall.check_started'),
     ]);
-    $this->app->instance(\App\Actions\CheckFirewallAction::class, $mockAction);
+    $this->app->instance(CheckFirewallAction::class, $mockAction);
 
     // Submit valid form
     $component = Livewire::test('unified-dashboard')

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Actions\SimpleUnblock;
 
 use App\Models\Host;
-use App\Services\Firewall\FirewallAnalysisResult;
+use App\Services\Firewall\{FirewallAnalysisResult, FirewallAnalyzerFactory};
 use App\Services\SshConnectionManager;
 use Illuminate\Support\Facades\Log;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -39,7 +39,7 @@ class AnalyzeFirewallForIpAction
 
         try {
             // Get appropriate analyzer for host panel
-            $analyzer = app(\App\Services\Firewall\FirewallAnalyzerFactory::class)
+            $analyzer = app(FirewallAnalyzerFactory::class)
                 ->createForHost($host);
 
             // Perform analysis

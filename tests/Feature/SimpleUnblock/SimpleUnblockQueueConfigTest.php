@@ -108,7 +108,7 @@ test('rate limiting respects explicit configuration', function () {
         ip: '192.168.1.3',
         domain: 'example.com',
         email: 'test@example.com'
-    ))->toThrow(\RuntimeException::class);
+    ))->toThrow(RuntimeException::class);
 });
 
 test('simple unblock can be disabled via configuration', function () {
