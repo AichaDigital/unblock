@@ -18,8 +18,7 @@
         "spatie/laravel-activitylog": "^4.0",
         "spatie/laravel-honeypot": "^4.6",
         "spatie/laravel-one-time-passwords": "*",
-        "spatie/ssh": "^1.12",
-        "valentin-morice/filament-json-column": "dev-dev"
+        "spatie/ssh": "^1.12"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^4.0",
