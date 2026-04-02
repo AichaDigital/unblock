@@ -40,7 +40,7 @@ return [
         'ssh' => [
             'driver' => 'local',
             'root' => storage_path('app/.ssh'),
-            'serve' => true,
+            'serve' => false,
             'throw' => false,
             'visibility' => 'private',
         ],
