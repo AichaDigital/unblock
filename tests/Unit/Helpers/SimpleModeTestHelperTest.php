@@ -32,7 +32,8 @@ test('SimpleModeTestHelper can create temporary user', function () {
     expect($user->first_name)->toBe('Simple')
         ->and($user->last_name)->toBe('Unblock')
         ->and($user->email)->toBe('test@example.com')
-        ->and($user->is_admin)->toBeFalse();
+        ->and($user->is_admin)->toBeFalse()
+        ->and($user->is_simple_mode_user)->toBeTrue();
 });
 
 test('SimpleModeTestHelper can create admin user', function () {
@@ -72,7 +73,8 @@ test('global helper function createTemporaryUser works', function () {
 
     expect($user->first_name)->toBe('Simple')
         ->and($user->last_name)->toBe('Unblock')
-        ->and($user->email)->toBe('temp@example.com');
+        ->and($user->email)->toBe('temp@example.com')
+        ->and($user->is_simple_mode_user)->toBeTrue();
 });
 
 test('global helper function createAdminUser works', function () {

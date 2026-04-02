@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Listeners\SimpleUnblock;
 
 use App\Events\SimpleUnblock\{SimpleUnblockHoneypotTriggered, SimpleUnblockIpMismatch, SimpleUnblockOtpFailed, SimpleUnblockRateLimitExceeded};
+use App\Models\{AbuseIncident, EmailReputation, IpReputation};
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Support\Facades\DB;
 
 /**
  * Creates abuse incident records based on security events
@@ -39,21 +39,19 @@ class CreateAbuseIncidentListener implements ShouldQueue
             default => 'low',
         };
 
-        DB::table('abuse_incidents')->insert([
+        AbuseIncident::create([
             'incident_type' => 'rate_limit_exceeded',
             'ip_address' => $this->extractIpFromIdentifier($event->identifier, $event->vector),
             'email_hash' => $event->vector === 'email' ? $event->identifier : null,
             'domain' => $event->vector === 'domain' ? $event->identifier : null,
             'severity' => $severity,
             'description' => "Rate limit exceeded for {$event->vector}: {$event->attempts}/{$event->maxAttempts} attempts",
-            'metadata' => json_encode([
+            'metadata' => [
                 'vector' => $event->vector,
                 'attempts' => $event->attempts,
                 'max_attempts' => $event->maxAttempts,
                 'identifier' => $event->identifier,
-            ]),
-            'created_at' => now(),
-            'updated_at' => now(),
+            ],
         ]);
 
         // Decrease reputation score
@@ -62,20 +60,18 @@ class CreateAbuseIncidentListener implements ShouldQueue
 
     private function handleHoneypotTriggered(SimpleUnblockHoneypotTriggered $event): void
     {
-        DB::table('abuse_incidents')->insert([
+        AbuseIncident::create([
             'incident_type' => 'honeypot_triggered',
             'ip_address' => $event->ip,
             'email_hash' => $event->email ? hash('sha256', $event->email) : null,
             'domain' => $event->domain,
             'severity' => 'medium',
             'description' => 'Honeypot triggered - likely bot activity',
-            'metadata' => json_encode([
+            'metadata' => [
                 'ip' => $event->ip,
                 'email' => $event->email ? 'REDACTED' : null,
                 'domain' => $event->domain,
-            ]),
-            'created_at' => now(),
-            'updated_at' => now(),
+            ],
         ]);
 
         // Decrease IP reputation
@@ -87,27 +83,24 @@ class CreateAbuseIncidentListener implements ShouldQueue
         $emailHash = hash('sha256', $event->email);
 
         // Check for multiple recent failures (brute force detection)
-        $recentFailures = DB::table('abuse_incidents')
-            ->where('incident_type', 'invalid_otp_attempts')
+        $recentFailures = AbuseIncident::where('incident_type', 'invalid_otp_attempts')
             ->where('email_hash', $emailHash)
             ->where('created_at', '>=', now()->subMinutes(10))
             ->count();
 
         $severity = $recentFailures >= 3 ? 'high' : 'medium';
 
-        DB::table('abuse_incidents')->insert([
+        AbuseIncident::create([
             'incident_type' => 'invalid_otp_attempts',
             'ip_address' => $event->ip,
             'email_hash' => $emailHash,
             'severity' => $severity,
             'description' => "OTP verification failed: {$event->reason}",
-            'metadata' => json_encode([
+            'metadata' => [
                 'ip' => $event->ip,
                 'reason' => $event->reason,
                 'recent_failures' => $recentFailures + 1,
-            ]),
-            'created_at' => now(),
-            'updated_at' => now(),
+            ],
         ]);
 
         // Decrease reputation based on severity
@@ -120,18 +113,16 @@ class CreateAbuseIncidentListener implements ShouldQueue
     {
         $emailHash = hash('sha256', $event->email);
 
-        DB::table('abuse_incidents')->insert([
+        AbuseIncident::create([
             'incident_type' => 'ip_mismatch',
             'ip_address' => $event->verificationIp,
             'email_hash' => $emailHash,
             'severity' => 'critical',
             'description' => 'IP mismatch detected during OTP verification - possible relay attack',
-            'metadata' => json_encode([
+            'metadata' => [
                 'original_ip' => $event->originalIp,
                 'verification_ip' => $event->verificationIp,
-            ]),
-            'created_at' => now(),
-            'updated_at' => now(),
+            ],
         ]);
 
         // Heavy penalty for potential attack
@@ -144,26 +135,17 @@ class CreateAbuseIncidentListener implements ShouldQueue
      */
     private function decreaseReputation(string $type, string $identifier, int|float $penalty): void
     {
-        $table = $type === 'ip' ? 'ip_reputation' : 'email_reputation';
-        $column = $type === 'ip' ? 'ip' : 'email_hash';
-
-        // Get current score
-        $record = DB::table($table)->where($column, $identifier)->first();
+        $record = $type === 'ip'
+            ? IpReputation::where('ip', $identifier)->first()
+            : EmailReputation::where('email_hash', $identifier)->first();
 
         if (! $record) {
             return;
         }
 
-        // Calculate new score (never below 0)
-        $newScore = max(0, $record->reputation_score - $penalty);
-
-        // Update score
-        DB::table($table)
-            ->where($column, $identifier)
-            ->update([
-                'reputation_score' => $newScore,
-                'updated_at' => now(),
-            ]);
+        $record->update([
+            'reputation_score' => max(0, $record->reputation_score - $penalty),
+        ]);
     }
 
     /**

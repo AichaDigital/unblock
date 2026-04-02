@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\{BelongsTo, HasMany};
 
 /**
@@ -30,12 +29,13 @@ use Illuminate\Database\Eloquent\Relations\{BelongsTo, HasMany};
  */
 class Account extends Model
 {
+    /** @use HasFactory<AccountFactory> */
     use HasFactory;
 
     /**
      * The attributes that are mass assignable.
      *
-     * @var array<string>
+     * @var list<string>
      */
     protected $fillable = [
         'host_id',
@@ -60,7 +60,7 @@ class Account extends Model
     ];
 
     /**
-     * Get the host that owns the account.
+     * @return BelongsTo<Host, $this>
      */
     public function host(): BelongsTo
     {
@@ -68,7 +68,7 @@ class Account extends Model
     }
 
     /**
-     * Get the user that owns the account (nullable, WHMCS integration).
+     * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
     {
@@ -76,7 +76,7 @@ class Account extends Model
     }
 
     /**
-     * Get the domains for the account.
+     * @return HasMany<Domain, $this>
      */
     public function domains(): HasMany
     {
@@ -84,8 +84,8 @@ class Account extends Model
     }
 
     /**
-     * Scope a query to only include active accounts.
-     * Active means not suspended and not deleted.
+     * @param  Builder<static>  $query
+     * @return Builder<static>
      */
     public function scopeActive($query)
     {
@@ -94,7 +94,8 @@ class Account extends Model
     }
 
     /**
-     * Scope a query to only include suspended accounts.
+     * @param  Builder<static>  $query
+     * @return Builder<static>
      */
     public function scopeSuspended($query)
     {
@@ -102,8 +103,8 @@ class Account extends Model
     }
 
     /**
-     * Scope a query to only include accounts marked as deleted from the remote server.
-     * Named "markedAsDeleted" to avoid conflict with Laravel's deleted() event method.
+     * @param  Builder<static>  $query
+     * @return Builder<static>
      */
     public function scopeMarkedAsDeleted($query)
     {

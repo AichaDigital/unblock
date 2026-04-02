@@ -247,6 +247,7 @@ test('simple unblock creates temporary user for OTP if email does not exist', fu
         'email' => $email,
         'first_name' => 'Simple',
         'last_name' => 'Unblock',
+        'is_simple_mode_user' => true,
     ]);
 });
 

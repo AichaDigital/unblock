@@ -2,769 +2,212 @@
 
 All notable changes to this project will be documented in this file.
 
-## [Unreleased] - DirectAdmin BFM Whitelist Management
-
-### Added
-- **DirectAdmin BFM Whitelist System with TTL**:
-  - Automatic addition of IPs to DirectAdmin BFM whitelist when found in blacklist
-  - Time-To-Live (TTL) based expiration for whitelist entries (configurable, defaults to 2 hours)
-  - Database tracking for whitelist entries via `bfm_whitelist_entries` table
-  - Scheduled job (`RemoveExpiredBfmWhitelistIps`) runs hourly to clean expired entries
-  - Integration with existing firewall analysis flow (DirectAdminFirewallAnalyzer)
-
-### Changed
-- **Improved BFM blacklist detection**:
-  - Fixed grep command to use exact IP matching (`grep -E '^IP(\s|$)'`)
-  - Prevents false positives (e.g., 10.192.168.1.100 matching 192.168.1.100)
-  - Updated tests to verify exact matching behavior
-- **Enhanced BFM removal process**:
-  - Now performs 3 steps: remove from blacklist, add to whitelist, track in DB
-  - Logs detailed information about whitelist addition and TTL period
-
-### Added (Database)
-- **Migration**: `create_bfm_whitelist_tracking_table`
-  - Fields: `host_id`, `ip_address`, `added_at`, `expires_at`, `removed`, `removed_at`, `notes`
-  - Indexes for performance optimization
-  - Unique constraint for one active IP per host
-
-### Added (Models)
-- **BfmWhitelistEntry**: Model for tracking whitelist entries
-  - Scopes: `active()`, `expired()`, `forHost()`, `forIp()`
-  - Methods: `isExpired()`, `isActive()`, `markAsRemoved()`
-
-### Added (Jobs)
-- **RemoveExpiredBfmWhitelistIps**: Scheduled job for cleanup
-  - Runs hourly via cron
-  - Removes expired IPs from DirectAdmin whitelist files
-  - Updates database entries as removed
-
-### Added (Commands)
-- **New FirewallService commands**:
-  - `da_bfm_whitelist_add`: Adds IP to DirectAdmin BFM whitelist
-
-### Added (Tests)
-- **DirectAdminBfmDetectionTest**: Verifies BFM command building and detection
-- **BfmWhitelistEntryTest**: 13 tests for model functionality and scopes
-
-### Fixed
-- **BFM Detection**: Core issue where IPs in `/usr/local/directadmin/data/admin/ip_blacklist` were not detected
-- **False Positives**: Exact IP matching now prevents substring matches
-
-### Notes
-- This system is **DirectAdmin-only**, does not affect cPanel
-- TTL period uses same configuration as CSF whitelist (`unblock.hq.ttl`)
-- Whitelist entries are auto-removed both from file and database after expiration
-
-## [Unreleased] - User Management Commands
-
-### Added
-- **New `user:create` command**: Unified command for creating admin and normal users
-  - Supports `--admin` flag for creating administrator users
-  - Supports `--no-secure` flag for development environments (simple passwords)
-  - Proper validation for production environments (complex passwords required)
-  - Interactive prompts with validation for email, names, and passwords
-  - Transaction-based user creation for data integrity
-
-### Changed
-- **Override `make:filament-user`**: Disabled Filament's default user creation command
-  - Command now shows helpful message directing users to proper commands
-  - Ensures all users are created with proper model structure
-
-### Removed
-- **Obsolete commands removed**:
-  - `add:user` - Replaced by `user:create`
-  - `develop:add-edit-user` - Replaced by `user:create`
-  - `develop:delete-user` - Use Filament admin panel for user management
-  - `test:ssh-connection` - Use `develop:test-host-connection` instead
-
-### Migration Notes
-- Use `php artisan user:create --admin` to create admin users
-- Use `php artisan user:create --admin --no-secure` for development with simple passwords
-- Use `php artisan user:authorize` for creating authorized users (linked to parent)
-- All user management should be done through Filament admin panel or these commands
-
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-## [1.3.1] - 2026-01-03
+## [1.6.0] - 2026-03-21
 
-### Security - Laravel Boost Configuration
+### Changed
 
-- **Critical Security Fix**: Configure Laravel Boost to prevent credential exposure in production
-  - Automatic deactivation in production environments via `APP_ENV` check
-  - Browser Logs Watcher disabled by default to prevent performance degradation
-  - Published and configured `config/boost.php` with secure defaults
-  - Added environment variables: `BOOST_ENABLED` and `BOOST_BROWSER_LOGS_WATCHER`
-  - Reference: [Laravel Boost Security Documentation](https://wiki.castris.com/books/laravel/page/laravel-boost-problemas-de-rendimiento-y-seguridad)
+- **Laravel 12 → 13.1.1** (Symfony v7 → v8, Filament v4.9, Tinker v3, laravel-actions v2.10)
+- CI PHP version bumped to 8.4
+- `VerifyCsrfToken` middleware replaced by `PreventRequestForgery` (Laravel 13 rename)
+- `serializable_classes => false` in cache config (Laravel 13 security default)
+- `serve: false` on SSH filesystem disk (Laravel 13 validates served disk URLs)
+- Removed unused `graham-campbell/throttle` dependency
+
+### Added
+
+- `composer validate --check-lock` in CI pipeline (blocks PRs with stale lock file)
+- Lock file validation in CD deploy scripts for argos01/argos02 (abort with clear error)
+- Pre-commit hook (`scripts/pre-commit`): lock sync + syntax + pint + phpstan + tests
+- Composer scripts: `validate-lock`, `hook:install`, `hook:uninstall`
+- `validate-lock` integrated into `check`, `check-full`, and `pre-commit` pipelines
 
 ### Fixed
 
-- **Test Stability**: Fixed timing issue in `PatternDetectionTest`
-  - Added `Carbon::setTestNow()` to prevent flaky tests due to microsecond differences
-  - Tests now use fixed timestamps for reliable execution
+- **Root cause of broken deploys**: `composer.lock` was in `.gitignore`, preventing lock file from being committed
+- `*.sh` removed from `.gitignore` (was excluding legitimate scripts)
+- Flaky test `UserResourceRelationManagersTest`: Faker apostrophe in names caused HTML escape mismatch
+
+### Removed
+
+- `.cursor/` directory removed from repository (editor-specific, not project code)
+- AI skill docs removed from repository (`.agents/skills/`, `.claude/skills/`, `.codex/`)
+
+### Security
+
+- league/commonmark 2.8.1 → 2.8.2 (CVE-2026-33347, embed domains bypass)
+- phpseclib/phpseclib 3.0.49 → 3.0.50 (CVE-2026-32935, AES-CBC padding oracle)
+
+## [1.5.0] - 2026-03-14
+
+### Added
+
+- `/health` endpoint for HA failover monitoring between production servers
+- CI/CD pipeline: sequential deploy to amazzal and central with health checks
+- Deploy targets for argos01/argos02 HA cluster
 
 ### Changed
 
-- **Testing Standards**: Updated global testing guidelines
-  - Documented mandatory use of `Carbon::setTestNow()` for time-dependent tests
-  - Added examples and exceptions to testing standards in CLAUDE.md
+- Dependency bumps: axios 1.13.6, Tailwind CSS 4.2.1, @tailwindcss/vite 4.2.1, daisyui 5.5.19
+- Node.js upgraded from 18 to 22 in CI for Tailwind CSS 4.2 compatibility
+- PHPStan upgraded to level 8 with zero errors and no baseline
+- Dynamic Composer cache path in CI
 
-### Security Notes
+### Fixed
 
-- Laravel Boost can expose sensitive information (credentials, database structure, queries) in production if not properly configured
-- This release ensures automatic protection when `APP_ENV=production`
-- Development environments remain fully functional with Boost enabled by default
+- Open redirect, IP spoofing, and command escaping vulnerabilities
+- XSS, command injection, simple mode detection, and mass assignment issues
+- ModSecurity grep pattern in security analysis
+- `CreateAbuseIncidentListener` refactored to use Eloquent models
 
-## [1.3.0] - 2025-10-23
+### Security
 
-### Added - Reputation System & Admin Dashboard
+- Comprehensive security audit: patched XSS, command injection, open redirect, IP spoofing
+- PHPStan coverage expanded, test coverage boosted to 90%
+- CHANGELOG.md rewritten following Keep a Changelog format
 
-- **Event-Driven Reputation Tracking System**:
-  - **7 Events** for Simple Unblock security monitoring:
-    - `SimpleUnblockRequestProcessed`: Tracks completed unblock requests
-    - `SimpleUnblockOtpSent`: Logs OTP sending to email addresses
-    - `SimpleUnblockOtpVerified`: Records successful OTP verifications
-    - `SimpleUnblockOtpFailed`: Captures failed OTP attempts (brute force detection)
-    - `SimpleUnblockRateLimitExceeded`: Monitors rate limit violations (5 vectors)
-    - `SimpleUnblockHoneypotTriggered`: Detects bot activity
-    - `SimpleUnblockIpMismatch`: Identifies potential OTP relay attacks (critical severity)
+## [1.4.0] - 2026-02-16
 
-  - **3 Event Listeners** (all queued for async processing):
-    - `TrackIpReputationListener`: Auto-updates IP reputation scores (0-100 scale)
-    - `TrackEmailReputationListener`: Auto-updates email reputation (GDPR compliant)
-    - `CreateAbuseIncidentListener`: Creates abuse incident records with severity classification
+### Added
 
-- **Eloquent Models** for reputation tracking:
-  - `IpReputation`: IP address reputation with subnet tracking, success rate calculation
-  - `EmailReputation`: Email reputation with SHA-256 hashing (GDPR compliant), verification rate tracking
-  - `AbuseIncident`: Security incident logging with multi-severity classification (low/medium/high/critical)
+- Context logs (exim/dovecot auth failures) in not-blocked reports, collected regardless of block status
+- LFD history: queries `/var/log/lfd.log` for recent block/unblock events as context
+- Recent block history from database: detects timing gaps (IP checked between temporary blocks)
+- SSH error sentinel pattern `[SSH_ERROR:command]` replaces silent empty strings
+- `CheckRecentBlockHistoryAction` for querying database block history
+- Email template sections for context logs, recent history and SSH warnings in not-blocked reports
+- 25 new unit tests (897 total, 2163 assertions)
 
-- **Filament Admin Dashboard** - Complete security management interface:
+### Fixed
 
-  - **IP Reputation Resource** (`app/Filament/Resources/IpReputationResource.php`):
-    - Table columns: IP, Subnet, Score (badge), Total/Failed/Blocked requests, Success rate, Last seen
-    - Filters: Reputation range (high/medium/low), Subnet search, Date range
-    - Actions: View details, Quick navigation to related incidents
-    - Auto-refresh capability, mobile responsive
+- CpanelFirewallAnalyzer: exim/dovecot logs now collected always, not only when IP is blocked
+- All grep-based DirectAdmin commands include `|| true` to prevent false SSH failures
+- SSH failures no longer silently return empty strings
 
-  - **Email Reputation Resource** (`app/Filament/Resources/EmailReputationResource.php`):
-    - Table columns: Email hash (truncated), Domain, Score (badge), Total/Verified/Failed requests, Verification rate
-    - Filters: Reputation range, Email domain selector, Date range
-    - Displays SHA-256 hash (first 16 chars) with full hash copy-to-clipboard
-    - Domain-based grouping and statistics
+## [1.3.1] - 2026-01-03
 
-  - **Abuse Incident Resource** (`app/Filament/Resources/AbuseIncidentResource.php`):
-    - Table columns: Type, IP, Email hash, Domain, Severity badge, Description, Resolved status, Occurred at
-    - Filters: Incident type (8 types), Severity (4 levels), Resolved/Unresolved, IP/Email search, Date range
-    - Actions: Resolve/Unresolve incidents, View details with metadata (JSON)
-    - Bulk actions: Mark multiple incidents as resolved
-    - Navigation badge: Shows count of unresolved critical/high incidents
-    - Auto-refresh every 30 seconds
-    - 8 incident types: rate_limit_exceeded, ip_spoofing_attempt, otp_bruteforce, honeypot_triggered, invalid_otp_attempts, ip_mismatch, suspicious_pattern, other
+### Added
 
-  - **Dashboard Overview Widget** (`app/Filament/Widgets/SimpleUnblockOverviewWidget.php`):
-    - 6 real-time statistics cards:
-      - Requests Today (with trend vs yesterday + 7-day chart)
-      - Average IP Reputation (color-coded: green/yellow/red)
-      - Average Email Reputation (color-coded: green/yellow/red)
-      - Active Incidents (critical + high severity, quick link to incidents)
-      - OTP Success Rate (last 7 days + success chart)
-      - Blocked Today (prevented malicious attempts)
-    - Auto-refresh every 30 seconds
-    - Mobile responsive layout
-
-- **Automatic Reputation Scoring Algorithm**:
-  - IP Reputation: Based on success rate (0-100 scale)
-    - Formula: `(total - failed) / total * 100`
-    - Auto-decreases on: Rate limits (-10), Honeypot (-20), OTP failures (-15), IP mismatch (-40)
-  - Email Reputation: Based on success rate + verification bonus
-    - Base score: `(total - failed) / total * 100`
-    - Bonus: `verified / total * 20` (up to +20 points)
-    - Auto-decreases on: OTP failures (-15 to -30), IP mismatch (-40)
-  - Minimum score: 0 (never negative)
-
-- **Cleanup Command** (`app/Console/Commands/CleanupTemporaryUsersCommand.php`):
-  - Command: `php artisan simple-unblock:cleanup-otp`
-  - Removes expired OTP records from `one_time_passwords` table
-  - Removes old OTP records (default: >7 days, configurable with `--days` option)
-  - Scheduled daily at 3:00 AM
-  - Summary report with counts and confirmation prompt (skip with `--force`)
+- Admin OTP 2FA for panel access
+- Complete internationalization system ES/EN for Filament resources and OTP
+- Custom logo upload with application-wide settings system
+- HQ whitelist email with professional design and documentation
+- Admin panel access whitelist
+- Account suspension toggle and edit functionality
+- Cooldown and visual feedback for Simple Mode submissions
 
 ### Changed
 
-- **Event Integration** in existing components:
-  - `SimpleUnblockForm`: Dispatches `OtpSent`, `OtpVerified`, `OtpFailed`, `IpMismatch` events
-  - `SimpleUnblockAction`: Dispatches `RequestProcessed` event after completion
-  - `ThrottleSimpleUnblock` middleware: Dispatches `RateLimitExceeded` events (5 vectors: IP, Email, Domain, Subnet, Global)
+- Test coverage increased from 51.1% to 75.0% with quality-focused tests
+- Frontend and email templates UX/UI overhaul
+- Full testing suite stabilization and refactoring
+- Session management refactor with SSH improvements
 
-- **EventServiceProvider** created and registered:
-  - Manual event-listener mapping (Laravel 11 doesn't auto-discover by default)
-  - All listeners configured for queue processing (async)
+### Fixed
 
-### Security Improvements
+- SQLite compatibility and GeoIP path resolution
+- Session state inconsistencies in OTP authentication flow
+- Division by zero in SimpleUnblockOverviewWidget
+- Firewall email translations not rendering
+- JSON query error in accounts search
+- HQ host: unblock IPs before adding to whitelist
+- Admin access to unified dashboard restored
+- Robust null checks for SimpleUnblock edge cases
+- `UNBLOCK_SIMPLE_MODE` duality issues
+- ThrottleSimpleUnblock config values cast to int
 
-- **Multi-Vector Rate Limit Tracking**: Monitors IP, Email, Domain, Subnet, and Global abuse patterns
-- **Brute Force Detection**: Escalates severity after 3+ failed OTP attempts in 10 minutes
-- **IP Mismatch Detection**: Critical severity for potential relay attacks
-- **Honeypot Integration**: Automatically creates abuse incidents for bot activity
-- **Reputation Penalties**: Automatic score reduction based on incident severity
-- **GDPR Compliance**: Email addresses stored as SHA-256 hashes throughout system
+### Security
 
-### Testing
+- Configure Laravel Boost to prevent credential exposure in production
 
-- **Listener Tests** (3 comprehensive test suites):
-  - `TrackIpReputationListenerTest.php`: 8 tests for IP tracking (IPv4/IPv6, scoring, timestamps)
-  - `TrackEmailReputationListenerTest.php`: 10 tests for email tracking (GDPR compliance, scoring, domain extraction)
-  - `CreateAbuseIncidentListenerTest.php`: 15 tests for incident creation (severity classification, penalties, edge cases)
-- **Total Coverage**: 33 tests for event-driven architecture
-- **Queue Testing**: Verified all listeners implement `ShouldQueue`
+## [1.3.0] - 2025-11-02
 
-### Database
+### Added
 
-- **Tables Created** (already in v1.2.0 as "warmup"):
-  - `ip_reputation`: Now actively populated by events
-  - `email_reputation`: Now actively populated by events
-  - `abuse_incidents`: Now actively populated by events
+- Reputation System: IP and email reputation tracking with automatic scoring (0-100)
+- Admin Dashboard: Filament resources for IP reputation, email reputation and abuse incidents
+- Analytics & Pattern Detection: event-driven architecture with 7 events and 3 queued listeners
+- Dashboard overview widget with 6 real-time statistics cards
+- Simple Mode improvements with enhanced cross-validation
+- OTP cleanup command (`simple-unblock:cleanup-otp`) scheduled daily
 
-### Performance
+### Changed
 
-- **Async Processing**: All reputation tracking runs in background queues
-- **No User Impact**: Event listeners don't slow down user requests
-- **Database Optimization**: Indexed columns for fast querying in Filament resources
-- **Auto-Cleanup**: Scheduled command prevents OTP table bloat
+- Upgraded to Filament 4.1 and Tailwind CSS 4.1
 
-### Developer Experience
+### Fixed
 
-- **Artisan Commands**:
-  - `php artisan simple-unblock:cleanup-otp`: Manual OTP cleanup
-  - `php artisan simple-unblock:cleanup-otp --days=30 --force`: Cleanup older records
-- **Filament Navigation**:
-  - New "Simple Unblock Security" navigation group
-  - Badge indicators for active incidents
-  - Color-coded reputation scores (green/yellow/red)
-- **Model Accessors**:
-  - `IpReputation::$success_rate`: Auto-calculated success percentage
-  - `EmailReputation::$verification_rate`: Auto-calculated verification percentage
-  - `AbuseIncident::isResolved()`: Check resolution status
-
-### Notes
-
-- All Filament resources are auto-discovered (no manual registration required)
-- Dashboard widget auto-discovered and displays on admin dashboard
-- Event listeners registered in `EventServiceProvider` (line 18-48)
-- Cleanup command scheduled in `routes/console.php` (line 11)
+- DirectAdmin BFM blacklist detection: exact IP matching prevents false positives
+- BFM whitelist TTL system with database tracking and automatic expiration
 
 ## [1.2.0] - 2025-10-23
 
-### Added - OTP Email Verification
+### Added
 
-- **Two-Step Authentication Flow** for Simple Unblock Mode:
-  - **Step 1**: User enters IP + Domain + Email → System sends 6-digit OTP code
-  - **Step 2**: User enters OTP → System verifies and processes unblock request
-  - Completely replaces anonymous "submit and wait" approach
-  - Ensures email ownership verification
-  - Blocks 95%+ of bots (cannot access email for OTP)
-
-- **OTP Security Features**:
-  - IP Binding: OTP codes are bound to the requesting IP address
-  - IP Mismatch Detection: Rejects OTP if verified from different IP
-  - Session-based State Management: Secure storage of request data
-  - Temporary User Creation: Auto-creates users with random passwords
-  - 6-digit OTP codes with 5-minute expiration (Spatie OTP defaults)
-  - Rate limiting applies to both OTP sending and verification
-
-- **Enhanced UI/UX**:
-  - Visual progress indicator showing Step 1 → Step 2
-  - Step 1: IP, Domain, Email form with honeypot integration
-  - Step 2: Large 6-digit OTP input field with autocomplete="one-time-code"
-  - Back button to return to Step 1 and edit information
-  - Loading states: "Sending..." and "Verifying..."
-  - Success/error message display with colored badges
-  - Mobile-friendly OTP input with proper spacing
-
-- **Warmup Migrations** for Future Pattern Analysis:
-  - `ip_reputation` table: Track IP reputation scores and request history
-  - `email_reputation` table: Track email reputation (GDPR-compliant hashing)
-  - `abuse_incidents` table: Log security incidents with severity levels
-  - Purpose: Enable machine learning and pattern detection in future versions
+- OTP email verification for Simple Unblock Mode (two-step flow)
+- IP binding: OTP codes bound to requesting IP to prevent relay attacks
+- Warmup migrations for reputation tables (ip_reputation, email_reputation, abuse_incidents)
 
 ### Changed
 
-- **SimpleUnblockForm Component** (app/Livewire/SimpleUnblockForm.php):
-  - Completely rewritten for 2-step OTP flow
-  - Added `sendOtp()` method for Step 1
-  - Added `verifyOtp()` method for Step 2
-  - Added `backToStep1()` method for navigation
-  - Added `step` property (1 or 2) for flow control
-  - Added `oneTimePassword` property for OTP input
-  - Session management for OTP data and IP binding
-  - Automatic form reset after successful verification
-
-- **Blade View** (resources/views/livewire/simple-unblock-form.blade.php):
-  - Conditional rendering based on `$step` value
-  - Visual progress indicator with checkmarks
-  - Separate forms for each step
-  - Enhanced OTP input styling (centered, large text, tracking-widest)
-  - Responsive design maintained across all devices
-
-- **Translations** (lang/en/simple_unblock.php, lang/es/simple_unblock.php):
-  - Added 10 new translation keys for OTP flow:
-    - `step1_label`, `step2_label`
-    - `send_otp_button`, `otp_sent`
-    - `otp_label`, `otp_help`
-    - `verify_button`, `back_button`
-    - `sending`, `verifying`
-  - Bilingual support maintained (English + Spanish)
-
-### Security Improvements
-
-- **Email Verification**: Ensures only legitimate email owners can submit requests
-- **IP Binding**: Prevents OTP code theft/relay attacks
-- **Bot Elimination**: 95%+ effectiveness (bots can't access email)
-- **Honeypot + OTP**: Dual-layer bot protection
-- **Rate Limiting**: Applies to both OTP sending and verification
-- **Session Security**: OTP data cleared after use or failure
-- **No OTP in Logs**: OTP codes never logged (only success/failure)
-
-### Testing
-
-- **Completely Rewritten Tests**: 11 tests updated + 5 new tests added
-  - Updated existing tests for 2-step flow
-  - Test Step 1: OTP sending validation
-  - Test Step 2: OTP verification validation
-  - Test IP binding security
-  - Test session management
-  - Test temporary user creation
-  - Test form reset after verification
-  - Test back navigation between steps
-  - Test OTP format validation (6 digits)
-  - Test invalid OTP rejection
-  - Test IP mismatch detection
-
-- **Coverage**: >90% for all modified components
-- **Integration Tests**: Full end-to-end flow coverage
-
-### Database
-
-- **New Migrations** (3):
-  - `2025_10_23_072708_create_ip_reputation_table.php`
-  - `2025_10_23_072709_create_email_reputation_table.php`
-  - `2025_10_23_072709_create_abuse_incidents_table.php`
-
-- **Reputation Tables Schema**:
-  - `ip_reputation`: ip, subnet, reputation_score (0-100), total_requests, failed_requests, blocked_count, last_seen_at, notes
-  - `email_reputation`: email_hash (SHA-256), email_domain, reputation_score, total_requests, failed_requests, verified_requests, last_seen_at, notes
-  - `abuse_incidents`: incident_type, ip_address, email_hash, domain, severity (low/medium/high/critical), description, metadata (JSON), resolved_at
-
-- **Indexes**: Optimized for fast lookups and analytics queries
-
-### Files Modified (4)
-
-- `app/Livewire/SimpleUnblockForm.php`: Completely rewritten for 2-step OTP flow (204 lines)
-- `resources/views/livewire/simple-unblock-form.blade.php`: New 2-step UI with progress indicator (190 lines)
-- `lang/en/simple_unblock.php`: Added 10 new OTP-related translation keys
-- `lang/es/simple_unblock.php`: Added 10 new OTP-related translation keys
-
-### Files Added (3)
-
-- `database/migrations/2025_10_23_072708_create_ip_reputation_table.php`
-- `database/migrations/2025_10_23_072709_create_email_reputation_table.php`
-- `database/migrations/2025_10_23_072709_create_abuse_incidents_table.php`
-
-### Files Modified - Tests (1)
-
-- `tests/Feature/SimpleUnblock/SimpleUnblockFormTest.php`: 11 tests rewritten + 5 new tests (16 total)
-
-### Impact & Performance
-
-- **Security Enhancement**:
-  - Before: Anonymous submissions with no verification
-  - After: Email ownership verification required
-  - Bot effectiveness: Reduced from 30% to <5%
-
-- **User Experience**:
-  - Slightly increased friction (2 steps vs 1)
-  - But: Higher success rate due to verified emails
-  - Clear visual feedback with progress indicator
-  - Mobile-optimized OTP input
-
-- **System Load**:
-  - Minimal increase (OTP email sending)
-  - Reduced job queue load (fewer fake requests processed)
-  - Overall: Net positive for system resources
-
-### Deployment Notes
-
-1. **Run Migrations**:
-   ```bash
-   php artisan migrate
-   ```
-
-2. **Clear Caches**:
-   ```bash
-   php artisan config:clear
-   php artisan view:clear
-   php artisan route:clear
-   ```
-
-3. **Run Tests**:
-   ```bash
-   php artisan test --filter=SimpleUnblock
-   ```
-
-4. **Verify Email Configuration**:
-   - Ensure mail driver is properly configured in `.env`
-   - Test OTP email delivery before going live
-
-### Breaking Changes
-
-- **MINOR BREAKING**: SimpleUnblockForm API changed
-  - Old: `submit()` method
-  - New: `sendOtp()` and `verifyOtp()` methods
-  - Impact: Only affects direct programmatic usage (rare)
-  - Web interface: Fully compatible (user experience improved)
-
-### Upgrade Path from v1.1.1
-
-1. Pull latest code from feature branch
-2. Run `php artisan migrate` to create reputation tables
-3. Clear caches
-4. Run tests to verify
-5. Deploy to production
-
-### Known Limitations
-
-- OTP expiration is 5 minutes (Spatie OTP default, non-configurable without package modification)
-- Temporary users remain in database (cleanup job recommended in future)
-- Reputation tables are warmup only (pattern analysis in future versions)
-
-### Future Enhancements (Planned)
-
-- Machine learning pattern detection using reputation tables
-- Automatic IP/Email blocking based on reputation scores
-- Admin dashboard for abuse incident management
-- OTP expiration configuration option
-- Temporary user cleanup job
+- SimpleUnblockForm rewritten for two-step OTP flow with visual progress indicator
 
 ## [1.1.1] - 2025-10-23
 
-### Added - Anti-Bot Defense Layer
-- **Multi-Vector Rate Limiting**: Defense against distributed botnet attacks
-  - IP-based: 3 requests/minute (improved from v1.1.0)
-  - Email-based: 5 requests/hour (NEW)
-  - Domain-based: 10 requests/hour (NEW)
-  - Subnet /24-based: 20 requests/hour (NEW - anti-botnet)
-  - Global: 500 requests/hour (NEW - DDoS protection)
-- **Honeypot Integration** (Spatie Laravel Honeypot):
-  - Invisible field detection for automated bots
-  - Temporal validation (< 3 seconds = bot)
-  - Effectiveness: 70-80% of simple bots blocked
-  - Configurable via environment variables
-
-### Security Fixes
-- **CRITICAL**: Fixed IP spoofing vulnerability in SimpleUnblockForm
-  - Previously: Trusted client-provided headers (X-Forwarded-For, X-Real-IP)
-  - Now: Uses `request()->ip()` which respects TrustProxies configuration
-  - Impact: Prevents rate limiting bypass and IP falsification
-- **GDPR Compliance**: Email privacy in activity logs
-  - Previously: Email stored in plaintext
-  - Now: Email hashed (SHA-256) in activity_log
-  - Stored: `email_hash` + `email_domain` (not full email)
-  - Impact: Compliance with GDPR and data protection regulations
-
-### Changed
-- **Enhanced Middleware** (`ThrottleSimpleUnblock`):
-  - Checks 3 vectors: IP, Subnet, Global
-  - Logs include vector information for analysis
-  - Subnet calculation for IPv4 (/24) and IPv6 (/48)
-- **Enhanced Action** (`SimpleUnblockAction`):
-  - Validates Email and Domain rate limits before processing
-  - Throws `RuntimeException` on rate limit exceeded
-  - Hashes emails in logs and exception messages
-- **Activity Logging**:
-  - Rate limit logs now include `vector` property
-  - All logs use `email_hash` instead of plaintext `email`
-  - Added `email_domain` extraction for analytics
-
-### Configuration
-- **New Dependencies**:
-  - `spatie/laravel-honeypot: ^4.6`
-- **New Configuration Files**:
-  - `config/honeypot.php` (published from Spatie)
-- **Extended Configuration** (`config/unblock.php`):
-  - `throttle_email_per_hour` (default: 5)
-  - `throttle_domain_per_hour` (default: 10)
-  - `throttle_subnet_per_hour` (default: 20)
-  - `throttle_global_per_hour` (default: 500)
-- **Environment Variables**:
-  ```bash
-  HONEYPOT_ENABLED=true
-  HONEYPOT_NAME=my_name
-  HONEYPOT_VALID_FROM=valid_from
-  HONEYPOT_SECONDS=3
-  UNBLOCK_SIMPLE_THROTTLE_EMAIL_PER_HOUR=5
-  UNBLOCK_SIMPLE_THROTTLE_DOMAIN_PER_HOUR=10
-  UNBLOCK_SIMPLE_THROTTLE_SUBNET_PER_HOUR=20
-  UNBLOCK_SIMPLE_THROTTLE_GLOBAL_PER_HOUR=500
-  ```
-
-### Testing
-- **New Tests**: 12 tests added
-  - Subnet rate limiting
-  - Global rate limiting
-  - Email rate limiting
-  - Domain rate limiting
-  - Email hashing verification
-  - IPv4/IPv6 subnet calculation
-  - Vector logging verification
-- **Coverage**: >90% for modified components
-- **Total**: 315+ tests passing
-
-### Impact & Performance
-- **Botnet Mitigation**:
-  - Attack scenario: 1,000 IP botnet
-  - Before: 180,000 requests/hour possible
-  - After: Limited to 500 requests/hour (global limit)
-  - Reduction: **99.7%**
-- **Email Enumeration**: Blocked via per-email rate limiting
-- **Domain Scanning**: Blocked via per-domain rate limiting
-- **Subnet Attacks**: Mitigated via /24 subnet limiting
-
-### Files Modified (7)
-- `app/Actions/SimpleUnblockAction.php`: Added email/domain rate limiting + hash logs
-- `app/Http/Middleware/ThrottleSimpleUnblock.php`: Multi-vector rate limiting
-- `app/Livewire/SimpleUnblockForm.php`: Fixed IP spoofing
-- `config/unblock.php`: New rate limit configuration
-- `config/honeypot.php`: NEW - Spatie Honeypot config
-- `composer.json`: Added spatie/laravel-honeypot dependency
-- `.gitignore`: Ignore SECURITY_*.md internal docs
-
-### Files Modified - Tests (2)
-- `tests/Feature/SimpleUnblock/ThrottleSimpleUnblockTest.php`: +6 tests
-- `tests/Feature/SimpleUnblock/SimpleUnblockActionTest.php`: +6 tests
-
-### Documentation
-- Internal security analysis documentation (ignored in git)
-- Updated inline code documentation
-- Environment configuration examples
-
-### Deployment Notes
-1. **Install Dependencies**:
-   ```bash
-   composer update
-   ```
-2. **Publish Honeypot Config** (optional, already done):
-   ```bash
-   php artisan vendor:publish --tag=honeypot-config
-   ```
-3. **Update .env** with new rate limit variables (optional, has defaults)
-4. **Clear Caches**:
-   ```bash
-   php artisan config:clear
-   php artisan route:clear
-   ```
-5. **Run Tests**:
-   ```bash
-   php artisan test --filter=SimpleUnblock
-   ```
-
-### Breaking Changes
-- **NONE**: Fully backward compatible with v1.1.0
-- Rate limiter keys changed format: `simple_unblock:{ip}` → `simple_unblock:ip:{ip}`
-- If you have custom monitoring of rate limiter keys, update accordingly
-
-### Bug Fixes
-- Fixed potential race condition in rate limiting (added key prefixes)
-- Fixed missing decay time in email/domain rate limiters
-
-## [1.1.0] - 2025-10-21
-
-### Added - Simple Unblock Mode
-- **NEW FEATURE**: Anonymous IP unblocking without authentication
-- Public-facing form for simplified unblocking workflow
-- Cross-validation system: IP must be blocked AND domain must exist in server logs
-- Anonymous user system for maintaining database referential integrity
-- Aggressive rate limiting (3 requests/minute by IP)
-- Comprehensive activity logging for all attempts (success and failures)
-- Email notifications for users and administrators
-- Domain normalization (lowercase, www removal)
-- Support for both cPanel and DirectAdmin panels
-- Cache locking to prevent duplicate processing
-- Search in Apache, Nginx, and Exim logs
-- Complete test coverage (46 tests, 100% passing)
-
-### Technical Implementation
-- **New Components**: 
-  - `SimpleUnblockAction`: Domain validation and job dispatching
-  - `ProcessSimpleUnblockJob`: Core processing with cross-validation
-  - `SendSimpleUnblockNotificationJob`: Async email notifications
-  - `SimpleUnblockForm`: Livewire component with IP autodetection
-  - `ThrottleSimpleUnblock`: IP-based rate limiting middleware
-  - `AnonymousUserService`: Singleton for anonymous user management
-  
-- **Configuration**:
-  - Conditional route registration (enable/disable via config)
-  - Configurable throttling (requests per minute)
-  - Configurable strict match mode
-  - Silent logging option for non-matches
-
-- **Security**:
-  - Shell argument escaping for all user input
-  - Domain regex validation
-  - Generic failure responses (prevents enumeration)
-  - Email hashing in activity logs
-  - Rate limiting per IP address
-
-### Files Added (18)
-- `app/Actions/SimpleUnblockAction.php`
-- `app/Http/Middleware/ThrottleSimpleUnblock.php`
-- `app/Jobs/ProcessSimpleUnblockJob.php`
-- `app/Jobs/SendSimpleUnblockNotificationJob.php`
-- `app/Livewire/SimpleUnblockForm.php`
-- `app/Mail/SimpleUnblockNotificationMail.php`
-- `app/Services/AnonymousUserService.php`
-- `database/seeders/AnonymousUserSeeder.php`
-- `resources/views/livewire/simple-unblock-form.blade.php`
-- `resources/views/emails/simple-unblock-success.blade.php`
-- `resources/views/emails/simple-unblock-admin-alert.blade.php`
-- `lang/en/simple_unblock.php`
-- `lang/es/simple_unblock.php`
-- `docs/SIMPLE_UNBLOCK_FEATURE.md` (comprehensive documentation)
-- 5 test files with 46 tests
-
-### Files Modified (7)
-- `.env.example`: Added Simple Mode configuration variables
-- `bootstrap/app.php`: Registered throttle.simple.unblock middleware
-- `config/unblock.php`: Added simple_mode configuration section
-- `routes/web.php`: Conditional route registration
-- `database/factories/ReportFactory.php`: Added anonymous() method
-- `database/seeders/DatabaseSeeder.php`: Updated for anonymous user
-- `README.md`: Added Simple Unblock Mode documentation
-
-### Testing
-- **303 tests passing** (1057 assertions)
-- **0 tests skipped**
-- **PHPStan**: Level max, 0 errors
-- **Laravel Pint**: All files formatted
-- Complete coverage for Simple Unblock feature
-
-### Documentation
-- Comprehensive technical documentation (1359 lines)
-- Architecture diagrams and flow charts
-- Security considerations and mitigation strategies
-- Deployment checklist and requirements
-- Configuration examples
-- Translation coverage (English/Spanish)
-
-### Deployment Requirements
-1. Run: `php artisan db:seed --class=AnonymousUserSeeder`
-2. Set: `UNBLOCK_SIMPLE_MODE=true` in `.env`
-3. Configure throttling: `UNBLOCK_SIMPLE_THROTTLE_PER_MINUTE=3`
-4. Verify SSH access to server log directories
-
-### Major Cleanup and Architecture Improvements (2025-06-02)
-
-#### 🚀 System Migration and Modernization
-- **BREAKING**: Migrated from custom magic links to Spatie Laravel One-Time Passwords
-- **BREAKING**: Eliminated custom rate limiting system in favor of Spatie OTP integrated solution
-- **BREAKING**: Removed Laravel Breeze components and simplified authentication flow
-- **BREAKING**: Dropped obsolete magic links system and related dependencies
-
-#### ✅ Code Cleanup and Optimization
-**Removed 37 obsolete files:**
-- Models: `IpFailure.php`, `LoginForm.php` (2 files)
-- Config files: `ban.php`, `throttle.php`, `horizon.php`, `wireui.php` (4 files)
-- Auth views: `auth/otp-login.blade.php` + 7 Breeze auth pages (8 files)
-- Profile views: 3 profile management pages + `profile.blade.php` (4 files)
-- Breeze components: 13 unused UI components (recreated 4 essential ones)
-- View components: `AppLayout.php`, `GuestLayout.php` (2 files)
-- Dashboard views: `dashboard.blade.php` (1 file)
-- Navigation: `welcome/navigation.blade.php` (1 file)
-
-**Database cleanup:**
-- Executed safe migrations to drop `magic_links` and `ip_failures` tables
-- Maintained backward compatibility with rollback support
-
-#### 🎯 Authentication System Improvements
-- **Simplified UX**: 6-digit OTP codes instead of complex magic link URLs
-- **Enhanced Security**: IP tracking, User-Agent validation, 5-minute expiration
-- **Rate Limiting**: Spatie OTP integrated rate limiting (8 attempts/60 seconds)
-- **Audit Trail**: Complete activity logging with Spatie Activity Log integration
-
-#### 🔧 Architecture Refinements
-- **Commands marked as deprecated**: `AddEditUserCommand`, `DeleteUserCommand`, `UserEditionCommand`
-- **Updated UnblockIpCommand**: Proper integration with `UnblockIpAction`
-- **Simplified routing**: OTP system as primary authentication method
-- **Created minimal UI components**: Essential navigation and dropdown components with emerald theme
-
-#### 📊 Testing and Quality Assurance
-- **110 tests passing** (455 assertions) - 100% success rate after cleanup
-- **Eliminated flaky conditions**: Removed timing-dependent test scenarios
-- **Robust test coverage**: All core business logic thoroughly tested
-- **Clean test suite**: No deprecated functionality being tested
-
-#### 🎨 User Experience Improvements
-- **Consistent theming**: Emerald color scheme throughout all components
-- **Simplified navigation**: Clean, minimal UI without unnecessary complexity
-- **Mobile responsive**: All recreated components maintain responsive design
-- **Dark mode support**: Complete dark/light theme compatibility
-
 ### Added
-- WHMCS synchronization feature for users and hosting services
-- Soft delete support for users and hostings
-- Automatic restoration of soft deleted records when reactivated in WHMCS
-- Support for authorized users (delegated access)
-- Comprehensive test suite for WHMCS synchronization
-- Documentation for WHMCS synchronization action
-- **NEW**: Spatie Laravel One-Time Passwords integration
-- **NEW**: Spatie Laravel Activity Log for user tracking
-- **NEW**: Simplified navigation components with emerald theme
 
-### Changed
-- Updated code comments to English following project standards
-- Migrated tests from PHPUnit to PEST 3
-- Improved error handling and logging
-- Enhanced database schema with soft deletes
-- **MAJOR**: Authentication system from magic links to OTP codes
-- **MAJOR**: Rate limiting from custom system to Spatie OTP integration
-- **MAJOR**: Simplified component architecture
-
-### Removed
-- **BREAKING**: Laravel Breeze complete authentication scaffolding
-- **BREAKING**: Custom magic link system and dependencies
-- **BREAKING**: Custom IP failure tracking and rate limiting
-- **BREAKING**: Complex authentication flows and unnecessary UI components
-- **BREAKING**: Obsolete configuration files and unused dependencies
+- Anti-bot defense layer: honeypot fields, request fingerprinting, pattern detection
+- Multi-vector rate limiting: per IP, email, domain, subnet (/24) and global
 
 ### Fixed
-- Issue with string vs integer type in WHMCS ID comparison
-- Hosting synchronization when user is deactivated
-- Factory definitions to match current database schema
-- **NEW**: Blade component compilation errors after cleanup
-- **NEW**: Navigation component dependencies
-- **NEW**: Route references to eliminated views
+
+- IP spoofing vulnerability: now uses `request()->ip()` respecting TrustProxies
 
 ### Security
-- Added validation for WHMCS data
-- Implemented proper error handling for failed synchronizations
-- Protected against unauthorized user access
-- **ENHANCED**: OTP-based authentication with IP and User-Agent validation
-- **ENHANCED**: Automated session management and security auditing
 
-### Technical Debt Resolved
-- ✅ **Eliminated duplicate authentication systems** (magic links vs OTP)
-- ✅ **Removed overengineered rate limiting** (custom vs Spatie integration)
-- ✅ **Cleaned up unused Breeze scaffolding** (37 files removed)
-- ✅ **Simplified component architecture** (minimal essential components)
-- ✅ **Unified authentication flow** (single OTP entry point)
+- GDPR compliance: email hashed (SHA-256) in activity logs instead of plaintext
 
-### Remaining Technical Debt
-- [ ] Add support for synchronizing server configurations from WHMCS
-- [ ] Implement batch processing for better performance
-- [ ] Add support for custom fields synchronization
-- [ ] Implement retry mechanism for failed synchronizations
-- [ ] Add monitoring and alerting for failed synchronizations
-- [ ] Improve test coverage for edge cases
-- [ ] Add performance metrics collection 
+## [1.1.0] - 2025-10-22
+
+### Added
+
+- Simple Unblock Mode: anonymous IP unblock without authentication
+- Public form with cross-validation (IP blocked + domain in server logs)
+- Rate limiting (3 req/min per IP), email notifications, activity logging
+- Support for both cPanel and DirectAdmin panels
+- Anonymous user system for database referential integrity
+
+### Fixed
+
+- Missing database files (factories, migrations, seeders)
+
+### Security
+
+- SSH keys moved from `.ssh/` to `storage/app/.ssh/`
+
+## [1.0.0] - 2025-10-20
+
+### Added
+
+- Initial release of Unblock Firewall Manager
+- Multi-firewall analysis: CSF, BFM, Exim, Dovecot, ModSecurity
+- FilamentPHP admin panel with user and hosting management
+- Optional WHMCS integration for user/hosting sync
+- OTP-based authentication (Spatie Laravel One-Time Passwords)
+- Bilingual interface EN/ES
+- 257 tests, 94% coverage
+
+[Unreleased]: https://github.com/AichaDigital/unblock/compare/v1.6.0...HEAD
+[1.6.0]: https://github.com/AichaDigital/unblock/compare/v1.5.0...v1.6.0
+[1.5.0]: https://github.com/AichaDigital/unblock/compare/v1.4.0...v1.5.0
+[1.4.0]: https://github.com/AichaDigital/unblock/compare/v1.3.1...v1.4.0
+[1.3.1]: https://github.com/AichaDigital/unblock/compare/v1.3.0...v1.3.1
+[1.3.0]: https://github.com/AichaDigital/unblock/compare/v1.2.0...v1.3.0
+[1.2.0]: https://github.com/AichaDigital/unblock/compare/v1.1.1...v1.2.0
+[1.1.1]: https://github.com/AichaDigital/unblock/compare/v1.1.0...v1.1.1
+[1.1.0]: https://github.com/AichaDigital/unblock/compare/v1.0.0...v1.1.0
+[1.0.0]: https://github.com/AichaDigital/unblock/releases/tag/v1.0.0

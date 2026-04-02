@@ -43,7 +43,7 @@ class TrackIpReputationListener implements ShouldQueue
             // Add geo data if available and not already set
             if ($geoData) {
                 $existing = DB::table('ip_reputation')->where('ip', $event->ip)->first();
-                if (! $existing->country_code) {
+                if ($existing && ! $existing->country_code) {
                     $updateData = array_merge($updateData, $geoData);
                 }
             }

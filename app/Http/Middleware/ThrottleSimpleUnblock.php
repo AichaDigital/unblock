@@ -28,7 +28,7 @@ class ThrottleSimpleUnblock
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $ip = $request->ip();
+        $ip = $request->ip() ?? '0.0.0.0';
 
         // Vector 1: Per IP (3 req/min)
         $exceeded = $this->checkRateLimit(

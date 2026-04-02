@@ -61,10 +61,11 @@ class FirewallService
                     'host' => $host->fqdn,
                     'command' => $command,
                     'ip' => $ip,
+                    'exit_code' => $process->getExitCode(),
                     'error' => $process->getErrorOutput(),
                 ]);
 
-                return '';
+                return '[SSH_ERROR:'.$command.']';
             }
 
             $output = trim($process->getOutput());
@@ -123,11 +124,12 @@ class FirewallService
             'csf_specials' => "csf -g {$ip}",
             'csf_deny_check' => "cat /etc/csf/csf.deny | grep '{ip}' || true",
             'csf_tempip_check' => "cat /var/lib/csf/csf.tempip | grep '{ip}' || true",
-            'mod_security_da' => "cat /var/log/nginx/modsec_audit.log | grep '{ip}' || true",
+            'mod_security_da' => "grep -a '{ip}' /var/log/nginx/modsec_audit.log || true",
             'exim_cpanel' => "cat /var/log/exim_mainlog | grep -Ea '{ip}' | grep 'authenticator failed' || true",
             'dovecot_cpanel' => "cat /var/log/maillog | grep -Ea '{ip}' | grep 'auth failed' || true",
-            'exim_directadmin' => "cat /var/log/exim/mainlog | grep -Ea '{ip}' | grep 'authenticator failed'",
-            'dovecot_directadmin' => "cat /var/log/mail.log | grep -Ea '{ip}' | grep 'auth failed'",
+            'exim_directadmin' => "cat /var/log/exim/mainlog | grep -Ea '{ip}' | grep 'authenticator failed' || true",
+            'dovecot_directadmin' => "cat /var/log/mail.log | grep -Ea '{ip}' | grep 'auth failed' || true",
+            'lfd_history' => "grep '{ip}' /var/log/lfd.log /var/log/lfd.log.1 2>/dev/null | tail -20 || true",
             'da_bfm_check' => "cat /usr/local/directadmin/data/admin/ip_blacklist | grep -E '^{ip}(\\s|\$)' || true",
             'da_bfm_remove' => "sed -i '/^{ip}(\\s|\$)/d' /usr/local/directadmin/data/admin/ip_blacklist",
             'da_bfm_whitelist_add' => "echo '{ip}' >> /usr/local/directadmin/data/admin/ip_whitelist",
@@ -149,32 +151,35 @@ class FirewallService
     private function buildCommand(string $type, string $ip): ?string
     {
         $ip_escaped = escapeshellarg($ip);
+        $ip_regex = preg_quote($ip, '/');
 
         $commands = [
-            'csf' => "csf -g {$ip}",
-            'csf_specials' => "csf -g {$ip}", // Legacy: same as csf, kept for backward compatibility
+            'csf' => "csf -g {$ip_escaped}",
+            'csf_specials' => "csf -g {$ip_escaped}", // Legacy: same as csf, kept for backward compatibility
             'csf_deny_check' => "cat /etc/csf/csf.deny | grep {$ip_escaped} || true",
             'csf_tempip_check' => "cat /var/lib/csf/csf.tempip | grep {$ip_escaped} || true",
-            'mod_security_da' => "cat /var/log/nginx/modsec_audit.log | grep {$ip_escaped} || true",
+            'mod_security_da' => "grep -a {$ip_escaped} /var/log/nginx/modsec_audit.log || true",
             // cPanel log checks
             'exim_cpanel' => "cat /var/log/exim_mainlog | grep -Ea {$ip_escaped} | grep 'authenticator failed' || true",
             'dovecot_cpanel' => "cat /var/log/maillog | grep -Ea {$ip_escaped} | grep 'auth failed' || true",
             // DirectAdmin log checks
-            'exim_directadmin' => "cat /var/log/exim/mainlog | grep -Ea {$ip_escaped} | grep 'authenticator failed'",
-            'dovecot_directadmin' => "cat /var/log/mail.log | grep -Ea {$ip_escaped} | grep 'auth failed'",
+            'exim_directadmin' => "cat /var/log/exim/mainlog | grep -Ea {$ip_escaped} | grep 'authenticator failed' || true",
+            'dovecot_directadmin' => "cat /var/log/mail.log | grep -Ea {$ip_escaped} | grep 'auth failed' || true",
+            // LFD history: recent block/unblock events
+            'lfd_history' => "grep {$ip_escaped} /var/log/lfd.log /var/log/lfd.log.1 2>/dev/null | tail -20 || true",
             // FIXED: Use exact IP matching to avoid false positives
-            'da_bfm_check' => "cat /usr/local/directadmin/data/admin/ip_blacklist | grep -E '^{$ip_escaped}(\\s|\$)' || true",
-            'da_bfm_remove' => "sed -i '/^{$ip_escaped}(\\s|\$)/d' /usr/local/directadmin/data/admin/ip_blacklist",
-            'da_bfm_whitelist_add' => "echo '{$ip}' >> /usr/local/directadmin/data/admin/ip_whitelist",
+            'da_bfm_check' => "cat /usr/local/directadmin/data/admin/ip_blacklist | grep -E '^{$ip_regex}(\\s|\$)' || true",
+            'da_bfm_remove' => "sed -i '/^{$ip_regex}(\\s|\$)/d' /usr/local/directadmin/data/admin/ip_blacklist",
+            'da_bfm_whitelist_add' => "echo {$ip_escaped} >> /usr/local/directadmin/data/admin/ip_whitelist",
             // Unblock commands: separate for permanent and temporary deny lists
-            'unblock_permanent' => "csf -dr {$ip}",
-            'unblock_temporary' => "csf -tr {$ip}",
+            'unblock_permanent' => "csf -dr {$ip_escaped}",
+            'unblock_temporary' => "csf -tr {$ip_escaped}",
             // Legacy unblock command (kept for backward compatibility, but should not be used)
-            'unblock' => "csf -dr {$ip} || true; csf -tr {$ip} || true",
+            'unblock' => "csf -dr {$ip_escaped} || true; csf -tr {$ip_escaped} || true",
             // Whitelist commands with different TTLs from config
-            'whitelist' => "csf -ta {$ip} ".config('unblock.whitelist_ttl', 86400),
-            'whitelist_simple' => "csf -ta {$ip} ".config('unblock.simple_mode.whitelist_ttl', 3600),
-            'whitelist_hq' => "csf -ta {$ip} ".config('unblock.hq.ttl', 7200),
+            'whitelist' => "csf -ta {$ip_escaped} ".config('unblock.whitelist_ttl', 86400),
+            'whitelist_simple' => "csf -ta {$ip_escaped} ".config('unblock.simple_mode.whitelist_ttl', 3600),
+            'whitelist_hq' => "csf -ta {$ip_escaped} ".config('unblock.hq.ttl', 7200),
         ];
 
         return $commands[$type] ?? null;

@@ -108,14 +108,7 @@ class OtpLogin extends Component
 
     private function getClientIp(): string
     {
-        if (! empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-            $ipArray = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
-
-            return trim($ipArray[0]);
-        }
-
-        // In testing, use default IP if REMOTE_ADDR doesn't exist
-        return $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+        return request()->ip() ?? '127.0.0.1';
     }
 
     public function sendOtp(): void
@@ -142,6 +135,7 @@ class OtpLogin extends Component
                         'last_name' => 'Unblock',
                         'password' => bcrypt(Str::random(32)),
                         'is_admin' => false,
+                        'is_simple_mode_user' => true,
                     ]
                 );
             } else {

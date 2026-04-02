@@ -51,7 +51,7 @@ class SetUserLocale
         // 1. Authenticated user's preference (highest priority)
         if (Auth::check()) {
             // Force refresh user model to get latest preferred_locale from database
-            $user = Auth::user()->fresh();
+            $user = Auth::user()?->fresh();
             if ($user && $user->preferred_locale) {
                 $userLocale = $user->preferred_locale;
 

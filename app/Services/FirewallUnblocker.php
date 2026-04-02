@@ -170,7 +170,7 @@ class FirewallUnblocker
 
             if (! empty(trim($denyCheckOutput))) {
                 // IP is in permanent deny list - remove it
-                $unblockPermanentCommand = "csf -dr {$ipAddress}";
+                $unblockPermanentCommand = "csf -dr {$ipEscaped}";
                 $unblockPermanentOutput = $session->execute($unblockPermanentCommand);
                 $results['unblock_permanent'] = [
                     'command' => $unblockPermanentCommand,
@@ -190,7 +190,7 @@ class FirewallUnblocker
 
             if (! empty(trim($tempDenyCheckOutput))) {
                 // IP is in temporary deny list - remove it
-                $unblockTemporaryCommand = "csf -tr {$ipAddress}";
+                $unblockTemporaryCommand = "csf -tr {$ipEscaped}";
                 $unblockTemporaryOutput = $session->execute($unblockTemporaryCommand);
                 $results['unblock_temporary'] = [
                     'command' => $unblockTemporaryCommand,
@@ -205,7 +205,7 @@ class FirewallUnblocker
             }
 
             // 3. Add to temporal whitelist (24 hours) - always after removing denies
-            $whitelistCommand = "csf -ta {$ipAddress} 86400";
+            $whitelistCommand = "csf -ta {$ipEscaped} 86400";
             $whitelistOutput = $session->execute($whitelistCommand);
             $results['whitelist'] = [
                 'command' => $whitelistCommand,
@@ -337,7 +337,7 @@ class FirewallUnblocker
             }
 
             // 4. Verify removal
-            $verifyCommand = "cat /usr/local/directadmin/data/admin/ip_blacklist | grep -w '".$ipAddress."' || echo 'IP not found in blacklist'";
+            $verifyCommand = 'cat /usr/local/directadmin/data/admin/ip_blacklist | grep -w '.escapeshellarg($ipAddress)." || echo 'IP not found in blacklist'";
             $verifyOutput = $session->execute($verifyCommand);
 
             $results['verification'] = [

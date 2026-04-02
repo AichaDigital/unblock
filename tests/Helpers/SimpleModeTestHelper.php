@@ -71,6 +71,7 @@ class SimpleModeTestHelper
             'last_name' => 'Unblock',
             'email' => $email,
             'is_admin' => false,
+            'is_simple_mode_user' => true,
         ]);
     }
 

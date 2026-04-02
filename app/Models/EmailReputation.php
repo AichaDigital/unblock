@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 
 /**
@@ -30,6 +31,7 @@ class EmailReputation extends Model
 {
     protected $table = 'email_reputation';
 
+    /** @var list<string> */
     protected $fillable = [
         'email_hash',
         'email_domain',
@@ -41,6 +43,7 @@ class EmailReputation extends Model
         'notes',
     ];
 
+    /** @var array<string, string> */
     protected $casts = [
         'reputation_score' => 'integer',
         'total_requests' => 'integer',
@@ -50,7 +53,7 @@ class EmailReputation extends Model
     ];
 
     /**
-     * Get abuse incidents for this email
+     * @return HasMany<AbuseIncident, $this>
      */
     public function abuseIncidents()
     {

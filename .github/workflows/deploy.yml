@@ -1,0 +1,182 @@
+name: CD
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  quality:
+    uses: ./.github/workflows/ci.yml
+
+  build-assets:
+    needs: quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v5
+
+      - name: Install and build
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm run build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: vite-build
+          path: public/build/
+          retention-days: 1
+
+  deploy-argos01:
+    needs: build-assets
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: production-argos01
+
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v8
+        with:
+          name: vite-build
+          path: build-artifacts/
+
+      - name: Upload assets to argos01
+        uses: appleboy/scp-action@v1.0.0
+        with:
+          host: ${{ secrets.ARGOS01_HOST }}
+          username: franken
+          key: ${{ secrets.DEPLOY_SSH_KEY_ARGOS }}
+          port: ${{ secrets.ARGOS01_PORT }}
+          source: "build-artifacts/*"
+          target: "/home/franken/web/unblock.castris.com/public/build/"
+          strip_components: 1
+
+      - name: Deploy to argos01 (primary)
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.ARGOS01_HOST }}
+          username: franken
+          key: ${{ secrets.DEPLOY_SSH_KEY_ARGOS }}
+          port: ${{ secrets.ARGOS01_PORT }}
+          script: |
+            cd /home/franken/web/unblock.castris.com
+
+            echo ">>> Git pull"
+            git pull origin main
+
+            echo ">>> Validate lock file"
+            composer validate --check-lock --no-interaction || {
+              echo "FATAL: composer.lock is out of sync with composer.json"
+              echo "The lock file was not updated in the last commit."
+              echo "Fix: run 'composer update' locally and commit composer.lock"
+              exit 1
+            }
+
+            echo ">>> Clear stale caches before install"
+            rm -f bootstrap/cache/{config,packages,services,events}.php
+            rm -f bootstrap/cache/routes-v*.php
+
+            echo ">>> Composer install"
+            composer install --no-dev --no-interaction --optimize-autoloader --no-scripts
+            frankenphp php-cli artisan package:discover --ansi
+
+            echo ">>> Run migrations"
+            frankenphp php-cli artisan migrate --force
+
+            echo ">>> Publish Filament assets"
+            frankenphp php-cli artisan filament:assets
+
+            echo ">>> Rebuild caches"
+            frankenphp php-cli artisan config:cache
+            frankenphp php-cli artisan route:cache
+            frankenphp php-cli artisan view:cache
+            frankenphp php-cli artisan event:cache
+
+            echo ">>> Deploy complete"
+
+      - name: Health check argos01
+        run: |
+          sleep 5
+          STATUS=$(curl -sf -o /dev/null -w '%{http_code}' https://unblock.castris.com/admin/login || true)
+          if [ "$STATUS" != "200" ]; then
+            echo "Health check failed: HTTP $STATUS"
+            exit 1
+          fi
+          echo "Health check passed: HTTP $STATUS"
+
+  deploy-argos02:
+    needs: build-assets
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: production-argos02
+
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v8
+        with:
+          name: vite-build
+          path: build-artifacts/
+
+      - name: Upload assets to argos02
+        uses: appleboy/scp-action@v1.0.0
+        with:
+          host: ${{ secrets.ARGOS02_HOST }}
+          username: franken
+          key: ${{ secrets.DEPLOY_SSH_KEY_ARGOS }}
+          port: ${{ secrets.ARGOS02_PORT }}
+          source: "build-artifacts/*"
+          target: "/home/franken/web/unblock.castris.com/public/build/"
+          strip_components: 1
+
+      - name: Deploy to argos02 (standby)
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.ARGOS02_HOST }}
+          username: franken
+          key: ${{ secrets.DEPLOY_SSH_KEY_ARGOS }}
+          port: ${{ secrets.ARGOS02_PORT }}
+          script: |
+            cd /home/franken/web/unblock.castris.com
+
+            echo ">>> Git pull"
+            git pull origin main
+
+            echo ">>> Validate lock file"
+            composer validate --check-lock --no-interaction || {
+              echo "FATAL: composer.lock is out of sync with composer.json"
+              echo "The lock file was not updated in the last commit."
+              echo "Fix: run 'composer update' locally and commit composer.lock"
+              exit 1
+            }
+
+            echo ">>> Clear stale caches before install"
+            rm -f bootstrap/cache/{config,packages,services,events}.php
+            rm -f bootstrap/cache/routes-v*.php
+
+            echo ">>> Composer install"
+            composer install --no-dev --no-interaction --optimize-autoloader --no-scripts
+            frankenphp php-cli artisan package:discover --ansi
+
+            echo ">>> Run migrations"
+            frankenphp php-cli artisan migrate --force
+
+            echo ">>> Publish Filament assets"
+            frankenphp php-cli artisan filament:assets
+
+            echo ">>> Rebuild caches"
+            frankenphp php-cli artisan config:cache
+            frankenphp php-cli artisan route:cache
+            frankenphp php-cli artisan view:cache
+            frankenphp php-cli artisan event:cache
+
+            echo ">>> Deploy complete"

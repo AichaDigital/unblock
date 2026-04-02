@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use Database\Factories\UserHostingPermissionFactory;
+use Illuminate\Database\Eloquent\{Builder, Model};
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class UserHostingPermission extends Model
 {
+    /** @use HasFactory<UserHostingPermissionFactory> */
     use HasFactory;
 
     /**
@@ -31,7 +33,7 @@ class UserHostingPermission extends Model
     ];
 
     /**
-     * Get the user that owns the permission.
+     * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
     {
@@ -39,7 +41,7 @@ class UserHostingPermission extends Model
     }
 
     /**
-     * Get the hosting that the permission applies to.
+     * @return BelongsTo<Hosting, $this>
      */
     public function hosting(): BelongsTo
     {
@@ -55,7 +57,8 @@ class UserHostingPermission extends Model
     }
 
     /**
-     * Scope to get only active permissions.
+     * @param  Builder<static>  $query
+     * @return Builder<static>
      */
     public function scopeActive($query)
     {
@@ -63,7 +66,8 @@ class UserHostingPermission extends Model
     }
 
     /**
-     * Scope to get permissions for a specific user.
+     * @param  Builder<static>  $query
+     * @return Builder<static>
      */
     public function scopeForUser($query, int $userId)
     {
@@ -71,7 +75,8 @@ class UserHostingPermission extends Model
     }
 
     /**
-     * Scope to get permissions for a specific hosting.
+     * @param  Builder<static>  $query
+     * @return Builder<static>
      */
     public function scopeForHosting($query, int $hostingId)
     {

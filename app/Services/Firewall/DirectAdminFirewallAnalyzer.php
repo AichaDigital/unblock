@@ -47,6 +47,11 @@ readonly class DirectAdminFirewallAnalyzer implements FirewallAnalyzerInterface
             'patterns' => ['Custom WAF Rules:', 'Rule:', 'IP:', 'URI:'],
             'log_key' => 'mod_security',
         ],
+        'lfd_history' => [
+            'name' => 'LFD History',
+            'patterns' => [],
+            'log_key' => 'lfd_history',
+        ],
     ];
 
     /**
@@ -60,6 +65,7 @@ readonly class DirectAdminFirewallAnalyzer implements FirewallAnalyzerInterface
         'dovecot_directadmin' => true,
         'mod_security_da' => true,
         'da_bfm_check' => true,
+        'lfd_history' => true,
     ];
 
     /**
@@ -90,7 +96,7 @@ readonly class DirectAdminFirewallAnalyzer implements FirewallAnalyzerInterface
     public function analyze(string $ipAddress, mixed $session): FirewallAnalysisResult
     {
         // Extraer SSH key path del session (compatible con ambas implementaciones)
-        $sshKeyName = method_exists($session, 'getSshKeyPath')
+        $sshKeyName = (is_object($session) && method_exists($session, 'getSshKeyPath'))
             ? $session->getSshKeyPath()
             : (string) $session; // fallback para compatibilidad
 
@@ -104,17 +110,21 @@ readonly class DirectAdminFirewallAnalyzer implements FirewallAnalyzerInterface
             // STEP 1: Check primary CSF command (csf -g IP)
             if ($this->serviceChecks['csf']) {
                 $csfOutput = $this->firewallService->checkProblems($this->host, $sshKeyName, 'csf', $ipAddress);
-                $logs['csf'] = $csfOutput;
-                $csfResult = $this->analyzeServiceOutput('csf', $csfOutput);
-                $results[] = $csfResult;
+                if (! $this->isSshError($csfOutput)) {
+                    $logs['csf'] = $csfOutput;
+                    $csfResult = $this->analyzeServiceOutput('csf', $csfOutput);
+                    $results[] = $csfResult;
 
-                if ($csfResult->isBlocked()) {
-                    $wasBlocked = true;
-                    $blockSources[] = 'csf_primary';
-                    Log::debug("IP {$ipAddress} blocked in CSF (primary check)", [
-                        'host' => $this->host->fqdn,
-                        'output_sample' => substr($csfOutput, 0, 200).'...',
-                    ]);
+                    if ($csfResult->isBlocked()) {
+                        $wasBlocked = true;
+                        $blockSources[] = 'csf_primary';
+                        Log::debug("IP {$ipAddress} blocked in CSF (primary check)", [
+                            'host' => $this->host->fqdn,
+                            'output_sample' => substr($csfOutput, 0, 200).'...',
+                        ]);
+                    }
+                } else {
+                    $logs['ssh_errors'][] = $csfOutput;
                 }
             }
 
@@ -123,7 +133,9 @@ readonly class DirectAdminFirewallAnalyzer implements FirewallAnalyzerInterface
                 // Check csf.deny file (permanent blocks)
                 if ($this->serviceChecks['csf_deny_check'] ?? false) {
                     $csfDenyOutput = $this->firewallService->checkProblems($this->host, $sshKeyName, 'csf_deny_check', $ipAddress);
-                    if (! empty(trim($csfDenyOutput))) {
+                    if ($this->isSshError($csfDenyOutput)) {
+                        $logs['ssh_errors'][] = $csfDenyOutput;
+                    } elseif (! empty(trim($csfDenyOutput))) {
                         $logs['csf_deny'] = $csfDenyOutput;
                         $csfDenyResult = $this->analyzeCsfDenyOutput($csfDenyOutput);
                         $results[] = $csfDenyResult;
@@ -141,7 +153,9 @@ readonly class DirectAdminFirewallAnalyzer implements FirewallAnalyzerInterface
                 // Check csf.tempip file (temporary blocks)
                 if (! $wasBlocked && ($this->serviceChecks['csf_tempip_check'] ?? false)) {
                     $csfTempOutput = $this->firewallService->checkProblems($this->host, $sshKeyName, 'csf_tempip_check', $ipAddress);
-                    if (! empty(trim($csfTempOutput))) {
+                    if ($this->isSshError($csfTempOutput)) {
+                        $logs['ssh_errors'][] = $csfTempOutput;
+                    } elseif (! empty(trim($csfTempOutput))) {
                         $logs['csf_tempip'] = $csfTempOutput;
                         $csfTempResult = $this->analyzeCsfTempOutput($csfTempOutput);
                         $results[] = $csfTempResult;
@@ -175,15 +189,21 @@ readonly class DirectAdminFirewallAnalyzer implements FirewallAnalyzerInterface
                 }
             }
 
-            // STEP 4: Check service logs ONLY if blocked in CSF or BFM
-            // STEP 5: Check additional services for CONTEXT ONLY (not for blocking determination)
+            // STEP 4: Check service logs for CONTEXT (not for blocking determination)
             foreach (self::SERVICES as $service => $config) {
-                if ($service === 'csf') {
-                    continue; // Already checked
+                if (in_array($service, ['csf', 'lfd_history'])) {
+                    continue; // CSF already checked, LFD handled separately
                 }
 
                 if ($this->serviceChecks[$service] ?? false) {
                     $output = $this->firewallService->checkProblems($this->host, $sshKeyName, $service, $ipAddress);
+
+                    if ($this->isSshError($output)) {
+                        $logs['ssh_errors'][] = $output;
+
+                        continue;
+                    }
+
                     $logs[$config['log_key']] = $output;
 
                     // CRITICAL FIX: Service logs provide CONTEXT only, not blocking status
@@ -206,9 +226,16 @@ readonly class DirectAdminFirewallAnalyzer implements FirewallAnalyzerInterface
                 }
             }
 
-            // REMOVED: Auto-unblock logic (STEP 6)
-            // The analyzer should ONLY analyze and report, NOT make unblock decisions
-            // Unblocking must be done by the caller based on complete validation (domain + IP + logs)
+            // STEP 5: Check LFD history (CONTEXT ONLY - never indicates blocking)
+            if ($this->serviceChecks['lfd_history'] ?? false) {
+                $lfdOutput = $this->firewallService->checkProblems($this->host, $sshKeyName, 'lfd_history', $ipAddress);
+                if (! $this->isSshError($lfdOutput)) {
+                    $logs['lfd_history'] = $lfdOutput;
+                } else {
+                    $logs['ssh_errors'][] = $lfdOutput;
+                }
+                $results[] = new FirewallAnalysisResult(false, ['lfd_history' => $logs['lfd_history'] ?? '']);
+            }
 
             // Log resultado final para debug
             Log::debug("Firewall analysis completed for {$ipAddress}", [
@@ -216,6 +243,7 @@ readonly class DirectAdminFirewallAnalyzer implements FirewallAnalyzerInterface
                 'was_blocked' => $wasBlocked,
                 'block_sources' => $blockSources,
                 'service_checks' => $this->serviceChecks,
+                'ssh_errors_count' => count($logs['ssh_errors'] ?? []),
             ]);
 
             // GARANTIZAR ESTRUCTURA JSON COMPLETA - SIEMPRE incluir todas las claves
@@ -227,7 +255,12 @@ readonly class DirectAdminFirewallAnalyzer implements FirewallAnalyzerInterface
                 'exim' => $logs['exim'] ?? '',
                 'dovecot' => $logs['dovecot'] ?? '',
                 'mod_security' => $logs['mod_security'] ?? '',
+                'lfd_history' => $logs['lfd_history'] ?? '',
             ];
+
+            if (! empty($logs['ssh_errors'])) {
+                $completeLogsStructure['ssh_errors'] = $logs['ssh_errors'];
+            }
 
             // Combinar todos los resultados con estructura completa garantizada
             $finalResult = FirewallAnalysisResult::combine(...$results);
@@ -406,6 +439,14 @@ readonly class DirectAdminFirewallAnalyzer implements FirewallAnalyzerInterface
         }
 
         return implode("\n", $validLines);
+    }
+
+    /**
+     * Check if output is an SSH error sentinel
+     */
+    private function isSshError(string $output): bool
+    {
+        return str_starts_with($output, '[SSH_ERROR:');
     }
 
     /**

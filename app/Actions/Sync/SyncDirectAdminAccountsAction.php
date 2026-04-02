@@ -6,7 +6,7 @@ namespace App\Actions\Sync;
 
 use App\Enums\PanelType;
 use App\Models\{Account, Domain, Host};
-use App\Services\SshConnectionManager;
+use App\Services\{SshConnectionManager, SshSession};
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -36,7 +36,7 @@ class SyncDirectAdminAccountsAction
      *
      * @param  Host  $host  The DirectAdmin server to sync from
      * @param  bool  $isInitial  Whether this is the first sync (doesn't mark deleted accounts)
-     * @return array Statistics: ['created' => int, 'updated' => int, 'suspended' => int, 'deleted' => int]
+     * @return array{created: int, updated: int, suspended: int, deleted: int}
      *
      * @throws Exception If SSH connection fails or command execution fails
      */
@@ -105,6 +105,8 @@ class SyncDirectAdminAccountsAction
 
     /**
      * Fetch accounts from DirectAdmin server via SSH
+     *
+     * @return array<int, array<string, mixed>>
      */
     private function fetchRemoteAccounts(Host $host): array
     {
@@ -138,8 +140,10 @@ class SyncDirectAdminAccountsAction
 
     /**
      * Fetch data for a single account from DirectAdmin
+     *
+     * @return array<string, mixed>|null
      */
-    private function fetchAccountData($session, string $username): ?array
+    private function fetchAccountData(SshSession $session, string $username): ?array
     {
         try {
             $userPath = self::DA_USERS_PATH."/{$username}";
@@ -187,6 +191,8 @@ class SyncDirectAdminAccountsAction
 
     /**
      * Parse DirectAdmin user.conf file (key=value format)
+     *
+     * @return array<string, string>
      */
     private function parseUserConf(string $content): array
     {
@@ -208,6 +214,8 @@ class SyncDirectAdminAccountsAction
 
     /**
      * Mark accounts as deleted if they no longer exist on the server
+     *
+     * @param  array<int, array<string, mixed>>  $remoteAccounts
      */
     private function markDeletedAccounts(Host $host, array $remoteAccounts): int
     {
@@ -223,6 +231,9 @@ class SyncDirectAdminAccountsAction
 
     /**
      * Process accounts and create/update them in database
+     *
+     * @param  array<int, array<string, mixed>>  $accounts
+     * @return array{created: int, updated: int, suspended: int}
      */
     private function processAccounts(Host $host, array $accounts): array
     {
@@ -244,6 +255,9 @@ class SyncDirectAdminAccountsAction
 
     /**
      * Process a single account
+     *
+     * @param  array<string, mixed>  $accountData
+     * @return array{created: int, updated: int, suspended: int}
      */
     private function processAccount(Host $host, array $accountData): array
     {

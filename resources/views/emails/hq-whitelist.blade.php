@@ -32,7 +32,7 @@
         </tr>
         <tr>
             <td style="padding: 12px; border: 1px solid #e5e7eb; background-color: #f3f4f6; font-weight: 600; font-size: 14px; color: #374151;">{{ __('messages.hq_whitelist.server_panel') }}</td>
-            <td style="padding: 12px; border: 1px solid #e5e7eb; font-size: 14px; color: #1f2937;">{{ strtoupper($hqHostPanel) }}</td>
+            <td style="padding: 12px; border: 1px solid #e5e7eb; font-size: 14px; color: #1f2937;">{{ strtoupper($hqHostPanel instanceof \BackedEnum ? $hqHostPanel->value : (string) $hqHostPanel) }}</td>
         </tr>
         <tr>
             <td style="padding: 12px; border: 1px solid #e5e7eb; background-color: #f3f4f6; font-weight: 600; font-size: 14px; color: #374151;">{{ __('messages.hq_whitelist.blocked_ip') }}</td>

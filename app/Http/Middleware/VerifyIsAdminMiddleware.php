@@ -15,6 +15,11 @@ class VerifyIsAdminMiddleware
         }
 
         $user = Auth::user();
+
+        if (! $user) {
+            return redirect()->route('login');
+        }
+
         if (! $user->is_admin || $user->trashed()) {
             return redirect()->route('dashboard');
         }

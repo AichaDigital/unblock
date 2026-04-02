@@ -74,3 +74,55 @@ test('da_bfm_whitelist_add command appends IP to whitelist', function () {
         ->toContain('echo')
         ->toContain('/usr/local/directadmin/data/admin/ip_whitelist');
 });
+
+test('exim_directadmin command includes || true suffix', function () {
+    $service = new FirewallService;
+    $commands = $service->getAvailableCommands();
+
+    expect($commands['exim_directadmin'])->toEndWith('|| true');
+});
+
+test('dovecot_directadmin command includes || true suffix', function () {
+    $service = new FirewallService;
+    $commands = $service->getAvailableCommands();
+
+    expect($commands['dovecot_directadmin'])->toEndWith('|| true');
+});
+
+test('lfd_history command exists and includes || true suffix', function () {
+    $service = new FirewallService;
+    $commands = $service->getAvailableCommands();
+
+    expect($commands)->toHaveKey('lfd_history')
+        ->and($commands['lfd_history'])->toEndWith('|| true')
+        ->and($commands['lfd_history'])->toContain('lfd.log');
+});
+
+test('lfd_history command searches both lfd.log and lfd.log.1', function () {
+    $service = new FirewallService;
+    $commands = $service->getAvailableCommands();
+
+    expect($commands['lfd_history'])->toContain('lfd.log')
+        ->and($commands['lfd_history'])->toContain('lfd.log.1');
+});
+
+test('all grep-based commands have || true to prevent exit code 1 on no matches', function () {
+    $service = new FirewallService;
+    $commands = $service->getAvailableCommands();
+
+    $grepCommands = [
+        'csf_deny_check',
+        'csf_tempip_check',
+        'mod_security_da',
+        'exim_cpanel',
+        'dovecot_cpanel',
+        'exim_directadmin',
+        'dovecot_directadmin',
+        'lfd_history',
+        'da_bfm_check',
+    ];
+
+    foreach ($grepCommands as $cmd) {
+        expect($commands[$cmd])->toEndWith('|| true', "Command '{$cmd}' should end with '|| true'");
+    }
+});

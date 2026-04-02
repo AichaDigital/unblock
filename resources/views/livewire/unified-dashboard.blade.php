@@ -404,6 +404,14 @@ class extends Component {
         } catch (\Exception $e) {
             $this->isProcessing = false;
             $this->errorMessage = __('firewall.errors.process_error');
+
+            \Illuminate\Support\Facades\Log::error('Firewall check submitForm failed', [
+                'error' => $e->getMessage(),
+                'exception_class' => get_class($e),
+                'ip' => $validatedData['ipAddress'] ?? null,
+                'host_id' => $targetHost?->id ?? null,
+            ]);
+
             $this->dispatch('notify', [
                 'type' => 'error',
                 'title' => __('firewall.notifications.error_title'),

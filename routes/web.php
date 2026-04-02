@@ -2,7 +2,7 @@
 
 use App\Http\Controllers\ReportController;
 use App\Livewire\{AdminOtpVerification, SimpleUnblockForm};
-use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\{DB, Route};
 
 // Ruta principal '/' - Sistema OTP Login usando componente Livewire
 Route::livewire('/', 'otp-login')
@@ -26,3 +26,14 @@ Route::get('/simple-unblock', SimpleUnblockForm::class)
 Route::get('/admin/otp/verify', AdminOtpVerification::class)
     ->middleware(['web', 'auth'])
     ->name('admin.otp.verify');
+
+// Health check for HA failover monitoring (ADR-001)
+Route::get('/health', function () {
+    try {
+        DB::select('SELECT 1');
+
+        return response()->json(['status' => 'ok'], 200);
+    } catch (Exception $e) {
+        return response()->json(['status' => 'error'], 503);
+    }
+})->name('health');

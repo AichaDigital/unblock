@@ -5,7 +5,7 @@ return [
     'admin_email' => env('ADMIN_EMAIL'),
     'send_admin_report_email' => env('SEND_ADMIN_REPORT_EMAIL', true),
     'attempts' => env('ATTEMPTS', 10),
-    'report_expiration' => env('REPORT_EXPIRATION', 604800), // 10 days
+    'report_expiration' => env('REPORT_EXPIRATION', 604800), // 7 days
     'cron_active' => env('CRON_ACTIVE', false),
 
     // Notification settings

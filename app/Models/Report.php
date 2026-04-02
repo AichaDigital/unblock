@@ -17,8 +17,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int|null $user_id
  * @property int $host_id
  * @property string $ip
- * @property array|null $logs
- * @property array|null $analysis
+ * @property array<string, mixed>|null $logs
+ * @property array<string, mixed>|null $analysis
  * @property bool $was_unblocked
  * @property Carbon|null $last_read
  * @property Carbon $created_at
@@ -29,10 +29,21 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[ObservedBy([ReportObserver::class])]
 class Report extends Model
 {
+    /** @use HasFactory<ReportFactory> */
     use HasFactory, HasUuids;
 
-    protected $guarded = ['created_at', 'updated_at'];
+    /** @var list<string> */
+    protected $fillable = [
+        'user_id',
+        'host_id',
+        'ip',
+        'logs',
+        'analysis',
+        'was_unblocked',
+        'last_read',
+    ];
 
+    /** @var array<string, string> */
     protected $casts = [
         'logs' => 'array',
         'analysis' => 'array',
@@ -42,11 +53,13 @@ class Report extends Model
         'updated_at' => 'datetime',
     ];
 
+    /** @return BelongsTo<User, $this> */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /** @return BelongsTo<Host, $this> */
     public function host(): BelongsTo
     {
         return $this->belongsTo(Host::class);

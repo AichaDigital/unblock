@@ -304,6 +304,12 @@ return [
         'web_report' => 'Informe Web Completo',
         'web_report_available' => 'Puede ver el informe completo en línea:',
         'web_report_link' => 'Ver informe completo',
+        'context_logs_title' => 'Actividad Detectada',
+        'context_logs_description' => 'Aunque la IP no está bloqueada actualmente, se ha detectado actividad reciente que podría estar relacionada con el problema:',
+        'recent_history_title' => 'Bloqueos Recientes',
+        'recent_history_message' => 'Esta IP fue bloqueada :count veces en los últimos :days días en este servidor. Es posible que la consulta se haya realizado entre bloqueos temporales.',
+        'ssh_errors_title' => 'Verificación Incompleta',
+        'ssh_errors_description' => 'Algunos servicios no pudieron verificarse. El resultado podría no ser completo.',
     ],
 
     // Log Descriptions
@@ -352,6 +358,10 @@ return [
             'dovecot_directadmin' => [
                 'title' => 'Logs de Dovecot (DirectAdmin)',
                 'description' => 'Servidor de correo entrante - Logs de autenticación e intentos fallidos',
+            ],
+            'lfd_history' => [
+                'title' => 'Historial de Bloqueos (LFD)',
+                'description' => 'Registro de bloqueos y desbloqueos recientes del sistema de detección de intrusiones',
             ],
         ],
     ],

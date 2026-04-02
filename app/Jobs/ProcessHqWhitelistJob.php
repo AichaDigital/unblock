@@ -104,25 +104,25 @@ class ProcessHqWhitelistJob implements ShouldQueue
 
         $hqHostId = config('unblock.hq.host_id');
         if ($hqHostId) {
-            $host = Host::find($hqHostId);
-            if ($host) {
-                return $host;
+            $found = Host::query()->find($hqHostId);
+            if ($found instanceof Host) {
+                return $found;
             }
         }
 
         $hqFqdn = config('unblock.hq.fqdn');
-        if ($hqFqdn) {
-            $host = Host::where('fqdn', $hqFqdn)->first();
+        if (is_string($hqFqdn)) {
+            return Host::where('fqdn', $hqFqdn)->first();
         }
 
         return $host;
     }
 
-    private function checkModSecurityOnHq(FirewallService $firewallService, Host $host, string $keyPath, string $ip): bool|string
+    private function checkModSecurityOnHq(FirewallService $firewallService, Host $host, string $keyPath, string $ip): string|false
     {
         $modsec = $firewallService->checkProblems($host, $keyPath, 'mod_security_da', $ip);
 
-        return $modsec ?: false;
+        return $modsec !== '' ? $modsec : false;
     }
 
     private function notifyAdmin(Host $hqHost, string $modsecLogs): void
