@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Observers\ReportObserver;
 use Carbon\Carbon;
+use Database\Factories\ReportFactory;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
