@@ -32,7 +32,6 @@ class User extends Authenticatable implements FilamentUser
         'email',
         'preferred_locale',
         'password',
-        'password_whmcs',
         'is_admin',
         'is_simple_mode_user',
         'parent_user_id',
@@ -46,7 +45,6 @@ class User extends Authenticatable implements FilamentUser
      */
     protected $hidden = [
         'password',
-        'password_whmcs',
         'remember_token',
     ];
 
