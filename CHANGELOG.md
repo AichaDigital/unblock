@@ -7,6 +7,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.7.0] - 2026-04-08
+
+### Changed
+
+- **Laravel 13 + Livewire 4 + Filament 5** full stack upgrade
+- Volt SFCs converted to native Livewire 4 components (Volt absorbed into LW4)
+- `VoltServiceProvider` removed (no longer needed)
+- `Volt::route()` migrated to `Route::livewire()` in web.php
+- `Volt::test()` migrated to `Livewire::test()` across 36 test calls
+- Dashboard layout restored to `components.layouts.app` (language-switcher)
+
+### Added
+
+- Implementation plan and design spec for L13 + LW4 + F5 upgrade
+
+### Removed
+
+- `livewire/volt` package (absorbed into Livewire 4)
+- `filament/upgrade` tool (upgrade complete)
+- `laravel/breeze` (conflicting auth scaffolding)
+- `danharrin/livewire-rate-limiting` (LW3 only, unused)
+- `valentin-morice/filament-json-column` (F4 only, unused)
+
+### Dependencies
+
+- axios 1.13.6 → 1.14.0
+- tailwindcss 4.2.1 → 4.2.2, @tailwindcss/vite 4.2.1 → 4.2.2
+- vite and laravel-vite-plugin bumped
+- CI: pnpm/action-setup 4 → 5, actions/download-artifact 4 → 8, actions/upload-artifact 4 → 7, appleboy/scp-action 0.1.7 → 1.0.0
+- `spatie/laravel-activitylog` pinned to ^4.0 (v5 drops LogsActivity trait)
+
 ## [1.6.0] - 2026-03-21
 
 ### Changed
@@ -201,7 +232,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bilingual interface EN/ES
 - 257 tests, 94% coverage
 
-[Unreleased]: https://github.com/AichaDigital/unblock/compare/v1.6.0...HEAD
+[Unreleased]: https://github.com/AichaDigital/unblock/compare/v1.7.0...HEAD
+[1.7.0]: https://github.com/AichaDigital/unblock/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/AichaDigital/unblock/compare/v1.5.0...v1.6.0
 [1.5.0]: https://github.com/AichaDigital/unblock/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/AichaDigital/unblock/compare/v1.3.1...v1.4.0
