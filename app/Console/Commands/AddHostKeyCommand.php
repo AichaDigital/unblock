@@ -74,6 +74,11 @@ class AddHostKeyCommand extends Command
             FILE_APPEND
         );
 
+        $host->update([
+            'ssh_host_key_verified' => true,
+            'ssh_host_key_verified_at' => now(),
+        ]);
+
         $this->info("Host key added to known_hosts for {$host->fqdn}.");
     }
 

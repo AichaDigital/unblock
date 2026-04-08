@@ -48,11 +48,17 @@ class FirewallService
         }
 
         try {
-            // SIMPLE SPATIE SSH - NO COMPLICATIONS
             $ssh = Ssh::create('root', $host->fqdn, $host->port_ssh ?? 22)
                 ->usePrivateKey($keyPath)
-                ->disableStrictHostKeyChecking()
                 ->setTimeout(30);
+
+            if (! $host->isHostKeyVerified()) {
+                Log::warning('SSH host key not verified, using insecure connection', [
+                    'host_id' => $host->id,
+                    'host_fqdn' => $host->fqdn,
+                ]);
+                $ssh->disableStrictHostKeyChecking();
+            }
 
             $process = $ssh->execute($cmd);
 

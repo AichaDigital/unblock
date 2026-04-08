@@ -32,6 +32,8 @@ class Host extends Model
         'admin',
         'whmcs_server_id',
         'hosting_manual',
+        'ssh_host_key_verified',
+        'ssh_host_key_verified_at',
     ];
 
     /**
@@ -42,6 +44,8 @@ class Host extends Model
     protected $casts = [
         'panel' => PanelType::class,
         'hosting_manual' => 'boolean',
+        'ssh_host_key_verified' => 'boolean',
+        'ssh_host_key_verified_at' => 'datetime',
         'port_ssh' => 'integer',
         'whmcs_server_id' => 'integer',
     ];
@@ -110,6 +114,11 @@ class Host extends Model
 
             return '';
         }
+    }
+
+    public function isHostKeyVerified(): bool
+    {
+        return (bool) $this->ssh_host_key_verified;
     }
 
     /**
