@@ -54,22 +54,22 @@ jobs:
         uses: appleboy/scp-action@v1.0.0
         with:
           host: ${{ secrets.ARGOS01_HOST }}
-          username: franken
+          username: ${{ vars.DEPLOY_USER_ARGOS }}
           key: ${{ secrets.DEPLOY_SSH_KEY_ARGOS }}
           port: ${{ secrets.ARGOS01_PORT }}
           source: "build-artifacts/*"
-          target: "/home/franken/web/unblock.castris.com/public/build/"
+          target: "${{ vars.DEPLOY_PATH_ARGOS }}/public/build/"
           strip_components: 1
 
       - name: Deploy to argos01 (primary)
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.ARGOS01_HOST }}
-          username: franken
+          username: ${{ vars.DEPLOY_USER_ARGOS }}
           key: ${{ secrets.DEPLOY_SSH_KEY_ARGOS }}
           port: ${{ secrets.ARGOS01_PORT }}
           script: |
-            cd /home/franken/web/unblock.castris.com
+            cd ${{ vars.DEPLOY_PATH_ARGOS }}
 
             echo ">>> Git pull"
             git pull origin main
@@ -131,22 +131,22 @@ jobs:
         uses: appleboy/scp-action@v1.0.0
         with:
           host: ${{ secrets.ARGOS02_HOST }}
-          username: franken
+          username: ${{ vars.DEPLOY_USER_ARGOS }}
           key: ${{ secrets.DEPLOY_SSH_KEY_ARGOS }}
           port: ${{ secrets.ARGOS02_PORT }}
           source: "build-artifacts/*"
-          target: "/home/franken/web/unblock.castris.com/public/build/"
+          target: "${{ vars.DEPLOY_PATH_ARGOS }}/public/build/"
           strip_components: 1
 
       - name: Deploy to argos02 (standby)
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.ARGOS02_HOST }}
-          username: franken
+          username: ${{ vars.DEPLOY_USER_ARGOS }}
           key: ${{ secrets.DEPLOY_SSH_KEY_ARGOS }}
           port: ${{ secrets.ARGOS02_PORT }}
           script: |
-            cd /home/franken/web/unblock.castris.com
+            cd ${{ vars.DEPLOY_PATH_ARGOS }}
 
             echo ">>> Git pull"
             git pull origin main
