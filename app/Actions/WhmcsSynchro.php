@@ -331,7 +331,6 @@ class WhmcsSynchro
             'last_name' => $whmcsClient->lastname,
             'company_name' => $whmcsClient->companyname,
             'email' => $whmcsClient->email,
-            'password_whmcs' => $whmcsClient->password,
             'password' => bcrypt(Str::random(32)),
             'whmcs_client_id' => $whmcsClient->id,
         ]);

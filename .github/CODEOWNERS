@@ -1,0 +1,2 @@
+# Protect CI/CD workflows - require review for changes
+/.github/workflows/ @abkrim

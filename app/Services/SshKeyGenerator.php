@@ -30,9 +30,8 @@ class SshKeyGenerator
 
         // Generate SSH keys using ed25519 format
         $command = sprintf(
-            'ssh-keygen -t ed25519 -a 100 -C "%s@%s" -f %s -N ""',
-            $whoami,
-            $hostname,
+            'ssh-keygen -t ed25519 -a 100 -C %s -f %s -N ""',
+            escapeshellarg("{$whoami}@{$hostname}"),
             escapeshellarg($keyPath)
         );
 
@@ -101,9 +100,8 @@ class SshKeyGenerator
 
         // Generate SSH keys using ed25519 format
         $command = sprintf(
-            'ssh-keygen -t ed25519 -a 100 -C "%s@%s" -f %s -N ""',
-            $whoami,
-            $hostname,
+            'ssh-keygen -t ed25519 -a 100 -C %s -f %s -N ""',
+            escapeshellarg("{$whoami}@{$hostname}"),
             escapeshellarg($keyPath)
         );
 

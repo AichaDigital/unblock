@@ -62,7 +62,6 @@ test('creates user from whmcs data', function () {
         ->and($user->last_name)->toBe('Doe')
         ->and($user->company_name)->toBe('Test Inc')
         ->and($user->email)->toBe('john@example.com')
-        ->and($user->password_whmcs)->toBe('hashed_password')
         ->and($user->whmcs_client_id)->toBe(1);
 });
 

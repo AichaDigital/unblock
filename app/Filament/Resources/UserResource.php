@@ -56,9 +56,6 @@ class UserResource extends Resource
                                     ->dehydrateStateUsing(fn (string $state): string => bcrypt($state))
                                     ->dehydrated(fn (?string $state): bool => filled($state))
                                     ->required(fn (string $operation): bool => $operation === 'create'),
-                                TextInput::make('password_whmcs')
-                                    ->password()
-                                    ->label('Contraseña WHMCS'),
                             ]),
                     ]),
 

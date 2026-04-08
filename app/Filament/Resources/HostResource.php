@@ -137,6 +137,10 @@ class HostResource extends Resource
                     ->label(__('hosts.Manual'))
                     ->boolean()
                     ->toggleable(isToggledHiddenByDefault: true),
+                IconColumn::make('ssh_host_key_verified')
+                    ->label('SSH Key')
+                    ->boolean()
+                    ->toggleable(),
                 TextColumn::make('created_at')
                     ->label(__('hosts.Created'))
                     ->dateTime()
