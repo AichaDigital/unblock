@@ -15,15 +15,15 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: '22'
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v5
+        uses: pnpm/action-setup@a8198c4bff370c8506180b035930dea56dbd5288 # v5
 
       - name: Install and build
         run: |
@@ -31,7 +31,7 @@ jobs:
           pnpm run build
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
         with:
           name: vite-build
           path: public/build/
@@ -45,13 +45,13 @@ jobs:
 
     steps:
       - name: Download build artifacts
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           name: vite-build
           path: build-artifacts/
 
       - name: Upload assets to argos01
-        uses: appleboy/scp-action@v1.0.0
+        uses: appleboy/scp-action@ff85246acaad7bdce478db94a363cd2bf7c90345 # v1.0.0
         with:
           host: ${{ secrets.ARGOS01_HOST }}
           username: ${{ vars.DEPLOY_USER_ARGOS }}
@@ -62,7 +62,7 @@ jobs:
           strip_components: 1
 
       - name: Deploy to argos01 (primary)
-        uses: appleboy/ssh-action@v1
+        uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2 # v1
         with:
           host: ${{ secrets.ARGOS01_HOST }}
           username: ${{ vars.DEPLOY_USER_ARGOS }}
@@ -122,13 +122,13 @@ jobs:
 
     steps:
       - name: Download build artifacts
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           name: vite-build
           path: build-artifacts/
 
       - name: Upload assets to argos02
-        uses: appleboy/scp-action@v1.0.0
+        uses: appleboy/scp-action@ff85246acaad7bdce478db94a363cd2bf7c90345 # v1.0.0
         with:
           host: ${{ secrets.ARGOS02_HOST }}
           username: ${{ vars.DEPLOY_USER_ARGOS }}
@@ -139,7 +139,7 @@ jobs:
           strip_components: 1
 
       - name: Deploy to argos02 (standby)
-        uses: appleboy/ssh-action@v1
+        uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2 # v1
         with:
           host: ${{ secrets.ARGOS02_HOST }}
           username: ${{ vars.DEPLOY_USER_ARGOS }}
