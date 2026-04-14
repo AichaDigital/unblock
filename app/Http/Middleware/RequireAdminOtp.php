@@ -121,10 +121,19 @@ class RequireAdminOtp
 
             session()->flash('otp_sent', true);
         } catch (\Exception $e) {
-            Log::error('Failed to send admin OTP', [
+            $isSmtpError = str_contains($e->getMessage(), 'STARTTLS')
+                || str_contains($e->getMessage(), 'stream_socket')
+                || str_contains($e->getMessage(), 'Connection refused')
+                || str_contains($e->getMessage(), 'Connection timed out');
+
+            Log::log($isSmtpError ? 'critical' : 'error', 'Failed to send admin OTP', [
                 'user_id' => $user->id,
                 'error' => $e->getMessage(),
+                'error_type' => $isSmtpError ? 'smtp_connection' : 'generic',
             ]);
+
+            session()->flash('otp_send_failed', true);
+            session()->flash('otp_error_hint', $isSmtpError ? 'smtp_connection' : 'generic');
         }
 
         // Redirect to OTP verification page

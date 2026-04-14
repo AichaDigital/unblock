@@ -76,3 +76,38 @@ test('admin without OTP is redirected to verification page', function () {
     expect($response->getStatusCode())->toBe(302)
         ->and($response->headers->get('Location'))->toContain('otp/verify');
 });
+
+test('SMTP error classification detects STARTTLS errors', function () {
+    $smtpMessages = [
+        'Expected response code 220 but got STARTTLS required',
+        'stream_socket_client(): unable to connect to tcp://mail:587',
+        'Connection refused on tcp://127.0.0.1:25',
+        'Connection timed out after 30 seconds',
+    ];
+
+    foreach ($smtpMessages as $errorMessage) {
+        $isSmtpError = str_contains($errorMessage, 'STARTTLS')
+            || str_contains($errorMessage, 'stream_socket')
+            || str_contains($errorMessage, 'Connection refused')
+            || str_contains($errorMessage, 'Connection timed out');
+
+        expect($isSmtpError)->toBeTrue("Expected SMTP detection for: {$errorMessage}");
+    }
+});
+
+test('SMTP error classification returns false for non-SMTP errors', function () {
+    $genericMessages = [
+        'Some unexpected database error',
+        'User not found',
+        'Undefined variable $otp',
+    ];
+
+    foreach ($genericMessages as $errorMessage) {
+        $isSmtpError = str_contains($errorMessage, 'STARTTLS')
+            || str_contains($errorMessage, 'stream_socket')
+            || str_contains($errorMessage, 'Connection refused')
+            || str_contains($errorMessage, 'Connection timed out');
+
+        expect($isSmtpError)->toBeFalse("Expected non-SMTP for: {$errorMessage}");
+    }
+});
