@@ -70,39 +70,8 @@ jobs:
           port: ${{ secrets.ARGOS01_PORT }}
           script: |
             cd ${{ vars.DEPLOY_PATH_ARGOS }}
-
-            echo ">>> Git pull"
             git pull origin main
-
-            echo ">>> Validate lock file"
-            composer validate --check-lock --no-interaction || {
-              echo "FATAL: composer.lock is out of sync with composer.json"
-              echo "The lock file was not updated in the last commit."
-              echo "Fix: run 'composer update' locally and commit composer.lock"
-              exit 1
-            }
-
-            echo ">>> Clear stale caches before install"
-            rm -f bootstrap/cache/{config,packages,services,events}.php
-            rm -f bootstrap/cache/routes-v*.php
-
-            echo ">>> Composer install"
-            composer install --no-dev --no-interaction --optimize-autoloader --no-scripts
-            frankenphp php-cli artisan package:discover --ansi
-
-            echo ">>> Run migrations"
-            frankenphp php-cli artisan migrate --force
-
-            echo ">>> Publish Filament assets"
-            frankenphp php-cli artisan filament:assets
-
-            echo ">>> Rebuild caches"
-            frankenphp php-cli artisan config:cache
-            frankenphp php-cli artisan route:cache
-            frankenphp php-cli artisan view:cache
-            frankenphp php-cli artisan event:cache
-
-            echo ">>> Deploy complete"
+            bash deploy/deploy.sh "frankenphp php-cli" "."
 
       - name: Health check argos01
         run: |
@@ -147,36 +116,5 @@ jobs:
           port: ${{ secrets.ARGOS02_PORT }}
           script: |
             cd ${{ vars.DEPLOY_PATH_ARGOS }}
-
-            echo ">>> Git pull"
             git pull origin main
-
-            echo ">>> Validate lock file"
-            composer validate --check-lock --no-interaction || {
-              echo "FATAL: composer.lock is out of sync with composer.json"
-              echo "The lock file was not updated in the last commit."
-              echo "Fix: run 'composer update' locally and commit composer.lock"
-              exit 1
-            }
-
-            echo ">>> Clear stale caches before install"
-            rm -f bootstrap/cache/{config,packages,services,events}.php
-            rm -f bootstrap/cache/routes-v*.php
-
-            echo ">>> Composer install"
-            composer install --no-dev --no-interaction --optimize-autoloader --no-scripts
-            frankenphp php-cli artisan package:discover --ansi
-
-            echo ">>> Run migrations"
-            frankenphp php-cli artisan migrate --force
-
-            echo ">>> Publish Filament assets"
-            frankenphp php-cli artisan filament:assets
-
-            echo ">>> Rebuild caches"
-            frankenphp php-cli artisan config:cache
-            frankenphp php-cli artisan route:cache
-            frankenphp php-cli artisan view:cache
-            frankenphp php-cli artisan event:cache
-
-            echo ">>> Deploy complete"
+            bash deploy/deploy.sh "frankenphp php-cli" "."
