@@ -20,6 +20,8 @@ return [
     'verification_success' => 'Verification successful! Redirecting...',
     'verification_error' => 'Error verifying code. Please try again.',
     'resend_error' => 'Error resending code. Please try again.',
+    'send_failed_smtp' => 'Could not send the verification code. Mail server connection error. Please try again or contact the administrator.',
+    'send_failed_generic' => 'Could not send the verification code. Please try again later.',
 
     // Rate limiting
     'too_many_attempts' => 'Too many attempts. Please wait :seconds seconds.',

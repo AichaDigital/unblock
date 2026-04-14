@@ -20,6 +20,8 @@ return [
     'verification_success' => '¡Verificación exitosa! Redirigiendo...',
     'verification_error' => 'Error al verificar el código. Por favor, inténtalo de nuevo.',
     'resend_error' => 'Error al reenviar el código. Por favor, inténtalo de nuevo.',
+    'send_failed_smtp' => 'No se pudo enviar el código de verificación. Error de conexión con el servidor de correo. Inténtalo de nuevo o contacta al administrador.',
+    'send_failed_generic' => 'No se pudo enviar el código de verificación. Inténtalo más tarde.',
 
     // Rate limiting
     'too_many_attempts' => 'Demasiados intentos. Por favor, espera :seconds segundos.',
