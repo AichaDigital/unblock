@@ -29,6 +29,10 @@ class AdminOtpVerification extends Component
 
     public bool $canResend = false;
 
+    public bool $sendFailed = false;
+
+    public string $errorHint = '';
+
     /**
      * Component initialization
      */
@@ -54,6 +58,23 @@ class AdminOtpVerification extends Component
             session()->flush();
             Auth::logout();
             $this->redirect(route('filament.admin.auth.login'));
+
+            return;
+        }
+
+        // Check if OTP send failed
+        if (session()->has('otp_send_failed')) {
+            $this->sendFailed = true;
+            $this->errorHint = session()->get('otp_error_hint', 'generic');
+            $this->canResend = true;
+
+            $this->message = $this->errorHint === 'smtp_connection'
+                ? __('admin_otp.send_failed_smtp')
+                : __('admin_otp.send_failed_generic');
+            $this->messageType = 'error';
+
+            session()->forget('otp_send_failed');
+            session()->forget('otp_error_hint');
 
             return;
         }
@@ -197,6 +218,8 @@ class AdminOtpVerification extends Component
 
             session()->put('admin_otp_sent_at', now()->timestamp);
 
+            $this->sendFailed = false;
+            $this->errorHint = '';
             $this->message = __('admin_otp.otp_resent');
             $this->messageType = 'success';
             $this->canResend = false;
@@ -211,11 +234,21 @@ class AdminOtpVerification extends Component
             ]);
 
         } catch (\Exception $e) {
-            $this->message = __('admin_otp.resend_error');
+            $isSmtpError = str_contains($e->getMessage(), 'STARTTLS')
+                || str_contains($e->getMessage(), 'stream_socket')
+                || str_contains($e->getMessage(), 'Connection refused')
+                || str_contains($e->getMessage(), 'Connection timed out');
+
+            $this->sendFailed = true;
+            $this->errorHint = $isSmtpError ? 'smtp_connection' : 'generic';
+            $this->message = $isSmtpError
+                ? __('admin_otp.send_failed_smtp')
+                : __('admin_otp.send_failed_generic');
             $this->messageType = 'error';
 
-            Log::error('Admin OTP resend error', [
+            Log::log($isSmtpError ? 'critical' : 'error', 'Admin OTP resend error', [
                 'error' => $e->getMessage(),
+                'error_type' => $isSmtpError ? 'smtp_connection' : 'generic',
                 'ip' => request()->ip(),
             ]);
         }
