@@ -312,7 +312,7 @@ class UserAuthorizeCommand extends Command
             // If there's only one host, ask directly
             $host = $availableHosts->first();
             $shouldAssign = confirm(
-                "Assign access to server: {$host->fqdn} ({$host->ip}) - {$host->panel}?",
+                "Assign access to server: {$host->fqdn} ({$host->ip}) - {$host->panel->getLabel()}?",
                 true
             );
             $selectedHostIds = $shouldAssign ? [$host->id] : [];
@@ -320,7 +320,7 @@ class UserAuthorizeCommand extends Command
             $selectedHostIds = multiselect(
                 label: 'Select the servers to authorize:',
                 options: $availableHosts->mapWithKeys(fn ($host) => [
-                    (string) $host->id => "{$host->fqdn} ({$host->ip}) - {$host->panel}",
+                    (string) $host->id => "{$host->fqdn} ({$host->ip}) - {$host->panel->getLabel()}",
                 ])->toArray(),
                 required: false
             );
