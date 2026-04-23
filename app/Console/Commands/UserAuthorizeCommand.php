@@ -503,6 +503,22 @@ class UserAuthorizeCommand extends Command
         return 0;
     }
 
+    private function wouldCreateCircularReference(int $userId, int $parentUserId): bool
+    {
+        $visited = [$userId];
+        $current = $parentUserId;
+
+        while ($current !== null) {
+            if (in_array($current, $visited, true)) {
+                return true;
+            }
+            $visited[] = $current;
+            $current = User::where('id', $current)->value('parent_user_id');
+        }
+
+        return false;
+    }
+
     private function reassignUserToParent(): int
     {
         $this->info('🔄 Reassign User to Another Parent');
@@ -563,6 +579,7 @@ class UserAuthorizeCommand extends Command
         // Select new parent user (exclude current parent)
         $parentUsers = User::whereNull('parent_user_id')
             ->where('id', '!=', $currentParent->id)
+            ->where('id', '!=', $user->id)
             ->get();
 
         if ($parentUsers->isEmpty()) {
@@ -616,6 +633,13 @@ class UserAuthorizeCommand extends Command
             } else {
                 $this->warn('⚠️ Keeping existing permissions - ensure new parent owns the resources');
             }
+        }
+
+        // Validate no circular reference
+        if ($this->wouldCreateCircularReference($user->id, (int) $parentUserId)) {
+            $this->error('Circular reference detected: the selected parent is already a descendant of this user.');
+
+            return 1;
         }
 
         // Confirm reassignment

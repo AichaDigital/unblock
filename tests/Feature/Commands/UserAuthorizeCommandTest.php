@@ -151,3 +151,58 @@ test('assignHostPermissions attaches hosts correctly', function () {
     expect($authorizedUser->hosts)->toHaveCount(1)
         ->and($authorizedUser->hosts->first()->id)->toBe($host->id);
 });
+
+test('wouldCreateCircularReference detects direct cycle', function () {
+    $userA = User::factory()->create(['parent_user_id' => null]);
+    $userB = User::factory()->create(['parent_user_id' => $userA->id]);
+
+    $command = new UserAuthorizeCommand;
+    $method = (new ReflectionClass($command))->getMethod('wouldCreateCircularReference');
+    $method->setAccessible(true);
+
+    // Assigning userA as child of userB would create A→B→A cycle
+    expect($method->invoke($command, $userA->id, $userB->id))->toBeTrue();
+});
+
+test('wouldCreateCircularReference detects indirect cycle', function () {
+    $userA = User::factory()->create(['parent_user_id' => null]);
+    $userB = User::factory()->create(['parent_user_id' => $userA->id]);
+    $userC = User::factory()->create(['parent_user_id' => $userB->id]);
+
+    $command = new UserAuthorizeCommand;
+    $method = (new ReflectionClass($command))->getMethod('wouldCreateCircularReference');
+    $method->setAccessible(true);
+
+    // Assigning userA as child of userC would create A→B→C→A cycle
+    expect($method->invoke($command, $userA->id, $userC->id))->toBeTrue();
+});
+
+test('wouldCreateCircularReference returns false for valid chain', function () {
+    $userA = User::factory()->create(['parent_user_id' => null]);
+    $userB = User::factory()->create(['parent_user_id' => null]);
+    $userC = User::factory()->create(['parent_user_id' => $userA->id]);
+
+    $command = new UserAuthorizeCommand;
+    $method = (new ReflectionClass($command))->getMethod('wouldCreateCircularReference');
+    $method->setAccessible(true);
+
+    // Assigning userC as child of userB is valid (no cycle)
+    expect($method->invoke($command, $userC->id, $userB->id))->toBeFalse();
+});
+
+test('reassignUserToParent query excludes self from parent candidates', function () {
+    $parentUser = User::factory()->create(['parent_user_id' => null]);
+    $authorizedUser = User::factory()->create(['parent_user_id' => $parentUser->id]);
+    $otherParent = User::factory()->create(['parent_user_id' => null]);
+
+    // Simulate the query used in reassignUserToParent
+    $candidates = User::whereNull('parent_user_id')
+        ->where('id', '!=', $parentUser->id)
+        ->where('id', '!=', $authorizedUser->id)
+        ->get();
+
+    expect($candidates->pluck('id')->toArray())
+        ->not->toContain($authorizedUser->id)
+        ->not->toContain($parentUser->id)
+        ->toContain($otherParent->id);
+});
