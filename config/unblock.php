@@ -5,7 +5,7 @@ return [
     'admin_email' => env('ADMIN_EMAIL'),
     'send_admin_report_email' => env('SEND_ADMIN_REPORT_EMAIL', true),
     'attempts' => env('ATTEMPTS', 10),
-    'report_expiration' => env('REPORT_EXPIRATION', 604800), // 7 days
+    'report_expiration' => (int) env('REPORT_EXPIRATION', 604800), // 7 days
     'cron_active' => env('CRON_ACTIVE', false),
 
     // Notification settings
@@ -67,7 +67,7 @@ return [
         'host_id' => env('HQ_HOST_ID'),
         'fqdn' => env('HQ_HOST_FQDN', ''),
         // Temporary whitelist TTL in seconds
-        'ttl' => env('HQ_WHITELIST_TTL', 14000),
+        'ttl' => (int) env('HQ_WHITELIST_TTL', 14000),
     ],
 
     // Simple Unblock Mode (v1.2.0+)
