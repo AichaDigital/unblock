@@ -1,0 +1,17 @@
+main_branch: main
+ci_workflow: ci.yml
+quality_gate_cmd:
+  - composer
+  - check-full
+install_cmds:
+  - ["composer", "install", "--no-interaction", "--prefer-dist"]
+  - ["pnpm", "install", "--frozen-lockfile"]
+pre_quality_gate_cmds:
+  - ["cp", ".env.example", ".env"]
+  - ["php", "artisan", "key:generate"]
+  - ["touch", "database/database.sqlite"]
+  - ["php", "artisan", "migrate", "--force"]
+  - ["pnpm", "run", "build"]
+deploy_workflow: deploy.yml
+health_url: "https://unblock.castris.com/admin/login"
+post_merge_wait_seconds: 600
