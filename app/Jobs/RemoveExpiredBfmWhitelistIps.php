@@ -23,6 +23,12 @@ class RemoveExpiredBfmWhitelistIps implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    // Periodic cleanup job: if it fails, next scheduled run picks up remaining work.
+    // Retrying within the same run risks double work on partially-processed hosts.
+    public int $tries = 1;
+
+    public int $timeout = 600;
+
     /**
      * Execute the job.
      */
