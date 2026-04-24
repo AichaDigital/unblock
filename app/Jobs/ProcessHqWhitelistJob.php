@@ -18,6 +18,13 @@ class ProcessHqWhitelistJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    public int $tries = 2;
+
+    /** @var array<int, int> */
+    public array $backoff = [60, 300];
+
+    public int $timeout = 300;
+
     public function __construct(
         public string $ip,
         public int $userId

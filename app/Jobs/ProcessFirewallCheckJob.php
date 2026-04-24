@@ -57,6 +57,13 @@ class ProcessFirewallCheckJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    public int $tries = 2;
+
+    /** @var array<int, int> */
+    public array $backoff = [60, 300];
+
+    public int $timeout = 300;
+
     /**
      * Create a new job instance.
      */
@@ -66,6 +73,18 @@ class ProcessFirewallCheckJob implements ShouldQueue
         public int $hostId,
         public ?int $copyUserId = null
     ) {}
+
+    /**
+     * Unique ID to coalesce duplicate dispatches for the same check request.
+     *
+     * Note: across retries of the SAME job instance this is irrelevant
+     * (Laravel handles retries by the job id). It matters if the same
+     * (user, host, ip) combination is dispatched concurrently from the UI.
+     */
+    public function uniqueId(): string
+    {
+        return "firewall_check:{$this->userId}:{$this->hostId}:{$this->ip}";
+    }
 
     /**
      * Execute the job (Refactored - SOLID Compliant)

@@ -20,6 +20,13 @@ class SendReportNotificationJob implements ShouldQueue
 {
     use Queueable;
 
+    public int $tries = 3;
+
+    /** @var array<int, int> */
+    public array $backoff = [60, 300, 600];
+
+    public int $timeout = 120;
+
     /**
      * Create a new job instance
      */
@@ -27,6 +34,20 @@ class SendReportNotificationJob implements ShouldQueue
         public readonly string $reportId,
         public readonly ?int $copyUserId = null
     ) {}
+
+    /**
+     * Unique ID to prevent duplicate sends across retries.
+     *
+     * Combined with the dispatched queue's deduplication window (Laravel sets
+     * a per-job lock). Even without WithoutOverlapping, each retry of this
+     * instance carries the same reportId+copyUserId, so Laravel's `attempts()`
+     * tracking keeps order. The guard below additionally prevents re-sending
+     * the exact same notification if the job was partially complete.
+     */
+    public function uniqueId(): string
+    {
+        return "report_notification:{$this->reportId}:".($this->copyUserId ?? 'none');
+    }
 
     /**
      * Execute the job

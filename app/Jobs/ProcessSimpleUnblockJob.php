@@ -56,6 +56,13 @@ class ProcessSimpleUnblockJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    public int $tries = 2;
+
+    /** @var array<int, int> */
+    public array $backoff = [60, 300];
+
+    public int $timeout = 300;
+
     /**
      * Create a new job instance.
      */

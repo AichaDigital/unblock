@@ -26,6 +26,13 @@ class SendSimpleUnblockNotificationJob implements ShouldQueue
 {
     use Queueable;
 
+    public int $tries = 3;
+
+    /** @var array<int, int> */
+    public array $backoff = [60, 300, 600];
+
+    public int $timeout = 120;
+
     /**
      * Create a new job instance
      */
@@ -40,6 +47,14 @@ class SendSimpleUnblockNotificationJob implements ShouldQueue
         // but the main flow no longer uses it.
         public readonly bool $adminOnly = false
     ) {}
+
+    /**
+     * Unique ID to prevent duplicate notifications across retries.
+     */
+    public function uniqueId(): string
+    {
+        return 'simple_unblock_notification:'.($this->reportId ?? 'no-report').":{$this->email}:{$this->domain}".($this->adminOnly ? ':admin' : '');
+    }
 
     /**
      * Execute the job
