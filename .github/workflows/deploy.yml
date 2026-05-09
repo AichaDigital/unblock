@@ -71,7 +71,7 @@ jobs:
           script: |
             cd ${{ vars.DEPLOY_PATH_ARGOS }}
             git pull origin main
-            bash deploy/deploy.sh "frankenphp php-cli" "."
+            DEPLOY_ROLE=primary bash deploy/deploy.sh "frankenphp php-cli" "."
 
       - name: Health check argos01
         run: |
@@ -117,4 +117,4 @@ jobs:
           script: |
             cd ${{ vars.DEPLOY_PATH_ARGOS }}
             git pull origin main
-            bash deploy/deploy.sh "frankenphp php-cli" "."
+            DEPLOY_ROLE=standby bash deploy/deploy.sh "frankenphp php-cli" "."

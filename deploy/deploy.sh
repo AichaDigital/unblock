@@ -7,6 +7,15 @@ set -euo pipefail
 
 PHP_CMD="${1:?Usage: deploy.sh <php_command> <app_dir>}"
 APP_DIR="${2:?Usage: deploy.sh <php_command> <app_dir>}"
+DEPLOY_ROLE="${DEPLOY_ROLE:?DEPLOY_ROLE must be primary or standby}"
+
+case "$DEPLOY_ROLE" in
+    primary|standby) ;;
+    *)
+        echo "FATAL: DEPLOY_ROLE must be primary or standby"
+        exit 64
+        ;;
+esac
 
 cd "$APP_DIR"
 
@@ -29,8 +38,12 @@ echo ">>> Composer install"
 composer install --no-dev --no-interaction --optimize-autoloader --no-scripts
 $PHP_CMD artisan package:discover --ansi
 
-echo ">>> Run migrations"
-$PHP_CMD artisan migrate --force
+if [ "$DEPLOY_ROLE" = "primary" ]; then
+    echo ">>> Run migrations"
+    $PHP_CMD artisan migrate --force
+else
+    echo ">>> Skipping migrations on standby (cold node, database restored from Litestream on failover)"
+fi
 
 echo ">>> Publish Filament assets"
 $PHP_CMD artisan filament:assets
@@ -40,5 +53,15 @@ $PHP_CMD artisan config:cache
 $PHP_CMD artisan route:cache
 $PHP_CMD artisan view:cache
 $PHP_CMD artisan event:cache
+
+if [ "$DEPLOY_ROLE" = "primary" ]; then
+    echo ">>> Reload FrankenPHP workers"
+    FRANKENPHP_PID="$(systemctl show frankenphp --property=MainPID --value 2>/dev/null || true)"
+    if [ -n "$FRANKENPHP_PID" ] && [ "$FRANKENPHP_PID" != "0" ]; then
+        kill -USR1 "$FRANKENPHP_PID"
+    else
+        echo "WARN: no FrankenPHP process found"
+    fi
+fi
 
 echo ">>> Deploy complete"
