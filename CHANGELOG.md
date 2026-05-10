@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.8.0] - 2026-05-10
+
+### Added
+
+- `DEPLOY_ROLE` env var contract in `deploy/deploy.sh` (required: `primary` or `standby`)
+- Code-load smoke test on argos02 after deploy (`artisan about --json` via SSH), matching the pattern already used by swissknife/status
+- `DEPLOY_ROLE=primary` / `DEPLOY_ROLE=standby` injected per-job in `.github/workflows/deploy.yml`
+
+### Fixed
+
+- Migrations no longer run on argos02 (standby cold node). The standby SQLite is overwritten by `litestream restore` during failover, so applying migrations there was wasted work and a silent failure source if the local schema baseline diverged from the live DB
+- FrankenPHP workers are now reloaded with `kill -USR1 <MainPID>` on argos01 (primary) at the end of every deploy. Without this, worker-mode opcache kept serving the previous code in memory until natural worker recycle
+- `kill -USR1` targets the systemd `MainPID` of frankenphp specifically, not all matching processes
+
+### Security
+
+- `phpseclib/phpseclib` upgraded (security audit)
+
+### Notes
+
+- Standby (argos02) still receives the full `git pull` + `composer install --no-dev` + cache rebuild, so the code is ready for `failover_watch.sh` to promote it without delay. Only DB-mutating steps and the worker reload are gated to `primary`.
+
 ## [1.7.0] - 2026-04-08
 
 ### Changed

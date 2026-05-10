@@ -71,7 +71,7 @@ jobs:
           script: |
             cd ${{ vars.DEPLOY_PATH_ARGOS }}
             git pull origin main
-            bash deploy/deploy.sh "frankenphp php-cli" "."
+            DEPLOY_ROLE=primary bash deploy/deploy.sh "frankenphp php-cli" "."
 
       - name: Health check argos01
         run: |
@@ -117,4 +117,15 @@ jobs:
           script: |
             cd ${{ vars.DEPLOY_PATH_ARGOS }}
             git pull origin main
-            bash deploy/deploy.sh "frankenphp php-cli" "."
+            DEPLOY_ROLE=standby bash deploy/deploy.sh "frankenphp php-cli" "."
+
+      - name: Code load smoke test argos02
+        uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2 # v1
+        with:
+          host: ${{ secrets.ARGOS02_HOST }}
+          username: ${{ vars.DEPLOY_USER_ARGOS }}
+          key: ${{ secrets.DEPLOY_SSH_KEY_ARGOS }}
+          port: ${{ secrets.ARGOS02_PORT }}
+          script: |
+            cd ${{ vars.DEPLOY_PATH_ARGOS }}
+            frankenphp php-cli artisan about --json > /dev/null 2>&1 && echo "Code load smoke test passed (cold standby - no HTTP check by design)" || exit 1
