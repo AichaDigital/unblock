@@ -74,10 +74,18 @@ class FirewallConnectionErrorService
         string $errorMessage,
         Exception $exception
     ): void {
-        try {
-            // Obtener email del administrador desde configuración
-            $adminEmail = config('mail.admin_email', 'admin@example.com');
+        // Admin email lives under the project config (env ADMIN_EMAIL), not mail.*
+        $adminEmail = config('unblock.admin_email');
 
+        if (! $adminEmail) {
+            Log::warning('No admin email configured for firewall connection error notification', [
+                'host_fqdn' => $host->fqdn,
+            ]);
+
+            return;
+        }
+
+        try {
             Mail::to($adminEmail)->send(new AdminConnectionErrorMail(
                 $ip,
                 $host,

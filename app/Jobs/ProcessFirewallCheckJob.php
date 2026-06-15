@@ -7,9 +7,9 @@ namespace App\Jobs;
 use App\Actions\{CheckRecentBlockHistoryAction, UnblockIpActionNormalMode};
 use App\Actions\Firewall\ValidateUserAccessToHostAction;
 use App\Actions\SimpleUnblock\{AnalyzeFirewallForIpAction, ValidateIpFormatAction};
-use App\Exceptions\FirewallException;
+use App\Exceptions\{ConnectionFailedException, FirewallException};
 use App\Models\{Host, User};
-use App\Services\{AuditService, ReportGenerator};
+use App\Services\{AuditService, FirewallConnectionErrorService, ReportGenerator};
 use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -17,6 +17,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\{InteractsWithQueue, SerializesModels};
 use Illuminate\Support\Facades\{DB, Log};
 use InvalidArgumentException;
+use Throwable;
 
 /**
  * Process Firewall Check Job (Refactored v2.0 - SOLID Compliant)
@@ -232,5 +233,63 @@ class ProcessFirewallCheckJob implements ShouldQueue
                 'audit_error' => $auditError->getMessage(),
             ]);
         }
+    }
+
+    /**
+     * Handle the definitive job failure (after all retries are exhausted).
+     *
+     * The happy path notifies through SendReportNotificationJob, but a connection
+     * failure rolls back the wrapping DB::transaction before any notification is
+     * persisted, leaving the requester and admin with no feedback at all. When the
+     * root cause is an unreachable host, notify both — mirroring the SimpleUnblock
+     * flow, which already alerts on failure.
+     */
+    public function failed(?Throwable $exception): void
+    {
+        $connectionError = $this->findConnectionFailure($exception);
+
+        // Only the unreachable-host path is handled here. Other failures keep the
+        // existing audit/log behaviour to avoid sending a misleading SSH-connection
+        // alert for unrelated errors.
+        if ($connectionError === null) {
+            return;
+        }
+
+        $user = User::find($this->userId);
+        $host = Host::find($this->hostId);
+
+        if ($user === null || $host === null) {
+            Log::warning('Cannot notify firewall connection failure: user or host not found', [
+                'user_id' => $this->userId,
+                'host_id' => $this->hostId,
+                'ip' => $this->ip,
+            ]);
+
+            return;
+        }
+
+        app(FirewallConnectionErrorService::class)->handleConnectionError(
+            $this->ip,
+            $host,
+            $user,
+            $connectionError->getMessage(),
+            $connectionError,
+        );
+    }
+
+    /**
+     * Walk the exception chain looking for the underlying connection failure.
+     */
+    private function findConnectionFailure(?Throwable $exception): ?ConnectionFailedException
+    {
+        while ($exception !== null) {
+            if ($exception instanceof ConnectionFailedException) {
+                return $exception;
+            }
+
+            $exception = $exception->getPrevious();
+        }
+
+        return null;
     }
 }
