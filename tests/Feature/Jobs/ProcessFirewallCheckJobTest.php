@@ -11,7 +11,6 @@ use App\Services\{AuditService, ReportGenerator};
 use App\Services\Firewall\FirewallAnalysisResult;
 use Illuminate\Support\Facades\{Mail, Queue};
 use Mockery\MockInterface;
-use RuntimeException;
 
 test('job orchestrates actions and dispatches correct notification for normal mode', function () {
     // 1. Arrange

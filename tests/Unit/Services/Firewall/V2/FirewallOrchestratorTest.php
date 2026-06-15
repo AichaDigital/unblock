@@ -243,6 +243,7 @@ describe('FirewallOrchestrator V2', function () {
 
     describe('SSH Error Handling Integration (CRITICAL)', function () {
         beforeEach(function () {
+            config(['unblock.admin_email' => 'admin@example.com']);
             $this->errorService = app(FirewallConnectionErrorService::class);
         });
 
