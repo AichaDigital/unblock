@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\{Log, Mail};
 use Mockery;
 
 beforeEach(function () {
+    config(['unblock.admin_email' => 'admin@example.com']);
     $this->service = new FirewallConnectionErrorService;
 });
 
@@ -31,7 +32,8 @@ test('handles connection error with notifications', function () {
 
     // Verify that the email was sent to an administrator
     Mail::assertSent(AdminConnectionErrorMail::class, function ($mail) use ($ip, $host, $user) {
-        return $mail->ip === $ip &&
+        return $mail->hasTo('admin@example.com') &&
+               $mail->ip === $ip &&
                $mail->host->id === $host->id &&
                $mail->user->id === $user->id;
     });

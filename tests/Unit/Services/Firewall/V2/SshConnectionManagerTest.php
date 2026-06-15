@@ -134,6 +134,7 @@ describe('SshConnectionManager V2', function () {
 
     describe('SSH Error Handling (CRITICAL)', function () {
         beforeEach(function () {
+            config(['unblock.admin_email' => 'admin@example.com']);
             $this->user = User::factory()->create(['email' => 'test@example.com']);
             $this->errorService = app(FirewallConnectionErrorService::class);
         });
