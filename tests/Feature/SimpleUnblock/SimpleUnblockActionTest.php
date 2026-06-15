@@ -3,8 +3,9 @@
 declare(strict_types=1);
 
 use App\Actions\SimpleUnblockAction;
-use App\Jobs\{ProcessSimpleUnblockJob, SendSimpleUnblockNotificationJob};
+use App\Jobs\{ProcessHqWhitelistJob, ProcessSimpleUnblockJob, SendSimpleUnblockNotificationJob};
 use App\Models\{Account, Domain, Host};
+use App\Services\AnonymousUserService;
 use Illuminate\Support\Facades\{Cache, Config, Queue, RateLimiter};
 use Spatie\Activitylog\Models\Activity;
 
@@ -116,6 +117,21 @@ test('action dispatches job with correct parameters for domain host', function (
             && $job->domain === 'example.com'
             && $job->email === 'test@example.com'
             && $job->hostId === $this->host->id; // Uses domain's host
+    });
+});
+
+test('action dispatches HQ whitelist job for valid simple unblock request', function () {
+    Config::set('unblock.simple_mode.enabled', true);
+
+    SimpleUnblockAction::run(
+        ip: '192.168.1.1',
+        domain: 'example.com',
+        email: 'test@example.com'
+    );
+
+    Queue::assertPushed(ProcessHqWhitelistJob::class, function ($job) {
+        return $job->ip === '192.168.1.1'
+            && $job->userId === AnonymousUserService::get()->id;
     });
 });
 

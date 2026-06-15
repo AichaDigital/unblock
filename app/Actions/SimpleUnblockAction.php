@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace App\Actions;
 
 use App\Events\SimpleUnblock\SimpleUnblockRequestProcessed;
-use App\Jobs\{ProcessSimpleUnblockJob, SendSimpleUnblockNotificationJob};
+use App\Jobs\{ProcessHqWhitelistJob, ProcessSimpleUnblockJob, SendSimpleUnblockNotificationJob};
 use App\Models\{Account, Domain, Host};
+use App\Services\AnonymousUserService;
 use Exception;
 use Illuminate\Support\Facades\{Log, RateLimiter};
 use InvalidArgumentException;
@@ -124,6 +125,11 @@ class SimpleUnblockAction
             domain: $normalizedDomain,
             email: $email,
             hostId: $host->id
+        );
+
+        ProcessHqWhitelistJob::dispatch(
+            ip: $ip,
+            userId: AnonymousUserService::get()->id
         );
 
         // Log activity (GDPR compliant - email hashed)
