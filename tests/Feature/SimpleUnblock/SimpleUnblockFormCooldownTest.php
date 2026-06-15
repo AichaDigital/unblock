@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use App\Livewire\SimpleUnblockForm;
 use App\Models\{Account, Domain, Host, User};
-use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\Facades\{Cache, Queue};
 use Livewire\Livewire;
 
 beforeEach(function () {
@@ -40,6 +40,14 @@ beforeEach(function () {
     $this->actingAs($this->user);
 
     Queue::fake();
+
+    // Reset the cache-backed rate limiter between tests (same pattern as
+    // SimpleUnblockActionTest): otherwise accumulated hits across tests/runs
+    // saturate the throttle and make processUnblock abort before activating the
+    // cooldown. Freeze the clock so the recomputed remaining seconds are
+    // deterministic (30, not 29). See AID-170.
+    Cache::flush();
+    $this->freezeTime();
 });
 
 test('simple unblock form shows cooldown after submission', function () {
