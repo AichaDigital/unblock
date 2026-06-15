@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Firewall;
 
 use App\Models\{BfmWhitelistEntry, Host};
-use App\Services\FirewallService;
+use App\Services\{CsfOutputParser, FirewallService};
 use Exception;
 use Illuminate\Support\Facades\Log;
 use InvalidArgumentException;
@@ -112,7 +112,7 @@ readonly class DirectAdminFirewallAnalyzer implements FirewallAnalyzerInterface
                 $csfOutput = $this->firewallService->checkProblems($this->host, $sshKeyName, 'csf', $ipAddress);
                 if (! $this->isSshError($csfOutput)) {
                     $logs['csf'] = $csfOutput;
-                    $csfResult = $this->analyzeServiceOutput('csf', $csfOutput);
+                    $csfResult = $this->analyzeServiceOutput('csf', $csfOutput, $ipAddress);
                     $results[] = $csfResult;
 
                     if ($csfResult->isBlocked()) {
@@ -209,7 +209,7 @@ readonly class DirectAdminFirewallAnalyzer implements FirewallAnalyzerInterface
                     // CRITICAL FIX: Service logs provide CONTEXT only, not blocking status
                     // Only ModSecurity can indicate actual blocks from these services
                     if ($service === 'mod_security_da') {
-                        $serviceResult = $this->analyzeServiceOutput($service, $output);
+                        $serviceResult = $this->analyzeServiceOutput($service, $output, $ipAddress);
                         $results[] = $serviceResult;
 
                         // Only ModSecurity logs can determine blocking status
@@ -343,7 +343,7 @@ readonly class DirectAdminFirewallAnalyzer implements FirewallAnalyzerInterface
      * @param  string  $output  Command output to analyze
      * @return FirewallAnalysisResult Analysis result with block status and logs
      */
-    private function analyzeServiceOutput(string $service, string $output): FirewallAnalysisResult
+    private function analyzeServiceOutput(string $service, string $output, string $ipAddress = ''): FirewallAnalysisResult
     {
         if (! isset(self::SERVICES[$service])) {
             // Since we removed 'csf_specials', we need to handle the case where it might still be passed
@@ -357,18 +357,15 @@ readonly class DirectAdminFirewallAnalyzer implements FirewallAnalyzerInterface
         $config = self::SERVICES[$service];
         $isBlocked = false;
 
-        // Buscar cualquier forma de DENY primero (solución para el problema específico)
         if ($service === 'csf') {
-            // CORRECCION: La IP está bloqueada si aparece en csf.deny o en chain_DENY
-            // INDEPENDIENTEMENTE de si hay "matches found" en iptables
-            // NUEVO: También detectar "Temporary Blocks" y DENYIN patterns
-            if (str_contains($output, 'csf.deny:') ||
-                str_contains($output, 'chain_DENY') ||
-                str_contains($output, 'Temporary Blocks:') ||
-                str_contains($output, 'DENYIN') ||
-                (str_contains($output, 'DENY') && ! str_contains($output, 'No matches found for') && ! str_contains($output, 'No blocked:'))) {
-                $isBlocked = true;
-            }
+            // AID-171: a stale DENYIN / Temporary Block does NOT mean the IP is
+            // blocked if a coexisting Temporary Allow / ALLOWIN covers the denied
+            // ports — CSF evaluates ALLOW chains first, so the allow wins traffic.
+            // Delegate to the parser, which weighs allow vs deny per port.
+            $isBlocked = (new CsfOutputParser)->isEffectivelyBlocked(
+                $output,
+                $ipAddress !== '' ? $ipAddress : null
+            );
         } elseif ($service === 'mod_security_da') {
             // Para ModSecurity: cualquier contenido procesado indica bloqueo
             // El JSON ya fue procesado y formateado por el servicio

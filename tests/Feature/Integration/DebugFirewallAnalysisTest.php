@@ -33,9 +33,11 @@ test('DEBUG - Analizar paso a paso el flujo del problema', function () {
         'ip' => '192.168.1.100',
     ]);
 
-    // Test analyzer directly
+    // Test analyzer directly. The stub output corresponds to 192.0.2.123, and
+    // `csf -g` is always run per-IP, so analyze that IP — the analyzer now filters
+    // csf -g lines by the queried IP (AID-171).
     $analyzer = new DirectAdminFirewallAnalyzer($firewallService, $host);
-    $analysisResult = $analyzer->analyze('5.102.173.71', 'test-key');
+    $analysisResult = $analyzer->analyze('192.0.2.123', 'test-key');
 
     // This IP should be blocked according to the stub data
     expect($analysisResult->isBlocked())->toBeTrue();

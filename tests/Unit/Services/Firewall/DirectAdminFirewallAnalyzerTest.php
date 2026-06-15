@@ -70,6 +70,30 @@ test('detects IP blocked in CSF', function () {
         ->and($result->getLogs())->toHaveKey('csf');
 });
 
+test('does not flag IP as blocked when a full-port allow covers the temp block (AID-171)', function () {
+    // csf -g shows a Temporary Allow (all ports) coexisting with a stale
+    // LF_SMTPAUTH Temporary Block on 25/465/587. The allow wins traffic, so the
+    // analyzer must NOT report the IP as blocked (otherwise the report loop).
+    $stub = require base_path('tests/stubs/csf_allow_and_deny_coexist.php');
+
+    $this->firewallService
+        ->shouldReceive('checkProblems')
+        ->withAnyArgs()
+        ->andReturn($stub['csf'], '', '', '', '', '', '', '', '', '');
+
+    $result = $this->analyzer
+        ->withServiceChecks([
+            'csf' => true,
+            'csf_deny_check' => false,
+            'csf_tempip_check' => false,
+            'da_bfm_check' => false,
+            ...array_fill_keys(['exim_directadmin', 'dovecot_directadmin', 'mod_security_da', 'lfd_history'], false),
+        ])
+        ->analyze('203.0.113.27', $this->mockSession);
+
+    expect($result->isBlocked())->toBeFalse();
+});
+
 // Eternal issue - TEST ORIGINAL
 it('if there are a ip blocked via chain_DENY firewall analyzer must get ip', function () {
     // Load base stub and then modify for specific test case

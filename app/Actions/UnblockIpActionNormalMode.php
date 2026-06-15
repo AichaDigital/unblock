@@ -75,20 +75,23 @@ class UnblockIpActionNormalMode
                 Log::debug('IP not in permanent deny list', ['ip' => $ip]);
             }
 
-            // 2. Check if IP is in temporary deny list (csf.tempip)
-            Log::debug('Checking if IP is in temporary deny list', ['ip' => $ip]);
-            $tempDenyCheck = $this->firewallService->checkProblems($host, $keyPath, 'csf_tempip_check', $ip);
-            if (! empty(trim($tempDenyCheck))) {
-                // IP is in temporary deny list - remove it
-                Log::info('IP found in temporary deny list, removing', ['ip' => $ip, 'host' => $host->fqdn]);
-                $this->firewallService->checkProblems($host, $keyPath, 'unblock_temporary', $ip);
-            } else {
-                Log::debug('IP not in temporary deny list', ['ip' => $ip]);
-            }
+            // 2. Always remove any temporary block (AID-171). CSF v15 stores temp
+            // bans in csf.tempban, not csf.tempip, so the old conditional check on
+            // csf.tempip never fired and the ban survived its TTL. `csf -tr` is
+            // idempotent, so running it unconditionally is safe.
+            Log::info('Removing any temporary block (csf -tr)', ['ip' => $ip, 'host' => $host->fqdn]);
+            $this->firewallService->checkProblems($host, $keyPath, 'unblock_temporary', $ip);
 
             // 3. Add to CSF temporary whitelist (always, after removing denies)
             Log::info('Adding IP to CSF temporary whitelist', ['ip' => $ip, 'host' => $host->fqdn, 'ttl' => $ttl]);
             $this->firewallService->checkProblems($host, $keyPath, 'whitelist', $ip);
+
+            // 3b. Verify the whitelist actually took effect (AID-171, quality/idempotence).
+            $whitelistCheck = $this->firewallService->checkProblems($host, $keyPath, 'csf_tempallow_check', $ip);
+            $whitelistVerified = str_contains($whitelistCheck, $ip);
+            if (! $whitelistVerified) {
+                Log::error('CSF whitelist not verified after unblock (Normal Mode)', ['ip' => $ip, 'host' => $host->fqdn]);
+            }
 
             // 4. For DirectAdmin servers, also handle BFM
             if ($host->panel === PanelType::DIRECTADMIN) {
@@ -140,6 +143,7 @@ class UnblockIpActionNormalMode
             return [
                 'success' => true,
                 'message' => __('messages.firewall.ip_unblocked'),
+                'whitelist_verified' => $whitelistVerified,
             ];
 
         } catch (Throwable $e) {

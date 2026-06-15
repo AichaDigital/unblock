@@ -116,30 +116,136 @@ class CsfOutputParser
     }
 
     /**
-     * Check if CSF output indicates IP is blocked
+     * Check if CSF output indicates IP is blocked.
+     *
+     * Backward-compatible wrapper (no per-IP filtering). Delegates to
+     * isEffectivelyBlocked so a coexisting whitelist is honoured.
      */
     private function isBlocked(string $output): bool
     {
-        // Check for common blocking patterns
-        $blockPatterns = [
-            'DENYIN',
-            'DENYOUT',
-            'DROP',
-            'LOGDROPOUT',
-            'csf.deny:',
-        ];
+        return $this->isEffectivelyBlocked($output);
+    }
 
-        foreach ($blockPatterns as $pattern) {
-            if (stripos($output, $pattern) !== false) {
-                return true;
+    /**
+     * Determine whether an IP is *effectively* blocked in `csf -g` output.
+     *
+     * CSF evaluates ALLOW chains before DENY chains, so a Temporary Allow /
+     * ALLOWIN rule that covers the denied ports wins the traffic — the IP is not
+     * actually blocked even when DENYIN / Temporary Blocks lines are also present
+     * (a stale temp ban that was never cleared). See AID-171.
+     *
+     * Rules:
+     * - No deny lines                                   -> not blocked.
+     * - An allow covering ALL ports (no dpt / empty Port:) -> not blocked.
+     * - Otherwise -> blocked if any denied port is not present in the allow set.
+     *
+     * @param  string  $csfOutput  Raw output of `csf -g <ip>`
+     * @param  string|null  $ip  When given, only lines mentioning this IP are considered
+     */
+    public function isEffectivelyBlocked(string $csfOutput, ?string $ip = null): bool
+    {
+        $hasDeny = false;
+        $allowAllPorts = false;
+        $allowPorts = [];
+        $denyPorts = [];
+
+        foreach (preg_split('/\r?\n/', $csfOutput) ?: [] as $rawLine) {
+            $line = trim($rawLine);
+            if ($line === '') {
+                continue;
+            }
+            if ($ip !== null && ! str_contains($line, $ip)) {
+                continue;
+            }
+
+            $isAllow = str_contains($line, 'ALLOWIN')
+                || str_contains($line, 'ALLOWOUT')
+                || stripos($line, 'Temporary Allows') !== false;
+
+            $isDeny = str_contains($line, 'DENYIN')
+                || str_contains($line, 'DENYOUT')
+                || str_contains($line, 'LOGDROPOUT')
+                || str_contains($line, 'csf.deny:')
+                || str_contains($line, 'chain_DENY')
+                || stripos($line, 'Temporary Blocks') !== false
+                || (str_contains($line, 'DROP') && ! $isAllow);
+
+            if (! $isAllow && ! $isDeny) {
+                continue;
+            }
+
+            $ports = $this->extractPorts($line);
+
+            if ($isAllow) {
+                if ($ports === null) {
+                    $allowAllPorts = true;
+                } else {
+                    foreach ($ports as $port) {
+                        $allowPorts[$port] = true;
+                    }
+                }
+
+                continue;
+            }
+
+            // Deny line
+            $hasDeny = true;
+            if ($ports === null) {
+                $denyPorts['all'] = true;
+            } else {
+                foreach ($ports as $port) {
+                    $denyPorts[$port] = true;
+                }
             }
         }
 
-        // Check for "No matches found" (means not blocked)
-        if (stripos($output, 'No matches found') !== false) {
+        if (! $hasDeny) {
             return false;
         }
 
+        if ($allowAllPorts) {
+            return false;
+        }
+
+        foreach (array_keys($denyPorts) as $port) {
+            if ($port === 'all') {
+                return true; // denies every port; a port-specific allow cannot cover it
+            }
+            if (! isset($allowPorts[$port])) {
+                return true; // this denied port is not whitelisted
+            }
+        }
+
         return false;
+    }
+
+    /**
+     * Extract destination ports referenced in a `csf -g` line.
+     *
+     * @return array<int,int>|null List of ports, or null when the line targets ALL ports
+     */
+    private function extractPorts(string $line): ?array
+    {
+        // "Temporary Allows/Blocks: ... Port:25,465,587" or "Port: " (empty = all ports)
+        if (preg_match('/Port:\s*([0-9,]*)/', $line, $matches)) {
+            $portsStr = trim($matches[1]);
+            if ($portsStr === '') {
+                return null;
+            }
+            $ports = array_filter(
+                array_map('trim', explode(',', $portsStr)),
+                static fn (string $p): bool => $p !== ''
+            );
+
+            return array_map('intval', array_values($ports));
+        }
+
+        // iptables rule: one or more "dpt:NN"
+        if (preg_match_all('/dpt:(\d+)/', $line, $matches)) {
+            return array_map('intval', $matches[1]);
+        }
+
+        // iptables rule with no port restriction -> all ports
+        return null;
     }
 }

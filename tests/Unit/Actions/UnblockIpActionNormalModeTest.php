@@ -254,7 +254,51 @@ test('action logs key operations during execution', function () {
 
     Log::shouldHaveReceived('info')->with('Starting unblock process (Normal Mode)', Mockery::any());
     Log::shouldHaveReceived('debug')->with('Checking if IP is in permanent deny list', Mockery::any());
-    Log::shouldHaveReceived('debug')->with('Checking if IP is in temporary deny list', Mockery::any());
+    Log::shouldHaveReceived('info')->with('Removing any temporary block (csf -tr)', Mockery::any());
     Log::shouldHaveReceived('info')->with('Adding IP to CSF temporary whitelist', Mockery::any());
     Log::shouldHaveReceived('info')->with('Unblock process completed successfully (Normal Mode)', Mockery::any());
+});
+
+test('verifies the whitelist took effect and reports whitelist_verified true (AID-171)', function () {
+    $host = Host::factory()->create(['panel' => PanelType::DIRECTADMIN]);
+
+    $sshManager = Mockery::mock(SshConnectionManager::class);
+    $sshManager->allows('generateSshKey')->andReturn('/tmp/test_key');
+    $sshManager->allows('removeSshKey')->andReturn(true);
+
+    $firewallService = FirewallServiceStub::ipNotBlocked()
+        ->setCommandResponse('whitelist', 'success')
+        ->setCommandResponse('csf_tempallow_check', '192.168.1.1') // IP present in csf.tempallow
+        ->setCommandResponse('da_bfm_check', '')
+        ->setCommandResponse('da_bfm_whitelist_add', 'Added');
+
+    Log::spy();
+
+    $action = new UnblockIpActionNormalMode($firewallService, $sshManager);
+    $result = $action->handle('192.168.1.1', $host->id, new FirewallAnalysisResult(blocked: true, logs: [], analysis: []));
+
+    expect($result['success'])->toBeTrue()
+        ->and($result['whitelist_verified'])->toBeTrue();
+});
+
+test('reports whitelist_verified false and logs error when the whitelist cannot be confirmed (AID-171)', function () {
+    $host = Host::factory()->create(['panel' => PanelType::DIRECTADMIN]);
+
+    $sshManager = Mockery::mock(SshConnectionManager::class);
+    $sshManager->allows('generateSshKey')->andReturn('/tmp/test_key');
+    $sshManager->allows('removeSshKey')->andReturn(true);
+
+    $firewallService = FirewallServiceStub::ipNotBlocked()
+        ->setCommandResponse('whitelist', 'success')
+        ->setCommandResponse('csf_tempallow_check', '') // not in csf.tempallow -> verification fails
+        ->setCommandResponse('da_bfm_check', '')
+        ->setCommandResponse('da_bfm_whitelist_add', 'Added');
+
+    Log::spy();
+
+    $action = new UnblockIpActionNormalMode($firewallService, $sshManager);
+    $result = $action->handle('192.168.1.1', $host->id, new FirewallAnalysisResult(blocked: true, logs: [], analysis: []));
+
+    expect($result['whitelist_verified'])->toBeFalse();
+    Log::shouldHaveReceived('error')->with('CSF whitelist not verified after unblock (Normal Mode)', Mockery::any());
 });
