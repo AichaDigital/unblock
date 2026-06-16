@@ -70,6 +70,15 @@ test('command successfully unblocks IP', function () {
         ->with(Mockery::type(Host::class), 'default', 'whitelist_simple', '192.168.1.100')
         ->andReturn('success');
 
+    // AID-171: unblock now always runs csf -tr and then verifies the whitelist.
+    $firewallService->allows('checkProblems')
+        ->with(Mockery::type(Host::class), 'default', 'unblock_temporary', '192.168.1.100')
+        ->andReturn('');
+
+    $firewallService->allows('checkProblems')
+        ->with(Mockery::type(Host::class), 'default', 'csf_tempallow_check', '192.168.1.100')
+        ->andReturn('192.168.1.100');
+
     app()->instance(FirewallService::class, $firewallService);
 
     $this->artisan('unblock:ip', [

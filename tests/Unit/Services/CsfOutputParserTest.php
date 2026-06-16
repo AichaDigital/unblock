@@ -111,3 +111,63 @@ test('handles malformed csf output gracefully', function () {
     expect($summary)->toBeArray()
         ->and($summary['blocked'])->toBeFalse();
 });
+
+// --- AID-171: isEffectivelyBlocked (a coexisting allow that covers the denied ports wins) ---
+
+test('isEffectivelyBlocked returns false when a full-port allow covers the deny (AID-171 regression)', function () {
+    $csf = require base_path('tests/stubs/csf_allow_and_deny_coexist.php');
+
+    $parser = new CsfOutputParser;
+
+    expect($parser->isEffectivelyBlocked($csf['csf'], '203.0.113.27'))->toBeFalse();
+});
+
+test('isEffectivelyBlocked returns true when a deny has no covering allow', function () {
+    $csf = <<<'EOD'
+filter DENYIN           195      0     0 DROP       6    --  !lo    *       203.0.113.27         0.0.0.0/0            tcp dpt:25
+
+Temporary Blocks: IP:203.0.113.27 Port:25 Dir:in TTL:3600 (lfd - smtpauth)
+EOD;
+
+    $parser = new CsfOutputParser;
+
+    expect($parser->isEffectivelyBlocked($csf, '203.0.113.27'))->toBeTrue();
+});
+
+test('isEffectivelyBlocked returns true when the allow port does not cover the denied port', function () {
+    $csf = <<<'EOD'
+filter ALLOWIN          1        0     0 ACCEPT     6    --  !lo    *       203.0.113.27         0.0.0.0/0            tcp dpt:443
+filter DENYIN           195      0     0 DROP       6    --  !lo    *       203.0.113.27         0.0.0.0/0            tcp dpt:25
+EOD;
+
+    $parser = new CsfOutputParser;
+
+    expect($parser->isEffectivelyBlocked($csf, '203.0.113.27'))->toBeTrue();
+});
+
+test('isEffectivelyBlocked returns false when the allow port covers the only denied port', function () {
+    $csf = <<<'EOD'
+filter ALLOWIN          1        0     0 ACCEPT     6    --  !lo    *       203.0.113.27         0.0.0.0/0            tcp dpt:25
+filter DENYIN           195      0     0 DROP       6    --  !lo    *       203.0.113.27         0.0.0.0/0            tcp dpt:25
+EOD;
+
+    $parser = new CsfOutputParser;
+
+    expect($parser->isEffectivelyBlocked($csf, '203.0.113.27'))->toBeFalse();
+});
+
+test('isEffectivelyBlocked returns false when there is no block at all', function () {
+    $parser = new CsfOutputParser;
+
+    expect($parser->isEffectivelyBlocked('No matches found for 203.0.113.27 in iptables', '203.0.113.27'))->toBeFalse();
+});
+
+test('isEffectivelyBlocked still detects a permanent csf.deny block with no allow', function () {
+    $csf = <<<'EOD'
+csf.deny: 203.0.113.27 # lfd: (smtpauth) Failed SMTP AUTH login - Sat Nov  1 10:55:16 2025
+EOD;
+
+    $parser = new CsfOutputParser;
+
+    expect($parser->isEffectivelyBlocked($csf, '203.0.113.27'))->toBeTrue();
+});

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Services\Firewall\V2;
 
 use App\Models\Host;
+use App\Services\{CsfOutputParser, FirewallService, SshConnectionManager};
 use App\Services\Firewall\FirewallAnalysisResult;
-use App\Services\{FirewallService, SshConnectionManager};
 use App\Services\SshSession;
 use Illuminate\Support\Facades\Log;
 
@@ -193,15 +193,9 @@ class FirewallLogAnalyzer
      */
     private function containsCsfBlocks(string $output): bool
     {
-        $blockPatterns = ['DENYIN', 'DENYOUT', 'Temporary Blocks'];
-
-        foreach ($blockPatterns as $pattern) {
-            if (str_contains($output, $pattern)) {
-                return true;
-            }
-        }
-
-        return false;
+        // AID-171: honour a coexisting Temporary Allow / ALLOWIN that covers the
+        // denied ports (CSF evaluates ALLOW chains before DENY chains).
+        return (new CsfOutputParser)->isEffectivelyBlocked($output);
     }
 
     /**

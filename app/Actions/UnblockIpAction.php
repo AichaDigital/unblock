@@ -53,16 +53,20 @@ class UnblockIpAction
                 Log::info('Removed IP from permanent deny list', ['ip' => $ip, 'host' => $host->fqdn]);
             }
 
-            // 2. Check if IP is in temporary deny list (csf.tempip)
-            $tempDenyCheck = $this->firewallService->checkProblems($host, $keyName, 'csf_tempip_check', $ip);
-            if (! empty(trim($tempDenyCheck))) {
-                // IP is in temporary deny list - remove it
-                $this->firewallService->checkProblems($host, $keyName, 'unblock_temporary', $ip);
-                Log::info('Removed IP from temporary deny list', ['ip' => $ip, 'host' => $host->fqdn]);
-            }
+            // 2. Always remove any temporary block (AID-171). CSF v15 stores temp
+            // bans in csf.tempban, not csf.tempip; `csf -tr` is idempotent.
+            $this->firewallService->checkProblems($host, $keyName, 'unblock_temporary', $ip);
+            Log::info('Removing any temporary block (csf -tr)', ['ip' => $ip, 'host' => $host->fqdn]);
 
             // 3. Add to CSF temporary whitelist (always, after removing denies)
             $this->firewallService->checkProblems($host, $keyName, 'whitelist_simple', $ip);
+
+            // 3b. Verify the whitelist took effect (AID-171, quality/idempotence).
+            $whitelistCheck = $this->firewallService->checkProblems($host, $keyName, 'csf_tempallow_check', $ip);
+            $whitelistVerified = str_contains($whitelistCheck, $ip);
+            if (! $whitelistVerified) {
+                Log::error('CSF whitelist not verified after unblock', ['ip' => $ip, 'host' => $host->fqdn]);
+            }
 
             // 4. For DirectAdmin servers, also handle BFM
             if ($host->panel === PanelType::DIRECTADMIN) {
@@ -100,6 +104,7 @@ class UnblockIpAction
             return [
                 'success' => true,
                 'message' => __('messages.firewall.ip_unblocked'),
+                'whitelist_verified' => $whitelistVerified,
             ];
 
         } catch (Throwable $e) {
