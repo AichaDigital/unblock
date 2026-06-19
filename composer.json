@@ -17,7 +17,7 @@
         "predis/predis": "^2.2|^3.0",
         "spatie/laravel-activitylog": "^4.0",
         "spatie/laravel-honeypot": "^4.6",
-        "spatie/laravel-one-time-passwords": "*",
+        "spatie/laravel-one-time-passwords": "^1.1.0",
         "spatie/ssh": "^1.12"
     },
     "require-dev": {
