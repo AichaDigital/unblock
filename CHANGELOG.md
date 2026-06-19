@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.8.1] - 2026-06-19
+
+### Security
+
+- Bumped `guzzlehttp/guzzle` 7.11.1 → 7.12.1 (transitive): fixes CVE-2026-55767 (GHSA-cwxw-98qj-8qjx, dot-only cookie domains match all hosts) and CVE-2026-55568 (GHSA-wpwq-4j6v-78m3, silent HTTPS proxy downgrade to cleartext) — both medium severity
+- Bumped `guzzlehttp/psr7` 2.11.0 → 2.12.1 (transitive): fixes CVE-2026-55766 (GHSA-vm85-hxw5-5432, CRLF injection in HTTP start-line serialization) — medium severity
+- Bumped `phpseclib/phpseclib` 3.0.52 → 3.0.55 (direct, within `^3.0`): fixes GHSA-m557-wrgg-6rp4 (X.509 cert validation triggers attacker-controlled outbound request) — medium severity
+- Addresses the 2026-06-18 Guzzle security advisories confirmed by `composer audit`; no breaking changes (patch/minor within existing constraints)
+
 ## [1.8.0] - 2026-05-10
 
 ### Added
