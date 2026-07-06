@@ -147,7 +147,7 @@ class FirewallUnblocker
             return 'CSF blocks only: CSF unblock/whitelist';
         }
 
-        if (! $hasCsfBlocks && $hasBfmBlocks) {
+        if ($hasBfmBlocks) {
             return 'BFM blocks only: BFM removal (NO CSF temporal whitelist)';
         }
 
