@@ -10,7 +10,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\{InteractsWithQueue, SerializesModels};
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\{File, Log};
 use Spatie\Ssh\Ssh;
 
 /**
@@ -146,12 +146,9 @@ class RemoveExpiredBfmWhitelistIps implements ShouldQueue
     {
         $keyPath = storage_path('app/.ssh/bfm_cleanup_'.uniqid());
 
-        if (! file_exists(dirname($keyPath))) {
-            mkdir(dirname($keyPath), 0700, true);
-        }
-
-        file_put_contents($keyPath, $hash);
-        chmod($keyPath, 0600);
+        File::ensureDirectoryExists(dirname($keyPath), 0700);
+        File::put($keyPath, $hash);
+        File::chmod($keyPath, 0600);
 
         return $keyPath;
     }
@@ -161,11 +158,6 @@ class RemoveExpiredBfmWhitelistIps implements ShouldQueue
      */
     private function cleanupTempSshKey(string $hash): void
     {
-        $keyPattern = storage_path('app/.ssh/bfm_cleanup_*');
-        foreach (glob($keyPattern) ?: [] as $keyFile) {
-            if (file_exists($keyFile)) {
-                unlink($keyFile);
-            }
-        }
+        File::delete(File::glob(storage_path('app/.ssh/bfm_cleanup_*')));
     }
 }

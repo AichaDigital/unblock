@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Services\PatternDetection;
 
 use App\Models\{AbuseIncident, IpReputation, PatternDetection};
-use Illuminate\Support\Facades\DB;
 
 /**
  * Subnet Scan Detector
@@ -39,14 +38,14 @@ class SubnetScanDetector
 
         // Get recent incidents with multiple emails
         // Extract subnet prefix in PHP to be database-agnostic
-        $recentIncidents = DB::table('abuse_incidents')
+        $recentIncidents = AbuseIncident::query()
             ->select('ip_address', 'email_hash')
             ->where('created_at', '>=', now()->subMinutes(self::TIME_WINDOW))
             ->whereNotNull('email_hash')
             ->get();
 
         // Group by subnet prefix in PHP (database-agnostic approach)
-        $subnetGroups = $recentIncidents->groupBy(function ($incident) {
+        $subnetGroups = $recentIncidents->groupBy(function (AbuseIncident $incident) {
             return $this->extractSubnetPrefix($incident->ip_address);
         });
 

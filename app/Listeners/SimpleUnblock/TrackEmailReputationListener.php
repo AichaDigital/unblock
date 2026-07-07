@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Listeners\SimpleUnblock;
 
 use App\Events\SimpleUnblock\{SimpleUnblockOtpFailed, SimpleUnblockOtpSent, SimpleUnblockOtpVerified};
+use App\Models\EmailReputation;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Support\Facades\DB;
 
 /**
  * Tracks email reputation based on OTP actions
@@ -22,46 +22,36 @@ class TrackEmailReputationListener implements ShouldQueue
         $emailHash = hash('sha256', $event->email);
         $emailDomain = $this->extractDomain($event->email);
 
-        // Check if record exists
-        $exists = DB::table('email_reputation')->where('email_hash', $emailHash)->exists();
+        $reputation = EmailReputation::query()->firstOrNew(['email_hash' => $emailHash]);
 
-        if ($exists) {
-            // Update existing record
-            $updates = [
+        if ($reputation->exists) {
+            $reputation->increment('total_requests', 1, [
                 'email_domain' => $emailDomain,
-                'total_requests' => DB::raw('total_requests + 1'),
                 'last_seen_at' => now(),
-                'updated_at' => now(),
-            ];
+            ]);
 
             if ($event instanceof SimpleUnblockOtpVerified) {
-                $updates['verified_requests'] = DB::raw('verified_requests + 1');
+                $reputation->increment('verified_requests');
             }
 
             if ($event instanceof SimpleUnblockOtpFailed) {
-                $updates['failed_requests'] = DB::raw('failed_requests + 1');
+                $reputation->increment('failed_requests');
             }
-
-            DB::table('email_reputation')
-                ->where('email_hash', $emailHash)
-                ->update($updates);
         } else {
-            // Insert new record
-            DB::table('email_reputation')->insert([
-                'email_hash' => $emailHash,
+            $reputation->fill([
                 'email_domain' => $emailDomain,
                 'reputation_score' => 100,
                 'total_requests' => 1,
                 'failed_requests' => ($event instanceof SimpleUnblockOtpFailed) ? 1 : 0,
                 'verified_requests' => ($event instanceof SimpleUnblockOtpVerified) ? 1 : 0,
                 'last_seen_at' => now(),
-                'created_at' => now(),
-                'updated_at' => now(),
             ]);
+
+            $reputation->save();
         }
 
         // Recalculate reputation score
-        $this->updateReputationScore($emailHash);
+        $this->updateReputationScore($reputation);
     }
 
     /**
@@ -77,30 +67,24 @@ class TrackEmailReputationListener implements ShouldQueue
     /**
      * Update reputation score based on verification success rate
      */
-    private function updateReputationScore(string $emailHash): void
+    private function updateReputationScore(EmailReputation $reputation): void
     {
-        $record = DB::table('email_reputation')->where('email_hash', $emailHash)->first();
+        $reputation->refresh();
 
-        if (! $record) {
-            return;
-        }
-
-        $total = max($record->total_requests, 1);
-        $failed = $record->failed_requests;
+        $total = max($reputation->total_requests, 1);
+        $failed = $reputation->failed_requests;
 
         // Calculate success rate
         $successRate = 1 - ($failed / $total);
 
         // Bonus for verified requests
-        $verifiedRatio = $record->verified_requests / $total;
-        $bonusScore = floor($verifiedRatio * 20); // Up to +20 points
+        $verifiedRatio = $reputation->verified_requests / $total;
+        $bonusScore = (int) floor($verifiedRatio * 20); // Up to +20 points
 
         // Convert to 0-100 score with bonus
-        $baseScore = max(0, min(100, floor($successRate * 100)));
+        $baseScore = (int) max(0, min(100, floor($successRate * 100)));
         $score = min(100, $baseScore + $bonusScore);
 
-        DB::table('email_reputation')
-            ->where('email_hash', $emailHash)
-            ->update(['reputation_score' => $score]);
+        $reputation->update(['reputation_score' => $score]);
     }
 }

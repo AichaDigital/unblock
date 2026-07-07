@@ -6,7 +6,7 @@ namespace App\Console\Commands;
 
 use App\Models\Host;
 use Illuminate\Console\Command;
-use Symfony\Component\Process\Process;
+use Illuminate\Support\Facades\{File, Process};
 
 class VerifyAllHostKeysCommand extends Command
 {
@@ -42,18 +42,16 @@ class VerifyAllHostKeysCommand extends Command
             $this->removeExistingHostKey($knownHostsPath, $host->ip, $host->fqdn);
 
             $command = sprintf('ssh-keyscan -p %d %s', $host->port_ssh, $host->ip);
-            $process = Process::fromShellCommandline($command);
-            $process->setTimeout(15);
-            $process->run();
+            $result = Process::timeout(15)->run($command);
 
-            if (! $process->isSuccessful() || empty(trim($process->getOutput()))) {
-                $this->error("    FAILED: {$host->fqdn} — {$process->getErrorOutput()}");
+            if (! $result->successful() || empty(trim($result->output()))) {
+                $this->error("    FAILED: {$host->fqdn} — {$result->errorOutput()}");
                 $failed++;
 
                 continue;
             }
 
-            file_put_contents($knownHostsPath, $process->getOutput(), FILE_APPEND);
+            File::append($knownHostsPath, $result->output());
 
             $host->update([
                 'ssh_host_key_verified' => true,
@@ -72,15 +70,15 @@ class VerifyAllHostKeysCommand extends Command
 
     private function removeExistingHostKey(string $knownHostsPath, string $ip, string $fqdn): void
     {
-        if (! file_exists($knownHostsPath)) {
+        if (! File::exists($knownHostsPath)) {
             return;
         }
 
-        $lines = file($knownHostsPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: [];
-        $filteredLines = array_filter($lines, function ($line) use ($ip, $fqdn) {
-            return ! str_contains($line, $ip) && ! str_contains($line, $fqdn);
-        });
+        $filteredLines = File::lines($knownHostsPath)
+            ->filter(function (string $line) use ($ip, $fqdn) {
+                return $line !== '' && ! str_contains($line, $ip) && ! str_contains($line, $fqdn);
+            });
 
-        file_put_contents($knownHostsPath, implode(PHP_EOL, $filteredLines).PHP_EOL);
+        File::put($knownHostsPath, $filteredLines->implode(PHP_EOL).PHP_EOL);
     }
 }

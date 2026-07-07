@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Services\PatternDetection;
 
 use App\Models\{AbuseIncident, EmailReputation, IpReputation, PatternDetection};
-use Illuminate\Support\Facades\DB;
 
 /**
  * Distributed Attack Detector
@@ -44,12 +43,12 @@ class DistributedAttackDetector
         $detections = [];
 
         // Get emails with recent incidents
-        $recentEmailHashes = DB::table('abuse_incidents')
-            ->select('email_hash')
+        $recentEmailHashes = AbuseIncident::query()
             ->where('created_at', '>=', now()->subMinutes(self::TIME_WINDOW))
             ->whereNotNull('email_hash')
             ->distinct()
-            ->pluck('email_hash');
+            ->pluck('email_hash')
+            ->filter();
 
         foreach ($recentEmailHashes as $emailHash) {
             if ($detection = $this->detectForEmail($emailHash)) {
