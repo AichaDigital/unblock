@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\{Auth, Session};
 
 class CheckSessionTimeout
@@ -22,14 +23,14 @@ class CheckSessionTimeout
                 return $next($request);
             }
 
-            $lastActivity = Session::get('last_activity', now()->timestamp);
+            $lastActivity = (int) Session::get('last_activity', now()->timestamp);
 
             // Different timeout for admins vs regular users
             $timeoutMinutes = $user->is_admin ? 480 : 240; // Admin: 8 hours, Users: 4 hours
             $sessionTimeout = $timeoutMinutes * 60; // Convert minutes to seconds
 
             // Check if session has expired
-            if (now()->timestamp - $lastActivity > $sessionTimeout) {
+            if (now()->getTimestamp() - $lastActivity > $sessionTimeout) {
                 // Log the session expiration for security auditing
                 activity('session_timeout')
                     ->performedOn($user)
@@ -37,7 +38,7 @@ class CheckSessionTimeout
                     ->withProperties([
                         'ip' => $request->ip(),
                         'user_agent' => $request->userAgent(),
-                        'last_activity' => date('Y-m-d H:i:s', $lastActivity),
+                        'last_activity' => Carbon::createFromTimestamp($lastActivity)->toDateTimeString(),
                         'expired_at' => now()->toDateTimeString(),
                         'user_type' => $user->is_admin ? 'admin' : 'user',
                         'timeout_minutes' => $timeoutMinutes,

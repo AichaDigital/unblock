@@ -32,7 +32,7 @@ class VerifyAllHostKeysCommand extends Command
 
         $this->info("Verifying {$hosts->count()} host(s)...");
 
-        $knownHostsPath = getenv('HOME').'/.ssh/known_hosts';
+        $knownHostsPath = (string) config('unblock.ssh.known_hosts_path');
         $succeeded = 0;
         $failed = 0;
 

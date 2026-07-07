@@ -12,6 +12,7 @@ use App\Exceptions\{
 use App\Models\Host;
 use Exception;
 use Illuminate\Support\Facades\{File, Log, Storage};
+use Illuminate\Support\Str;
 use JsonException;
 use Spatie\Ssh\Ssh;
 
@@ -250,7 +251,7 @@ class FirewallService
             $normalizedKey .= "\n";
         }
 
-        $fileName = 'key_'.uniqid();
+        $fileName = 'key_'.Str::random(16);
 
         // Use Laravel's Storage facade to allow for easier testing and abstraction.
         // The 'ssh' disk is configured in config/filesystems.php.

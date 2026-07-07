@@ -5,6 +5,9 @@ namespace App\Console\Commands;
 use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\{Queue, Redis};
+use Illuminate\Support\Sleep;
+
+use function Laravel\Prompts\clear;
 
 class QueueMonitorCommand extends Command
 {
@@ -55,14 +58,14 @@ class QueueMonitorCommand extends Command
         try {
             while (true) {
                 // Clear screen
-                system('clear');
+                clear();
 
                 $this->line('🕐 '.now()->format('Y-m-d H:i:s'));
                 $this->newLine();
 
                 $this->showQueueStatus($connection);
 
-                sleep(2);
+                Sleep::for(2)->seconds();
             }
         } catch (Exception $e) {
             $this->error('❌ Watch mode interrupted: '.$e->getMessage());

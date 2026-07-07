@@ -52,7 +52,7 @@ class AddHostKeyCommand extends Command
 
     private function processHost(Host $host): void
     {
-        $knownHostsPath = getenv('HOME').'/.ssh/known_hosts';
+        $knownHostsPath = (string) config('unblock.ssh.known_hosts_path');
         $this->removeExistingHostKey($knownHostsPath, $host->ip, $host->fqdn);
 
         // Command to fetch the host key
