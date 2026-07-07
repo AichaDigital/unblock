@@ -12,6 +12,19 @@ return [
     'notify_connection_failures' => env('NOTIFY_CONNECTION_FAILURES', true),
     'notify_critical_errors' => env('NOTIFY_CRITICAL_ERRORS', true),
 
+    /*
+    |--------------------------------------------------------------------------
+    | SSH Settings
+    |--------------------------------------------------------------------------
+    |
+    | Path to the known_hosts file used by the host-key management commands
+    | (add:host-key, verify:host-keys).
+    |
+    */
+    'ssh' => [
+        'known_hosts_path' => env('SSH_KNOWN_HOSTS_PATH', env('HOME').'/.ssh/known_hosts'),
+    ],
+
     // Critical hosts that require immediate notification on failure
     'critical_hosts' => explode(',', env('CRITICAL_HOSTS', '')),
 

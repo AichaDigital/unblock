@@ -6,7 +6,7 @@ namespace App\Console\Commands\GeoIP;
 
 use Exception;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\{File, Http, Log};
+use Illuminate\Support\Facades\{File, Http, Log, Process};
 
 /**
  * Update GeoIP Database Command
@@ -162,9 +162,9 @@ class UpdateDatabaseCommand extends Command
 
         // Extract tar.gz
         $command = 'tar -xzf '.escapeshellarg($archivePath).' -C '.escapeshellarg($extractPath);
-        exec($command, $output, $returnCode);
+        $result = Process::run($command);
 
-        if ($returnCode !== 0) {
+        if (! $result->successful()) {
             throw new Exception('Failed to extract archive');
         }
 

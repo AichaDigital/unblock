@@ -11,6 +11,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\{InteractsWithQueue, SerializesModels};
 use Illuminate\Support\Facades\{File, Log};
+use Illuminate\Support\Str;
 use Spatie\Ssh\Ssh;
 
 /**
@@ -144,7 +145,7 @@ class RemoveExpiredBfmWhitelistIps implements ShouldQueue
      */
     private function generateTempSshKey(string $hash): string
     {
-        $keyPath = storage_path('app/.ssh/bfm_cleanup_'.uniqid());
+        $keyPath = storage_path('app/.ssh/bfm_cleanup_'.Str::random(16));
 
         File::ensureDirectoryExists(dirname($keyPath), 0700);
         File::put($keyPath, $hash);
