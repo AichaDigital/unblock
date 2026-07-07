@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\PatternDetection;
 
-use App\Models\PatternDetection;
-use Illuminate\Support\Facades\DB;
+use App\Models\{IpReputation, PatternDetection};
 
 /**
  * Anomaly Detector
@@ -71,7 +70,7 @@ class AnomalyDetector
     {
         // Get all reputation records for last N days (excluding today)
         // SQLite compatible: retrieve all data and group in PHP
-        $data = DB::table('ip_reputation')
+        $data = IpReputation::query()
             ->select('last_seen_at', 'total_requests')
             ->where('last_seen_at', '>=', now()->subDays(self::BASELINE_DAYS))
             ->where('last_seen_at', '<', now()->startOfDay())
@@ -84,7 +83,11 @@ class AnomalyDetector
         // Group by hour in PHP (SQLite compatible)
         $hourlyRequests = [];
         foreach ($data as $record) {
-            $hour = date('Y-m-d H:00:00', strtotime($record->last_seen_at));
+            if ($record->last_seen_at === null) {
+                continue;
+            }
+
+            $hour = $record->last_seen_at->format('Y-m-d H:00:00');
             if (! isset($hourlyRequests[$hour])) {
                 $hourlyRequests[$hour] = 0;
             }
@@ -121,7 +124,7 @@ class AnomalyDetector
      */
     private function getCurrentTraffic(): int
     {
-        return (int) DB::table('ip_reputation')
+        return (int) IpReputation::query()
             ->where('last_seen_at', '>=', now()->subHour())
             ->sum('total_requests');
     }

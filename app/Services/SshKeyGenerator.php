@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Models\Host;
-use Symfony\Component\Process\Process;
+use Illuminate\Support\Facades\{File, Process};
 
 class SshKeyGenerator
 {
@@ -22,9 +22,7 @@ class SshKeyGenerator
 
         // Use temporary directory inside the project
         $tempDir = base_path('storage/app/temp');
-        if (! is_dir($tempDir)) {
-            mkdir($tempDir, 0755, true);
-        }
+        File::ensureDirectoryExists($tempDir);
 
         $keyPath = $tempDir.'/'.$keyName;
 
@@ -35,22 +33,28 @@ class SshKeyGenerator
             escapeshellarg($keyPath)
         );
 
-        $process = Process::fromShellCommandline($command);
-        $process->run();
+        $result = Process::run($command);
 
-        if (! $process->isSuccessful()) {
+        if (! $result->successful()) {
             return [
                 'success' => false,
                 'message' => 'Failed to generate SSH keys',
-                'error' => $process->getErrorOutput(),
+                'error' => $result->errorOutput(),
             ];
         }
 
         // Read generated keys
-        $privateKey = file_get_contents($keyPath);
-        $publicKey = file_get_contents($keyPath.'.pub');
+        if (! File::exists($keyPath) || ! File::exists($keyPath.'.pub')) {
+            return [
+                'success' => false,
+                'message' => 'Failed to read generated keys',
+            ];
+        }
 
-        if (! $privateKey || ! $publicKey) {
+        $privateKey = File::get($keyPath);
+        $publicKey = File::get($keyPath.'.pub');
+
+        if ($privateKey === '' || $publicKey === '') {
             return [
                 'success' => false,
                 'message' => 'Failed to read generated keys',
@@ -64,12 +68,7 @@ class SshKeyGenerator
         ]);
 
         // Clean up temporary files
-        if (file_exists($keyPath)) {
-            unlink($keyPath);
-        }
-        if (file_exists($keyPath.'.pub')) {
-            unlink($keyPath.'.pub');
-        }
+        File::delete([$keyPath, $keyPath.'.pub']);
 
         return [
             'success' => true,
@@ -92,9 +91,7 @@ class SshKeyGenerator
 
         // Use temporary directory inside the project
         $tempDir = base_path('storage/app/temp');
-        if (! is_dir($tempDir)) {
-            mkdir($tempDir, 0755, true);
-        }
+        File::ensureDirectoryExists($tempDir);
 
         $keyPath = $tempDir.'/'.$keyName;
 
@@ -105,28 +102,26 @@ class SshKeyGenerator
             escapeshellarg($keyPath)
         );
 
-        $process = Process::fromShellCommandline($command);
-        $process->run();
+        $result = Process::run($command);
 
-        if (! $process->isSuccessful()) {
-            throw new \Exception('Failed to generate SSH keys: '.$process->getErrorOutput());
+        if (! $result->successful()) {
+            throw new \Exception('Failed to generate SSH keys: '.$result->errorOutput());
         }
 
         // Read generated keys
-        $privateKey = file_get_contents($keyPath);
-        $publicKey = file_get_contents($keyPath.'.pub');
+        if (! File::exists($keyPath) || ! File::exists($keyPath.'.pub')) {
+            throw new \Exception('Failed to read generated keys');
+        }
 
-        if (! $privateKey || ! $publicKey) {
+        $privateKey = File::get($keyPath);
+        $publicKey = File::get($keyPath.'.pub');
+
+        if ($privateKey === '' || $publicKey === '') {
             throw new \Exception('Failed to read generated keys');
         }
 
         // Clean up temporary files
-        if (file_exists($keyPath)) {
-            unlink($keyPath);
-        }
-        if (file_exists($keyPath.'.pub')) {
-            unlink($keyPath.'.pub');
-        }
+        File::delete([$keyPath, $keyPath.'.pub']);
 
         return [
             'private' => $privateKey,

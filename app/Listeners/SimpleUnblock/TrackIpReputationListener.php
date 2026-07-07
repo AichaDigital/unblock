@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Listeners\SimpleUnblock;
 
 use App\Events\SimpleUnblock\SimpleUnblockRequestProcessed;
+use App\Models\IpReputation;
 use App\Services\GeoIPService;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Support\Facades\DB;
 
 /**
  * Tracks IP reputation based on Simple Unblock requests
@@ -27,53 +27,39 @@ class TrackIpReputationListener implements ShouldQueue
         $subnet = $this->calculateSubnet($event->ip);
         $geoData = $this->geoIpService->lookup($event->ip);
 
-        // Check if record exists
-        $exists = DB::table('ip_reputation')->where('ip', $event->ip)->exists();
+        $reputation = IpReputation::query()->firstOrNew(['ip' => $event->ip]);
 
-        if ($exists) {
-            // Update existing record
-            $updateData = [
+        if ($reputation->exists) {
+            $extra = [
                 'subnet' => $subnet,
-                'total_requests' => DB::raw('total_requests + 1'),
-                'failed_requests' => DB::raw($event->success ? 'failed_requests' : 'failed_requests + 1'),
                 'last_seen_at' => now(),
-                'updated_at' => now(),
             ];
 
-            // Add geo data if available and not already set
-            if ($geoData) {
-                $existing = DB::table('ip_reputation')->where('ip', $event->ip)->first();
-                if ($existing && ! $existing->country_code) {
-                    $updateData = array_merge($updateData, $geoData);
-                }
+            // Geo data is backfilled only when not already set
+            if ($geoData && ! $reputation->country_code) {
+                $extra = array_merge($extra, $geoData);
             }
 
-            DB::table('ip_reputation')
-                ->where('ip', $event->ip)
-                ->update($updateData);
+            $reputation->increment('total_requests', 1, $extra);
+
+            if (! $event->success) {
+                $reputation->increment('failed_requests');
+            }
         } else {
-            // Insert new record with geo data
-            $insertData = [
-                'ip' => $event->ip,
+            $reputation->fill(array_merge([
                 'subnet' => $subnet,
                 'reputation_score' => 100,
                 'total_requests' => 1,
                 'failed_requests' => $event->success ? 0 : 1,
                 'blocked_count' => 0,
                 'last_seen_at' => now(),
-                'created_at' => now(),
-                'updated_at' => now(),
-            ];
+            ], $geoData ?? []));
 
-            if ($geoData) {
-                $insertData = array_merge($insertData, $geoData);
-            }
-
-            DB::table('ip_reputation')->insert($insertData);
+            $reputation->save();
         }
 
         // Recalculate reputation score
-        $this->updateReputationScore($event->ip);
+        $this->updateReputationScore($reputation);
     }
 
     /**
@@ -101,25 +87,19 @@ class TrackIpReputationListener implements ShouldQueue
     /**
      * Update reputation score based on success/failure ratio
      */
-    private function updateReputationScore(string $ip): void
+    private function updateReputationScore(IpReputation $reputation): void
     {
-        $record = DB::table('ip_reputation')->where('ip', $ip)->first();
+        $reputation->refresh();
 
-        if (! $record) {
-            return;
-        }
-
-        $total = max($record->total_requests, 1);
-        $failed = $record->failed_requests;
+        $total = max($reputation->total_requests, 1);
+        $failed = $reputation->failed_requests;
 
         // Calculate success rate
         $successRate = 1 - ($failed / $total);
 
         // Convert to 0-100 score
-        $score = max(0, min(100, floor($successRate * 100)));
+        $score = (int) max(0, min(100, floor($successRate * 100)));
 
-        DB::table('ip_reputation')
-            ->where('ip', $ip)
-            ->update(['reputation_score' => $score]);
+        $reputation->update(['reputation_score' => $score]);
     }
 }

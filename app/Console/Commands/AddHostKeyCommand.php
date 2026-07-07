@@ -5,7 +5,7 @@ namespace App\Console\Commands;
 use App\Models\Host;
 use App\Services\SshKeyGenerator;
 use Illuminate\Console\Command;
-use Symfony\Component\Process\Process;
+use Illuminate\Support\Facades\{File, Process};
 
 use function Laravel\Prompts\{error, info, select};
 
@@ -58,21 +58,16 @@ class AddHostKeyCommand extends Command
         // Command to fetch the host key
         $command = sprintf('ssh-keyscan -p %d %s', $host->port_ssh, $host->ip);
 
-        $process = Process::fromShellCommandline($command);
-        $process->run();
+        $result = Process::run($command);
 
-        if (! $process->isSuccessful()) {
-            $this->error('Failed to fetch host key for '.$host->fqdn.': '.$process->getErrorOutput());
+        if (! $result->successful()) {
+            $this->error('Failed to fetch host key for '.$host->fqdn.': '.$result->errorOutput());
 
             return;
         }
 
         // Append the host key to known_hosts
-        file_put_contents(
-            $knownHostsPath,
-            $process->getOutput(),
-            FILE_APPEND
-        );
+        File::append($knownHostsPath, $result->output());
 
         $host->update([
             'ssh_host_key_verified' => true,
@@ -84,16 +79,16 @@ class AddHostKeyCommand extends Command
 
     private function removeExistingHostKey(string $knownHostsPath, string $ip, string $fqdn): void
     {
-        if (! file_exists($knownHostsPath)) {
+        if (! File::exists($knownHostsPath)) {
             return;
         }
 
-        $lines = file($knownHostsPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-        $filteredLines = array_filter($lines, function ($line) use ($ip, $fqdn) {
-            return ! str_contains($line, $ip) && ! str_contains($line, $fqdn);
-        });
+        $filteredLines = File::lines($knownHostsPath)
+            ->filter(function (string $line) use ($ip, $fqdn) {
+                return $line !== '' && ! str_contains($line, $ip) && ! str_contains($line, $fqdn);
+            });
 
-        file_put_contents($knownHostsPath, implode(PHP_EOL, $filteredLines).PHP_EOL);
+        File::put($knownHostsPath, $filteredLines->implode(PHP_EOL).PHP_EOL);
     }
 
     private function selectHost(): ?Host

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Models\Host;
 use App\Services\SshKeyGenerator;
+use Illuminate\Support\Facades\Process;
 
 describe('SshKeyGenerator', function () {
     beforeEach(function () {
@@ -61,9 +62,49 @@ describe('SshKeyGenerator', function () {
             ->and($this->generator->hasKeys($hostWithoutKeys))->toBeFalse();
     });
 
-    // NOTE: Test para fallo de ssh-keygen eliminado
-    // Razón: No tiene sentido como test unitario a nivel de sistema
-    // El comando ssh-keygen es una dependencia del sistema operativo
-    // Si ssh-keygen falla, el problema es de configuración del servidor, no del código
-    // Si se necesita validar en el futuro, debería ser un test de integración de infraestructura
+    it('returns an error when ssh-keygen fails', function () {
+        Process::fake([
+            'ssh-keygen*' => Process::result(errorOutput: 'ssh-keygen: error', exitCode: 1),
+        ]);
+
+        $host = Host::factory()->create([
+            'hash' => null,
+            'hash_public' => null,
+        ]);
+
+        $result = $this->generator->generateForHost($host);
+
+        expect($result)->toHaveKey('success', false)
+            ->and($result['message'])->toBe('Failed to generate SSH keys')
+            ->and($result['error'])->toContain('ssh-keygen: error');
+
+        $host->refresh();
+
+        expect($host->hash)->toBeEmpty()
+            ->and($host->hash_public)->toBeEmpty();
+    });
+
+    it('throws an exception when ssh-keygen fails while generating keys for a fqdn', function () {
+        Process::fake([
+            'ssh-keygen*' => Process::result(errorOutput: 'ssh-keygen: error', exitCode: 1),
+        ]);
+
+        expect(fn () => $this->generator->generateForFqdn('server.example.com'))
+            ->toThrow(Exception::class, 'Failed to generate SSH keys: ssh-keygen: error');
+    });
+
+    it('returns an error when generated key files cannot be read', function () {
+        // Faked process succeeds but never writes key files to disk
+        Process::fake();
+
+        $host = Host::factory()->create([
+            'hash' => null,
+            'hash_public' => null,
+        ]);
+
+        $result = $this->generator->generateForHost($host);
+
+        expect($result)->toHaveKey('success', false)
+            ->and($result['message'])->toBe('Failed to read generated keys');
+    });
 });
