@@ -44,6 +44,11 @@ class UpdateStructureSql extends Command
 
             // Get structure for each table
             foreach ($tables as $table) {
+                // AID-342 (accepted): $tableName is a catalog identifier from
+                // `SHOW FULL TABLES`, never user input, and SQL identifiers are
+                // not bindable as parameters, so the `SHOW CREATE VIEW/TABLE`
+                // interpolations below are safe. This is a develop-only command
+                // (excluded from PHPStan), documented rather than escaped.
                 $tableName = $table->$tableKey;
                 $tableType = $table->$tableTypeKey ?? 'BASE TABLE';
 
