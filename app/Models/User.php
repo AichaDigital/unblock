@@ -6,6 +6,7 @@ namespace App\Models;
 use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\{BelongsTo, BelongsToMany, HasMany, HasManyThrough};
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -169,14 +170,24 @@ class User extends Authenticatable implements FilamentUser
             });
     }
 
-    public function getFullNameAttribute(): string
+    /**
+     * @return Attribute<string, never>
+     */
+    protected function fullName(): Attribute
     {
-        return $this->first_name.' '.$this->last_name;
+        return Attribute::make(
+            get: fn (): string => $this->first_name.' '.$this->last_name,
+        );
     }
 
-    public function getNameAttribute(): string
+    /**
+     * @return Attribute<string, never>
+     */
+    protected function name(): Attribute
     {
-        return $this->getFullNameAttribute();
+        return Attribute::make(
+            get: fn (): string => $this->full_name,
+        );
     }
 
     /** @return BelongsTo<User, $this> */

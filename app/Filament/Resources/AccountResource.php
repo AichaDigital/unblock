@@ -66,7 +66,7 @@ class AccountResource extends Resource
                         Forms\Components\Select::make('user_id')
                             ->label(__('accounts.User'))
                             ->relationship('user', 'first_name')
-                            ->getOptionLabelFromRecordUsing(fn (User $record) => $record->getFullNameAttribute())
+                            ->getOptionLabelFromRecordUsing(fn (User $record) => $record->full_name)
                             ->nullable()
                             ->searchable(['first_name', 'last_name', 'email'])
                             ->preload(),
@@ -106,7 +106,7 @@ class AccountResource extends Resource
                         Infolists\Components\TextEntry::make('user.first_name')
                             ->label(__('accounts.User'))
                             ->placeholder('-')
-                            ->formatStateUsing(fn (Account $record) => $record->user?->getFullNameAttribute() ?? '-')
+                            ->formatStateUsing(fn (Account $record) => $record->user?->full_name ?? '-')
                             ->url(fn (Account $record) => $record->user_id ? UserResource::getUrl('view', ['record' => $record->user_id]) : null)
                             ->icon('heroicon-o-user')
                             ->default('-'),
@@ -174,7 +174,7 @@ class AccountResource extends Resource
                     ->toggleable(),
                 Tables\Columns\TextColumn::make('user.first_name')
                     ->label(__('accounts.User'))
-                    ->formatStateUsing(fn (Account $record) => $record->user?->getFullNameAttribute() ?? '-')
+                    ->formatStateUsing(fn (Account $record) => $record->user?->full_name ?? '-')
                     ->searchable(query: function ($query, $search) {
                         return $query->whereHas('user', function ($q) use ($search) {
                             $q->where('first_name', 'like', "%{$search}%")
@@ -238,7 +238,7 @@ class AccountResource extends Resource
                 Tables\Filters\SelectFilter::make('user_id')
                     ->label(__('accounts.User'))
                     ->relationship('user', 'first_name')
-                    ->getOptionLabelFromRecordUsing(fn (User $record) => $record->getFullNameAttribute())
+                    ->getOptionLabelFromRecordUsing(fn (User $record) => $record->full_name)
                     ->searchable(['first_name', 'last_name', 'email'])
                     ->preload(),
                 Tables\Filters\TernaryFilter::make('suspended_at')

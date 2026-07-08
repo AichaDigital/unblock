@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
@@ -78,26 +79,32 @@ class IpReputation extends Model
     }
 
     /**
-     * Calculate success rate percentage
+     * Calculate success rate percentage.
+     *
+     * @return Attribute<float, never>
      */
-    public function getSuccessRateAttribute(): float
+    protected function successRate(): Attribute
     {
-        if ($this->total_requests === 0) {
-            return 100.0;
-        }
-
-        return round((1 - ($this->failed_requests / $this->total_requests)) * 100, 2);
+        return Attribute::make(
+            get: fn (): float => $this->total_requests === 0
+                ? 100.0
+                : round((1 - ($this->failed_requests / $this->total_requests)) * 100, 2),
+        );
     }
 
     /**
-     * Get reputation badge color for Filament
+     * Get reputation badge color for Filament.
+     *
+     * @return Attribute<string, never>
      */
-    public function getReputationColorAttribute(): string
+    protected function reputationColor(): Attribute
     {
-        return match (true) {
-            $this->reputation_score >= 80 => 'success',
-            $this->reputation_score >= 50 => 'warning',
-            default => 'danger',
-        };
+        return Attribute::make(
+            get: fn (): string => match (true) {
+                $this->reputation_score >= 80 => 'success',
+                $this->reputation_score >= 50 => 'warning',
+                default => 'danger',
+            },
+        );
     }
 }
