@@ -268,6 +268,27 @@ test('dashboard detects client ip correctly', function () {
         ->and($component->get('ipAddress'))->toBe($component->get('detectedIp'));
 });
 
+test('dashboard resolves client ip via request, ignoring spoofed forwarded headers', function () {
+    // Regression (AID-342 H1): the client IP must come from request()->ip(),
+    // which respects TrustProxies, and NOT from a manually read X-Forwarded-For
+    // header. A spoofed forwarded header must never become the detected IP.
+    $admin = User::factory()->admin()->create();
+    $this->actingAs($admin);
+
+    $spoofed = '203.0.113.99'; // TEST-NET-3, public range, would pass the old filter
+    $_SERVER['HTTP_X_FORWARDED_FOR'] = $spoofed;
+
+    try {
+        $component = Livewire::test('unified-dashboard');
+
+        expect($component->get('detectedIp'))->not->toBe($spoofed)
+            ->and($component->get('detectedIp'))->toBe((string) request()->ip())
+            ->and($component->get('ipAddress'))->toBe($component->get('detectedIp'));
+    } finally {
+        unset($_SERVER['HTTP_X_FORWARDED_FOR']);
+    }
+});
+
 test('dashboard selection methods work correctly', function () {
     // Create admin
     $admin = User::factory()->admin()->create();

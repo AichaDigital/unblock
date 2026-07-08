@@ -66,32 +66,15 @@ class extends Component {
     }
 
     /**
-     * Detect client IP address intelligently
+     * Detect client IP address.
+     *
+     * Uses request()->ip(), which respects the TrustProxies configuration and
+     * prevents X-Forwarded-For / X-Real-IP header spoofing. Mirrors
+     * SimpleUnblockForm::detectUserIp() (v1.2.0, "Fixed IP Spoofing").
      */
     private function detectClientIp(): string
     {
-        // Check for IP from various headers (proxy-aware)
-        $headers = [
-            'HTTP_X_FORWARDED_FOR',
-            'HTTP_X_REAL_IP',
-            'HTTP_CLIENT_IP',
-            'REMOTE_ADDR'
-        ];
-
-        foreach ($headers as $header) {
-            if (!empty($_SERVER[$header])) {
-                $ips = explode(',', $_SERVER[$header]);
-                $ip = trim($ips[0]);
-
-                // Validate IP and ensure it's not private
-                if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
-                    return $ip;
-                }
-            }
-        }
-
-        // Fallback to request IP
-        return request()->ip() ?? '0.0.0.0';
+        return (string) request()->ip();
     }
 
     /**
