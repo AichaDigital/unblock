@@ -207,18 +207,16 @@ class WhmcsSynchro
         $inactiveUsers = User::whereNotNull('whmcs_client_id')
             ->whereNotIn('whmcs_client_id', $activeWhmcsIds)
             ->whereNull('deleted_at')
+            // Eager-load only the automatic hostings so the loop below never
+            // issues one query per user (the Hosting SoftDeletes scope excludes
+            // trashed rows).
+            ->with(['hostings' => fn ($query) => $query->where('hosting_manual', false)])
             ->get();
 
         foreach ($inactiveUsers as $user) {
             Log::info("Deactivating inactive user: {$user->email}");
 
-            // Deactivate user's hostings (only automatic ones, not manual)
-            $userHostings = Hosting::where('user_id', $user->id)
-                ->where('hosting_manual', false)
-                ->whereNull('deleted_at')
-                ->get();
-
-            foreach ($userHostings as $hosting) {
+            foreach ($user->hostings as $hosting) {
                 Log::info("Deactivating hosting {$hosting->domain} for inactive user {$user->email}");
                 $hosting->delete(); // Soft delete
             }

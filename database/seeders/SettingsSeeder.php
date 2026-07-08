@@ -17,14 +17,16 @@ class SettingsSeeder extends Seeder
      */
     public function run(): void
     {
+        // Read from config/company.php (which is env()-backed) so the values are
+        // still resolved correctly when the configuration is cached.
         $settings = [
             'company_logo' => null, // Will be uploaded via admin panel
-            'company_name' => env('COMPANY_NAME', 'Your Company'),
-            'support_email' => env('SUPPORT_EMAIL', 'support@example.com'),
-            'support_url' => env('SUPPORT_URL', 'https://support.example.com'),
-            'privacy_policy_url' => env('LEGAL_PRIVACY_URL', ''),
-            'terms_url' => env('LEGAL_TERMS_URL', ''),
-            'data_protection_url' => env('LEGAL_DATA_PROTECTION_URL', ''),
+            'company_name' => config('company.name'),
+            'support_email' => config('company.support.email'),
+            'support_url' => config('company.support.url'),
+            'privacy_policy_url' => config('company.legal.privacy_policy_url'),
+            'terms_url' => config('company.legal.terms_url'),
+            'data_protection_url' => config('company.legal.data_protection_url'),
         ];
 
         foreach ($settings as $key => $value) {

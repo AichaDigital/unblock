@@ -6,6 +6,7 @@ namespace App\Console\Commands\GeoIP;
 
 use App\Services\GeoIPService;
 use Illuminate\Console\Command;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\File;
 
 /**
@@ -71,7 +72,7 @@ class StatusCommand extends Command
         if ($exists) {
             $size = File::size($dbPath);
             $sizeFormatted = $this->formatBytes($size);
-            $modified = date('Y-m-d H:i:s', filemtime($dbPath));
+            $modified = Carbon::createFromTimestamp(File::lastModified($dbPath))->format('Y-m-d H:i:s');
             $age = now()->diffInDays(now()->setTimestamp(filemtime($dbPath)));
 
             $rows[] = ['Size', $sizeFormatted];
@@ -93,7 +94,7 @@ class StatusCommand extends Command
         ];
 
         if ($available) {
-            $buildDate = date('Y-m-d', $info['build_time']);
+            $buildDate = Carbon::createFromTimestamp($info['build_time'])->format('Y-m-d');
             $rows[] = ['Database Type', $info['database_type']];
             $rows[] = ['Build Date', $buildDate];
 

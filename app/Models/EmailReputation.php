@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
@@ -61,46 +62,58 @@ class EmailReputation extends Model
     }
 
     /**
-     * Calculate verification success rate percentage
+     * Calculate verification success rate percentage.
+     *
+     * @return Attribute<float, never>
      */
-    public function getVerificationRateAttribute(): float
+    protected function verificationRate(): Attribute
     {
-        if ($this->total_requests === 0) {
-            return 0.0;
-        }
-
-        return round(($this->verified_requests / $this->total_requests) * 100, 2);
+        return Attribute::make(
+            get: fn (): float => $this->total_requests === 0
+                ? 0.0
+                : round(($this->verified_requests / $this->total_requests) * 100, 2),
+        );
     }
 
     /**
-     * Calculate failure rate percentage
+     * Calculate failure rate percentage.
+     *
+     * @return Attribute<float, never>
      */
-    public function getFailureRateAttribute(): float
+    protected function failureRate(): Attribute
     {
-        if ($this->total_requests === 0) {
-            return 0.0;
-        }
-
-        return round(($this->failed_requests / $this->total_requests) * 100, 2);
+        return Attribute::make(
+            get: fn (): float => $this->total_requests === 0
+                ? 0.0
+                : round(($this->failed_requests / $this->total_requests) * 100, 2),
+        );
     }
 
     /**
-     * Get reputation badge color for Filament
+     * Get reputation badge color for Filament.
+     *
+     * @return Attribute<string, never>
      */
-    public function getReputationColorAttribute(): string
+    protected function reputationColor(): Attribute
     {
-        return match (true) {
-            $this->reputation_score >= 80 => 'success',
-            $this->reputation_score >= 50 => 'warning',
-            default => 'danger',
-        };
+        return Attribute::make(
+            get: fn (): string => match (true) {
+                $this->reputation_score >= 80 => 'success',
+                $this->reputation_score >= 50 => 'warning',
+                default => 'danger',
+            },
+        );
     }
 
     /**
-     * Get truncated email hash for display (first 16 chars)
+     * Get truncated email hash for display (first 16 chars).
+     *
+     * @return Attribute<string, never>
      */
-    public function getTruncatedHashAttribute(): string
+    protected function truncatedHash(): Attribute
     {
-        return substr($this->email_hash, 0, 16).'...';
+        return Attribute::make(
+            get: fn (): string => substr($this->email_hash, 0, 16).'...',
+        );
     }
 }

@@ -6,6 +6,7 @@ namespace App\Models;
 
 use Database\Factories\AbuseIncidentFactory;
 use Illuminate\Database\Eloquent\{Builder, Model};
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
@@ -86,35 +87,43 @@ class AbuseIncident extends Model
     }
 
     /**
-     * Get severity badge color for Filament
+     * Get severity badge color for Filament.
+     *
+     * @return Attribute<string, never>
      */
-    public function getSeverityColorAttribute(): string
+    protected function severityColor(): Attribute
     {
-        return match ($this->severity) {
-            'critical' => 'danger',
-            'high' => 'warning',
-            'medium' => 'info',
-            'low' => 'gray',
-            default => 'gray',
-        };
+        return Attribute::make(
+            get: fn (): string => match ($this->severity) {
+                'critical' => 'danger',
+                'high' => 'warning',
+                'medium' => 'info',
+                'low' => 'gray',
+                default => 'gray',
+            },
+        );
     }
 
     /**
-     * Get incident type label for display
+     * Get incident type label for display.
+     *
+     * @return Attribute<string, never>
      */
-    public function getIncidentTypeLabelAttribute(): string
+    protected function incidentTypeLabel(): Attribute
     {
-        return match ($this->incident_type) {
-            'rate_limit_exceeded' => __('firewall.abuse_incidents.types.rate_limit_exceeded'),
-            'ip_spoofing_attempt' => __('firewall.abuse_incidents.types.ip_spoofing_attempt'),
-            'otp_bruteforce' => __('firewall.abuse_incidents.types.otp_bruteforce'),
-            'honeypot_triggered' => __('firewall.abuse_incidents.types.honeypot_triggered'),
-            'invalid_otp_attempts' => __('firewall.abuse_incidents.types.invalid_otp_attempts'),
-            'ip_mismatch' => __('firewall.abuse_incidents.types.ip_mismatch'),
-            'suspicious_pattern' => __('firewall.abuse_incidents.types.suspicious_pattern'),
-            'other' => __('firewall.abuse_incidents.types.other'),
-            default => ucfirst(str_replace('_', ' ', $this->incident_type)),
-        };
+        return Attribute::make(
+            get: fn (): string => match ($this->incident_type) {
+                'rate_limit_exceeded' => __('firewall.abuse_incidents.types.rate_limit_exceeded'),
+                'ip_spoofing_attempt' => __('firewall.abuse_incidents.types.ip_spoofing_attempt'),
+                'otp_bruteforce' => __('firewall.abuse_incidents.types.otp_bruteforce'),
+                'honeypot_triggered' => __('firewall.abuse_incidents.types.honeypot_triggered'),
+                'invalid_otp_attempts' => __('firewall.abuse_incidents.types.invalid_otp_attempts'),
+                'ip_mismatch' => __('firewall.abuse_incidents.types.ip_mismatch'),
+                'suspicious_pattern' => __('firewall.abuse_incidents.types.suspicious_pattern'),
+                'other' => __('firewall.abuse_incidents.types.other'),
+                default => ucfirst(str_replace('_', ' ', $this->incident_type)),
+            },
+        );
     }
 
     /**

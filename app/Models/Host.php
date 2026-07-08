@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\PanelType;
 use Database\Factories\HostFactory;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\{Model, SoftDeletes};
 use Illuminate\Database\Eloquent\Relations\{HasMany, HasManyThrough};
@@ -60,60 +61,61 @@ class Host extends Model
         'hash_public',
     ];
 
-    /** @param string|null $value */
-    public function setHashAttribute($value): void
+    /**
+     * Encrypted private SSH key. Decrypts on read, with a plaintext fallback for
+     * legacy data; never overwrites the stored value when set to null/empty.
+     *
+     * @return Attribute<string, string|null>
+     */
+    protected function hash(): Attribute
     {
-        if (! is_null($value) && $value !== '') {
-            $this->attributes['hash'] = Crypt::encrypt($value);
-        }
+        return Attribute::make(
+            get: function (?string $value): string {
+                if (! $value) {
+                    return '';
+                }
+
+                try {
+                    return Crypt::decrypt($value);
+                } catch (Throwable) {
+                    // Fallback: value might already be plaintext (legacy data)
+                    $trimmed = trim($value);
+
+                    return str_contains($trimmed, 'BEGIN OPENSSH PRIVATE KEY') ? $trimmed : '';
+                }
+            },
+            set: fn (?string $value): array => (! is_null($value) && $value !== '')
+                ? ['hash' => Crypt::encrypt($value)]
+                : [],
+        );
     }
 
-    /** @param string|null $value */
-    public function getHashAttribute($value): string
+    /**
+     * Encrypted public SSH key. Same decrypt/fallback/no-overwrite semantics as {@see hash()}.
+     *
+     * @return Attribute<string, string|null>
+     */
+    protected function hashPublic(): Attribute
     {
-        if (! $value) {
-            return '';
-        }
+        return Attribute::make(
+            get: function (?string $value): string {
+                if (! $value) {
+                    return '';
+                }
 
-        try {
-            return Crypt::decrypt($value);
-        } catch (Throwable $exception) {
-            // Fallback: value might already be plaintext (legacy data)
-            $trimmed = trim((string) $value);
-            if (str_contains($trimmed, 'BEGIN OPENSSH PRIVATE KEY')) {
-                return $trimmed;
-            }
+                try {
+                    return Crypt::decrypt($value);
+                } catch (Throwable) {
+                    // Fallback: value might already be plaintext (legacy data)
+                    $trimmed = trim($value);
 
-            return '';
-        }
-    }
-
-    /** @param string|null $value */
-    public function setHashPublicAttribute($value): void
-    {
-        if (! is_null($value) && $value !== '') {
-            $this->attributes['hash_public'] = Crypt::encrypt($value);
-        }
-    }
-
-    /** @param string|null $value */
-    public function getHashPublicAttribute($value): string
-    {
-        if (! $value) {
-            return '';
-        }
-
-        try {
-            return Crypt::decrypt($value);
-        } catch (Throwable $exception) {
-            // Fallback: value might already be plaintext (legacy data)
-            $trimmed = trim((string) $value);
-            if (str_starts_with($trimmed, 'ssh-')) {
-                return $trimmed;
-            }
-
-            return '';
-        }
+                    return str_starts_with($trimmed, 'ssh-') ? $trimmed : '';
+                }
+            },
+            set: fn (?string $value): array => (! is_null($value) && $value !== '')
+                ? ['hash_public' => Crypt::encrypt($value)]
+                : [],
+        );
     }
 
     public function isHostKeyVerified(): bool

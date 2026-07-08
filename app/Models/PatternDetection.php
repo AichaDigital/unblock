@@ -6,6 +6,7 @@ namespace App\Models;
 
 use Database\Factories\PatternDetectionFactory;
 use Illuminate\Database\Eloquent\{Builder, Model};
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\{Carbon, Collection};
 
@@ -138,45 +139,57 @@ class PatternDetection extends Model
     }
 
     /**
-     * Get severity badge color for Filament
+     * Get severity badge color for Filament.
+     *
+     * @return Attribute<string, never>
      */
-    public function getSeverityColorAttribute(): string
+    protected function severityColor(): Attribute
     {
-        return match ($this->severity) {
-            self::SEVERITY_CRITICAL => 'danger',
-            self::SEVERITY_HIGH => 'warning',
-            self::SEVERITY_MEDIUM => 'info',
-            self::SEVERITY_LOW => 'gray',
-            default => 'gray',
-        };
+        return Attribute::make(
+            get: fn (): string => match ($this->severity) {
+                self::SEVERITY_CRITICAL => 'danger',
+                self::SEVERITY_HIGH => 'warning',
+                self::SEVERITY_MEDIUM => 'info',
+                self::SEVERITY_LOW => 'gray',
+                default => 'gray',
+            },
+        );
     }
 
     /**
-     * Get pattern type label for display
+     * Get pattern type label for display.
+     *
+     * @return Attribute<string, never>
      */
-    public function getPatternTypeLabelAttribute(): string
+    protected function patternTypeLabel(): Attribute
     {
-        return match ($this->pattern_type) {
-            self::TYPE_DISTRIBUTED_ATTACK => 'Distributed Attack',
-            self::TYPE_SUBNET_SCAN => 'Subnet Scan',
-            self::TYPE_COORDINATED_ATTACK => 'Coordinated Attack',
-            self::TYPE_ANOMALY => 'Traffic Anomaly',
-            self::TYPE_ANOMALY_SPIKE => 'Anomaly Spike',
-            self::TYPE_OTHER => 'Other',
-            default => ucfirst(str_replace('_', ' ', $this->pattern_type)),
-        };
+        return Attribute::make(
+            get: fn (): string => match ($this->pattern_type) {
+                self::TYPE_DISTRIBUTED_ATTACK => 'Distributed Attack',
+                self::TYPE_SUBNET_SCAN => 'Subnet Scan',
+                self::TYPE_COORDINATED_ATTACK => 'Coordinated Attack',
+                self::TYPE_ANOMALY => 'Traffic Anomaly',
+                self::TYPE_ANOMALY_SPIKE => 'Anomaly Spike',
+                self::TYPE_OTHER => 'Other',
+                default => ucfirst(str_replace('_', ' ', $this->pattern_type)),
+            },
+        );
     }
 
     /**
-     * Get confidence badge color
+     * Get confidence badge color.
+     *
+     * @return Attribute<string, never>
      */
-    public function getConfidenceColorAttribute(): string
+    protected function confidenceColor(): Attribute
     {
-        return match (true) {
-            $this->confidence_score >= 75 => 'success',
-            $this->confidence_score >= 50 => 'warning',
-            default => 'danger',
-        };
+        return Attribute::make(
+            get: fn (): string => match (true) {
+                $this->confidence_score >= 75 => 'success',
+                $this->confidence_score >= 50 => 'warning',
+                default => 'danger',
+            },
+        );
     }
 
     /**
