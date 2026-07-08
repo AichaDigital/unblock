@@ -2,7 +2,7 @@
 
 use App\Actions\WhmcsSynchro;
 use App\Models\{Host, Hosting, User};
-use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\{Config, DB};
 use Tests\Traits\WhmcsTestTrait;
 
 uses(WhmcsTestTrait::class);
@@ -123,6 +123,46 @@ test('processes active hostings', function () {
         ->and($user->hosts->contains($host->id))->toBeTrue()
         ->and($user->hosts->first()->pivot->is_active)->toBe(1);
 
+});
+
+test('deactivateInactiveUsers eager-loads hostings without an N+1', function () {
+    // Regression (AID-342 H2): loading each inactive user's hostings must not
+    // issue one query per user. Eager-load with a constraint keeps the hostings
+    // SELECT count constant regardless of how many inactive users there are.
+    $host = Host::factory()->create();
+
+    // 3 inactive users (whmcs_client_id set, none in the "active" list), each
+    // with one automatic hosting (to deactivate) and one manual (to preserve).
+    $users = collect([101, 102, 103])->map(function (int $clientId) use ($host) {
+        $user = User::factory()->withWhmcsClientId($clientId)->create();
+        Hosting::factory()->create(['user_id' => $user->id, 'host_id' => $host->id]);
+        Hosting::factory()->manual()->create(['user_id' => $user->id, 'host_id' => $host->id]);
+
+        return $user;
+    });
+
+    $action = new WhmcsSynchro;
+
+    DB::enableQueryLog();
+    // Empty active list => every user with a whmcs_client_id is inactive.
+    (function () {
+        $this->deactivateInactiveUsers([]);
+    })->call($action);
+
+    $hostingSelects = collect(DB::getQueryLog())
+        ->filter(fn (array $q) => str_contains($q['query'], 'select')
+            && str_contains($q['query'], '"hostings"'))
+        ->count();
+    DB::disableQueryLog();
+
+    // Exactly one SELECT for hostings (eager-loaded), not one per user.
+    expect($hostingSelects)->toBe(1);
+
+    // Behaviour preserved: automatic hostings soft-deleted, manual ones kept,
+    // and all inactive users soft-deleted.
+    $users->each(fn (User $user) => expect($user->fresh()->trashed())->toBeTrue());
+    expect(Hosting::whereNull('deleted_at')->where('hosting_manual', true)->count())->toBe(3)
+        ->and(Hosting::whereNull('deleted_at')->where('hosting_manual', false)->count())->toBe(0);
 });
 
 test('handles inactive hostings', function () {
