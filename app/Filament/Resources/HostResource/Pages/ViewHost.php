@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources\HostResource\Pages;
 
 use App\Filament\Actions\{GenerateSshKeysAction, TestHostConnectionAction};
