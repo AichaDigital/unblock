@@ -11,6 +11,7 @@ class ListEmailReputations extends ListRecords
 {
     protected static string $resource = EmailReputationResource::class;
 
+    #[\Override]
     protected function getHeaderActions(): array
     {
         return [

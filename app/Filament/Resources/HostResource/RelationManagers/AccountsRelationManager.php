@@ -11,6 +11,7 @@ class AccountsRelationManager extends RelationManager
 {
     protected static string $relationship = 'accounts';
 
+    #[\Override]
     public function form(Schema $schema): Schema
     {
         return $schema

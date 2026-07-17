@@ -24,6 +24,7 @@ class UserResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-users';
 
+    #[\Override]
     public static function form(Schema $schema): Schema
     {
         return $schema
@@ -94,6 +95,7 @@ class UserResource extends Resource
             ])->columns(1);
     }
 
+    #[\Override]
     public static function table(Table $table): Table
     {
         return $table
@@ -180,6 +182,7 @@ class UserResource extends Resource
             ]));
     }
 
+    #[\Override]
     public static function getRelations(): array
     {
         return [
@@ -189,6 +192,7 @@ class UserResource extends Resource
         ];
     }
 
+    #[\Override]
     public static function getPages(): array
     {
         return [
@@ -199,6 +203,7 @@ class UserResource extends Resource
         ];
     }
 
+    #[\Override]
     public static function getGloballySearchableAttributes(): array
     {
         return ['first_name', 'last_name', 'company_name', 'email'];

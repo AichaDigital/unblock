@@ -32,6 +32,7 @@ class MakeFilamentUserCommand extends FilamentMakeUserCommand
     /**
      * Execute the console command.
      */
+    #[\Override]
     public function handle(): int
     {
         $this->error('❌ This command has been disabled.');

@@ -21,11 +21,11 @@ class UpdateDatabaseCommand extends Command
 
     protected $description = 'Download and update MaxMind GeoLite2-City database';
 
-    private const MAXMIND_URL = 'https://download.maxmind.com/app/geoip_download';
+    private const string MAXMIND_URL = 'https://download.maxmind.com/app/geoip_download';
 
-    private const EDITION_ID = 'GeoLite2-City';
+    private const string EDITION_ID = 'GeoLite2-City';
 
-    private const MAX_DB_AGE_DAYS = 7; // Download if older than 7 days
+    private const int MAX_DB_AGE_DAYS = 7; // Download if older than 7 days
 
     public function handle(): int
     {

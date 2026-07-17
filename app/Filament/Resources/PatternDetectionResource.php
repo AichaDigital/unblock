@@ -19,6 +19,7 @@ class PatternDetectionResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-shield-exclamation';
 
+    #[\Override]
     public static function getNavigationGroup(): ?string
     {
         return __('pattern_detections.Analytics');
@@ -26,16 +27,19 @@ class PatternDetectionResource extends Resource
 
     protected static ?int $navigationSort = 1;
 
+    #[\Override]
     public static function getNavigationLabel(): string
     {
         return __('pattern_detections.Pattern Detections');
     }
 
+    #[\Override]
     public static function getModelLabel(): string
     {
         return __('pattern_detections.Pattern Detection');
     }
 
+    #[\Override]
     public static function getPluralModelLabel(): string
     {
         return __('pattern_detections.Pattern Detections');
@@ -95,6 +99,7 @@ class PatternDetectionResource extends Resource
             ]);
     }
 
+    #[\Override]
     public static function table(Table $table): Table
     {
         return $table
@@ -225,6 +230,7 @@ class PatternDetectionResource extends Resource
             ->defaultSort('detected_at', 'desc');
     }
 
+    #[\Override]
     public static function getRelations(): array
     {
         return [
@@ -232,6 +238,7 @@ class PatternDetectionResource extends Resource
         ];
     }
 
+    #[\Override]
     public static function getPages(): array
     {
         return [

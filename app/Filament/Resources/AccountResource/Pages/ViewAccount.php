@@ -11,6 +11,7 @@ class ViewAccount extends ViewRecord
 {
     protected static string $resource = AccountResource::class;
 
+    #[\Override]
     protected function getHeaderActions(): array
     {
         return [

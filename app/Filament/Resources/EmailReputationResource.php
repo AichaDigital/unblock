@@ -23,11 +23,13 @@ class EmailReputationResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-envelope';
 
+    #[\Override]
     public static function getNavigationLabel(): string
     {
         return __('firewall.email_reputation.navigation_label');
     }
 
+    #[\Override]
     public static function getNavigationGroup(): ?string
     {
         return __('firewall.email_reputation.navigation_group');
@@ -35,16 +37,19 @@ class EmailReputationResource extends Resource
 
     protected static ?int $navigationSort = 2;
 
+    #[\Override]
     public static function getModelLabel(): string
     {
         return __('firewall.email_reputation.singular');
     }
 
+    #[\Override]
     public static function getPluralModelLabel(): string
     {
         return __('firewall.email_reputation.plural');
     }
 
+    #[\Override]
     public static function form(Schema $schema): Schema
     {
         return $schema
@@ -107,6 +112,7 @@ class EmailReputationResource extends Resource
             ]);
     }
 
+    #[\Override]
     public static function table(Table $table): Table
     {
         return $table
@@ -246,6 +252,7 @@ class EmailReputationResource extends Resource
             ->defaultSort('last_seen_at', 'desc');
     }
 
+    #[\Override]
     public static function getRelations(): array
     {
         return [
@@ -253,6 +260,7 @@ class EmailReputationResource extends Resource
         ];
     }
 
+    #[\Override]
     public static function getPages(): array
     {
         return [

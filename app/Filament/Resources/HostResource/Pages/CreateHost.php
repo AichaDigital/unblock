@@ -9,6 +9,7 @@ class CreateHost extends CreateRecord
 {
     protected static string $resource = HostResource::class;
 
+    #[\Override]
     protected function getHeaderActions(): array
     {
         return [

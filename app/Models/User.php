@@ -71,6 +71,7 @@ class User extends Authenticatable implements FilamentUser
      * When a parent user is restored, their authorized users are also restored
      * thus recovering their access rights.
      */
+    #[\Override]
     protected static function booted(): void
     {
         // When a parent user is deleted, delete their authorized users

@@ -10,6 +10,7 @@ class ViewPatternDetection extends ViewRecord
 {
     protected static string $resource = PatternDetectionResource::class;
 
+    #[\Override]
     protected function getHeaderActions(): array
     {
         return [

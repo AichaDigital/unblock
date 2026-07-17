@@ -11,6 +11,7 @@ class ListAbuseIncidents extends ListRecords
 {
     protected static string $resource = AbuseIncidentResource::class;
 
+    #[\Override]
     protected function getHeaderActions(): array
     {
         return [

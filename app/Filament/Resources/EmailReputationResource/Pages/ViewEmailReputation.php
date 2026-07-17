@@ -12,6 +12,7 @@ class ViewEmailReputation extends ViewRecord
 {
     protected static string $resource = EmailReputationResource::class;
 
+    #[\Override]
     protected function getHeaderActions(): array
     {
         return [

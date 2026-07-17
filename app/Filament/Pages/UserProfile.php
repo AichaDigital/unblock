@@ -28,16 +28,19 @@ class UserProfile extends Page implements HasForms
 
     protected static ?int $navigationSort = 1000;
 
+    #[\Override]
     public static function getNavigationLabel(): string
     {
         return __('user_profile.navigation_label');
     }
 
+    #[\Override]
     public function getTitle(): string|Htmlable
     {
         return __('user_profile.title');
     }
 
+    #[\Override]
     public static function getNavigationGroup(): ?string
     {
         return __('user_profile.navigation_group');

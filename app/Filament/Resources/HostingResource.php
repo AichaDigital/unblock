@@ -23,6 +23,7 @@ class HostingResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-rectangle-stack';
 
+    #[\Override]
     public static function form(Schema $schema): Schema
     {
         return $schema
@@ -61,6 +62,7 @@ class HostingResource extends Resource
             ]);
     }
 
+    #[\Override]
     public static function infolist(Schema $schema): Schema
     {
         return $schema
@@ -110,6 +112,7 @@ class HostingResource extends Resource
             ]);
     }
 
+    #[\Override]
     public static function table(Table $table): Table
     {
         return $table
@@ -190,6 +193,7 @@ class HostingResource extends Resource
             ]));
     }
 
+    #[\Override]
     public static function getPages(): array
     {
         return [
@@ -200,6 +204,7 @@ class HostingResource extends Resource
         ];
     }
 
+    #[\Override]
     public static function getGloballySearchableAttributes(): array
     {
         return ['domain', 'username'];

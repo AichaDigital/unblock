@@ -24,11 +24,13 @@ class AbuseIncidentResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-exclamation-triangle';
 
+    #[\Override]
     public static function getNavigationLabel(): string
     {
         return __('firewall.abuse_incidents.navigation_label');
     }
 
+    #[\Override]
     public static function getNavigationGroup(): ?string
     {
         return __('firewall.abuse_incidents.navigation_group');
@@ -36,16 +38,19 @@ class AbuseIncidentResource extends Resource
 
     protected static ?int $navigationSort = 3;
 
+    #[\Override]
     public static function getModelLabel(): string
     {
         return __('firewall.abuse_incidents.singular');
     }
 
+    #[\Override]
     public static function getPluralModelLabel(): string
     {
         return __('firewall.abuse_incidents.plural');
     }
 
+    #[\Override]
     public static function form(Schema $schema): Schema
     {
         return $schema
@@ -117,6 +122,7 @@ class AbuseIncidentResource extends Resource
             ]);
     }
 
+    #[\Override]
     public static function table(Table $table): Table
     {
         return $table
@@ -314,6 +320,7 @@ class AbuseIncidentResource extends Resource
             ->poll('30s'); // Auto-refresh every 30 seconds
     }
 
+    #[\Override]
     public static function getRelations(): array
     {
         return [
@@ -321,6 +328,7 @@ class AbuseIncidentResource extends Resource
         ];
     }
 
+    #[\Override]
     public static function getPages(): array
     {
         return [

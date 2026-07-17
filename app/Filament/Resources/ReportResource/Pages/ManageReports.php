@@ -10,6 +10,7 @@ class ManageReports extends ManageRecords
 {
     protected static string $resource = ReportResource::class;
 
+    #[\Override]
     protected function getHeaderActions(): array
     {
         return [

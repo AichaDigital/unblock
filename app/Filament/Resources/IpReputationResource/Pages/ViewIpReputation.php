@@ -12,6 +12,7 @@ class ViewIpReputation extends ViewRecord
 {
     protected static string $resource = IpReputationResource::class;
 
+    #[\Override]
     protected function getHeaderActions(): array
     {
         return [

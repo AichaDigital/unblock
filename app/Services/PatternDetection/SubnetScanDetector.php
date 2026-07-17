@@ -22,12 +22,12 @@ class SubnetScanDetector
     /**
      * Minimum emails to trigger detection
      */
-    private const MIN_EMAILS = 10;
+    private const int MIN_EMAILS = 10;
 
     /**
      * Time window in minutes
      */
-    private const TIME_WINDOW = 120;
+    private const int TIME_WINDOW = 120;
 
     /**
      * Detect subnet scans for all subnets with recent activity

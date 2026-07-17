@@ -10,6 +10,7 @@ class ListHosts extends ListRecords
 {
     protected static string $resource = HostResource::class;
 
+    #[\Override]
     protected function getHeaderActions(): array
     {
         return [

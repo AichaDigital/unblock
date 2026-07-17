@@ -11,6 +11,7 @@ class ListIpReputations extends ListRecords
 {
     protected static string $resource = IpReputationResource::class;
 
+    #[\Override]
     protected function getHeaderActions(): array
     {
         return [

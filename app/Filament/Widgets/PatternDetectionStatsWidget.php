@@ -10,6 +10,7 @@ class PatternDetectionStatsWidget extends BaseWidget
 {
     protected static ?int $sort = 2;
 
+    #[\Override]
     protected function getStats(): array
     {
         $total = PatternDetection::count();
