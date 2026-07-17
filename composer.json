@@ -22,6 +22,7 @@
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^4.0",
+        "driftingly/rector-laravel": "^2.5",
         "fakerphp/faker": "^1.23",
         "infection/infection": "^0.32.0",
         "larastan/larastan": "^3.6",
@@ -35,7 +36,8 @@
         "pestphp/pest-plugin-browser": "^4.0",
         "pestphp/pest-plugin-laravel": "^4.0",
         "pestphp/pest-plugin-livewire": "^4.0",
-        "phpstan/phpstan": "^2.1"
+        "phpstan/phpstan": "^2.1",
+        "rector/rector": "^2.5"
     },
     "autoload": {
         "psr-4": {
@@ -88,6 +90,15 @@
         "syntax-check": [
             "bash ./scripts/check-syntax.sh"
         ],
+        "refactor": [
+            "Composer\\Config::disableProcessTimeout",
+            "./vendor/bin/rector process",
+            "./vendor/bin/pint --dirty"
+        ],
+        "refactor:dry": [
+            "Composer\\Config::disableProcessTimeout",
+            "./vendor/bin/rector process --dry-run"
+        ],
         "test": [
             "@php artisan config:clear --ansi",
             "@php artisan test"
@@ -116,6 +127,7 @@
             "@validate-lock",
             "@syntax-check",
             "@pint-test",
+            "@refactor:dry",
             "@phpstan",
             "@test"
         ],
@@ -123,6 +135,7 @@
             "@validate-lock",
             "@syntax-check",
             "@pint-test",
+            "@refactor:dry",
             "@phpstan",
             "@test-coverage"
         ],

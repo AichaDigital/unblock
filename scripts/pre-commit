@@ -1,7 +1,7 @@
 #!/bin/bash
 # Pre-commit hook for unblock project
 # Install: composer run hook:install
-# Checks: lock file sync, syntax, lint, PHPStan, tests
+# Checks: lock file sync, syntax, lint, Rector, PHPStan, tests
 
 set -e
 
@@ -91,7 +91,21 @@ else
     pass "No PHP files to lint"
 fi
 
-# ── 4. PHPStan static analysis ──────────────────────────────────────
+# ── 4. Rector (refactoring gate) ────────────────────────────────────
+#
+# Runs over all of app/, matching how Pint and PHPStan already behave here.
+# Rules live in rector.php and are enabled in curated waves (AID-528).
+# `composer refactor` applies the pending changes.
+
+echo "Checking pending refactorings..."
+
+vendor/bin/rector process --dry-run --no-progress-bar --no-diffs > /dev/null 2>&1 || {
+    fail "Rector found pending refactorings. Run 'composer refactor:dry' to review, 'composer refactor' to apply."
+}
+
+pass "Rector OK"
+
+# ── 5. PHPStan static analysis ──────────────────────────────────────
 
 echo "Running static analysis..."
 
@@ -101,7 +115,7 @@ vendor/bin/phpstan analyse --memory-limit=1G --no-progress --quiet 2>/dev/null |
 
 pass "PHPStan OK"
 
-# ── 5. Tests ─────────────────────────────────────────────────────────
+# ── 6. Tests ─────────────────────────────────────────────────────────
 
 echo "Running tests..."
 
