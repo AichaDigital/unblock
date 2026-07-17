@@ -221,12 +221,10 @@ class SyncDirectAdminAccountsAction
     {
         $remoteUsernames = array_column($remoteAccounts, 'username');
 
-        $marked = Account::where('host_id', $host->id)
+        return Account::where('host_id', $host->id)
             ->whereNull('deleted_at')
             ->whereNotIn('username', $remoteUsernames)
             ->update(['deleted_at' => now()]);
-
-        return $marked;
     }
 
     /**

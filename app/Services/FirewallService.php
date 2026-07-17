@@ -24,8 +24,6 @@ class FirewallService
 {
     private array $data = [];
 
-    private string $modSecurityOutput = '';
-
     /**
      * Execute firewall command via SSH
      *
@@ -200,7 +198,7 @@ class FirewallService
     private function processModSecurityJson(string $json_output, string $targetIp): string
     {
         $lines = collect(explode("\n", $json_output))
-            ->filter(fn ($line) => ! empty(trim($line)))
+            ->reject(fn ($line): bool => empty(trim($line)))
             ->map(function ($line) use ($targetIp) {
                 try {
                     $data = json_decode(trim($line), true, flags: JSON_THROW_ON_ERROR);
@@ -306,14 +304,6 @@ class FirewallService
     public function getErrors(): array
     {
         return $this->data['errors'] ?? [];
-    }
-
-    /**
-     * Set ModSecurity output for testing
-     */
-    public function setModSecurityOutput(string $output): void
-    {
-        $this->modSecurityOutput = $output;
     }
 
     /**

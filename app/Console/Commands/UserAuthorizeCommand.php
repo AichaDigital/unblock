@@ -418,7 +418,7 @@ class UserAuthorizeCommand extends Command
             options: $permissions->mapWithKeys(fn ($permission) => [
                 (string) $permission->id => "{$permission->hosting->domain} - {$permission->hosting->host->fqdn} ".
                     ($permission->is_active ? '(Active)' : '(Inactive)'),
-            ])->toArray(),
+            ])->all(),
             required: false
         );
 
