@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /** @file app/Console/Commands/Develop/UpdateStructureSql.php */
 
 namespace App\Console\Commands\Develop;

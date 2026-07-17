@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Rector\Config\RectorConfig;
 use Rector\Php83\Rector\ClassConst\AddTypeToConstRector;
 use Rector\Php83\Rector\ClassMethod\AddOverrideAttributeToOverriddenMethodsRector;
+use Rector\TypeDeclaration\Rector\StmtsAwareInterface\DeclareStrictTypesRector;
 use Rector\ValueObject\PhpVersion;
 use RectorLaravel\Rector\FuncCall\{AppToResolveRector, RemoveDumpDataDeadCodeRector, ThrowIfAndThrowUnlessExceptionsToUseClassStringRector};
 use RectorLaravel\Rector\If_\ThrowIfRector;
@@ -39,10 +40,14 @@ use RectorLaravel\Rector\If_\ThrowIfRector;
  * the gate, not protection. ReadOnlyClassRector is additionally a forward
  * risk here: Filament/Livewire components mutate properties by design.
  *
- * Convention ownership: unlike openmizan, this repo's pint.json does NOT set
- * `declare_strict_types`, and app/ sits at 109/182. DeclareStrictTypesRector
- * is therefore deliberately absent — enabling it is a semantic change over 73
- * files (runtime type coercion) and belongs to its own wave, not here.
+ * Convention ownership (AID-529): unlike openmizan, this repo's pint.json does
+ * NOT set `declare_strict_types` — and it stays that way on purpose. The gate
+ * owns the convention for app/: DeclareStrictTypesRector below makes a new
+ * file without the declare fail `refactor:dry`, so Pint is not needed to
+ * enforce it here. Pint would only add reach OUTSIDE app/ (measured at
+ * adoption: tests/ 44 files short of the convention, routes/ 2, bootstrap/ 6)
+ * — that is a separate wave decision with a different mechanism and a
+ * different risk profile, not a side effect of this one.
  */
 return RectorConfig::configure()
     ->withPaths([
@@ -58,6 +63,9 @@ return RectorConfig::configure()
         // above. Measured with --clear-cache: 48 + 9 files, overlap zero.
         AddOverrideAttributeToOverriddenMethodsRector::class,
         AddTypeToConstRector::class,
+        // Wave 1 (AID-529), landed last: the only semantic rule here, since
+        // strict_types changes runtime type coercion rather than shape.
+        DeclareStrictTypesRector::class,
     ])
     ->withSkip([
         // Excluded by design decision (AID-528), armed BEFORE any wave enables
