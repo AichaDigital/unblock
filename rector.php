@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use Rector\CodeQuality\Rector\Identical\StrlenZeroToIdenticalEmptyStringRector;
+use Rector\CodeQuality\Rector\If_\{CombineIfRector, ExplicitBoolCompareRector, ObjectExplicitBoolCompareRector, SimplifyIfReturnBoolRector};
 use Rector\Config\RectorConfig;
 use Rector\Php83\Rector\ClassConst\AddTypeToConstRector;
 use Rector\Php83\Rector\ClassMethod\AddOverrideAttributeToOverriddenMethodsRector;
@@ -66,6 +68,29 @@ return RectorConfig::configure()
         // Wave 1 (AID-529), landed last: the only semantic rule here, since
         // strict_types changes runtime type coercion rather than shape.
         DeclareStrictTypesRector::class,
+        // Wave 3 (AID-531). ONLY the equivalence-safe cosmetics from
+        // LARAVEL_CODE_QUALITY + codeQuality level 50. The rest of that set
+        // is NOT mechanical and was split off by risk profile:
+        //   - MakeModelAttributesAndScopesProtectedRector (27 scopes
+        //     public→protected, public surface) → AID-540
+        //   - CarbonToDateFacadeRector + NowFunc...ToTodayFunc (runtime class
+        //     + temporal semantics) → AID-541
+        //   - ApplyDefaultInsteadOfNullCoalesceRector (?? vs ?: — differs on
+        //     false/0/'') → AID-542
+        //   - DispatchToHelperFunctions / RedirectRouteToToRoute /
+        //     CompactToVariables / ThrowWithPreviousException (equivalence
+        //     must be shown per transform) → AID-543
+        // Each transform below was diff-verified equivalence-preserving; the
+        // ExplicitBoolCompare rewrites were confirmed to fire only on
+        // string-typed vars (Rector left the ?string option() path alone).
+        // NB: measure/apply waves with `rector --clear-cache` — the cache does
+        // not discriminate the rule set, so `composer refactor` after a local
+        // measuring session can under-apply (16 files measured, 3 applied).
+        ObjectExplicitBoolCompareRector::class,
+        ExplicitBoolCompareRector::class,
+        SimplifyIfReturnBoolRector::class,
+        StrlenZeroToIdenticalEmptyStringRector::class,
+        CombineIfRector::class,
     ])
     ->withSkip([
         // Excluded by design decision (AID-528), armed BEFORE any wave enables

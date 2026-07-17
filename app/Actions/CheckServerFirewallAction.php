@@ -85,7 +85,7 @@ class CheckServerFirewallAction
                 'error' => $e->getMessage(),
             ];
         } finally {
-            if ($keyName) {
+            if ($keyName !== '' && $keyName !== '0') {
                 $this->firewallService->removeMultiplexingPath($keyName);
             }
         }

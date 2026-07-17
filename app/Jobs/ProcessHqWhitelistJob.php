@@ -33,7 +33,7 @@ class ProcessHqWhitelistJob implements ShouldQueue
     public function handle(FirewallService $firewallService): void
     {
         $hqHost = $this->resolveHqHost();
-        if (! $hqHost) {
+        if (! $hqHost instanceof Host) {
             Log::warning('HQ host not found, skipping HQ whitelist check');
 
             return;
@@ -95,7 +95,7 @@ class ProcessHqWhitelistJob implements ShouldQueue
             throw $e;
         } finally {
             // Best effort cleanup of temporary key file
-            if ($keyPath) {
+            if ($keyPath !== '' && $keyPath !== '0') {
                 try {
                     $fileName = basename($keyPath);
                     Storage::disk('ssh')->delete($fileName);

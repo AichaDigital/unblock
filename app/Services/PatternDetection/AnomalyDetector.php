@@ -54,10 +54,8 @@ class AnomalyDetector
         $currentTraffic = $this->getCurrentTraffic();
 
         // Check if anomaly detected
-        if ($this->isAnomaly($currentTraffic, $baseline)) {
-            if ($detection = $this->createAnomalyDetection($currentTraffic, $baseline)) {
-                $detections[] = $detection;
-            }
+        if ($this->isAnomaly($currentTraffic, $baseline) && $detection = $this->createAnomalyDetection($currentTraffic, $baseline)) {
+            $detections[] = $detection;
         }
 
         return $detections;

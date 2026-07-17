@@ -71,7 +71,7 @@ class UserAuthorizeCommand extends Command
         $parentUserId = search(
             label: 'Select the parent user:',
             options: function (string $value) use ($parentUsers) {
-                if (strlen($value) === 0) {
+                if ($value === '') {
                     return $parentUsers->take(10)->mapWithKeys(fn ($user) => [
                         (string) $user->id => "$user->name ($user->email)",
                     ])->toArray();
@@ -145,7 +145,7 @@ class UserAuthorizeCommand extends Command
         $userId = search(
             label: 'Select the authorized user:',
             options: function (string $value) use ($authorizedUsers) {
-                if (strlen($value) === 0) {
+                if ($value === '') {
                     return $authorizedUsers->take(10)->mapWithKeys(fn ($user) => [
                         (string) $user->id => "$user->name ($user->email) - Parent: {$user->parentUser->name}",
                     ])->toArray();
@@ -365,7 +365,7 @@ class UserAuthorizeCommand extends Command
         $userId = search(
             label: 'Select the authorized user:',
             options: function (string $value) use ($authorizedUsers) {
-                if (strlen($value) === 0) {
+                if ($value === '') {
                     return $authorizedUsers->take(10)->mapWithKeys(fn ($user) => [
                         (string) $user->id => "{$user->name} ({$user->email}) - Parent: {$user->parentUser->name}",
                     ])->toArray();
@@ -537,7 +537,7 @@ class UserAuthorizeCommand extends Command
         $userId = search(
             label: 'Select the authorized user:',
             options: function (string $value) use ($authorizedUsers) {
-                if (strlen($value) === 0) {
+                if ($value === '') {
                     return $authorizedUsers->take(10)->mapWithKeys(fn ($user) => [
                         (string) $user->id => "$user->name ($user->email) - Current Parent: {$user->parentUser->name}",
                     ])->toArray();
@@ -593,7 +593,7 @@ class UserAuthorizeCommand extends Command
         $parentUserId = search(
             label: 'Select the new parent user:',
             options: function (string $value) use ($parentUsers) {
-                if (strlen($value) === 0) {
+                if ($value === '') {
                     return $parentUsers->take(10)->mapWithKeys(fn ($user) => [
                         (string) $user->id => "$user->name ($user->email)",
                     ])->toArray();

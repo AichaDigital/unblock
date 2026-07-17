@@ -48,13 +48,11 @@ class SshConnectionManager
     {
         $directoryPath = '/tmp/cm';
 
-        if (! File::exists($directoryPath)) {
-            if (! File::makeDirectory($directoryPath, 0755, true)) {
-                Log::error('Error creating SSH multiplexing directory');
-                throw new ConnectionFailedException(
-                    'Could not create SSH multiplexing directory: '.$directoryPath
-                );
-            }
+        if (! File::exists($directoryPath) && ! File::makeDirectory($directoryPath, 0755, true)) {
+            Log::error('Error creating SSH multiplexing directory');
+            throw new ConnectionFailedException(
+                'Could not create SSH multiplexing directory: '.$directoryPath
+            );
         }
     }
 

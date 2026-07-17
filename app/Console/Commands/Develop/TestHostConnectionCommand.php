@@ -20,7 +20,7 @@ class TestHostConnectionCommand extends Command
         info('=== DIAGNÓSTICO SSH REAL ===');
 
         $host = $this->selectHost();
-        if (! $host) {
+        if (! $host instanceof Host) {
             error('Host no encontrado');
 
             return 1;

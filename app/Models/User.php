@@ -327,11 +327,9 @@ class User extends Authenticatable implements FilamentUser
         }
 
         // If this is a principal user (no parent), check ownership
-        if (! $this->parent_user_id) {
-            // Check if user owns the hosting
-            if (Hosting::where('id', $hostingId)->where('user_id', $this->id)->exists()) {
-                return true;
-            }
+        // Check if user owns the hosting
+        if (! $this->parent_user_id && Hosting::where('id', $hostingId)->where('user_id', $this->id)->exists()) {
+            return true;
         }
 
         // For all users (principal and authorized), check specific permissions

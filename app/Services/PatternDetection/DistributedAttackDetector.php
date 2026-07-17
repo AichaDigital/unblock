@@ -51,7 +51,7 @@ class DistributedAttackDetector
             ->filter();
 
         foreach ($recentEmailHashes as $emailHash) {
-            if ($detection = $this->detectForEmail($emailHash)) {
+            if (($detection = $this->detectForEmail($emailHash)) instanceof PatternDetection) {
                 $detections[] = $detection;
             }
         }

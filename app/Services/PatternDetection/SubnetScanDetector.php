@@ -57,7 +57,7 @@ class SubnetScanDetector
             ->keys();
 
         foreach ($recentSubnets as $subnetPrefix) {
-            if ($detection = $this->detectForSubnet($subnetPrefix)) {
+            if (($detection = $this->detectForSubnet($subnetPrefix)) instanceof PatternDetection) {
                 $detections[] = $detection;
             }
         }
