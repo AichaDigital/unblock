@@ -144,7 +144,7 @@ class ProcessHqWhitelistJob implements ShouldQueue
             'email' => $adminEmail,
         ]);
 
-        $ttl = (int) (config('unblock.hq.ttl') ?? 7200);
+        $ttl = (int) config('unblock.hq.ttl');
 
         Mail::to($adminEmail)->send(new HqWhitelistMail(
             user: $adminUser,

@@ -489,7 +489,7 @@ readonly class DirectAdminFirewallAnalyzer implements FirewallAnalyzerInterface
             $this->firewallService->checkProblems($this->host, $sshKeyName, 'da_bfm_whitelist_add', $ip);
 
             // 3. Track in database for automatic removal after TTL
-            $ttl = (int) (config('unblock.hq.ttl') ?? 7200); // Default 2 hours
+            $ttl = (int) config('unblock.hq.ttl');
             BfmWhitelistEntry::create([
                 'host_id' => $this->host->id,
                 'ip_address' => $ip,
