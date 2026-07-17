@@ -10,6 +10,7 @@ class EditHosting extends EditRecord
 {
     protected static string $resource = HostingResource::class;
 
+    #[\Override]
     protected function getHeaderActions(): array
     {
         return [

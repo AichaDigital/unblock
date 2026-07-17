@@ -23,17 +23,17 @@ class AnomalyDetector
     /**
      * Baseline period in days
      */
-    private const BASELINE_DAYS = 7;
+    private const int BASELINE_DAYS = 7;
 
     /**
      * Standard deviation multiplier (3σ = 99.7% confidence)
      */
-    private const SIGMA_MULTIPLIER = 3;
+    private const int SIGMA_MULTIPLIER = 3;
 
     /**
      * Minimum sustained minutes to trigger
      */
-    private const MIN_SUSTAINED_MINUTES = 15;
+    private const int MIN_SUSTAINED_MINUTES = 15;
 
     /**
      * Detect traffic anomalies

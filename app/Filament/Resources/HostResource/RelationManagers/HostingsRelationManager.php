@@ -11,6 +11,7 @@ class HostingsRelationManager extends RelationManager
 {
     protected static string $relationship = 'hostings';
 
+    #[\Override]
     public function form(Schema $schema): Schema
     {
         return $schema

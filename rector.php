@@ -3,6 +3,8 @@
 declare(strict_types=1);
 
 use Rector\Config\RectorConfig;
+use Rector\Php83\Rector\ClassConst\AddTypeToConstRector;
+use Rector\Php83\Rector\ClassMethod\AddOverrideAttributeToOverriddenMethodsRector;
 use Rector\ValueObject\PhpVersion;
 use RectorLaravel\Rector\FuncCall\{AppToResolveRector, RemoveDumpDataDeadCodeRector, ThrowIfAndThrowUnlessExceptionsToUseClassStringRector};
 use RectorLaravel\Rector\If_\ThrowIfRector;
@@ -52,6 +54,10 @@ return RectorConfig::configure()
     ->withPhpVersion(PhpVersion::PHP_83)
     ->withRules([
         RemoveDumpDataDeadCodeRector::class,
+        // Wave 2 (AID-530). Both PHP 8.3, satisfied by the PhpVersion pin
+        // above. Measured with --clear-cache: 48 + 9 files, overlap zero.
+        AddOverrideAttributeToOverriddenMethodsRector::class,
+        AddTypeToConstRector::class,
     ])
     ->withSkip([
         // Excluded by design decision (AID-528), armed BEFORE any wave enables

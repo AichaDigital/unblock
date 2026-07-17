@@ -9,6 +9,7 @@ use Illuminate\Support\HtmlString;
 
 class SshKeyGeneratorField extends Placeholder
 {
+    #[\Override]
     public static function make(?string $name = 'ssh_key_generator'): static
     {
         return parent::make($name)

@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Log;
 
 readonly class CpanelFirewallAnalyzer implements FirewallAnalyzerInterface
 {
-    private const PANEL_TYPE = 'cpanel';
+    private const string PANEL_TYPE = 'cpanel';
 
     /** @var array<string, bool> */
     private array $serviceChecks;

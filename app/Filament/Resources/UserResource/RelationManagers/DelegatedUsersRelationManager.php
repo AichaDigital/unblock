@@ -16,6 +16,7 @@ class DelegatedUsersRelationManager extends RelationManager
 
     protected static ?string $title = 'Usuarios Autorizados';
 
+    #[\Override]
     public function form(Schema $schema): Schema
     {
         return $schema

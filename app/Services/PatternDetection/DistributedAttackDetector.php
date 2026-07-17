@@ -23,17 +23,17 @@ class DistributedAttackDetector
     /**
      * Minimum IPs to trigger detection
      */
-    private const MIN_IPS = 5;
+    private const int MIN_IPS = 5;
 
     /**
      * Minimum subnets to trigger detection
      */
-    private const MIN_SUBNETS = 3;
+    private const int MIN_SUBNETS = 3;
 
     /**
      * Time window in minutes
      */
-    private const TIME_WINDOW = 60;
+    private const int TIME_WINDOW = 60;
 
     /**
      * Detect distributed attacks for all emails with recent activity

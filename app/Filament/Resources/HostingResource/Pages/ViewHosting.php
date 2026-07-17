@@ -10,6 +10,7 @@ class ViewHosting extends ViewRecord
 {
     protected static string $resource = HostingResource::class;
 
+    #[\Override]
     protected function getHeaderActions(): array
     {
         return [

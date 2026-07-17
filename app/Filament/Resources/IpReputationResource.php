@@ -23,11 +23,13 @@ class IpReputationResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-shield-check';
 
+    #[\Override]
     public static function getNavigationLabel(): string
     {
         return __('firewall.ip_reputation.navigation_label');
     }
 
+    #[\Override]
     public static function getNavigationGroup(): ?string
     {
         return __('firewall.ip_reputation.navigation_group');
@@ -35,16 +37,19 @@ class IpReputationResource extends Resource
 
     protected static ?int $navigationSort = 1;
 
+    #[\Override]
     public static function getModelLabel(): string
     {
         return __('firewall.ip_reputation.singular');
     }
 
+    #[\Override]
     public static function getPluralModelLabel(): string
     {
         return __('firewall.ip_reputation.plural');
     }
 
+    #[\Override]
     public static function form(Schema $schema): Schema
     {
         return $schema
@@ -133,6 +138,7 @@ class IpReputationResource extends Resource
             ]);
     }
 
+    #[\Override]
     public static function table(Table $table): Table
     {
         return $table
@@ -284,6 +290,7 @@ class IpReputationResource extends Resource
             ->defaultSort('last_seen_at', 'desc');
     }
 
+    #[\Override]
     public static function getRelations(): array
     {
         return [
@@ -291,6 +298,7 @@ class IpReputationResource extends Resource
         ];
     }
 
+    #[\Override]
     public static function getPages(): array
     {
         return [

@@ -21,7 +21,7 @@ class AnonymousUserService
     /**
      * System anonymous user email
      */
-    private const ANONYMOUS_EMAIL = 'anonymous@system.internal';
+    private const string ANONYMOUS_EMAIL = 'anonymous@system.internal';
 
     /**
      * Cached anonymous user instance

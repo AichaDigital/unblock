@@ -25,7 +25,7 @@ class VerifyWrapperCommand extends Command
     /**
      * Core commands used by Unblock
      */
-    private const REQUIRED_COMMANDS = [
+    private const array REQUIRED_COMMANDS = [
         // Shared - SSH Internal
         'bash -se' => 'SSH command execution via stdin (CRITICAL for all commands)',
 

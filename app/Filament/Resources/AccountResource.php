@@ -24,31 +24,37 @@ class AccountResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'username';
 
+    #[\Override]
     public static function getNavigationLabel(): string
     {
         return __('accounts.Accounts');
     }
 
+    #[\Override]
     public static function getNavigationGroup(): ?string
     {
         return __('hosts.Servers');
     }
 
+    #[\Override]
     public static function getModelLabel(): string
     {
         return __('accounts.Account');
     }
 
+    #[\Override]
     public static function getPluralModelLabel(): string
     {
         return __('accounts.Accounts');
     }
 
+    #[\Override]
     public static function canCreate(): bool
     {
         return false; // Accounts are synced from servers
     }
 
+    #[\Override]
     public static function form(Schema $schema): Schema
     {
         return $schema
@@ -93,6 +99,7 @@ class AccountResource extends Resource
             ]);
     }
 
+    #[\Override]
     public static function infolist(Schema $schema): Schema
     {
         return $schema
@@ -160,6 +167,7 @@ class AccountResource extends Resource
             ]);
     }
 
+    #[\Override]
     public static function table(Table $table): Table
     {
         return $table
@@ -284,6 +292,7 @@ class AccountResource extends Resource
             ->defaultSort('last_synced_at', 'desc');
     }
 
+    #[\Override]
     public static function getRelations(): array
     {
         return [
@@ -291,6 +300,7 @@ class AccountResource extends Resource
         ];
     }
 
+    #[\Override]
     public static function getPages(): array
     {
         return [

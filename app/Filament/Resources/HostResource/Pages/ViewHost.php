@@ -11,6 +11,7 @@ class ViewHost extends ViewRecord
 {
     protected static string $resource = HostResource::class;
 
+    #[\Override]
     protected function getHeaderActions(): array
     {
         return [
@@ -20,6 +21,7 @@ class ViewHost extends ViewRecord
         ];
     }
 
+    #[\Override]
     protected function mutateFormDataBeforeFill(array $data): array
     {
         // Make SSH keys visible for viewing

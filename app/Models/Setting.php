@@ -15,6 +15,7 @@ class Setting extends Model
     /**
      * Clear settings cache on model changes
      */
+    #[\Override]
     protected static function booted(): void
     {
         static::saved(fn () => Cache::forget('app_settings'));

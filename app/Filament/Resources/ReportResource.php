@@ -25,26 +25,31 @@ class ReportResource extends Resource
 
     protected static ?string $pluralModelLabel = null;
 
+    #[\Override]
     public static function getNavigationLabel(): string
     {
         return __('firewall.reports.navigation_label');
     }
 
+    #[\Override]
     public static function getModelLabel(): string
     {
         return __('firewall.reports.title');
     }
 
+    #[\Override]
     public static function getPluralModelLabel(): string
     {
         return __('firewall.reports.title');
     }
 
+    #[\Override]
     public static function canCreate(): bool
     {
         return false;
     }
 
+    #[\Override]
     public static function form(Schema $schema): Schema
     {
         return $schema
@@ -99,6 +104,7 @@ class ReportResource extends Resource
             ]);
     }
 
+    #[\Override]
     public static function table(Table $table): Table
     {
         return $table
@@ -194,6 +200,7 @@ class ReportResource extends Resource
             ->emptyStateIcon('heroicon-o-document-text');
     }
 
+    #[\Override]
     public static function getPages(): array
     {
         return [

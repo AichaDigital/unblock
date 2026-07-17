@@ -24,6 +24,7 @@ class HostingsRelationManager extends RelationManager
 
     protected static ?string $pluralModelLabel = 'Hostings';
 
+    #[\Override]
     public function form(Schema $schema): Schema
     {
         return $schema

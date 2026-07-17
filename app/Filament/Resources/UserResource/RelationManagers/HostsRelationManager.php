@@ -23,6 +23,7 @@ class HostsRelationManager extends RelationManager
 
     protected static ?string $pluralModelLabel = 'Servidores';
 
+    #[\Override]
     public function form(Schema $schema): Schema
     {
         return $schema

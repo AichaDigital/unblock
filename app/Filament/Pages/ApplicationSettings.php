@@ -27,16 +27,19 @@ class ApplicationSettings extends Page implements HasForms
 
     protected static ?int $navigationSort = 999;
 
+    #[\Override]
     public static function getNavigationLabel(): string
     {
         return __('application_settings.navigation_label');
     }
 
+    #[\Override]
     public function getTitle(): string|Htmlable
     {
         return __('application_settings.title');
     }
 
+    #[\Override]
     public static function getNavigationGroup(): ?string
     {
         return __('application_settings.navigation_group');

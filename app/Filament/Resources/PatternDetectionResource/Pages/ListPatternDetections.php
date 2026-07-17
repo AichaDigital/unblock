@@ -9,6 +9,7 @@ class ListPatternDetections extends ListRecords
 {
     protected static string $resource = PatternDetectionResource::class;
 
+    #[\Override]
     protected function getHeaderActions(): array
     {
         return [

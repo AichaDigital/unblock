@@ -25,7 +25,7 @@ class SyncDirectAdminAccountsAction
 {
     use AsAction;
 
-    private const DA_USERS_PATH = '/usr/local/directadmin/data/users';
+    private const string DA_USERS_PATH = '/usr/local/directadmin/data/users';
 
     public function __construct(
         private SshConnectionManager $sshManager

@@ -21,12 +21,12 @@ use Throwable;
  */
 readonly class DirectAdminFirewallAnalyzer implements FirewallAnalyzerInterface
 {
-    private const PANEL_TYPE = 'directadmin';
+    private const string PANEL_TYPE = 'directadmin';
 
     /**
      * Service definitions with commands and patterns
      */
-    private const SERVICES = [
+    private const array SERVICES = [
         'csf' => [
             'name' => 'CSF Firewall',
             'patterns' => ['csf.deny:', 'DROP', 'DENYIN', 'Temporary Blocks'],
@@ -57,7 +57,7 @@ readonly class DirectAdminFirewallAnalyzer implements FirewallAnalyzerInterface
     /**
      * Default service configuration
      */
-    private const DEFAULT_SERVICE_CHECKS = [
+    private const array DEFAULT_SERVICE_CHECKS = [
         'csf' => true,
         'csf_deny_check' => true,
         'csf_tempip_check' => true,

@@ -11,6 +11,7 @@ class EditAccount extends EditRecord
 {
     protected static string $resource = AccountResource::class;
 
+    #[\Override]
     protected function getHeaderActions(): array
     {
         return [
