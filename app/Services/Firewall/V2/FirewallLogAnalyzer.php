@@ -58,7 +58,7 @@ class FirewallLogAnalyzer
 
             // STEP 3: Análisis BFM independiente (siempre se ejecuta)
             $bfmResult = $this->analyzeBfmBlacklist($ipAddress, $host, $session);
-            if ($bfmResult) {
+            if ($bfmResult instanceof FirewallAnalysisResult) {
                 $logs['da_bfm_check'] = $bfmResult->getLogs()['da_bfm'] ?? '';
                 $results[] = $bfmResult;
             }

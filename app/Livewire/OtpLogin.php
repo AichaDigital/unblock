@@ -189,7 +189,7 @@ class OtpLogin extends Component
                 'oneTimePassword' => 'required|string|size:6',
             ]);
 
-            if (! $this->user) {
+            if (! $this->user instanceof User) {
                 throw ValidationException::withMessages([
                     'oneTimePassword' => 'Sesión expirada. Solicita un nuevo código.',
                 ]);

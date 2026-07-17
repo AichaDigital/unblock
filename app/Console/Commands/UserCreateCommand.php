@@ -269,7 +269,7 @@ class UserCreateCommand extends Command
         $this->info('📋 User Summary:');
         $this->line("   Email:       {$email}");
         $this->line("   Name:        {$firstName} {$lastName}");
-        if ($companyName) {
+        if ($companyName !== '' && $companyName !== '0') {
             $this->line("   Company:     {$companyName}");
         }
         $this->line('   Type:        '.($isAdmin ? '👑 Administrator' : '👤 Normal User'));

@@ -174,7 +174,7 @@ readonly class DirectAdminFirewallAnalyzer implements FirewallAnalyzerInterface
             // STEP 3: Check DirectAdmin BFM blacklist (ALWAYS - independent of CSF status)
             if ($this->serviceChecks['da_bfm_check'] ?? false) {
                 $bfmResult = $this->checkAndRemoveFromBfmBlacklist($ipAddress, $sshKeyName);
-                if ($bfmResult) {
+                if ($bfmResult instanceof FirewallAnalysisResult) {
                     $logs['da_bfm'] = $bfmResult->getLogs()['da_bfm'] ?? '';
                     $results[] = $bfmResult;
                     $bfmBlocked = $bfmResult->isBlocked();

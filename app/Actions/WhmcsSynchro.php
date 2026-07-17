@@ -91,7 +91,7 @@ class WhmcsSynchro
         }
 
         // Set debug mode and specific user from command options
-        if ($command) {
+        if ($command instanceof Command) {
             $this->debugMode = (bool) ($command->option('debug') ?? false);
             $userOption = $command->option('user');
             $this->specificUserEmail = is_string($userOption) ? $userOption : null;
@@ -123,7 +123,7 @@ class WhmcsSynchro
 
     protected function output(?Command $command, string $message): void
     {
-        if ($command) {
+        if ($command instanceof Command) {
             $command->info($message);
         }
 
@@ -272,7 +272,7 @@ class WhmcsSynchro
 
         $user = $this->findOrCreateUser($whmcsClient, $command);
 
-        if (! $user) {
+        if (! $user instanceof User) {
             $this->debugOutput($command, "❌ Could not find or create user for: {$whmcsClient->email}");
 
             return;
@@ -425,7 +425,7 @@ class WhmcsSynchro
                 }
 
                 $host = $this->findHostByWhmcsId((string) $whmcsHosting->server);
-                if (! $host) {
+                if (! $host instanceof Host) {
                     $this->debugOutput($command, "❌ No host found for WHMCS server ID: {$whmcsHosting->server}");
                     Log::warning("No host found for WHMCS server ID: {$whmcsHosting->server}");
 

@@ -25,7 +25,7 @@ class AddHostKeyCommand extends Command
         // Si no se proporciona hostId, permitir seleccionar con prompts
         if (! $hostId) {
             $host = $this->selectHost();
-            if (! $host) {
+            if (! $host instanceof Host) {
                 error('No se seleccionó ningún host.');
 
                 return;

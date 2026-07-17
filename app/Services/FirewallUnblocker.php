@@ -119,11 +119,7 @@ class FirewallUnblocker
         }
 
         // Check for CSF temporary blocks - any content means blocked
-        if (! empty($logs['csf_tempip'] ?? '')) {
-            return true;
-        }
-
-        return false;
+        return ! empty($logs['csf_tempip'] ?? '');
     }
 
     /**
