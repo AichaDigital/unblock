@@ -17,6 +17,14 @@ use RectorLaravel\Rector\If_\ThrowIfRector;
  * verified by the full suite, and each wave must re-prove its new rules bite
  * (violation probe → non-zero exit) before the wave PR lands.
  *
+ * Version coupling: rector/rector hard-requires phpstan/phpstan (^2.2.2 as of
+ * 2.5.7), so rector, larastan and phpstan move as ONE unit. Run `composer why
+ * phpstan/phpstan` on every rector bump and watch for a minor dragging phpstan
+ * forward — that would silently change the `@phpstan` gate inside the same PR.
+ * Renovate is active on this repo, so the bump arrives unattended. Adopting
+ * rector did not move it (phpstan stayed at 2.2.5, larastan at v3.10.0); the
+ * risk is the next upgrade, not this one. (Learned from openmizan AID-526.)
+ *
  * Path scope (deliberate, per AID-528):
  * - app/ only for now. routes/, bootstrap/, config/ and tests/ are wave
  *   candidates, not oversights — extending scope is a wave decision.
