@@ -450,12 +450,17 @@ test('job logs error and re-throws exception on failure', function () {
 // SCENARIO 8: TTL Configuration
 // ============================================================================
 
-test('job uses default TTL when not configured', function () {
+test('job uses the config-owned default TTL when env is not set', function () {
     $hqHost = Host::factory()->create(['hash' => 'test-key']); // ggignore
 
     config()->set('unblock.hq.host_id', $hqHost->id);
     config()->set('unblock.admin_email', 'admin@example.com');
-    config()->set('unblock.hq.ttl', null); // ← Not configured
+    // "Not configured" means the HQ_WHITELIST_TTL env var is absent, in which
+    // case config/unblock.php resolves `(int) env(..., 14000)` at load time —
+    // the key always exists as an int, never null. The job carries no local
+    // fallback anymore (AID-542); the default's single owner is the config
+    // file, so this test pins that owner's value flowing through untouched.
+    expect(config('unblock.hq.ttl'))->toBe(14000);
 
     $firewallService = Mockery::mock(FirewallService::class);
     $firewallService->allows('generateSshKey')->andReturn('/tmp/key');
@@ -473,7 +478,7 @@ test('job uses default TTL when not configured', function () {
     $job->handle($firewallService);
 
     Mail::assertQueued(HqWhitelistMail::class, function ($mail) {
-        return $mail->ttlSeconds === 7200; // Default 7200s
+        return $mail->ttlSeconds === 14000; // config/unblock.php default
     });
 });
 

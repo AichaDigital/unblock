@@ -11,6 +11,7 @@ use Rector\Php83\Rector\ClassMethod\AddOverrideAttributeToOverriddenMethodsRecto
 use Rector\TypeDeclaration\Rector\StmtsAwareInterface\DeclareStrictTypesRector;
 use Rector\ValueObject\PhpVersion;
 use RectorLaravel\Rector\ClassMethod\MakeModelAttributesAndScopesProtectedRector;
+use RectorLaravel\Rector\Coalesce\ApplyDefaultInsteadOfNullCoalesceRector;
 use RectorLaravel\Rector\FuncCall\{AppToResolveRector, RemoveDumpDataDeadCodeRector, ThrowIfAndThrowUnlessExceptionsToUseClassStringRector};
 use RectorLaravel\Rector\If_\ThrowIfRector;
 use RectorLaravel\Set\LaravelSetList;
@@ -111,6 +112,21 @@ return RectorConfig::configure()
         // consumes scopes through the builder proxy. This app is final, not a
         // library: no external consumers exist.
         MakeModelAttributesAndScopesProtectedRector::class,
+        // Wave 6 (AID-542), split from AID-531 over the ??/?: lesson. The
+        // rule turns `helper('key') ?? $default` into `helper('key',
+        // $default)` — NOT ??→?:, but it still has a non-equivalent corner:
+        // a key present with an explicit null returns $default under ??,
+        // null under the parameter form. Both sites it flagged used
+        // `config('unblock.hq.ttl') ?? 7200`, where that corner is
+        // unreachable by construction (config/unblock.php casts `(int)
+        // env(..., 14000)`, so the key always exists as int) — which also
+        // made the 7200 a dead phantom default lying about the real 14000.
+        // The fallbacks were removed by hand (the default's single owner is
+        // the config file); the rule stays on as the guard against future
+        // `config('x') ?? $d`, which is always either dead or a duplicated
+        // default. If a legitimate present-but-null key ever appears, skip
+        // that call site here rather than dropping the rule.
+        ApplyDefaultInsteadOfNullCoalesceRector::class,
     ])
     // Wave 4 (AID-532): LARAVEL_COLLECTION (4 sites, all element types are
     // scalars/plain arrays so toArray()≡all(); filter(!empty)→reject(empty)
