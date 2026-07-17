@@ -62,7 +62,7 @@ class UserHostingPermission extends Model
      * @param  Builder<static>  $query
      * @return Builder<static>
      */
-    public function scopeActive($query)
+    protected function scopeActive($query)
     {
         return $query->where('is_active', true);
     }
@@ -71,7 +71,7 @@ class UserHostingPermission extends Model
      * @param  Builder<static>  $query
      * @return Builder<static>
      */
-    public function scopeForUser($query, int $userId)
+    protected function scopeForUser($query, int $userId)
     {
         return $query->where('user_id', $userId);
     }
@@ -80,7 +80,7 @@ class UserHostingPermission extends Model
      * @param  Builder<static>  $query
      * @return Builder<static>
      */
-    public function scopeForHosting($query, int $hostingId)
+    protected function scopeForHosting($query, int $hostingId)
     {
         return $query->where('hosting_id', $hostingId);
     }

@@ -96,7 +96,7 @@ class BfmWhitelistEntry extends Model
      * @param  Builder<static>  $query
      * @return Builder<static>
      */
-    public function scopeActive($query)
+    protected function scopeActive($query)
     {
         return $query->where('removed', false)
             ->where('expires_at', '>', now());
@@ -106,7 +106,7 @@ class BfmWhitelistEntry extends Model
      * @param  Builder<static>  $query
      * @return Builder<static>
      */
-    public function scopeExpired($query)
+    protected function scopeExpired($query)
     {
         return $query->where('removed', false)
             ->where('expires_at', '<=', now());
@@ -116,7 +116,7 @@ class BfmWhitelistEntry extends Model
      * @param  Builder<static>  $query
      * @return Builder<static>
      */
-    public function scopeForHost($query, int $hostId)
+    protected function scopeForHost($query, int $hostId)
     {
         return $query->where('host_id', $hostId);
     }
@@ -125,7 +125,7 @@ class BfmWhitelistEntry extends Model
      * @param  Builder<static>  $query
      * @return Builder<static>
      */
-    public function scopeForIp($query, string $ipAddress)
+    protected function scopeForIp($query, string $ipAddress)
     {
         return $query->where('ip_address', $ipAddress);
     }

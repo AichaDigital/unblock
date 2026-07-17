@@ -91,7 +91,7 @@ class Account extends Model
      * @param  Builder<static>  $query
      * @return Builder<static>
      */
-    public function scopeActive($query)
+    protected function scopeActive($query)
     {
         return $query->whereNull('suspended_at')
             ->whereNull('deleted_at');
@@ -101,7 +101,7 @@ class Account extends Model
      * @param  Builder<static>  $query
      * @return Builder<static>
      */
-    public function scopeSuspended($query)
+    protected function scopeSuspended($query)
     {
         return $query->whereNotNull('suspended_at');
     }
@@ -110,7 +110,7 @@ class Account extends Model
      * @param  Builder<static>  $query
      * @return Builder<static>
      */
-    public function scopeMarkedAsDeleted($query)
+    protected function scopeMarkedAsDeleted($query)
     {
         return $query->whereNotNull('deleted_at');
     }

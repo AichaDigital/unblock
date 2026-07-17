@@ -51,7 +51,7 @@ class Domain extends Model
      * @param  Builder<static>  $query
      * @return Builder<static>
      */
-    public function scopeForDomain($query, string $domainName)
+    protected function scopeForDomain($query, string $domainName)
     {
         return $query->where('domain_name', strtolower(trim($domainName)));
     }
@@ -60,7 +60,7 @@ class Domain extends Model
      * @param  Builder<static>  $query
      * @return Builder<static>
      */
-    public function scopePrimary($query)
+    protected function scopePrimary($query)
     {
         return $query->where('type', 'primary');
     }
@@ -69,7 +69,7 @@ class Domain extends Model
      * @param  Builder<static>  $query
      * @return Builder<static>
      */
-    public function scopeAddon($query)
+    protected function scopeAddon($query)
     {
         return $query->where('type', 'addon');
     }
@@ -78,7 +78,7 @@ class Domain extends Model
      * @param  Builder<static>  $query
      * @return Builder<static>
      */
-    public function scopeSubdomain($query)
+    protected function scopeSubdomain($query)
     {
         return $query->where('type', 'subdomain');
     }
@@ -87,7 +87,7 @@ class Domain extends Model
      * @param  Builder<static>  $query
      * @return Builder<static>
      */
-    public function scopeAlias($query)
+    protected function scopeAlias($query)
     {
         return $query->where('type', 'alias');
     }

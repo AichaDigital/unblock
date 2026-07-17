@@ -10,6 +10,7 @@ use Rector\Php83\Rector\ClassConst\AddTypeToConstRector;
 use Rector\Php83\Rector\ClassMethod\AddOverrideAttributeToOverriddenMethodsRector;
 use Rector\TypeDeclaration\Rector\StmtsAwareInterface\DeclareStrictTypesRector;
 use Rector\ValueObject\PhpVersion;
+use RectorLaravel\Rector\ClassMethod\MakeModelAttributesAndScopesProtectedRector;
 use RectorLaravel\Rector\FuncCall\{AppToResolveRector, RemoveDumpDataDeadCodeRector, ThrowIfAndThrowUnlessExceptionsToUseClassStringRector};
 use RectorLaravel\Rector\If_\ThrowIfRector;
 use RectorLaravel\Set\LaravelSetList;
@@ -100,6 +101,16 @@ return RectorConfig::configure()
         // extend a non-readonly parent, and the rule honours that) — the
         // Filament/Livewire risk flagged at PR 0 is empirically refuted.
         ReadOnlyClassRector::class,
+        // Wave 5 (AID-540), split from AID-531 as a public-surface change:
+        // 27 scopes across 6 models flip public→protected. Safe here because
+        // (a) zero direct ->scopeX()/::scopeX() calls and zero dynamic
+        // string references repo-wide, and (b) the Eloquent proxy invokes
+        // scopes via Model::callNamedScope() -> $this->{'scope'.ucfirst(...)}
+        // from the base class of the hierarchy (vendor Model.php), so
+        // protected visibility never blocks it — Filament included, since it
+        // consumes scopes through the builder proxy. This app is final, not a
+        // library: no external consumers exist.
+        MakeModelAttributesAndScopesProtectedRector::class,
     ])
     // Wave 4 (AID-532): LARAVEL_COLLECTION (4 sites, all element types are
     // scalars/plain arrays so toArray()≡all(); filter(!empty)→reject(empty)
