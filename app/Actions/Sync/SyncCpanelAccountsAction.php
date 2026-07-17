@@ -218,12 +218,10 @@ class SyncCpanelAccountsAction
     {
         $remoteUsernames = array_column($remoteAccounts, 'user');
 
-        $marked = Account::where('host_id', $host->id)
+        return Account::where('host_id', $host->id)
             ->whereNull('deleted_at')
             ->whereNotIn('username', $remoteUsernames)
             ->update(['deleted_at' => now()]);
-
-        return $marked;
     }
 
     /**

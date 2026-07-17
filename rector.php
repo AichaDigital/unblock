@@ -5,12 +5,14 @@ declare(strict_types=1);
 use Rector\CodeQuality\Rector\Identical\StrlenZeroToIdenticalEmptyStringRector;
 use Rector\CodeQuality\Rector\If_\{CombineIfRector, ExplicitBoolCompareRector, ObjectExplicitBoolCompareRector, SimplifyIfReturnBoolRector};
 use Rector\Config\RectorConfig;
+use Rector\Php82\Rector\Class_\ReadOnlyClassRector;
 use Rector\Php83\Rector\ClassConst\AddTypeToConstRector;
 use Rector\Php83\Rector\ClassMethod\AddOverrideAttributeToOverriddenMethodsRector;
 use Rector\TypeDeclaration\Rector\StmtsAwareInterface\DeclareStrictTypesRector;
 use Rector\ValueObject\PhpVersion;
 use RectorLaravel\Rector\FuncCall\{AppToResolveRector, RemoveDumpDataDeadCodeRector, ThrowIfAndThrowUnlessExceptionsToUseClassStringRector};
 use RectorLaravel\Rector\If_\ThrowIfRector;
+use RectorLaravel\Set\LaravelSetList;
 
 /**
  * Rector gate — wave-based adoption (AID-528).
@@ -91,7 +93,29 @@ return RectorConfig::configure()
         SimplifyIfReturnBoolRector::class,
         StrlenZeroToIdenticalEmptyStringRector::class,
         CombineIfRector::class,
+        // Wave 4 (AID-532). ReadOnlyClassRector was zero-diff at PR 0 but
+        // unproven; adopted here after both probes passed: it bites on an
+        // all-readonly app class, and it leaves a Livewire component alone
+        // even when all its properties are readonly (a readonly class cannot
+        // extend a non-readonly parent, and the rule honours that) — the
+        // Filament/Livewire risk flagged at PR 0 is empirically refuted.
+        ReadOnlyClassRector::class,
     ])
+    // Wave 4 (AID-532): LARAVEL_COLLECTION (4 sites, all element types are
+    // scalars/plain arrays so toArray()≡all(); filter(!empty)→reject(empty)
+    // moves the negation without touching the predicate) and
+    // LARAVEL_TYPE_DECLARATIONS (zero-diff, proven to bite via
+    // EloquentWhereTypeHintClosureParameterRector — the Builder hints help
+    // larastan). Dead-code level 50: the two SimplifyUselessVariable hits are
+    // trivial; RemoveUnusedPrivateProperty on FirewallService was verified
+    // dead repo-wide (case-insensitive grep, zero callers of the orphan
+    // setter, property write-only) — the leftover empty public setter was
+    // removed by hand in the same wave, since Rector only empties it.
+    ->withSets([
+        LaravelSetList::LARAVEL_COLLECTION,
+        LaravelSetList::LARAVEL_TYPE_DECLARATIONS,
+    ])
+    ->withDeadCodeLevel(50)
     ->withSkip([
         // Excluded by design decision (AID-528), armed BEFORE any wave enables
         // a set that would register them — config, not remembered prose.

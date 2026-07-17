@@ -125,7 +125,7 @@ class BackupSqliteCommand extends Command
                 })
                 ->map(function ($file) {
                     return $file->getFilename();
-                })->toArray();
+                })->all();
 
             if (empty($backups)) {
                 $this->error('No backup files found');

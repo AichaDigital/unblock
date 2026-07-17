@@ -69,7 +69,7 @@ class DetectPatternsCommand extends Command
                     $d->confidence_score.'%',
                     $d->affected_ips_count.' IPs',
                     $d->detected_at->diffForHumans(),
-                ])->toArray()
+                ])->all()
             );
         }
 
