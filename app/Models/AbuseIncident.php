@@ -130,7 +130,7 @@ class AbuseIncident extends Model
      * @param  Builder<static>  $query
      * @return Builder<static>
      */
-    public function scopeUnresolved($query)
+    protected function scopeUnresolved($query)
     {
         return $query->whereNull('resolved_at');
     }
@@ -139,7 +139,7 @@ class AbuseIncident extends Model
      * @param  Builder<static>  $query
      * @return Builder<static>
      */
-    public function scopeResolved($query)
+    protected function scopeResolved($query)
     {
         return $query->whereNotNull('resolved_at');
     }
@@ -148,7 +148,7 @@ class AbuseIncident extends Model
      * @param  Builder<static>  $query
      * @return Builder<static>
      */
-    public function scopeBySeverity($query, string $severity)
+    protected function scopeBySeverity($query, string $severity)
     {
         return $query->where('severity', $severity);
     }
@@ -157,7 +157,7 @@ class AbuseIncident extends Model
      * @param  Builder<static>  $query
      * @return Builder<static>
      */
-    public function scopeCritical($query)
+    protected function scopeCritical($query)
     {
         return $query->where('severity', 'critical');
     }
@@ -166,7 +166,7 @@ class AbuseIncident extends Model
      * @param  Builder<static>  $query
      * @return Builder<static>
      */
-    public function scopeHigh($query)
+    protected function scopeHigh($query)
     {
         return $query->where('severity', 'high');
     }
