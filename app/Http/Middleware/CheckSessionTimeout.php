@@ -6,8 +6,8 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\{Auth, Session};
+use Illuminate\Support\Facades\Date;
 
 class CheckSessionTimeout
 {
@@ -40,7 +40,7 @@ class CheckSessionTimeout
                     ->withProperties([
                         'ip' => $request->ip(),
                         'user_agent' => $request->userAgent(),
-                        'last_activity' => Carbon::createFromTimestamp($lastActivity)->toDateTimeString(),
+                        'last_activity' => Date::createFromTimestamp($lastActivity)->toDateTimeString(),
                         'expired_at' => now()->toDateTimeString(),
                         'user_type' => $user->is_admin ? 'admin' : 'user',
                         'timeout_minutes' => $timeoutMinutes,

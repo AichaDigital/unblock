@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Models\Report;
-use Carbon\Carbon;
+use Illuminate\Support\Facades\Date;
 
 class ReportController extends Controller
 {
@@ -21,7 +21,7 @@ class ReportController extends Controller
         $expirationSeconds = config('unblock.report_expiration');
         $expirationTime = $report->created_at->addSeconds($expirationSeconds);
 
-        if (Carbon::now()->greaterThan($expirationTime)) {
+        if (Date::now()->greaterThan($expirationTime)) {
             return abort(403, 'This report link has expired');
         }
 

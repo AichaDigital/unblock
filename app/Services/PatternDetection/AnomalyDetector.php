@@ -71,7 +71,7 @@ class AnomalyDetector
         $data = IpReputation::query()
             ->select('last_seen_at', 'total_requests')
             ->where('last_seen_at', '>=', now()->subDays(self::BASELINE_DAYS))
-            ->where('last_seen_at', '<', now()->startOfDay())
+            ->where('last_seen_at', '<', today())
             ->get();
 
         if ($data->isEmpty()) {
