@@ -67,7 +67,7 @@ class SimpleUnblockOverviewWidget extends BaseWidget
     private function getRequestsToday(): int
     {
         return IpReputation::query()
-            ->where('last_seen_at', '>=', now()->startOfDay())
+            ->where('last_seen_at', '>=', today())
             ->sum('total_requests');
     }
 
@@ -284,7 +284,7 @@ class SimpleUnblockOverviewWidget extends BaseWidget
     private function getBlockedToday(): int
     {
         return IpReputation::query()
-            ->where('last_seen_at', '>=', now()->startOfDay())
+            ->where('last_seen_at', '>=', today())
             ->sum('blocked_count');
     }
 }

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Traits;
 
 use App\Notifications\Admin\ErrorParsingNotification;
-use Carbon\Carbon;
 use Exception;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\{Log, Notification};
 
 trait CommandOutputParserTrait
@@ -82,8 +82,7 @@ trait CommandOutputParserTrait
         // Attempt to match the date pattern
         if (preg_match('/\b[A-Za-z]{3}\s+[A-Za-z]{3}\s+\d{1,2}\s+\d{2}:\d{2}:\d{2}\s+\d{4}\b/', $line, $dateMatches)) {
             try {
-                // Use Carbon to parse the date
-                $date = Carbon::parse($dateMatches[0]);
+                $date = Date::parse($dateMatches[0]);
 
                 return $date->toDateTimeString(); // Return the date in a standard format
             } catch (Exception $e) {

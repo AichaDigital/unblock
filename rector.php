@@ -12,8 +12,9 @@ use Rector\TypeDeclaration\Rector\StmtsAwareInterface\DeclareStrictTypesRector;
 use Rector\ValueObject\PhpVersion;
 use RectorLaravel\Rector\ClassMethod\MakeModelAttributesAndScopesProtectedRector;
 use RectorLaravel\Rector\Coalesce\ApplyDefaultInsteadOfNullCoalesceRector;
-use RectorLaravel\Rector\FuncCall\{AppToResolveRector, RemoveDumpDataDeadCodeRector, ThrowIfAndThrowUnlessExceptionsToUseClassStringRector};
+use RectorLaravel\Rector\FuncCall\{AppToResolveRector, NowFuncWithStartOfDayMethodCallToTodayFuncRector, RemoveDumpDataDeadCodeRector, ThrowIfAndThrowUnlessExceptionsToUseClassStringRector};
 use RectorLaravel\Rector\If_\ThrowIfRector;
+use RectorLaravel\Rector\StaticCall\CarbonToDateFacadeRector;
 use RectorLaravel\Set\LaravelSetList;
 
 /**
@@ -127,6 +128,17 @@ return RectorConfig::configure()
         // default. If a legitimate present-but-null key ever appears, skip
         // that call site here rather than dropping the rule.
         ApplyDefaultInsteadOfNullCoalesceRector::class,
+        // Wave 7 (AID-541), split from AID-531 over temporal semantics. Both
+        // proven equivalent HERE, not assumed: no Date::use()/DateFactory
+        // config exists, so the Date facade fabricates Carbon\Carbon — the
+        // runtime class does not change at all; zero `instanceof Carbon`
+        // repo-wide; and every converted value is consumed immediately
+        // (->toDateTimeString(), ->greaterThan(), SQL comparison), the object
+        // never escapes. today() ≡ now()->startOfDay() under the app's single
+        // timezone (UTC), and both honour Carbon::setTestNow(). The facade is
+        // the Laravel idiom and keeps Date::use() available as a future seam.
+        CarbonToDateFacadeRector::class,
+        NowFuncWithStartOfDayMethodCallToTodayFuncRector::class,
     ])
     // Wave 4 (AID-532): LARAVEL_COLLECTION (4 sites, all element types are
     // scalars/plain arrays so toArray()≡all(); filter(!empty)→reject(empty)
