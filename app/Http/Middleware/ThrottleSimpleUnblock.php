@@ -106,11 +106,16 @@ class ThrottleSimpleUnblock
      */
     private function rateLimitResponse(string $identifier, string $vector, string $key, array $exceeded): Response
     {
-        $maxAttempts = config("unblock.simple_mode.throttle_{$vector}_per_".($vector === 'ip' ? 'minute' : 'hour'), 10);
-        $attempts = RateLimiter::attempts($key);
+        // Cast at the source: RateLimiter::attempts() returns whatever the
+        // cache store holds (a string under the database driver), and config()
+        // returns the raw env string when the variable is set. The event
+        // constructor declares int for both — checkRateLimit() above already
+        // casts its config read; this path was the exception.
+        $maxAttempts = (int) config("unblock.simple_mode.throttle_{$vector}_per_".($vector === 'ip' ? 'minute' : 'hour'), 10);
+        $attempts = (int) RateLimiter::attempts($key);
 
         // Dispatch event for abuse incident creation (v1.3.0)
-        SimpleUnblockRateLimitExceeded::dispatch($vector, $identifier, $attempts, $maxAttempts);
+        event(new SimpleUnblockRateLimitExceeded($vector, $identifier, $attempts, $maxAttempts));
 
         activity()
             ->withProperties([

@@ -55,7 +55,7 @@ class CheckSessionTimeout
                 // CRITICAL: Admins should return to admin login, regular users to normal login
                 $redirectRoute = $user->is_admin ? 'filament.admin.auth.login' : 'login';
 
-                return redirect()->route($redirectRoute)->with('message', __('messages.session_expired'));
+                return to_route($redirectRoute)->with('message', __('messages.session_expired'));
             }
 
             // Update last activity timestamp

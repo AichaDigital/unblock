@@ -157,7 +157,7 @@ class ProcessFirewallCheckJob implements ShouldQueue
                 $auditService->logFirewallCheck($user, $host, $this->ip, $analysis->isBlocked());
 
                 // 8. Dispatch notification job with copyUserId
-                SendReportNotificationJob::dispatch((string) $report->id, $this->copyUserId);
+                dispatch(new SendReportNotificationJob((string) $report->id, $this->copyUserId));
 
                 Log::info('Firewall check process completed successfully', [
                     'report_id' => $report->id,

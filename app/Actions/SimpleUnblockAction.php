@@ -120,17 +120,9 @@ class SimpleUnblockAction
             'host_fqdn' => $host->fqdn,
         ]);
 
-        ProcessSimpleUnblockJob::dispatch(
-            ip: $ip,
-            domain: $normalizedDomain,
-            email: $email,
-            hostId: $host->id
-        );
+        dispatch(new ProcessSimpleUnblockJob(ip: $ip, domain: $normalizedDomain, email: $email, hostId: $host->id));
 
-        ProcessHqWhitelistJob::dispatch(
-            ip: $ip,
-            userId: AnonymousUserService::get()->id
-        );
+        dispatch(new ProcessHqWhitelistJob(ip: $ip, userId: AnonymousUserService::get()->id));
 
         // Log activity (GDPR compliant - email hashed)
         activity()
@@ -148,7 +140,7 @@ class SimpleUnblockAction
             ->log('simple_unblock_request');
 
         // Dispatch event for reputation tracking (v1.3.0)
-        SimpleUnblockRequestProcessed::dispatch($ip, $normalizedDomain, $email, true);
+        event(new SimpleUnblockRequestProcessed($ip, $normalizedDomain, $email, true));
     }
 
     /**
@@ -253,13 +245,7 @@ class SimpleUnblockAction
     private function notifyAdminSilentAttempt(string $ip, string $domain, string $email, string $reason): void
     {
         try {
-            SendSimpleUnblockNotificationJob::dispatch(
-                reportId: null,
-                email: $email,
-                domain: $domain,
-                adminOnly: true,
-                reason: $reason
-            );
+            dispatch(new SendSimpleUnblockNotificationJob(reportId: null, email: $email, domain: $domain, adminOnly: true, reason: $reason));
         } catch (Exception $e) {
             Log::error('Failed to send admin notification for silent attempt', [
                 'ip' => $ip,

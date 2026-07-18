@@ -66,7 +66,7 @@ class RequireAdminOtp
             // Clear all authentication cookies
             $request->session()->flush();
 
-            return redirect()->route('filament.admin.auth.login')
+            return to_route('filament.admin.auth.login')
                 ->withCookie(cookie()->forget('remember_web'))
                 ->withCookie(cookie()->forget(config('session.cookie')))
                 ->with('status', __('admin_otp.session_invalid'));
@@ -137,6 +137,6 @@ class RequireAdminOtp
         }
 
         // Redirect to OTP verification page
-        return redirect()->route('admin.otp.verify');
+        return to_route('admin.otp.verify');
     }
 }
