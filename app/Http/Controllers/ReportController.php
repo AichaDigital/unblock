@@ -26,6 +26,6 @@ class ReportController extends Controller
         }
 
         // Mostrar el informe
-        return view('reports.show', compact('report'));
+        return view('reports.show', ['report' => $report]);
     }
 }

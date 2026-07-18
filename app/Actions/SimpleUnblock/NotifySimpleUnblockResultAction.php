@@ -44,14 +44,7 @@ class NotifySimpleUnblockResultAction
 
         // ALWAYS notify both user and admin when we have a report.
         // The Job will determine which email template to use based on whether IP was blocked.
-        SendSimpleUnblockNotificationJob::dispatch(
-            reportId: (string) $report?->id,
-            email: $email,
-            domain: $domain,
-            reason: $decision->reason,
-            hostFqdn: $host->fqdn,
-            analysisData: $analysisData
-        );
+        dispatch(new SendSimpleUnblockNotificationJob(reportId: (string) $report?->id, email: $email, domain: $domain, reason: $decision->reason, hostFqdn: $host->fqdn, analysisData: $analysisData));
     }
 
     /**
@@ -76,11 +69,12 @@ class NotifySimpleUnblockResultAction
             'reason' => $reason,
         ]);
 
-        SendSimpleUnblockNotificationJob::dispatch(
+        dispatch(new SendSimpleUnblockNotificationJob(
             reportId: null,
             email: $email,
             domain: $domain,
-            adminOnly: true, // This is a special case for admin-only alerts.
+            adminOnly: true,
+            // This is a special case for admin-only alerts.
             reason: $reason,
             hostFqdn: $host->fqdn,
             analysisData: [
@@ -89,6 +83,6 @@ class NotifySimpleUnblockResultAction
                 'validation_reason' => $reason,
                 'timestamp' => now()->toISOString(),
             ]
-        );
+        ));
     }
 }

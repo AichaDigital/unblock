@@ -165,7 +165,7 @@ class SimpleUnblockForm extends Component
             $this->otpUser->sendOneTimePassword();
 
             // Dispatch event for reputation tracking (v1.3.0)
-            SimpleUnblockOtpSent::dispatch($this->email, $ip);
+            event(new SimpleUnblockOtpSent($this->email, $ip));
 
             // Move to step 2
             $this->step = 2;
@@ -208,7 +208,7 @@ class SimpleUnblockForm extends Component
             // Verify IP match
             if ($storedIp !== $currentIp) {
                 // Dispatch IP mismatch event (v1.3.0)
-                SimpleUnblockIpMismatch::dispatch($storedIp, $currentIp, $storedData['email']);
+                event(new SimpleUnblockIpMismatch($storedIp, $currentIp, $storedData['email']));
 
                 throw new Exception('IP mismatch during OTP verification');
             }
@@ -224,11 +224,7 @@ class SimpleUnblockForm extends Component
 
             if (! $result->isOk()) {
                 // Dispatch OTP failed event (v1.3.0)
-                SimpleUnblockOtpFailed::dispatch(
-                    $storedData['email'],
-                    $currentIp,
-                    $result->validationMessage()
-                );
+                event(new SimpleUnblockOtpFailed($storedData['email'], $currentIp, $result->validationMessage()));
 
                 $this->message = $result->validationMessage();
                 $this->messageType = 'error';
@@ -237,7 +233,7 @@ class SimpleUnblockForm extends Component
             }
 
             // Dispatch OTP verified event (v1.3.0)
-            SimpleUnblockOtpVerified::dispatch($storedData['email'], $currentIp);
+            event(new SimpleUnblockOtpVerified($storedData['email'], $currentIp));
 
             // OTP verified! Now process the unblock request
             SimpleUnblockAction::run(

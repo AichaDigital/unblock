@@ -65,18 +65,10 @@ class CheckFirewallAction
             $this->validateUserAccess($user, $host);
 
             // Dispatch the job to the queue using named arguments for clarity
-            ProcessFirewallCheckJob::dispatch(
-                ip: $ip,
-                userId: $userId,
-                hostId: $hostId,
-                copyUserId: $copyUserId
-            );
+            dispatch(new ProcessFirewallCheckJob(ip: $ip, userId: $userId, hostId: $hostId, copyUserId: $copyUserId));
 
             // ALWAYS dispatch HQ whitelist check in parallel (non-blocking)
-            ProcessHqWhitelistJob::dispatch(
-                ip: $ip,
-                userId: $userId
-            );
+            dispatch(new ProcessHqWhitelistJob(ip: $ip, userId: $userId));
 
             Log::info('Firewall check job dispatched', [
                 'ip_address' => $ip,
@@ -174,6 +166,6 @@ class CheckFirewallAction
     {
         // This static dispatcher might need to be re-evaluated or adapted,
         // for now we make it dispatch the new job.
-        ProcessFirewallCheckJob::dispatch(ip: $ip, userId: $userId, hostId: $hostId);
+        dispatch(new ProcessFirewallCheckJob(ip: $ip, userId: $userId, hostId: $hostId));
     }
 }

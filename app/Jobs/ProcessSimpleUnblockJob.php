@@ -288,18 +288,10 @@ class ProcessSimpleUnblockJob implements ShouldQueue
                 ]);
 
                 // Notify admin
-                SendSimpleUnblockNotificationJob::dispatch(
-                    reportId: null,
-                    email: $this->email,
-                    domain: $this->domain,
-                    adminOnly: true,
-                    reason: 'job_failure',
-                    hostFqdn: $host->fqdn,
-                    analysisData: [
-                        'ip' => $this->ip,
-                        'error' => $e->getMessage(),
-                    ]
-                );
+                dispatch(new SendSimpleUnblockNotificationJob(reportId: null, email: $this->email, domain: $this->domain, adminOnly: true, reason: 'job_failure', hostFqdn: $host->fqdn, analysisData: [
+                    'ip' => $this->ip,
+                    'error' => $e->getMessage(),
+                ]));
             }
         } catch (Exception $reportError) {
             Log::error('Failed to create error report', [

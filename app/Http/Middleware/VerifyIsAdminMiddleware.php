@@ -13,17 +13,17 @@ class VerifyIsAdminMiddleware
     public function handle(Request $request, Closure $next)
     {
         if (! Auth::check()) {
-            return redirect()->route('login');
+            return to_route('login');
         }
 
         $user = Auth::user();
 
         if (! $user) {
-            return redirect()->route('login');
+            return to_route('login');
         }
 
         if (! $user->is_admin || $user->trashed()) {
-            return redirect()->route('dashboard');
+            return to_route('dashboard');
         }
 
         return $next($request);

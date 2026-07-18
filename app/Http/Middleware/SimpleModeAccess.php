@@ -24,13 +24,13 @@ class SimpleModeAccess
     {
         // Only apply to authenticated users
         if (! Auth::check()) {
-            return redirect()->route('login');
+            return to_route('login');
         }
 
         $user = Auth::user();
 
         if (! $user) {
-            return redirect()->route('login');
+            return to_route('login');
         }
 
         // Check if this is a temporary user created in simple mode
@@ -44,7 +44,7 @@ class SimpleModeAccess
 
             // Redirect simple mode users away from normal dashboard
             if ($request->routeIs('dashboard')) {
-                return redirect()->route('simple.unblock');
+                return to_route('simple.unblock');
             }
 
             // Block access to admin areas

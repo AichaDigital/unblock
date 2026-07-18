@@ -81,7 +81,7 @@ class FirewallOrchestrator
                 $this->auditService->logFirewallCheck($user, $host, $ipAddress, $analysisResult->isBlocked());
 
                 // 5. Dispatch notification job (expects string UUID)
-                SendReportNotificationJob::dispatch((string) $report->id);
+                dispatch(new SendReportNotificationJob((string) $report->id));
 
                 Log::info('V2 firewall check process completed successfully', [
                     'report_id' => $report->id,

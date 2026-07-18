@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use Rector\CodeQuality\Rector\Catch_\ThrowWithPreviousExceptionRector;
+use Rector\CodeQuality\Rector\FuncCall\CompactToVariablesRector;
 use Rector\CodeQuality\Rector\Identical\StrlenZeroToIdenticalEmptyStringRector;
 use Rector\CodeQuality\Rector\If_\{CombineIfRector, ExplicitBoolCompareRector, ObjectExplicitBoolCompareRector, SimplifyIfReturnBoolRector};
 use Rector\Config\RectorConfig;
@@ -14,7 +16,8 @@ use RectorLaravel\Rector\ClassMethod\MakeModelAttributesAndScopesProtectedRector
 use RectorLaravel\Rector\Coalesce\ApplyDefaultInsteadOfNullCoalesceRector;
 use RectorLaravel\Rector\FuncCall\{AppToResolveRector, NowFuncWithStartOfDayMethodCallToTodayFuncRector, RemoveDumpDataDeadCodeRector, ThrowIfAndThrowUnlessExceptionsToUseClassStringRector};
 use RectorLaravel\Rector\If_\ThrowIfRector;
-use RectorLaravel\Rector\StaticCall\CarbonToDateFacadeRector;
+use RectorLaravel\Rector\MethodCall\RedirectRouteToToRouteHelperRector;
+use RectorLaravel\Rector\StaticCall\{CarbonToDateFacadeRector, DispatchToHelperFunctionsRector};
 use RectorLaravel\Set\LaravelSetList;
 
 /**
@@ -139,6 +142,19 @@ return RectorConfig::configure()
         // the Laravel idiom and keeps Date::use() available as a future seam.
         CarbonToDateFacadeRector::class,
         NowFuncWithStartOfDayMethodCallToTodayFuncRector::class,
+        // Wave 8 (AID-543), split from AID-531: helpers whose equivalence is
+        // literal in vendor, verified per transform. to_route() IS
+        // redirect()->route() (alias in Foundation/helpers.php, chaining
+        // ->with() lands on the same RedirectResponse); event
+        // Dispatchable::dispatch() IS event(new static(...)); Bus
+        // Dispatchable::dispatch() -> newPendingDispatch -> new
+        // PendingDispatch($job), identical to the dispatch() helper (no
+        // ->onQueue()/->onConnection() chaining exists at any converted
+        // site); compact('report') -> ['report' => $report] with the
+        // variable provably in scope.
+        RedirectRouteToToRouteHelperRector::class,
+        DispatchToHelperFunctionsRector::class,
+        CompactToVariablesRector::class,
     ])
     // Wave 4 (AID-532): LARAVEL_COLLECTION (4 sites, all element types are
     // scalars/plain arrays so toArray()≡all(); filter(!empty)→reject(empty)
@@ -168,4 +184,16 @@ return RectorConfig::configure()
         ThrowIfAndThrowUnlessExceptionsToUseClassStringRector::class,
         // app() vs resolve() is naming churn with no semantic value (2 vs 2).
         AppToResolveRector::class,
+        // AID-543: PERMANENTLY skipped, proven harmful here. Its nominal
+        // purpose (adding previous:) is already satisfied at all 9 domain
+        // throws; what it actually adds in this codebase is $e->getCode() as
+        // the SECOND POSITIONAL argument, assuming the stock
+        // \Exception(message, code, previous) signature — but the domain
+        // exceptions have custom constructors (FirewallException's 2nd param
+        // is ?string $hostName, CsfServiceException's is ?string $message).
+        // Under app/'s declare(strict_types=1) that is a runtime TypeError on
+        // the firewall error paths (proven: "Argument #2 ($hostName) must be
+        // of type ?string, int given"); without strict_types it would be
+        // silent data corruption (hostName='0'). Do not enable.
+        ThrowWithPreviousExceptionRector::class,
     ]);
