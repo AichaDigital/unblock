@@ -162,6 +162,13 @@ test('returns dates in d/m/Y H:i format', function () {
 });
 
 test('last_blocked_at returns ISO string of most recent block', function () {
+    // Single time origin, captured once. The old assertion re-evaluated
+    // now()->subDay() and compared its app-timezone date (Europe/Madrid in
+    // testing) against the UTC ISO serialization — deterministically red
+    // between 00:00 and 02:00 local, when the two calendars disagree.
+    // startOfSecond() matches the database's second-precision storage.
+    $lastBlock = now()->subDay()->startOfSecond();
+
     Report::factory()->create([
         'ip' => '192.0.2.50',
         'host_id' => $this->host->id,
@@ -175,10 +182,10 @@ test('last_blocked_at returns ISO string of most recent block', function () {
         'host_id' => $this->host->id,
         'user_id' => $this->user->id,
         'analysis' => ['was_blocked' => true],
-        'created_at' => now()->subDay(),
+        'created_at' => $lastBlock,
     ]);
 
     $result = $this->action->handle('192.0.2.50', $this->host->id);
 
-    expect($result['last_blocked_at'])->toContain(now()->subDay()->format('Y-m-d'));
+    expect($result['last_blocked_at'])->toBe($lastBlock->toISOString());
 });
