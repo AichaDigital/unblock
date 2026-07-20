@@ -1,6 +1,10 @@
 <?php
 
+use App\Filament\Resources\UserResource\Pages\EditUser;
+use App\Filament\Resources\UserResource\RelationManagers\HostsRelationManager;
 use App\Models\{Host, Hosting, User, UserHostingPermission};
+
+use function Pest\Livewire\livewire;
 
 // Tests to verify that business logic works correctly
 test('admin can access user edit page', function () {
@@ -130,6 +134,43 @@ test('business logic works correctly for authorized users', function () {
     // Verify access is restored
     expect($authorizedUser->fresh()->hasAccessToHosting($hosting->id))->toBeTrue();
     expect($authorizedUser->fresh()->hasAccessToHost($host->id))->toBeTrue();
+});
+
+test('server assignment action loads for a user that already has hosts (regression: ambiguous column id)', function () {
+    // Arrange - admin session (OTP verified)
+    $admin = User::factory()->admin()->create();
+    $this->actingAs($admin);
+    session()->put('admin_otp_verified', true);
+    session()->put('admin_otp_user_id', $admin->id);
+    session()->put('admin_otp_verified_at', now()->timestamp);
+
+    // The owner user ALREADY has a host assigned, so $assignedHostIds is non-empty
+    // and the whereNotIn(...) clause is actually emitted. With an unqualified 'id'
+    // over the BelongsToMany base query (which joins user_host_permissions),
+    // this triggers "ambiguous column name: id" before the fix.
+    $owner = User::factory()->create(['parent_user_id' => null]);
+    $assignedHost = Host::factory()->create();
+    $owner->hosts()->attach($assignedHost->id, ['is_active' => true]);
+
+    // Another host available to be assigned
+    $availableHost = Host::factory()->create();
+
+    // Act - run the full "Asignar Servidor" flow: selecting a host forces Filament
+    // to resolve its option label against the record-select options query, which is
+    // where the unqualified whereNotIn('id', ...) over the joined base query blows up
+    // with "ambiguous column name: id" (the production symptom).
+    livewire(HostsRelationManager::class, [
+        'ownerRecord' => $owner,
+        'pageClass' => EditUser::class,
+    ])
+        ->callTableAction('attach', data: [
+            'recordId' => $availableHost->id,
+            'is_active' => true,
+        ])
+        ->assertHasNoTableActionErrors();
+
+    // Assert - the host was actually attached (flow completed end to end)
+    expect($owner->fresh()->hosts()->whereKey($availableHost->id)->exists())->toBeTrue();
 });
 
 test('unauthorized users cannot access admin panel', function () {
