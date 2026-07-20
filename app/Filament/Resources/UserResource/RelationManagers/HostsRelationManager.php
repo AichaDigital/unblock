@@ -38,7 +38,7 @@ class HostsRelationManager extends RelationManager
                                 // Obtener hosts que NO están ya asignados a este usuario
                                 $assignedHostIds = $this->getOwnerRecord()->hosts()->pluck('hosts.id')->toArray();
 
-                                return Host::whereNotIn('id', $assignedHostIds)
+                                return Host::whereNotIn('hosts.id', $assignedHostIds)
                                     ->get()
                                     ->mapWithKeys(fn ($host) => [
                                         $host->id => "{$host->fqdn} ({$host->ip}) - {$host->panel->getLabel()}",
@@ -102,7 +102,7 @@ class HostsRelationManager extends RelationManager
                         // Solo mostrar hosts que NO están ya asignados a este usuario
                         $assignedHostIds = $this->getOwnerRecord()->hosts()->pluck('hosts.id')->toArray();
 
-                        return $query->whereNotIn('id', $assignedHostIds);
+                        return $query->whereNotIn('hosts.id', $assignedHostIds);
                     })
                     ->recordSelectSearchColumns(['fqdn', 'alias', 'ip'])
                     ->recordTitle(fn ($record) => "{$record->fqdn} ({$record->ip}) - {$record->panel->getLabel()}"),
@@ -137,7 +137,7 @@ class HostsRelationManager extends RelationManager
                     ->recordSelectOptionsQuery(function ($query) {
                         $assignedHostIds = $this->getOwnerRecord()->hosts()->pluck('hosts.id')->toArray();
 
-                        return $query->whereNotIn('id', $assignedHostIds);
+                        return $query->whereNotIn('hosts.id', $assignedHostIds);
                     })
                     ->recordSelectSearchColumns(['fqdn', 'alias', 'ip'])
                     ->recordTitle(fn ($record) => "{$record->fqdn} ({$record->ip}) - {$record->panel->getLabel()}"),
