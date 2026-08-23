@@ -1,3 +1,5 @@
+> ⚠️ **Repositorio movido a [gitlab.castris.com/aichadigital/unblock](https://gitlab.castris.com/aichadigital/unblock)** — archivado, no recibe cambios.
+
 # Unblock Firewall Manager
 
 [![CI Status](https://github.com/AichaDigital/unblock/actions/workflows/ci.yml/badge.svg)](https://github.com/AichaDigital/unblock/actions/workflows/ci.yml)
